@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1161466432" Content_Hash="21926121">
+  <Metadata>
+    <Id>a4e7f10a-b051-43d6-8bc3-3495773450b8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Type-Safe な SQL パラメータを使用する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>動的 SQL クエリーを構築する場合、またはパラメータをストアド プロシージャに渡す場合に、Type-safe パラメーターが使用されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>パラメータ コレクションを使用すると、SQL で入力がリテラル値として扱われ、実行可能コードとして扱われなくなります。 また、パラメータ コレクションを使用して、入力データ型と長さのチェックを行うことができます。 範囲外の値は例外をトリガーします。</p>
+  <p>Type-safe SQL パラメータが使用されていない場合、攻撃者はフィルタリングされていない入力に組み込まれたインジェクション攻撃を実行できる可能性があります。</p>
+  <h1>チェック方法</h1>
+  <p>パラメータ化クエリが使用されているかどうかを確認するには:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>すべてのデータベース トランザクションを特定します。 </strong>アプリケーション全体で SQL クエリをすべて見つけてください。 例: </p>
+ <pre>"select user from myappUsers where user = ? and pass = ?;"</pre>
+      <li>
+        <p>
+          <strong>可能な場合は各トランザクションがストアド プロシージャを使用することを確認してください。 </strong>アプリケーションで、ストアド プロシージャを使用して、バックエンド データベースとやり取りが行われていることを確認します。 SQL クエリーが次のように見えることを確認してください:</p>
+ <pre>SqlCommand myCommand = new SqlCommand("sp_SelectUser", myConnection);<br />//Specify our command is a stored procedure<br />myCommand.CommandType = CommandType.StoredProcedure; </pre>
+        <p>以下のように表示されていないことを確認します。</p>
+ <pre>string SQLstr = "SELECT &amp;#42; from users<br />&amp;#9; WHERE username = '" &amp;#43; un.Text &amp;#43; "'<br />&amp;#9; AND password = '" &amp;#43; pass.Text &amp;#43; "'";<br />SqlCommand myCommand = new SqlCommand(SQLstr, myConnection);</pre>
+        <li>
+          <p>
+            <strong>Type-safe パラメータが使用されていることを確認してください。 </strong>SqlParameterCollection クラスを使用することにより、動的 SQL クエリーまたはストアド プロシージャにおいて Type-safe パラメータが使用されていることを確認してください。 例: </p>
+ <pre>using (SqlConnection connection = new SqlConnection(connectionString))<br />&amp;#123;<br />  connection.Open();<br />  SqlDataAdapter myDataAdapter = new SqlDataAdapter(<br />         "SELECT &amp;#42; from users WHERE username = '&amp;#64;uname' AND password = '&amp;#64;pwd'", connection);<br />  myCommand.SelectCommand.Parameters.Add("&amp;#64;uname", SqlDbType.VarChar, 24);<br />  myCommand.SelectCommand.Parameters.Add("&amp;#64;pwd", SqlDbType.VarChar, 16);<br />  myCommand.SelectCommand.Parameters&amp;#91;"&amp;#64;uname"&amp;#93;.Value = un.Text;<br />  myCommand.SelectCommand.Parameters&amp;#91;"&amp;#64;pwd"&amp;#93;.Value = pass.Text;<br />  myDataAdapter.Fill(userDataset);  ...  connection.Close();<br />&amp;#125;</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>小企業向けに従業員の給与計算を処理する ASP.NET アプリケーションがあります。 あるページ上で、[ログイン] ダイアログから入力されたユーザー名とパスワードに基づいてテーブルから従業員レコードの読み出しが要求されます。 アプリケーションの開発者は、このタスクを完了するために SQL SELECT クエリを作成しました。</p>
+ <pre>using (SqlConnection myConnection = new SqlConnection(connectionString))<br />&amp;#123;<br />  connection.Open();<br />  string SQLstr = "SELECT &amp;#42; from users WHERE username = '" &amp;#43; un.Text &amp;#43; "'<br />&amp;#9; AND password = '" &amp;#43; pass.Text &amp;#43; "'";<br />  SqlCommand myCommand = new SqlCommand(SQLstr, myConnection);<br />  SqlDataAdapter myDataAdapter = new SqlDataAdapter(myCommand);<br />  myCommand.Connection.Open();<br />  SqlDataReader myReader = myCommand.ExecuteReader();<br />  ...<br />&amp;#125;</pre>
+  <p>上の例では、SELECT ステートメントは入力が十分にチェックされているものとして、予想通りに機能します。 しかし、ユーザーがパスワードに '1234'、ユーザー名に以下のような予想外の入力を行った場合はどうなるでしょうか。</p>
+ <pre>mjones' AND 1=1; -- </pre>
+  <p>この結果、SQL ステートメントがデータベース レベルで実行されることになります。 </p>
+ <pre>SELECT &amp;#42; from users WHERE username = 'mjones' AND 1=1; --'  AND password = '1234';</pre>
+  <p>これによって、ダイアログ ボックスにデータを入力する人が正しいパスワードを使用することなく mjones というユーザーのアカウント情報を選択できるようになります。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>SQL インジェクションの詳細は、Wikipedia の <a href="http://en.wikipedia.org/wiki/SQL_injection">SQL Injection</a> を参照してください。 <li>ASP.NET 中のSQL インジェクションの詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms998271.aspx">How To: Protect From SQL Injection in ASP.NET</a> を参照してください。<li>To learn more about countering injection-based attacks in ASP.NET, see: <a href="http://msdn2.microsoft.com/en-us/library/bb355989.aspx">How To: Protect From Injection Attacks in ASP.NET</a>.</li></li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1864291517" Content_Hash="-1759842707">
+  <Metadata>
+    <Id>89fccb37-0f7f-45a8-97c1-74295b922e09</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログインの試行が連続して失敗した後にアカウントがロックされる</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ログインに連続して失敗するとアカウントがロックされるようにしてください。</p>
+  <h1>理由</h1>
+  <p>短時間に連続して複数回認証に失敗すると、当該アカウントの総当たり攻撃 (Brute Force Attack) の兆候となります。 アカウントをロックすることにより、正規のアカウント所有者へのDoS攻撃の可能性を犠牲にして、攻撃者によるアカウントの情報漏洩やアクセスを防止します。</p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションを確保するために以下の手順を取ることにより、連続してログインに失敗するとアカウントがロックされるようになります。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションにロックアウト ポリシーがあることを確認します。 </strong>アカウント ロックアウト ポリシーは通常アプリケーション特有のものです。 アプリケーションの要件と設計仕様を確認します。 次の基本機能をチェックしてください。</p>
+      <ul>
+        <li>失敗した認証試行を特定するためのメカニズム <li>許容される最大認証試行回数を超過したアカウントをロックするためのメカニズム <li>許容される最大認証試行回数を超過したアカウントをアンロックするためのメカニズム </li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>アプリケーションがロックアウト ポリシーを適用していることを確認してください。 </strong>すべての認証プロシージャがアプリケーションのロックアウト方針を実行していることを確認してください。 時間とともに組織のビジネス要件が変更される場合でも、その実装がロックアウト方針に一致することを確認してください。 アプリケーションが ASP.NET メンバーシップ プロバイダーを使用する場合、次の属性がプロバイダーの構成で設定されていることを確認してください。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>maxInvalidPasswordAttempts</strong>: アカウントがロックされるまでに認証を試行できる最大回数が指定されていることを確認してください。</p>
+            <li>
+              <p>
+                <strong>passwordAttemptWindow</strong>: ログイン試行ウィンドウを識別する時間が分単位で指定されていることを確認してください。</p>
+              <li>
+                <p>
+                  <strong>passwordAnswerAttemptLockoutDuration</strong>: メンバーシッププロバイダーによってサポートされている場合は、アカウントのロックアウト期間が指定されていることを確認します。 ロックアウト期間を設定することにより、正規のユーザーをアカウントから長時間ロックアウトすることなく、ブルート フォース攻撃者を阻止できます。</p>
+              </li>
+            </li>
+          </li>
+        </ul>
+        <p>例: </p>
+ <pre>&lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="30"&gt;  <br />  &lt;providers&gt;    <br />    &lt;add name="MyAppMembershipProvider"      <br />    type="System.Web.Security.SqlMembershipProvider"      <br />    connectionStringName="MyAppMembershipDatabase"      <br />    enablePasswordRetrieval="false"      <br />    enablePasswordReset="true"      <br />    requiresQuestionAndAnswer="true"      <br />    passwordFormat="Hashed"<strong><br />    maxInvalidPasswordAttempts = "4"</strong><br /><strong>passwordAttemptWindow = "10"</strong><br />    applicationName="MyApp" /&gt;  <br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコードは、認証中に必要なデータベース　トランザクションを実行します。 トランザクションはログイン試行カウンターのチェックに失敗するため、攻撃者は、ブルートフォース（総当たり）攻撃や辞書攻撃を使用することによってアカウントのセキュリティを侵害できる可能性があります。</p>
+ <pre>&lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="30"&gt;  <br />  &lt;providers&gt;    <br />    &lt;add name="MyAppMembershipProvider"      <br />    type="System.Web.Security.SqlMembershipProvider"      <br />    connectionStringName="MyAppMembershipDatabase"      <br />    enablePasswordRetrieval="false"      <br />    enablePasswordReset="true"      <br />    requiresQuestionAndAnswer="true"      <br />    passwordFormat="Hashed"      <br />    applicationName="MyApp" /&gt;  <br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メンバーシップ プロバイダーの設定の詳細については&nbsp;<a href="http://msdn2.microsoft.com/en-us/library/whae3t94.aspx"> &nbsp;メンバーシップ&nbsp;プロバイダーにエレメントを追加する(ASP.NET 設定スキーマ)</a> をご覧ください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

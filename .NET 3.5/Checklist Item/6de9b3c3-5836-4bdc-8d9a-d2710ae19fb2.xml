@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1508131239" Content_Hash="100697934">
+  <Metadata>
+    <Id>6de9b3c3-5836-4bdc-8d9a-d2710ae19fb2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL クエリではパラメータ化ストアド プロシージャおよび Type-Safe な SQL パラメータが使用される</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>お使いのアプリケーションで、SQL クエリの生成時にパラメータ化ストアド プロシージャおよび Type-Safe な SQL パラメータが使用されることを確認してください。</p>
+  <h1>修正方法</h1>
+  <p>SQL クエリの生成時は、フィルターされていない入力によって発生する可能性のある SQL インジェクション攻撃を回避するため、Type-Safe なパラメータを使用してください。 Type-Safe なパラメータは、ストアド プロシージャおよび動的 SQL 文と併用することができます。 パラメータは、リテラル値としてデータベースによって処理され、実行可能コードとしては処理されません。 パラメータはまた、種類と長さをチェックされます。</p>
+  <p>次のコードに、ストアド プロシージャの呼び出し時に <b>SqlParameterCollection</b> と Type-Safe なパラメータを併用する方法を示します。</p>
+  <p>
+ <pre>using System.Data;<br />using System.Data.SqlClient;<br />using (SqlConnection connection = new SqlConnection(connectionString))<br />{<br /> DataSet userDataset = new DataSet();<br /> SqlDataAdapter myCommand = new SqlDataAdapter(LoginStoredProcedure", connection);<br /> myCommand.SelectCommand.CommandType = CommandType.StoredProcedure;<br /> myCommand.SelectCommand.Parameters.Add("@au_id", SqlDbType.VarChar, 11);<br /> myCommand.SelectCommand.Parameters["@au_id"].Value = SSN.Text;<br /> myCommand.Fill(userDataset);<br />}  </pre>
+  </p>
+  <p>前のコード例では、入力値を 11 文字よりも長くすることはできません。 データがパラメータで定義された型または長さに適合しない場合、<b>SqlParameter</b> クラスによって例外がスローされます。</p>
+  <h1>その他のリソース</h1>
+  <p>SQL インジェクションの防止に関する詳細情報は、MSDN の「<a href="http://msdn2.microsoft.com/en-us/library/ms998271.aspx">ハウツー：ASP.NET で SQL インジェクションから防護する</a>」&nbsp;を参照してください。on MSDN.</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

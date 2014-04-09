@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="771292987" Content_Hash="1671087247">
+  <Metadata>
+    <Id>ad1dd3d4-6726-4f77-8d57-42497425f732</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>入力を介してファイル名を受け入れなければならない場合は、名前と場所をまず検証する。</Title>
+    <Category>ファイル I/O</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>呼び出し元から入力ファイル名を受信する必要があるときにそれが有効かどうかを判断できるように、ファイル名が厳密に形成されていることを確認します。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>入力ファイルパスを検証することには 2 つの側面があります。 必要なこと:</p>
+  <ul>
+    <li>有効なファイル システム名を確認します。 <li>アプリケーションのコンテキストで定義されるとおりの有効な場所かチェックします。 たとえば、ファイル名はアプリケーションのディレクトリ階層内にありますか？ </li></li>
+  </ul>
+  <p>パスおよびファイル名を検証するには、次のコード例に示されるように <b>System.IO.Path.GetFullPath</b> メソッドを使用します。 また、このメソッドは指定されたファイル名を正規化します。</p>
+ <pre>using System.IO;<br />public static string ReadFile(string filename)<br />{<br />&nbsp; // Obtain a canonicalized and valid filename<br />&nbsp; string name = Path.GetFullPath(filename);<br />&nbsp; // Now read the file and return the file content.<br />}</pre>
+  <div>&nbsp;</div>
+  <div>正規化プロセスの一環として、 <b>GetFullPath</b> は以下のチェックを行います: </div>
+  <ul>
+    <li>ファイル名に <b>Path.InvalidPathChars</b> に定義されるような無効な文字が含まれていないかチェックします。<li>ファイル名が、物理ドライブや名前付きパイプ、メールスロット、またはLPT1、COM1、AUXおよび他のデバイスなどのDOSデバイスのような別のデバイスの種類ではなく、ファイルを表しているかどうかをチェックします。 <li>結合されたパスとファイル名が長すぎないかをチェックします。 <li>末尾のドットなどの冗長な文字を削除します。 <li> //?/ 書式を使うファイル名を拒否します。</li></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

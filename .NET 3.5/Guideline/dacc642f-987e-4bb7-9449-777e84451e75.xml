@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1236755268" Content_Hash="-1263410008">
+  <Metadata>
+    <Id>dacc642f-987e-4bb7-9449-777e84451e75</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーが指定するファイル名およびパスの入力を避ける</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>コードがユーザーにより供給されるファイル名またはパス入力を受入れないようにしてください。</p>
+  <h1>理由</h1>
+  <p>これにより攻撃者がアプリケーションに任意のファイルおよびリソースへのアクセスを強制できないようにすることができます。 </p>
+  <h1>状況</h1>
+  <p>クライアント入力メッセージを検証する場合。</p>
+  <h1>対策</h1>
+  <p>可能な限り、ユーザー支給のファイルまたはパス入力を受入れるコードを作成しないようにしてください。 これを怠ると、攻撃者がアプリケーションに任意のファイルおよびリソースにアクセスするように強制できるようになってしまいます。 アプリケーションが入力ファイル名、ファイル パス、または URL パスを受入れる必要がある場合にはパスが正しいフォーマットであるかどうか、そしてそれがアプリケーションのコンテキスト内で有効な場所を指しているかどうかを検証してください。</p>
+  <p>
+    <strong>ファイル名</strong>
+    <br />ファイル パスがアプリケーションの仮想ディレクトリ階層内のファイルのみを参照していることを確認してください (これが適切である場合)。 ファイル名を確認する場合、 System.IO.Path.GetFullPath 方法を使ってファイルの完全な名前を入手してください。 </p>
+  <p>
+    <strong>ファイル パス</strong>
+    <br />支給された擬似パスのをサーバ上の物理的パスマッピングに MapPathを使用する場合はブール パラメータを受入れる剰載 Request.MapPath 方法を使用して、クロスアプリケーション マッピングを防いでください。 次のコード例はこの手法を示しています：</p>
+ <pre>try<br />{<br /> string mappedPath = Request.MapPath( inputPath.Text, Request.ApplicationPath, false);<br />}<br />catch (HttpException)<br />{<br /> // Cross-application mapping attempted <br />}</pre>
+  <p>
+    <strong>注記</strong>: Request.MapPath() の最終誤りパラメータ　はクロスアプリケーション マッピングを防ぎます。 つまり、ユーザーは “..” を含むパスを指定することでアプリケーションの仮想ディレクトリ階層外をスキャンすることはできません。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

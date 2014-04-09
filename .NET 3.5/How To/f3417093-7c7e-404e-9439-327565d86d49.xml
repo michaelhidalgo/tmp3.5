@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="680785945" Content_Hash="-1255317805">
+  <Metadata>
+    <Id>f3417093-7c7e-404e-9439-327565d86d49</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で ADAM をロールに使用する方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Active Directory アプリケーション モード（ADAM）<li>Microsoft Windows Server 2003 以降のオペレーティング システム<li>Microsoft Windows XP Professional SP1 以降のオペレーティング システム</li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>この方法説明では、 ASP.NET ロールを保存するための Active Directory アプリケーション モード（ADAM）を使った ASP.NET ウェブ サイトの開発方法を示しています。 これには ADAM および認可マネージャ（AzMan）ポリシー ストアの構成のしかた、ならびに新しいロールの作成方法、そしてロール ベース 認証用ロール マネジメント API の使用方法等が示されています。 ADAM をロール ストアとして使用することは、アプリケーションが Active Directory グループとは異なるアプリケーション固有のロールを使用し、ユーザー アカウント ストアが Microsoft Active Directory ディレクトリ サービスもしくは ADAM である、イントラネットまたはインターネット上のアプリケーションをアクセスするための良いソリューションです。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>インスタレーション要件</div>
+          <li>
+            <div>手順の概要</div>
+            <li>
+              <div>手順 1:  ADAM インスタンスをインストールします</div>
+              <li>
+                <div>手順 2:  AzMan ポリシー格納を ADAM で構成します</div>
+                <li>
+                  <div>手順 3:  ウェブ アプリケーションをAuthorizationStoreRoleProvider を使用するように構成します</div>
+                  <li>
+                    <div>手順 4:  ロール管理演算の実行</div>
+                    <li>
+                      <div>追加考慮事項</div>
+                      <li>
+                        <div>その他のリソース</div>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>ロール ストアに ADAM を使用。 <li>ADAM での認可マネージャポリシー ストアの作成。 <li><b>AuthorizationStoreRoleProvider の構成</b>。<li>ASP.NET アプリケーション内でのロール チェックの実行。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET のロール管理 API により、特定アプリケーション用のロールの導入や、ユーザー ロール メンバーシップの管理ができます。 そのためには、ロール管理システムがそのデータを下層のデータ格納に保存し、そのアクセスは特定のデータ格納に適したロール プロバイダーを通して実施します。 サポートされているロール プロバイダーには<b>SqlRoleProvider</b>、<b>WindowsTokenRoleProvider</b>、そして<b>AuthorizationStoreRoleProvider</b> が含まれます。これらは全て、ロール プロバイダー インターフェイスの標準セットを導入します。</p>
+  <p>ADAM の AzMan ポリシー格納は特定アプリケーションまたはウェブ サイト用のロール データ（例えばユーザーが所属するロール等）をドメインの Active Directory で保存される一般的なユーザー情報（例えばフルネーム、Windows グループ メンバーシップ）とは別に保存するために使用することができます。 ユーザーが ADAM が稼動しているウェブ サイトにログオンすると、サイトは Active Directory ユーザー格納でユーザーを認証してから　 <b>AuthorizationStoreRoleProvider</b> を使用して、ADAM に保存されている AzMan ポリシー格納で管理されているアプリケーション ロールからユーザーが所属するロールを読み取ります。 ASP.NET アプリケーションと ADAM インスタンスは同じサーバ上にある必要はありません。</p>
+  <p>ロール ベースの認可を使用する場合、アプリケーションはユーザーを認証しなければなりません。 Windows 認証または Forms Authenticationといった、提供されている認証形式であればどれでも使用することができます。 Forms Authentication を使用する場合、<b>AuthorizationStoreRoleProvider</b> を使用する場合、ユーザーが有効な Windows ローカルまたはドメイン ユーザー アカウントを持っていることが必要になります。 ASP.NET ロール管理機能を個別に、またはASP.NET メンバーシップ機能と合わせて使用することもできます。</p>
+  <p>この方法説明では、ADAM をサーバ上に設定して、ADAM のポリシー格納に ADAM を設定する方法を説明します。 ユーザーを識別するために Windows 認証を使用して、<b>AuthorizationStoreRoleProvider</b> ロール プロバイダー（ADAM のポリシー格納の AzMan を使用するもの）を使用してウェブサイトのユーザーにロール管理を提供するウェブサイトの作成方法を示します。 更に、ロールの作成方法やそれらのロールにプログラムでユーザーを追加する方法も示します。</p>
+  <p>ASP.NET <b>AuthorizationStoreRoleProvider</b> は ASP.NET ロール管理 API で導入されている機能をサポートするために必要な AzMan 機能のみ使用します。 AzMan は AzMan API を使うことによってアクセスできる追加のロール管理機能をサポートします。 </p>
+  <h1>インスタレーション要件</h1>
+  <p>Windows Server 2008 には今では Active Directory Lightweight ディレクトリ サービスと呼ばれている ADAM が含まれています。 Microsoft Windows Server 2003 または Windows® XP Professional SP1 以降のオペレーティング システムを使用するコンピュータであればどれにでも ADAM をインストールして稼動することができます。 ADAM は下記からダウンロードすることができます: <a href="http://www.microsoft.com/downloads/details.aspx?familyid=9688f8b9-1034-4ef6-a3e5-2a2a57b5c8e4&displaylang=en">http://www.microsoft.com/downloads/details.aspx?FamilyID=9688f8b9-1034-4ef6-a3e5-2a2a57b5c8e4&DisplayLang=en</a>。</p>
+  <p>AzMan は Windows Server 2003、Windows XP Professional、ならびに Windows 2003 Server の次の要領で提供されています: </p>
+  <ul>
+    <li>
+      <b>Windows Server 2003:</b>Windows 2003 Server サービス パック 1 以降をインストールします。 これは以下からインストールすることができます: <a href="http://windowsupdate.microsoft.com/">http://windowsupdate.microsoft.com</a>。<li><b>Windows XP Professional:</b>下記よりダウンロードすることができる Windows Server 2003 Administration Tool Pack をインストールします: <a href="http://www.microsoft.com/downloads">http://www.microsoft.com/downloads</a>。このツール パックは Windows Server 2003 の遠隔サーバ管理を許し、AzMan も含まれています。 <blockquote><b>注意</b>: &nbsp;&nbsp;Windows XP サービス パック 2 以降を稼動している場合、Windows Server 2003 Administration Tool Pack のサービス パック 1 以降をインストールする必要があります。<b></b></blockquote><li><b>Windows 2000:</b> Windows 2000 認可マネージャ ランタイムを下記からダウンロードします: <a href="http://www.microsoft.com/downloads/details.aspx?familyid=7edde11f-bcea-4773-a292-84525f23baf7&displaylang=en">http://www.microsoft.com/downloads/details.aspx?FamilyID=7edde11f-bcea-4773-a292-84525f23baf7&DisplayLang=en</a>。コンピュータには Windows 2000 Server サービス パック 4 以降がインストールされていなければなりません。 MSXML 4.0 サービス パック 2 以降もインストールする必要があります。 <p>これではランタイム コンポーネントのみがインストールされ、AzMan Administration Microsoft Management Console（MMC）スナップインは含まれていません。 Windows 2003 を使用するコンピュータ、ならびに Windows XP を使用し、Windows Server 2003 Administration Tools Pack がインストールされたコンピュータであれば MMC スナップインを使用して Windows 2000 Server が稼動しているコンピュータに搭載された AzMan を遠隔管理　することができます。 </p></li></li></li>
+  </ul>
+  <h1>手順の概要</h1>
+  <p>ADAM を ASP.NET アプリケーションのロールで使用するには次のステップに従ってください: </p>
+  <ul>
+    <li>手順 1:  ADAM インスタンスをインストールします。 <li>手順 2:  AzMan ポリシー格納を ADAM に構成します。 <li>手順 3:   AuthorizationStoreRoleProvider を使用するようにウェブ アプリケーションんを構成します。 <li>手順 4:  ロール管理操作を実施します。 </li></li></li></li>
+  </ul>
+  <h1>手順 1:  ADAM インスタンスをインストールします</h1>
+  <p>このステップでは、アプリケーションのロール格納として使用する ADAM インスタンスをインストールします。 ADAM インスタンスは ASP.NET アプリケーションがインストールされている同じコンピュータにインストールする必要はありません。</p>
+  <p>
+    <b>ADAM インスタンスのインストール方法</b>
+  </p>
+  <ol>
+    <li>管理者グループのアカウントを使ってコンピュータにログオンします。 <li>ADAM インストーラを<a href="http://www.microsoft.com/downloads/details.aspx?familyid=9688f8b9-1034-4ef6-a3e5-2a2a57b5c8e4&displaylang=en">http://www.microsoft.com/downloads/details.aspx?FamilyID=9688f8b9-1034-4ef6-a3e5-2a2a57b5c8e4&DisplayLang=en</a>からダウンロードします。インストーラを実行して、製品ファイルを選択したディレクトリに解凍します。 <li>ADAM ファイルを解凍したディレクトリで ADAMSetup.exe を実行してセットアップを開始します。 ウィザードが以降のほとんどのステップを案内します。 <li>ライセンス契約に合意したら、 <b>Installation Options</b> （インスタレーション オプション）ページで <b> ADAM および ADAM 管理ツールを選択します</b>。<li><b>Setup Options</b>（セットアップ オプション）では<b>固有のインスタンス</b>を選択します。<li>この ADAM インスタンスで使用したい名前を入力します。 この例では<b>AdamForRolesProvider</b>（ロール プロバイダー用 ADAM）を使用します。<blockquote><b>注意</b>: &nbsp;&nbsp;アプリケーションで意味の有る名前を作成します。 ADAM インスタンス名はサービスの名前として使用されますが、ADAM データ格納のデフォルト位置ともなります。<b></b></blockquote><li><b>Ports</b>（ポート）ページでデフォルトを承諾して、ポート番号をメモしておきます。 この情報は後ほどのステップで必要となります。 <blockquote><b>注意</b>: &nbsp;&nbsp;デフォルト ポートのいずれかが既に使用されているコンピュータに ADAM をインストールすると、ADAM セットアップ ウィザードが自動的に次に使用できる 50000 以降のポートを見つけます。 例えば、Active Directory ではポート 389 および 636、更にグローバル カタログ サーバではポート 3268 および 3269 も使用されます。 そのため、ADAM をドメイン コントローラにインストールする場合、ADAM セットアップ ウィザードは LDAP ポートにデフォルト値として50000 を、SSL ポートには 50001 を割り当てます。<b></b></blockquote><li><b>アプリケーション ディレクトリ パーティション</b> ページでアプリケーション ディレクトリ パーティションを作成するために<b>「はい」を選択</b> して、パーティション名を入力します。 例えばパーティション名<b>OU=SecNetPartition,O=SecNet,C=US</b>を使用します。<li><b>File Locations</b>（ファイル位置）ページでは、ADAM システム ファイルがインストールされた場所を入力します。 この例ではデフォルトを承諾します。 <li><b>Service Account Selection</b>（サービス アカウント選択）では、デフォルトの<b>ネットワーク サービス アカウント</b>を使用します。Windows Server 2003 コンピュータがドメインのメンバーではない場合、レプリケーション（反復）に関する警告が表示されます。 <b>「はい」</b> をクリックして続けます。 <blockquote><b>注意</b>: &nbsp;&nbsp;選択するアカウントにより、ADAM インスタンスが稼動するセキュリティ コンテクストが決定されます。 ADAM をドメイン コントローラにインストールする場合を除いて、ADAM セットアップ ウィザードはデフォルトでネットワーク サービス アカウントで設定します。 ADAM をドメイン コントローラにインストールする場合は、ドメイン ユーザー アカウントを ADAM サービス アカウントとして選択しなければなりません。</blockquote><li>ローカル セキュリティ ポリシーがローカル ユーザーがネットワーク経由で接続する際にそれぞれ自分として認証することを防ぐようなことがないようにしなければなりません。 そうしないと、ADAM にネットワーク経由で接続するユーザーはゲストとしてのセキュリティ コンテキストの使用を強制されることとなり、ADAM へのバインドを試みても失敗に終わってしまうことになってしまいます。 <p>これを確認するためには ADAM セットアップ ウィザードが稼動している状態で次を実施します: </p><ol><li>[<b>Start</b>] メニューで、[<b>Control Panel</b>] をクリックします。<li><b>Administrative Tools</b>（管理ツール）を開いて、<b>Local Security Policy</b> （ローカル セキュリティ ポリシー）オプションをダブルクリックします。 <li><b>Security Settings</b>（セキュリティ設定）の名kで、<b>Local Policies</b>（ローカル ポリシー）を広げて、<b>Security Options</b>（セキュリティ オプション）を選択します。<li><b>Policy</b> （ポリシー）リストで<b>Network Access: Sharing and Security model for local accounts</b>（ネットワーク アクセス: 共有およびローカル アカウントのセキュリティ モードをダブルクリックします。<li>これを<b>Classic</b>（クラシック）に設定し-<b>ローカル ユーザーがそれぞれ自分として認証するように</b>設定し、<b>OK</b>をクリックします。</li></li></li></li></li></ol><li>ADAM セットアップ ウィザードに戻ります。  <b>ADAM 管理者</b>ページで、<b>のアカウント</b>を選択して、ローカル グループおよび<b>管理者</b>を指定します。<li><b>LDIF ファイルのインポート</b>ページでは、 <b>ADAM のこのインスタンスの選択された LDIF ファイルをインポート,</b>を選択して、次の LDIF ファイルを追加します: <ul><li>MS-AZMan.LDF<li>MS-InetOrgPerson.LDF<li>MS-User.LDF</li></li></li></ul><p>ファイルを追加したら、<b>次へ</b>をクリックします。</p><blockquote><b>注意</b>: &nbsp;&nbsp;LDIF ファイルは ADAM の特別オブジェクトのスキーマ ファイルです。 AzMan.LDF ファイルは AzMan のスキーマです。<b></b></blockquote><li><b>インストール準備完了</b>ページで <b>次へ</b>をクリックしてインスタレーションを開始します。 </li></li></li></li></li></li></li></li></li></li></li></li></li></li>
+  </ol>
+  <h1>手順 2:  AzMan ポリシー格納を ADAM で構成します</h1>
+  <p>このステップでは、ADAM の AzMan ポリシー格納の構成をします。 AzMan ポリシー格納を構成するには、次を実施します: </p>
+  <ul>
+    <li>AzMan ポリシー格納を ADAM でセットアップします。 <li>ネットワーク サービス アカウントに AzMan の管理者のロールを割り当てます。 <li>AzMan アプリケーションを作成します。 </li></li></li>
+  </ul>
+  <h2>AzMan ポリシー格納を ADAM に作成します。</h2>
+  <ol>
+    <li>コマンド プロンプトが表示されたら、<b>azman.msc</b> を入力して認可マネージャ スナップインを開きます。 <li>[<b>Action</b>] メニューで[<b>Options</b>] をクリックしてから、[<b>Developer mode</b>] をクリックします。<li>[<b>Action</b>] メニューで、[<b>New Authorization Store</b>] をクリックします。認可ストア型を<b>Active Directory</b>に設定します。次の<b>格納名</b>を入力して、記述フィールドを空のままにして<b>OKをクリックします。</b><p><b>msldap://<i></i></b><i>servername（サーバ名）</i><b>:</b><i> （ポート番号）</i><b>/CN=AzManADAMStore（ADAM 格納）、<i></i></b><i>partition{（パーティション）</i></p><p>上記コマンドで: </p><ul><li><i>servername</i>（サーバ名）をサーバの名前か、<b>localhost（ローカル ホスト）</b> に変更してローカル コンピュータでインスタンスを管理します。 <li><i>portnumber</i>（ポート番号）をADAM インスタンスのセットアップの際に使用したポート番号に変更します。 <li> <i>partition</i> （パーティション）を ADAM をインストールした際に作成したパーティション名に変更します。 ステップ１で推奨された名前を使用した場合、次のようになっているはずです:<b>OU=SecNetPartition,O=SecNet,C=US</b>. 。<li>ADAM で保存されている AzMan ポリシー用のコンテナ名は<b></b><b> CN=AzManADAMStore</b>です。これは好みにあわせて変更することができます。 </li></li></li></li></ul><li>AzManADAMStore（AzMan ADAM 格納）を右クリックしてから<b>Properties.（プロパティ）をクリックします。</b> <b>Properties</b>（プロパティ）ウィンドウでは、<b>Security</b> （セキュリティ）タブをクリックします。 <li> <b>認可マネージャ ユーザー ロール</b>では、次のオプションの中から必要なアクセス レベルを選択します: <ul><li><b>管理者。</b> このユーザーは完全なロール管理やアクセス確認を実施することができます。 <li><b>読者。</b> このユーザーには格納内容を読んだり、アクセス確認を実施することができます。 <li><b>デリゲート ユーザー。</b> 管理者設定と組合わせることで、ユーザーはアプリケーションや対象範囲の監査を実施することができます。 詳細情報については、Authorization Manager Help の<b>Authorization auditing</b> を参照してください。 </li></li></li></ul><p>この方法説明では<b>Administrator</b>（管理者）を選択します。[<b>Add</b>] ボタンをクリックして、ASP.NET が使用するアカウント (ネットワーク サービス アカウント) をこのロールに追加します。 </p><blockquote><b>注意</b>: &nbsp;&nbsp;ASP.NET アプリケーションで固定されている ID を偽装するために偽装を使用している、または ASP.NET アプリケーションがカスタム アカウントで起動するように構成している場合、偽造アカウントまたはカスタム アカウントを<b>管理者</b>または<b>読者</b>として必要なアクセスのレベルで追加する必要があります。<b></b></blockquote></li></li></li></li></li>
+  </ol>
+  <h2>AzMan アプリケーションの作成方法</h2>
+  <ol>
+    <li>AzMan ADAM 格納がコンソール ツリーで必ず選択されているようにしてください。  <b>Actions</b> （アクション）メニューで <b>New Application</b>（新しいアプリケーション）をクリックします。<li>アプリケーションの名前を入力します。 この例では、 <b>AzManDemo</b> を使用して <b>Description</b> （記述）および<b>Version Info</b> （バージョン情報）フィールドを空のままにしておきます。 </li></li>
+  </ol>
+  <h1>手順 3:  ウェブ アプリケーションをAuthorizationStoreRoleProvider を使用するように構成します</h1>
+  <p>このステップでは、作成したばかりの ADAM インスタンスのAzMan ポリシー格納に接続するために使用する<b>AuthorizationStoreRoleProvider</b> を使用するためにASP.NET を構成します。 Windows XP または Windows 2000 で<b>AuthorizationStoreRoleProvider</b> の使用については「更なる考慮事項」を参照してください。</p>
+  <h2>ASP.NET アプリケーションを作成して、AuthorizationStoreRoleProvider で使用するために構成します。</h2>
+  <ol>
+    <li>空のウェブサイト プロジェクトを作成して、ADAM にある AzMan ポリシー格納の接続文字列を Web.config ファイルに次のステップに従って追加します: <ol><li>新しい空の ASP.NET ウェブサイトを作成して、それを<b>AdamRoles</b>（ADAM ロール）と命名します。<li>プロジェクトに Web.config ファイルを追加します。 <li>&lt;<b>ConnectionStrings</b>&gt;（接続文字列）で ADAM の AzMan ポリシー格納への接続文字列を定義します。 element. 接続文字列は次のようなフォーマットになります:  <div><pre>msldap://<i> servername:port</i>/CN=<i>container</i>,<i> partition</i></pre></div><p>例を使って、次の接続文字列を追加します: </p><div><pre>&lt;add name="AzManADAMServer" connectionString="msldap://servername:port/CN=AzManADAMStore,<br />		OU=SecNetPartition,O=SecNet,C=US"/&gt;   </pre></div><p><i>servername</i>（サーバ名）はサーバ名であり、<i>port</i> （ポート）はポート番号になります。 </p></li></li></li></ol><li>&lt;<b>system.web</b>&gt; エレメントの子として以下のエレメントを追加して、アプリケーションでロール プロバイダーを使用するための構成を行います。 element. <div><pre>&lt;roleManager <br />&nbsp;&nbsp;&nbsp; enabled="true" <br />&nbsp;&nbsp;&nbsp; cacheRolesInCookie="true" <br />&nbsp;&nbsp;&nbsp; defaultProvider="RoleManagerAzManADAMProvider"<br />&nbsp;&nbsp;&nbsp; cookieName=".ASPXROLES" <br />&nbsp;&nbsp;&nbsp; cookiePath="/" <br />&nbsp;&nbsp;&nbsp; cookieTimeout="30" <br />&nbsp;&nbsp;&nbsp; cookieRequireSSL="true" <br />&nbsp;&nbsp;&nbsp; cookieSlidingExpiration="true"<br />&nbsp;&nbsp;&nbsp; createPersistentCookie="false" <br />&nbsp;&nbsp;&nbsp; cookieProtection="All"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;add name="RoleManagerAzManADAMProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.AuthorizationStoreRoleProvider, System.Web, Version=3.5.0.0,<br />	 Culture=neutral, publicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="AzManADAMServer" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="AzManDemo"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/providers&gt;<br />&lt;/roleManager&gt;   </pre></div></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>cookieName</b> および <b>cookiePath</b> の属性を一意の値にすることで、複数のアプリケーションを同一サーバ上でホストする場合に発生する可能性のある問題を未然に防止することができます。 このベスト プラクティスを使用すると、あるサイト上のユーザーは同じサーバ上でホストされている別のサイトでロール Cookieを使用することができません。</blockquote>
+  <h1>手順 4:  ロール管理演算の実行</h1>
+  <p>このステップでは、ユーザーにロールを割当たり、ユーザーからロールを解除したり、ロール メンバーシップの試験を実施する試験アプリケーションを作成します。 これらのロール管理演算をサポートするデータは ADAM の AzMan 格納に保存されています。</p>
+  <h2>ロール管理の試験方法</h2>
+  <ol>
+    <li>Default.aspx と呼ばれる（ウェブ フォーム）を次のコードを含むウェブサイトに追加します:  <div><pre>&lt;%@ Page Language="C#" %&gt;<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "<a href="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</a>"&gt;<br />&lt;script runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!Roles.RoleExists("TestRole"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Roles.CreateRole("TestRole");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ShowRoleMembership();<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; private void ShowRoleMembership()<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (Roles.IsUserInRole("TestRole"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label1.Text = User.Identity.Name + " is in role TestRole";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label1.Text = User.Identity.Name + " is NOT in role TestRole";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; protected void Button1_Click(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Roles.AddUserToRole(User.Identity.Name, "TestRole");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ShowRoleMembership();<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; protected void Button2_Click(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Roles.RemoveUserFromRole(User.Identity.Name, "TestRole");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ShowRoleMembership();<br />&nbsp;&nbsp;&nbsp; }<br />&lt;/script&gt;<br />&lt;html&nbsp; &gt;<br />&lt;head runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;title&gt;Untitled Page&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="Button1" runat="server" Text="Add to role" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnClick="Button1_Click" /&gt;&lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="Button2" runat="server" Text="Remove from role" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnClick="Button2_Click" /&gt;&lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Label ID="Label1" runat="server"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="Label"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:Label&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;   </pre></div><li>アプリケーションを実行します。 このアプリケーションの次の機能に注目してください:<ol><li>このアプリケーションを起動した際に、<b>Page_Load</b> イベント ハンドラにあるコードがロール <b>TestRole</b> を作成します (まだないとき)  <li>現在認証されているユーザーが <b>TestRole</b> ロールのメンバーであるかどうかを<b>Label1</b> のテキストが表示します。 <li><b>[Add to role]</b> ボタンをクリックすると、<b>Button1_Click</b> イベント ハンドラ内のコードがロール管理 API を使用して、現在の認証ユーザーを <b>TestRole</b> ロールに追加します。 <li><b>Remove from role</b> ボタンをクリックする前に <b>Add to role</b> ボタンを再度クリックした場合､<b>Roles.AddUserToRole</b> への呼び出しは、ユーザーがすでに <b>TestUser</b> ロールにいるので、例外をスローします｡アプリケーションには、この状況を考慮したコードを記述しなければいけません。 <li><b>Remove from role</b> ボタンをクリックすると､現在の認証されたユーザーは、<b>TestRole</b> ロールから削除されます。<blockquote><b>注意</b>: &nbsp;&nbsp;このステップでは、プログラム的にロールの作成と除去をする方法と、ユーザーがロール内にいるかどうかをプログラム的に判別する方法を説明します。 AzMan MMC プラグインまたは ASP.NET 構成ツールを使用して、ロールに対するユーザーの追加と除去ができます。 また、ロールを使用して、ページとフォルダーに対するアクセスの制限も構成することができます。</blockquote></li></li></li></li></li></ol></li></li>
+  </ol>
+  <h1>展開の考慮事項</h1>
+  <p>上記のガイダンスのほかに、以下の展開に関する考慮事項にも配慮してください。</p>
+  <ul>
+    <li>ADAM インスタンスは、リモート サーバに展開する。<li>ASP.NET ロールに対して、既存の ADAM インスタンスを使用する。</li></li>
+  </ul>
+  <h2>ADAM インスタンスは、リモート サーバに展開する。</h2>
+  <p>ロール マネージャの使用時には、リモート サーバへの ADAM ロールの展開を検討する必要があります。  ADAM インスタンスをリモート サーバに展開するには、ASP.NET アプリケーションを実行するアカウントに対して、ADAM インスタンスにアクセスするのに必要なアクセス許可を与える必要があります。</p>
+  <p>既定のネットワーク サービス アカウントのもとで ASP.NET アプリケーションを実行する場合、Web サーバ コンピュータ アカウントを許可する必要があります。 カスタム ドメイン アカウントのもとで稼動する IIS 内でカスタム アプリケーション プールを構成した場合は、そのドメイン アカウントを許可する必要があります。</p>
+  <p>以下の解説では、ASP.NET アプリケーションは既定の Network Service アカウントのもとで実行されると想定しています。</p>
+  <h3>Web サーバ コンピュータ アカウントに対するリモート ADAM インスタンスへのアクセスの許可</h3>
+  <p>その ADAM パーティションにアクセスする権限をユーザーに与える必要があります。  パーティションを編集するには、ADAM ADSI を使用します。 </p>
+  <ol>
+    <li>ADAM インスタンスを実行しているサーバ上で、[コンピュータの管理] ツールの [ローカル ユーザーとグループ] を使用して、<b>ADAMReaders</b> という名前のローカル ADAM Reader グループを作成し、そのグループに、Web サーバ コンピュータ アカウント <b><i>Domain</i>/<i>WebServername</i></b> を追加します。 <li>[プログラム] メニューの ADAM グループから <b>[ADAM ADSI Edit]</b> ツールを開きます。  ADAM インスタンスに接続します。 つまり、<b>[Connection Settings]</b> ダイアログで、<b>[Well-known naming context]</b> を選択してから、ドロップダウン ボックスで <b>[Configuration]</b> を選択します。   <b>OK</b> をクリックします。<li>左側のペインで <b>[CN=Roles]</b> を選択し、右側のペインの <b>[CN=Readers]</b> を右クリックしてから、<b>[Properties]</b> を選択します。<li> <b>[CN=Readers Properties]</b> ダイアログ ボックスで、 属性リストの <b>member</b> 属性を選択し<b> </b>、<b>[Edit]</b>をクリックします。<li><b>[Add Windows Account]</b> をクリックし、ローカル ADAM Readers グループ <b><i>AdamServerName</i>\ADAMReaders</b> を追加します。</li></li></li></li></li>
+  </ol>
+  <h2>ASP.NET ロールに対する既存の ADAM インスタンスの使用</h2>
+  <p>実動段階では、既存の ADAM インスタンスを使用して、ASP.NET 2.0 ロールを保管してもかまいません。 既存の ADAM インスタンスを使用したい場合、次のようにする必要があります。</p>
+  <ul>
+    <li>AzMan スキーマを ADAM にインポートします。<li>新規の ADAM インスタンスに関して上記で説明したのと同じステップを、<b>ステップ 2</b>-<b>ADAM での AzMan ポリシー ストアの構成</b>を出発点として実行します。</li></li>
+  </ul>
+  <h3>ADAM への AzMan スキーマのインポート</h3>
+  <ol>
+    <li>ADAM インスタンスのインストール先のコンピュータ上で、<b>[スタート]</b> メニューをクリックし、<b>[すべてのプログラム]</b> をクリックし、<b>[ADAM]</b> をクリックしてから、<b>[Adam Tools Command Prompt]</b> をクリックします。<li>このコマンド プロンプトで、以下のコマンドを実行して、AzMan スキーマを既存の ADAM ストアにインポートします。  このコマンドは、ディレクトリ オブジェクトを作成、修正、または削除する LDIFDE 実行可能ファイルを実行します。 <p><b>ldifde -i -f MS-AzMan.ldf -s </b><i>servername</i><b>:</b><i> portnumber</i><b> -j . -c "CN=Schema,CN=Configuration,DC=X" "#schemaNamingContext"<br />-b <i>usernamedomain</i><i></i> *</b></p><p>コマンドを入力するときに、<i>servername</i> と <i>portnumber</i><b></b> を、実際のコンピュータ名およびポート番号に置き換えます。  ポート番号は、この ADAM インスタンスのインストール時に選択した番号です。 既定では、最初の ADAM インスタンスにはポート 389 が使用されますが、インストール時に変更した可能性もあります。 <i>username</i> と <i>domain</i> を、この ADAM インスタンスを管理する許可を受けているアカウントのアカウント名とドメイン ネームに置き換えます。 </p><p>アカウントを指定すると、そのアカウントに対するパスワードをプロンプトでたずねられます。  パスワードを入力した後、次のような出力が表示されます。</p><div><pre><br />Connecting to "servername: portnumber"<br />Logging in as "username" in domain "domain" using SSPI<br />Importing directory from file "MS-AzMan.ldf"<br />Loading entries........................................<br />39 entries modified successfully.<br />The command has completed successfully   </pre></div><li><blockquote><b>注意</b>: &nbsp;&nbsp; <b>ldifde</b> スイッチの詳細を知りたければ、コマンド プロンプトに <b>ldifde -? と入力します。</b> at the command prompt.<b></b></blockquote></li></li></li>
+  </ol>
+  <h3>AzMan ポリシー ストアの構成</h3>
+  <p>新規の ADAM インスタンスに関して上記で説明した処理を、<b>ステップ 2</b>-<b>ADAM での AzMan ポリシー ストアの構成</b>を出発点として実行します。</p>
+  <h1>追加考慮事項</h1>
+  <p>Windows XP または Windows 2000 を使用している場合に、<b>AuthorizationStoreRoleProvider</b> を使用できるようにするには、事前に AzMan COM オブジェクト用のプライマリ相互運用アセンブリをグローバル アセンブリ キャッシュ (GAC) にインストールしておく必要があります。Windows Server 2003 以降ベースのコンピュータの GAC には、このアセンブリはすでにインストールされています。</p>
+  <h2>Windows 2000 でのプライマリ相互運用アセンブリのインストール</h2>
+  <ol>
+    <li>Windows 2000 Authorization Manager ランタイム (http://www.microsoft.com/downloads/details.aspx?FamilyID=7edde11f-bcea-4773-a292-84525f23baf7&DisplayLang=en からダウンロードしてください) 用のインストーラを実行します。このインストーラは、2 つのサブディレクトリを作成します。一方には、Authorization Manager 用のセットアップ ファイルが収容され、\pia と呼ばれるもう一方には、プライマリ相互運用アセンブリが収容されます。 <li>Windows のコントロール パネルから、<b>[Microsoft .NET Framework の構成]</b> ツールを実行してから、<b>[Manage Assembly Cache]</b> オプションを開きます。 <li><b>[Add an Assembly to the Assembly Cache]</b> オプションを使用して <i>Authorization Manager ランタイムのインストール ディレクトリ</i><b>\pia</b> フォルダーにナビゲートしてから、<b>Microsoft.Interop.Security.AzRoles.dll</b> アセンブリをキャッシュに追加します。 </li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;\pia フォルダーには、プライマリ相互運用アセンブリの 2 つのバージョンが収められています。  AzMan バージョン 1.0 用のプライマリ相互運用アセンブリは、\pia フォルダーに、AzMan バージョン 1.2 のプライマリ相互運用アセンブリは、\pia\1.2 フォルダーに入っています。 バージョン 1.2 の AzMan COM オブジェクトは、経験を積んだ AzMan ユーザーには興味深いと思われるさらに別のインターフェイスを公開していますが、ASP.NET ロール管理 API のユーザー向けの追加機能は用意されていません。<b></b></blockquote>
+  <h2>Windows XP でのプライマリ相互運用アセンブリのインストール</h2>
+  <ol>
+    <li>Windows Server 2003 Administration Tools Pack をインストールします。これは、<a href="http://www.microsoft.com/downloads">http://www.microsoft.com/downloads</a> からダウンロードすることができます。ダウンロードした内容には、AzMan のプライマリ相互運用アセンブリは入っていません。 <li>プライマリ相互運用アセンブリをインストールするには、<a href="http://www.microsoft.com/downloads/details.aspx?familyid=7edde11f-bcea-4773-a292-84525f23baf7&displaylang=en">http://www.microsoft.com/downloads/details.aspx?FamilyID=7edde11f-bcea-4773-a292-84525f23baf7&DisplayLang=en</a> から Windows 2000 Authorization Manager ランタイムをダウンロードします。ダウンロードしたファイルを実行します。すると、\<b>pia</b> フォルダーのディレクトリ内にファイル (AzMan プライマリ相互運用アセンブリも含めて) が解凍されます。 <li>Windows のコントロール パネルから、<b>[Microsoft .NET Framework の構成]</b> ツールを実行してから、<b>[Manage Assembly Cache]</b> オプションを開きます。 <li><b>[Add an Assembly to the Assembly Cache]</b> オプションを使用して <i>Authorization Manager ランタイムのインストール ディレクトリ</i><b>\pia</b> フォルダーにナビゲートしてから、<b>Microsoft.Interop.Security.AzRoles.dll</b> アセンブリをキャッシュに追加します。 </li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://msdn2.microsoft.com/en-us/library/ms974546.aspx">ADAM の概要</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-502493572" Content_Hash="414075719">
+  <Metadata>
+    <Id>71b6e5f2-d236-43b1-8b6c-bd6b3d144899</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データのシリアル化の制御には ISerializable インターフェイスまたは NonSerialized 属性が使用される。</Title>
+    <Category>シリアル化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>お使いのアプリケーションで、機微データが含まれている各クラス内でフィールドのシリアル化が回避されることを確認してください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p><b>ISerializable</b> を実装してシリアル化動作を制御するか、または機微データが含まれている各フィールドを [<b>NonSerialized</b>] 属性でデコレートしてください。 デフォルトで、すべてのプライベート フィールドおよびパブリック フィールドがシリアル化されています。 シリアル化では、多くの場合はデータをネットワーク上で送信するための準備として、データがメモリ内に置かれ、攻撃者がデータにアクセスしやすくなるため、この操作は重要です。</p>
+  <p>次の例に、<b>[NonSerialized]</b> 属性を使用して、機微データが含まれている特定のフィールドをシリアル化できないようにする方法を示します。</p>
+  <div>
+ <pre> [Serializable]public class Employee<br /> {<br />  // OK for name to be serialized  private string name;<br />  // Prevent salary being serialized<br /> [NonSerialized]<br /> private double annualSalary;<br />  . . .<br />}</pre>
+  </div>
+  <p>あるいは、<b>ISerializable</b> インターフェイスを実装して、シリアル化のプロセスを明示的に制御してください。 1 つ以上の機微データ項目をシリアル化しなければいけない場合は、最初にデータの暗号化を行うことを検討してください。 オブジェクトをデシリアライズするコードは、復号鍵にアクセスできるものでなければいけません。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

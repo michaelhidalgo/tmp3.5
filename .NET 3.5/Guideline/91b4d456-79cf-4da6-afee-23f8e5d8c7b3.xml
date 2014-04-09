@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-565394683" Content_Hash="1868016318">
+  <Metadata>
+    <Id>91b4d456-79cf-4da6-afee-23f8e5d8c7b3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログインの試行が連続して失敗した後にアカウントをロックする</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>連続するログインの失敗が複数回あった後にユーザーのアカウントをロックすることを考慮します。 ロックされたアカウントはDoS攻撃に対する脆弱性をもたらす可能性があります。 アプリケーションの要件によって、認証応答の段階的なスピードダウンを実施する方が良い場合もあります。</p>
+  <h1>理由</h1>
+  <p>短時間に連続して複数回認証に失敗すると、当該アカウントの総当たり攻撃 (Brute Force Attack) の兆候となります。 アカウントをロックすることによって、攻撃者がアカウントに侵害またはアクセスし、実際のアカウント所有者にDoSの状態が起こるのを防ぎます。</p>
+  <h1>状況</h1>
+  <p>パスワードに基づくシステムはすべて、複数回繰り返されるログインの失敗の後、アカウントをロックすることを検討してください。 高い攻撃プロファイルを持つアプリケーションは、代わりに認証応答での段階的スピードダウンを行います。</p>
+  <h1>対策</h1>
+  <p>連続したログイン試行の失敗後にアカウントを適切にロックするには、次の手順に従ってください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ロックアウト方針の決定: </strong>ロックアウト方針を決定する際には、考慮すべき変数が 2 つあります。</p>
+      <ul>
+        <li>何回までのログイン試行の失敗を許可するか。<li>アカウントをロックする時間の長さ。</li></li>
+      </ul>
+      <p>簡易な方針では、15 分間に 5 回ログインに失敗するとアカウントがロックされます。 これは総当たり攻撃 (Brute Force Attack) をブロックする効果的な方法ですが、攻撃者は認証リクエストの小さなストリームによりアカウントをロック状態に保持することができるため、それはアプリケーションを DoS 攻撃にさらします。 ロックアウト ポリシーを決定する際には、ユーザーに対する攻撃のリスクと、ロックされたアカウントを再度アクティブにすることに関連したサポートコストを評価することが重要です。 たとえば、組織のサポート担当者に連絡してロックされたアカウントを復活させるようユーザーに求めることは、サポート費用に直接的な影響を与え、一般ユーザーにフラストレーションを与える可能性があります。 単一または複数のユーザーのログイン試行をソース IP と関連づけるなど、アプリケーションのロックアウト方針のより高度な変動性を設計する際には、特に注意してください。 さらに高水準の複雑性を加える際は、アプリケーションのロックアウト方針が回避される可能性がある場合、またはビジネスに悪影響を与える可能性がある場合のシナリオを注意深く検討および評価してください。 たとえば、攻撃者が複数のホストの使用によりユーザーを危険にさらすことを試行したり、複数のユーザーが共有されているオフィスの IP を使用して認証したりするシナリオについて考慮します。</p>
+      <li>
+        <p>
+          <strong>ロックアウト方針の実施:</strong> ロックアウト方針は、認証が必要とされる、アプリケーションのあらゆる点において実施される必要があります。 アプリケーションがメンバーシップ プロバイダーを使用している場合、プロバイダーの構成で次の属性を指定してください。</p>
+        <ul>
+          <li>
+            <strong>maxInvalidPasswordAttempts</strong>: アカウントがロックされるまでにパスワードの入力を試行できる最大回数を指定してください<li><strong>passwordAttemptWindow</strong>: ユーザーが認証の最大許容回数に到達することなく正常に認証される必要のある時間ウィンドウを分単位で指定してください<li><strong>passwordAnswerAttemptLockoutDuration</strong>: メンバーシッププロバイダーによりサポートされている場合、この属性はパスワードの入力が無効だったためにロックアウトされる期間を指定します</li></li></li>
+        </ul>
+        <p>例: </p>
+ <pre>&lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="30"&gt;<br />  &lt;providers&gt;<br />    &lt;add name="MyAppMembershipProvider"<br />      type="System.Web.Security.SqlMembershipProvider"<br />      connectionStringName="MyAppMembershipDatabase"<br />      enablePasswordRetrieval="false"<br />      enablePasswordReset="true"<br />      requiresQuestionAndAnswer="true"<br />      passwordFormat="Hashed"<br /><strong>      maxInvalidPasswordAttempts = "4"<br /></strong><strong>passwordAttemptWindow = "10"<br /></strong>      applicationName="MyApp" /&gt;<br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+        <p>標準 .NET メンバーシップ プロバイダーは、ユーザー パスワードを、不変でありアプリケーションのユーザー アカウントを暴露する可能性のある System.string オブジェクトとして処理することご承知ください。 詳細は <a href="/article/2120b3fe-34c6-47bf-be83-d9756e512d02">メモリにパスワードを残さない</a> ガイドラインを参照してください。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコードは、認証中に必要なデータベース　トランザクションを実行します。 そのトランザクションがログイン試行カウンターをチェックできない場合、攻撃者がブルート フォース攻撃または辞書攻撃を使用してアカウントの情報を漏洩させる可能性があります。</p>
+ <pre>&lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="30"&gt;<br />  &lt;providers&gt;<br />    &lt;add name="MyAppMembershipProvider"<br />      type="System.Web.Security.SqlMembershipProvider"<br />      connectionStringName="MyAppMembershipDatabase"<br />      enablePasswordRetrieval="false"<br />      enablePasswordReset="true"<br />      requiresQuestionAndAnswer="true"<br />      passwordFormat="Hashed"<br />      applicationName="MyApp" /&gt;<br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>以下のコードでは、認証時に必要なデータベース トランザクションが実行されます。 このトランザクションではログインの試行カウンタを確認しているため、攻撃者が総当たり攻撃 (Brute Force Attack) または辞書攻撃でアカウントに危害を与えることは非常に困難です。</p>
+ <pre>&lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="30"&gt;<br />  &lt;providers&gt;<br />    &lt;add name="MyAppMembershipProvider"<br />      type="System.Web.Security.SqlMembershipProvider"<br />      connectionStringName="MyAppMembershipDatabase"<br />      enablePasswordRetrieval="false"<br />      enablePasswordReset="true"<br />      requiresQuestionAndAnswer="true"<br />      passwordFormat="Hashed"<br /><strong>      maxInvalidPasswordAttempts = "4"<br /></strong><strong>passwordAttemptWindow = "10"<br /></strong>      applicationName="MyApp" /&gt;<br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ActiveDirectoryMembershipProvider クラスの詳細については、MSDNの<a href="http://msdn2.microsoft.com/en-us/library/system.web.security.activedirectorymembershipprovider(vs.80).aspx">ActiveDirectoryMembershipProvider クラス</a> 関連文書をご覧ください。 <li>SqlMembershipProvider クラスの詳細については、MSDNの <a href="http://msdn2.microsoft.com/en-us/library/system.web.security.sqlmembershipprovider(vs.80).aspx">SqlMembershipProvider クラス</a> 関連文書をご覧ください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/89fccb37-0f7f-45a8-97c1-74295b922e09">チェックリスト項目：連続してログインに失敗した後アカウントがロックされる </a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

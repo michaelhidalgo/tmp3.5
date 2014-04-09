@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1329298598" Content_Hash="104646958">
+  <Metadata>
+    <Id>9be22c45-e087-4c29-80e6-b024bda8b9fe</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パラメーターを検証する必要がある場合は、パラメーター インスペクターを使用する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>オペレーションに渡されるパラメーターを有効化する必要がある場合は、パラメーター インスペクターを使用します。 </p>
+  <h1>理由</h1>
+  <p>これにより、悪意のあるクライアントによる攻撃からサービスを保護し、また、悪意のあるサービスによる攻撃からクライアントを保護することができます。</p>
+  <h1>状況</h1>
+  <p>メッセージ交換中にパラメーター値を検証したい場合は、このガイドラインの使用を検討してください。</p>
+  <h1>対策</h1>
+  <p>パラメーター インスペクターは、メッセージ交換中のパラメーター値の検査を可能にする WCF 動作に接続される拡張点です。 パラメーター検証はクライアントおよびサービスにおいて発生する可能性があります。 </p>
+  <p>WCF サービス オペレーションで公開されるすべてのパラメーターを検証し、悪意のあるクライアントによる攻撃からサービスを保護することをお勧めします。 反対に、クライアントが受信するすべての戻り値を検証して、悪意のあるサービスによる攻撃からクライアントを保護することもお勧めします。</p>
+  <p>パラメーター インスペクターを使用して簡単な型またはフィールドの少ない型を検査でき、オペレーションの複雑な検証ロジックを不要にすることができます。 複雑な型、または検証の対象となるフィールドが複数あるデータ/メッセージ コントラクトを有効化する必要がある場合は、メッセージ インスペクターを備えたスキーマ検証を使用します。 <br /></p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms733747.aspx">http://msdn2.microsoft.com/en-us/library/ms733747.aspx の「ハウツー: パラメーターを検査または修正する」を参照してください。</a><li>パラメーター インスペクターの使用方法に関する詳細については、「WCF で入力検証を実行する方法」を参照してください。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

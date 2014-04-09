@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1273973815" Content_Hash="-1327884921">
+  <Metadata>
+    <Id>ab4bb641-bb03-4841-8c6a-a86f33727263</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Client-side Validation に依存しない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>サーバ上では、クライアント上と同等以上の厳格なチェックが実行されていることを確認します。 Client-side Validationが使いやすさのためだけに、またサーバへのポスト数を軽減するために使用されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>Client-side Validationは、簡単にバイパスすることができます。 たとえば、悪意のあるユーザーがJavaScriptを無効にすることにより、クライアント側スクリプトルーチンを無効にできます。 ユーザーは、カスタムHTMLを使って独自のフォーム ポストを構築したり、またはHTTPプロキシを使ってフォームポストを修正したりできます。 開発者がクライアントのユーザー インターフェイス制御に依存し、バック エンドですべての結果を検証しない場合、攻撃者はシステムに悪意のあるデータを注入することができる可能性があり、潜在的にクロスサイト スクリプティングや SQL インジェクションなどの、セキュリティ上の問題につながります。</p>
+  <h1>チェック方法</h1>
+  <p>Client-side Validationは、サーバへのラウンドトリップを軽減し、ユーザー エクスペリエンスを向上させるためにのみ使用するようお勧めします。 クライアントがこのコードを制御するため、セキュリティをそれに頼ることはできません。 入力がサーバ上で検証されていることを確認するには、次の手順を実行します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>クライアント側コード内のすべての入力検証ルーチンを識別します。 </strong>ユーザーから受け取った入力を検証する、ウェブページ内のすべてのルーチンを識別したことを確認します。 これらのClient-side Validationルーチンは通常、受信した入力の長さ、範囲、フォーマット、およびタイプのチェックを含みます。 クライアント側バリデータの例をいくつか以下に示します。</p>
+      <ul>
+        <li>
+          <strong>MAXLENGTH</strong> 属性で使用が許可される文字数の制限や、ドロップダウンボックスで許可される入力値の範囲などのフォーム制御。 <li>長さ、範囲、型、書式などをチェックする JavaScript 検証ルーチン。<li>入力に制約を課すために時々使用される Hidden フィールド。 実際の検証はサーバ上で行われますが、クライアント側で非表示フィールドを改ざんすることは容易です。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>対応するServer-side Validationルーチンが存在することを確認します。 </strong>識別されているすべてのClient-side Validationルーチンについては、同等またはさらに厳しい検証ルーチンがサーバ側で実装されているかチェックしてください。 これは、クロスサイトスクリプティング、SQLインジェクション、またはClient-side Validationが攻撃者によってバイパスされた他のタイプの攻撃から、アプリケーションを保護します。 サーバは、JavaScript を無効にしてクライアント側のコードを変更することにより、または HTTP プロキシ アプリケーションを使用することによって、簡単にテストすることができます。</p>
+        <li>
+          <p>
+            <strong>欠落しているServer-side Validationルーチンが実装されていることを確認します。 </strong>サーバ上ではなくクライアント上で検証されるすべての入力においては、クライアント上で実行された検証以上に厳密であるServer-side Validationルーチンを追加します。 また、クライアント上で検証されない、ユーザーから受信した入力の検証ルーチンを追加します。 例としては、Cookie、非表示フィールド、ViewStateなどの検証があります。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ユーザーに自分の名前とメール アドレスを入力するように要求する、非常に簡単なフォームを考えます。</p>
+ <pre>&lt;form id="form1" runat="server"&gt;<br />&lt;asp:textbox id="txtName" runat="server"&gt;<br />&lt;/asp:textbox&gt;&lt;asp:textbox id="txtEmail" runat="server"&gt;<br />&lt;/asp:textbox&gt;&lt;asp:button id="btnSubmit" runat="server" text="Submit" onclientclick="return cValidate()"/&gt;<br />&lt;/form&gt;<br />&lt;script language="javascript" type="text/javascript"&gt;function cValidate()<br />&amp;#123;<br />      if (document.getElementById("&lt;&amp;#37;=txtName.ClientID&amp;#37;&gt;").value=="")<br />      &amp;#123;<br />                 alert("Name Field cannot be blank");<br />                 document.getElementById("&lt;&amp;#37;=txtName.ClientID&amp;#37;&gt;").focus();<br />                 return false;<br />      &amp;#125;<br />      if(document.getElementById("&lt;&amp;#37;=txtEmail.ClientID &amp;#37;&gt;").value=="")<br />      &amp;#123;<br />                 alert("Email Field cannot be blank");<br />                 document.getElementById("&lt;&amp;#37;=txtEmail.ClientID &amp;#37;&gt;").focus(); <br />                 return false;<br />      &amp;#125;<br />      var emailPat = /&amp;#94;(\".&amp;#42;\"&amp;#124;&amp;#91;A-Za-z&amp;#93;\w&amp;#42;)&amp;#64;(\&amp;#91;\d&amp;#123;1,3&amp;#125;(\.\d&amp;#123;1,3&amp;#125;)&amp;#123;3&amp;#125;&amp;#93;&amp;#124;&amp;#91;A-Za-z&amp;#93;\w&amp;#42;(\.&amp;#91;A-Za-z&amp;#93;\w&amp;#42;)&amp;#43;)&amp;#36;/;<br />      var emailid=document.getElementById("&lt;&amp;#37;=txtEmail.ClientID &amp;#37;&gt;").value;<br />      var matchArray = emailid.match(emailPat);<br />      if (matchArray == null)<br />      &amp;#123;<br />               alert("Your email address seems incorrect. Please try again.");<br />               document.getElementById("&lt;&amp;#37;=txtEmail.ClientID &amp;#37;&gt;").focus();<br />               return false;<br /> &amp;#125;<br /> return true;<br />&amp;#125;<br />&lt;/script&gt;</pre>
+  <p>このページはユーザー入力の有効性を検証しますが、それは JavaScript を使用するクライアント上で行われます。 JavaScript を無効にする、検証スクリプトを置き換える、あるいはブラウザが HTTP プロキシを使用して送信しているときにデータを編集する攻撃者は、この種類の検証をバイパスすることができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>入力検証の詳細については、MSDN の<a href="http://msdn2.microsoft.com/en-us/library/ms998372.aspx#pagpractices0001_inputanddatavalidation">セキュリティ プラクティス：入力およびデータ検証</a> を参照してください。 <li>優れたデバッグ用 HTTP プロキシとして、<a href="http://www.fiddlertool.com/"> Fiddler  があります。</a></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/b3a939b6-732f-49d0-b204-0422dbfbdbaa">入力の長さ、範囲、書式および型が検証される</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

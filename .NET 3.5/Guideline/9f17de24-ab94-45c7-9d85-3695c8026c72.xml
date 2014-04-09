@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1896711120" Content_Hash="219574683">
+  <Metadata>
+    <Id>9f17de24-ab94-45c7-9d85-3695c8026c72</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能な場合は Windows 認証を使用する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>Windows 認証が使用できる場合は Windows 認証の使用を検討します。</p>
+  <h1>理由</h1>
+  <p>Active Directory と Windows 認証を併用することで、統一 ID ストア、集中型アカウント管理、強制可能なアカウントおよびパスワード ポリシー、およびパスワードのネットワーク上への送信を回避する強力な認証が行えるという利点があります。</p>
+  <h1>状況</h1>
+  <p>Windows Active Directory に属しているユーザーがいる場合は、Windows 認証の使用を検討してください。</p>
+  <h1>対策</h1>
+  <p>次の各シナリオで Windows 認証を使用してください。</p>
+  <ul>
+    <li>クライアントとサービスの両方が信頼されているドメイン内にある場合 (イントラネット シナリオの場合など)。 Active Directory と Windows 認証を併用することで、統一 ID ストア、集中型アカウント管理、強制可能なアカウントおよびパスワード ポリシー、およびパスワードのネットワーク上への送信を回避する強力な認証が行えるという利点があります。 <li>サービスでローカル マシンのアカウントが使用されている場合。この場合、クライアントは NTLM プロトコルを使用して認証を行うことができます。 NTLM がセキュリティで保護されていないため、回線上で送信されるハッシュ パスワードが総当たり攻撃 (Brute Force Attack) による被害を受ける可能性がある場合に、中間者攻撃への道が開かれることを考慮してください。 Windows 認証は Active Directory なしで使用することができますが、証明書認証等のよりセキュアな方法の使用を検討してください。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

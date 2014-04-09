@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1548988256" Content_Hash="-1092199719">
+  <Metadata>
+    <Id>4891b0a0-9843-463c-9d5e-addc3804bdde</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET Session State の保護</Title>
+    <Category>セッション管理</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ASP.NET Session State は、デフォルト設定値を変更し、未使用のサービスを無効にし、またプロセス外状態サービスを保護することにより、スニッフィングや推測攻撃から適切に保護しなければなりません｡</p>
+  <h1>理由</h1>
+  <p>攻撃者は、既知の攻撃ベクトルを使用してアプリケーションを攻撃することが頻繁にあります。 そのため、これらのサービスを変更または無効にすることでアプリケーションの Attack Surface (攻撃対象領域) を最小化することができます。</p>
+  <p>攻撃者は、最初の試みとして頻繁にポート スキャナを使用し攻撃中のアプリケーションについての詳細を知ろうとすることがあります。スキャンの変更をすれば彼らの侵入を妨害できます。 攻撃者は、プロセス外セッション状態管理サーバを直接攻撃してシステムへのアクセスを取得する場合があります。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順に従って、 ASP.NET Session State を適切に保護するようにしてください｡</p>
+  <ol>
+    <li>
+      <p>
+        <strong>デフォルト設定のセッション状態ポートが変更されていることを確認します。 </strong>次のキーのポート値が 42424 のデフォルト値と異なっていることを確認します。</p>
+ <pre>HKLM\SYSTEM\CurrentControlSet\Services\aspnet_state\Parameters </pre>
+      <li>
+        <p>
+          <strong>プロセス外セッション状態管理が適切に保護されていることを確認します。 </strong>セッション外状態管理のセキュリティを確認する際は以下の考慮事項に留意してください。</p>
+        <ul>
+          <li>サービスがネットワーク サービス アカウントまたは別の低い特権のアカウントを使用して運用されていることを確認します。 <li><a href="/article/dffb5d33-3dca-4cea-999c-60f0a5deff63">Communication Links are Encrypted</a> チェックリストを使用して、セッション状態の通信チャンネルが保護されていることを確認します｡ <li>手順 1 を使用して、デフォルトのセッション状態ポートが変更されていることを確認します。 <li><a href="/article/693e1ae5-e381-41fd-93f7-844aaeca3ef8">Sensitive Data Inside Configuration Files is Protected</a>チェックリストを使用して､セッション状態の接続文字列が保護されていることを確認します｡</li></li></li></li>
+        </ul>
+        <li>
+          <p>
+            <strong>ASP.NET 状態サービスが未使用の場合は、このサービスのスイッチがオフになっていることを確認します｡</strong>
+          </p>
+          <ol>
+            <li>管理ツール <strong>-&gt;</strong> インターネット情報サービスを開きます。 <li>アプリケーションに関連付けられている IIS の適切なインスタンスを選択します。 <li>IIS インスタンスを右クリックして、[プロパティ] を選択します。 <li>[Home Directory] タブで [コンフィグレーション] オプションを選択します。 <li>[オプション] タブを開きます。 <li>[Enable session state] オプションが解除されていることを確認します｡ </li></li></li></li></li></li>
+          </ol>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>
+    <strong>セッション状態のデフォルトのポートを使用する場合は、以下の問題に留意してください。</strong>
+  </p>
+  <p>MyApp は、ASP.NET 状態サービスを利用する財務アプリケーションです。 ASP.NET State Server は、デフォルトのポート コンフィグレーションで実行しているので、熟練した攻撃者によりこのサービスが容易に検出されて攻撃を受ける可能性があります。 </p>
+  <p>
+    <strong>アプリケーションによってセッション状態が要求されない場合は、以下の問題に留意してください。</strong>
+  </p>
+  <p>MyApp は、監視ツールです。 このツールは ASP.NET 状態サービスを必要としませんが、このツールの管理者がサービスを無効にしていなかったので、熟練した攻撃者は ASP.NET 状態サービスを通じてアプリケーションを攻撃することがありました。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET Session State の構成についての詳細は、<a href="http://technet2.microsoft.com/windowsserver/en/library/17866624-359b-4fbf-8a3a-05fb13dee6811033.mspx?mfr=true">Configuring Out-of-Process Session State with the ASP.NET State Service</a> を参照してください｡</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

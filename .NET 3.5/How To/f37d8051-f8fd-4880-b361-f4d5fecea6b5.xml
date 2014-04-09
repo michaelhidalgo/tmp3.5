@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1716817004" Content_Hash="-545216907">
+  <Metadata>
+    <Id>f37d8051-f8fd-4880-b361-f4d5fecea6b5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL インジェクション攻撃を防ぐ方法</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>SQL インジェクション攻撃を防ぐには、入力を徹底的に検証および制限することから始めます。 入力の型、長さ、形式および範囲を検証します。 正規表現を使用してテキスト入力を検証します。 また、パラメーター化されたストアド プロシージャをデータ アクセスに使用します。 これにより、入力値の型および長さが点検されます。 また、パラメータは、安全なリテラル値として扱われ、データベース内の実行可能コードとしては扱われません。 実行クエリーを含む単一パラメーターを受け付けるストアド プロシージャは回避します。 その代わりに､複数のクエリ パラメータのみを渡すようにします。 ストアド プロシージャを使用できない場合、パラメーターを備えた SQL ステートメントを使用し、入力値を SQL コマンドと連結させる SQL ステートメントは確立しないでください。 </p>
+  <p>コードがデータベースにアクセスする際は例外をキャッチするために構造化例外処理を行い、クライアントに例外の詳細を返さないことを確認します。 追加的な予防措置として、データベースに接続するためにアプリケーションが使用するアカウントは、データベースでアクセス許可を制限済みであることを確認します。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

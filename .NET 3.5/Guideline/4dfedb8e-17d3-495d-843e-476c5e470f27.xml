@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1592794539" Content_Hash="1173379580">
+  <Metadata>
+    <Id>4dfedb8e-17d3-495d-843e-476c5e470f27</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コンテキストに信頼されていないデータを含む全ての出力は暗号化します</Title>
+    <Category>入力/データ検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>使用されるコンテキストに対して適切に信頼されていないデータを含む出力は常に暗号化します。 </p>
+  <h1>理由</h1>
+  <p>悪意のあるスクリプト タグがクライアントのブラウザにコードとして解釈される可能性を防ぎます。</p>
+  <h1>状況</h1>
+  <p>アプリケーションが信頼されていない入力をクライアントにエコーする場合は常にこのガイドラインを使用します。&nbsp; 信頼されていない入力はユーザーから、クライアントから、データベースから、またはアプリケーションが呼び出す信頼されていないコードから入る場合があります。</p>
+  <h1>対策</h1>
+  <p>ユーザー入力または共有データベースまたは信頼できないローカルファイルからのデータを含む出力を書き出す場合、それをエンコードします。&nbsp; ユーザーへ入力を直接エコー バックすることは、他の問題よりとりわけ、アプリケーションにクロスサイト スクリプティングに対する脆弱性をもたらします。&nbsp; データをエンコーディングすることで、スクリプトではなくリテラルテキストとして扱われます。&nbsp; <b>Microsoft.Security.ApplicationAntiXSSLibrary.HtmlEncode</b>方法を使用することができます。&nbsp; 同様に、入力データまたは共有データベースのデータから構築されるため、安全でない文字を含む可能性のある URL を書く場合、それを安全にするためには <b>Microsoft.Security.ApplicationAntiXSSLibrary.UrlEncode</b> を使用してください。 </p>
+  <p>
+    <b>注意</b>&nbsp; &nbsp; データのエンコードは必ず、データがクライアントに返される前の最後の段階で行ってください。&nbsp; それよりも前にエンコードを行った場合、データが使用される正確なコンテキスト、すなわちエンコード先のフォーマットが不明になることがあります。&nbsp; また、一部のデータでは、早い段階でエンコーディングを行うと二重エンコーディングの問題が生じることがあります。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

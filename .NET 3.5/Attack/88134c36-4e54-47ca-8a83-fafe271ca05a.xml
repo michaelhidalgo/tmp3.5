@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1869692430" Content_Hash="132850360">
+  <Metadata>
+    <Id>88134c36-4e54-47ca-8a83-fafe271ca05a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>おびき寄せによる攻撃 (Luring Attack)</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>Microsoft .NET Framework のコード アクセス セキュリティ メカニズムや Java の同様のメカニズムなど、コード ID に基づくセキュリティを使用し、サポートするすべてのアプリケーションとプラットフォーム。</p>
+  <h1>説明</h1>
+  <p>現在のユーザー特権で動作するようにアプリケーションを構築する従来の方法が、一部の攻撃による被害を拡大してきました。  <a href="/article/ff3f8f9f-5689-4827-93b8-e8e053661b58">API ハイジャッキング攻撃</a>のような攻撃や、特権の昇格を引き起こすその他の攻撃は、呼び出されたモジュールが通常、その呼び出し元の権限を前提とするという事実から発生しました。</p>
+  <p>Java と .NET Framework はコード アクセス セキュリティ メカニズムを提供します。このメカニズムでは、コードを実行するユーザーではなく、<strong>コード ID</strong> に基づいてセキュリティを実施します。 このようなメカニズムでは、開発者は呼び出しと実行のセキュリティ面を制御するようにコードを記述し、パッケージ化できます。 これを利用すれば、開発者は保護されたモジュールを実行する前に呼び出し元モジュールが満たさなければならないセキュリティの最小要件を明記できます。 このメカニズムが与える主な利点の 1 つは、モバイル コード (インターネットからダウンロードされたコード) ではローカル マシンにすでに存在する保護されたモジュールを実行できないという事実です。</p>
+  <p>おびき寄せによる攻撃 (Luring Attack) では、攻撃者は自分のコードより高い特権を持つアプリケーション コンポーネントを「おびき寄せ」、自分の代わりに何かさせます。 これは、セキュリティ特権が制限されたコードの断片がそれより高い特権のコンポーネントを呼び出し、制限された操作を実行させた場合に発生します。 このような動作は通常、特権のあるコンポーネントの呼び出し元のアクセス許可チェックが欠落しているか、不十分な場合に発生します。 おびき寄せによる攻撃は、特権のあるライブラリが信頼されていないライブラリから悪意のあるコードを呼び出した場合にも生じます。 </p>
+  <h1>影響</h1>
+  <ul>
+    <li>特権の昇格</li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>
+      <p>
+        <strong>保護されているマネージ モジュールからアンマネージ モジュールを呼び出すこと。</strong> この結果、呼び出ひ元モジュールがアンマネージ モジュールの信頼性を検証できないため、特権の昇格が発生することがあります。</p>
+      <li>
+        <p>
+          <strong>呼び出し元モジュールの権限をチェックしなかったこと。 </strong>選択されたセキュリティ オプションに応じて、呼び出されたモジュールでは以下をチェックします。</p>
+        <ul>
+          <li>呼び出し元アクセス権なし – アクセス許可がチェックされない場合、そのことがおびき寄せによる攻撃に利用される可能性があります。 <li>モジュールの直接の呼び出し元に与えられるアクセス許可 – モジュールがマシンで危険な行為を実行できる場合、攻撃者は別のモジュールを呼び出し、そのモジュールが保護されたモジュールを呼び出して、おびき寄せによる攻撃を開始することがあります。<li>呼び出しスタックのすべての呼び出ひ元に与えられるアクセス許可– この場合、おびき寄せによる攻撃を防ぐことができます。</li></li></li>
+        </ul>
+      </li>
+    </li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>悪意のあるコードに読み込まれる可能性のあるパッケージまたはアセンブリを作成するときは、プラットフォームが提供する手法を利用し、モジュールのセキュリティ制限を明示的に定義します  (下の例を参照してください)。<li>両方のフレームワークで LinkDemand または StackWalk 手法を利用して呼び出し元モジュールのアクセス許可をチェックします。</li></li>
+  </ul>
+  <h1>例</h1>
+  <p>以下はモジュール P のコードです。これは外部モジュールを呼び出し、いくつかのファイル操作を実行します。 外部モジュールの機能はモジュール P の制御を超えています。</p>
+ <pre>  public static void doOperationPriv()<br />  &amp;#123;<br />   string dir = &amp;#64;"c:\temp\";<br />   Console.WriteLine("PrivilegedCode: Allowing read-only access to the directory &amp;#123;0&amp;#125;",dir);<br />   //allow read-only access to the current directory only<br />   FileIOPermission read = new FileIOPermission(FileIOPermissionAccess.Read &amp;#124;<br />                                                FileIOPermissionAccess.PathDiscovery, dir);<br /><strong>read.PermitOnly();<br /></strong>   Console.WriteLine("PrivilegedCode: Calling external module for operation on dir &amp;#123;0&amp;#125;",dir);<br />   Operations.doOperation(dir);<br /><strong>FileIOPermission.RevertPermitOnly();<br /></strong>  &amp;#125;</pre>
+  <p>ここでは、短い間、ディスクへの書き込み権を放棄したことをモジュールが明示的に明記しています。 ここで、次の外部モジュールが呼び出されると、</p>
+ <pre> public class Operations<br /> &amp;#123;<br />  public static void doOperation(string dir)<br />  &amp;#123;<br />   Console.WriteLine("Rogue Utility: Deleting all text files in dir &amp;#123;0&amp;#125;",dir);<br />   DirectoryInfo di = new DirectoryInfo(dir);<br />   // delete each text file in that directory<br />   FileInfo&amp;#91;&amp;#93; fiArr = di.GetFiles("&amp;#42;.txt");</pre>
+ <pre>   foreach (FileInfo fri in fiArr)<br />   &amp;#123;<br />    Console.WriteLine("Rogue Util deleting file: &amp;#123;0&amp;#125;",fri.Name);<br />    fri.Delete();<br />   &amp;#125;<br />  &amp;#125;<br /> &amp;#125;</pre>
+  <p>呼び出し元モジュールにはディスクからファイルを削除するための権限がないため、セキュリティ例外がスローされます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://www.onjava.com/pub/a/onjava/2004/01/28/javavsdotnet.html">Java vs. .NET Security - Code Projection and CAS</a>
+      <li>
+        <a href="http://msdn.microsoft.com/msdnmag/issues/01/02/CAS/">http://msdn.microsoft.com/msdnmag/issues/01/02/CAS/ のおびき寄せによる攻撃 (Luring Attack) に関するセクション</a>
+        <li>.NET の場合: <a href="http://msdn2.microsoft.com/en-us/library/aa302424.aspx">コード アクセス セキュリティの実践</a></li>
+      </li>
+    </li>
+  </ul>
+  <li>
+    <h1>関連する項目</h1>
+    <ul>
+      <li>
+        <a href="/article/fdb65a4c-d979-4ab7-b2fa-b88e908207fe">ガイドライン: 必要でない限りなりすましを利用しない</a>
+        <li>
+          <a href="/article/fab1733c-61d7-46a8-88c6-2617a643c0d9">ガイドライン: データベース アクセスには最小限の特権のアカウントを利用する</a>
+        </li>
+      </li>
+    </ul>
+  </li>]]></Data>
+  </Content>
+</TeamMentor_Article>

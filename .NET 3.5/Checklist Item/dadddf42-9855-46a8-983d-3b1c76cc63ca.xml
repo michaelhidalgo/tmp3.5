@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="690920857" Content_Hash="-333547730">
+  <Metadata>
+    <Id>dadddf42-9855-46a8-983d-3b1c76cc63ca</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>マルチスレッドのコードは、セキュリティ チェックの結果をキャッシュしない。</Title>
+    <Category>スレッディング</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>脆弱性につながるので、マルチスレッドのコードはセキュリティ チェックの結果をキャッシュしないことを確認してください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>マルチスレッドのコードがセキュリティ チェックの結果を、おそらく静的変数でキャッシュする場合、コードは次の例に表示されるように潜在的な脆弱性を持ちます。</p>
+  <div>
+ <pre>public void AccessSecureResource(){<br />  callerOK = PerformSecurityDemand();<br />  OpenAndWorkWithResource();<br />  callerOK = false;<br />}<br />private void OpenAndWorkWithResource(){<br />  if (callerOK)<br />    PerformTrustedOperation();<br />  else<br />  {<br />    PerformSecurityDemand();<br />    PerformTrustedOperation();<br />  }<br />}</pre>
+  </div>
+  <p>コードが <b>OpenAndWorkWithResource</b> への他のパスを持ち、別のスレッドがそのオブジェクトのメソッドを呼び出す場合、第 2 のスレッドが別のスレッドが設定する <b>callerOK=true</b> に遭遇するのでセキュリテ要求を省略する可能性があります。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

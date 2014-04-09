@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1788572891" Content_Hash="465669512">
+  <Metadata>
+    <Id>a16b34b4-d661-47d5-9ba2-2cc874222f61</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアントが証明書を持っている場合は、クライアント証明書認証の使用を検討する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>クライアントが証明書を持っている場合は、クライアント証明書認証の使用を検討します。</p>
+  <h1>理由</h1>
+  <p>クライアント証明書では、クライアント サービス アカウントまたは複数のユーザーを WCF サービスに対して認証することができます。 クライアント証明書を各ユーザーに使用する場合は、各証明書を Windows アカウントに割り当てることができます。 </p>
+  <h1>状況</h1>
+  <p>証明書認証を使用している場合にこのガイドラインを使用することを検討してください。</p>
+  <h1>対策</h1>
+  <p>mapClientCertificateToWindowsAccount 属性を true に設定することで Windows アカウント マッピング機能を有効にしてください。</p>
+ <pre>&lt;serviceCredentials&gt;<br />    &lt;clientCertificate&gt;<br />        &lt;authentication mapClientCertificateToWindowsAccount="true" /&gt;<br />    &lt;/clientCertificate&gt;<br />&lt;/serviceCredentials&gt;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

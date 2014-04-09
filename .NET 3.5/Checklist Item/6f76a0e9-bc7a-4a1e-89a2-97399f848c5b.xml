@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1932336224" Content_Hash="1297697828">
+  <Metadata>
+    <Id>6f76a0e9-bc7a-4a1e-89a2-97399f848c5b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>リダイレクトとフォワードの宛先をユーザー入力なしで計算する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>リダイレクトとフォワードの宛先がユーザー入力なしで計算されることを確認します。</p>
+  <h1>理由</h1>
+  <p>入力を使用してリダイレクトやフォワードの宛先を計算すると、攻撃者は正当なサイトへのリンクに見せかけたハイパーリンクを作成し、攻撃者の管理する悪意のあるページへとリダイレクトできるようになります。 この手法はしばしば、フィッシング詐欺で利用され、人をだまして偽のサイトに誘い込み、Credential 情報を盗みます。</p>
+  <h1>チェック方法</h1>
+  <p>パラメータを処理するコードを探し、それが入力に基づいてリダイレクトまたはフォワードを実行しているかどうか確認します。 リダイレクトは .NET では「フォワード」とも呼ばれています。 理想的には、リダイレクトとフォワードはその宛先を計算するためにユーザー入力に頼るべきではありません。</p>
+  <h1>修正方法</h1>
+  <p>次のアクションを実行して、ユーザー入力なしでリダイレクトとフォワードの宛先を計算します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>リダイレクトとフォワードを見つけます。</strong> リダイレクトまたはフォワードを実行するすべてのページを見つけます。 リダイレクトは .NET では「フォワード」とも呼ばれています。</p>
+      <li>
+        <p>
+          <strong>危険なリダイレクトとフォワードを特定します。</strong> 宛先の計算をユーザー入力に依存するリダイレクトとフォワードをすべて見つけます。</p>
+        <li>
+          <p>
+            <strong>リダイレクトとフォワードを書き直します。</strong> 可能であれば、リダイレクトまたはフォワードを取り除くように設計またはコードを変更することを考慮してください。 リダイレクトまたは転送が絶対に必要な場合、ユーザー入力なしで動作するようにそれを書き直す方法を検討します。 これは通常、アプリケーション設計において置かれた仮定に基づくことによって可能になります。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>リダイレクトまたはフォワードの無効化に関する詳細は、次を参照してください。<a href="http://www.owasp.org/index.php/Top_10_2010-A10-Unvalidated_Redirects_and_Forwards">http://www.owasp.org/index.php/Top_10_2010-A10-Unvalidated_Redirects_and_Forwards</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

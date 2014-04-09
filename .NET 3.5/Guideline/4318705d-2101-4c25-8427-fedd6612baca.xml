@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-715966326" Content_Hash="-361399285">
+  <Metadata>
+    <Id>4318705d-2101-4c25-8427-fedd6612baca</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>イントラネット内のクライアントをサポートする必要があれば、netTcpBinding の使用を検討する</Title>
+    <Category>バインディング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>イントラネット内のクライアントをサポートする必要がある場合、netTcpBinding の使用を検討してください。 </p>
+  <h1>理由</h1>
+  <p>netTcpBinding には次のような特徴があります：</p>
+  <ul>
+    <li>WCF が有効なクライアントのみに消費されます。 <li>信頼性のあるメッセージ、メッセージ セキュリティ、および安全なトランザクションを含む WS* スタックをサポートします。 <li>トランスポート セキュリティはデフォルトで有効になっていますが、メッセージ セキュリティも提供されます。 <li>サービスは IIS 5.0 または IIS 6.0 でホストすることができますが、これはメッセージで起動されるものではないので Windows サービスまたは IIS 7.0 を検討することをお勧めします。 <li>メッセージ セキュリティを使用することを選択した場合、証明書、ユーザー名、Windows または Issue トークン認証（Windows CardSpace）を使用することができます。 <li>トランスポート セキュリティを使用することを選択した場合、証明書か Windows 認証しか使えません。</li></li></li></li></li></li>
+  </ul>
+  <h1>状況</h1>
+  <p>.NET-to-.NET マシン間通信に安全で信頼性のあるバインド環境を提供した場合にはこのバインドを使用します。</p>
+  <h1>対策</h1>
+  <p>トランスポート パフォーマンスが重要であり、サービスを IIS ではなく Windows サービスとしてホストすることに問題がない場合には、netTcpBinding はイントラネットのシナリオで良い選択となります。 netTcpBinding は TCP プロトコルを使用し、SOAP セキュリティ、トランザクションおよび信頼性をサポートします。 </p>
+  <p>次の例では netTcpBinding の構成方法が示されています：</p>
+ <pre>&lt;system.serviceModel&gt;<br />....<br />    &lt;services&gt;<br />        &lt;service behaviorConfiguration="" name="WCFServicecHost.MyService"&gt;<br />            ...<br />            &lt;endpoint address="" binding="netTcpBinding" bindingConfiguration=""<br />                name="TcpBinding" contract="WCFServicecHost.IMyService" /&gt;<br />            ...<br />        &lt;/service&gt;<br />    &lt;/services&gt;<br />&lt;/system.serviceModel&gt;<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>バインドに関する更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms733027.aspx">http://msdn2.microsoft.com/en-us/library/ms733027.aspxにある　「Windows Communication Foundation Bindings」（WCF バインド）を参照してください。</a><li>バインド Q&A については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Homeにある「WCF 3.5 Questions and Answers」（WCF 3.5 の質疑応答）のバインドの項を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="780330585" Content_Hash="-176313957">
+  <Metadata>
+    <Id>d62ef27c-60f7-489a-8443-2b339854241c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クラスおよびメンバーの可視性の制限</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>設計</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>コードには可能な限り最も限定的なアクセス修正子を使用してください。</p>
+  <h1>理由</h1>
+  <p>クラスおよびメンバー アクセス修正子は、コードの呼び出し元の制限を可能にします。 コードにあるエントリ ポイント (パブリック インターフェイス) が少なければ少ないほど、Attack Surface (攻撃対象領域) は小さくなり、保護しやすくなります。</p>
+  <h1>状況</h1>
+  <p>これは重要なガイドラインであり、常に従う必要があります。</p>
+  <h1>対策</h1>
+  <p>可能な場合は常に <b>private</b> アクセス修正子を使用してください。 生成されたクラスにメンバーがアクセス可能であるべきである場合にのみ、<b>protected</b> アクセス修正子を使用してください。 同じアセンブリ内の他のクラスにメンバーがアクセス可能であるべきである場合にのみ、<b> internal </b> アクセス修正子を使用してください。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;アクセス修正子は、コンパイル時にのみ強制されます。 悪意のあるコードが完全に信頼できる環境で実行すると、これらの可視性の制限を回避するためにリフレクションまたはアンマネージポインターが使用されることがあります。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

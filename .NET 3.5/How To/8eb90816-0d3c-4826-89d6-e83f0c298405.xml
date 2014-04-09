@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-990449233" Content_Hash="2053040956">
+  <Metadata>
+    <Id>8eb90816-0d3c-4826-89d6-e83f0c298405</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コード アクセス セキュリティを使用する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>コード アクセス セキュリティを使用することで、プラグインのような信頼されていないコードについて、コードの実行内容を制限し、どのコードがこちらのコードを呼び出せるかを制限し、制限付きの実行環境を作成することができます。 </p>
+  <p>例えば、ホストされる環境で、ASP.NET のコード アクセス セキュリティのポリシーを使用すれば、複数のアプリケーションをお互いからまた共有システム リソースへのアクセスから分離することができます。 コードの実行内容を制限することは、サード パーティのコンポーネントやプラグインのような信頼されていないコードを実行する必要があるときにも役に立ちます。&nbsp; </p>
+  <p>アクセス許可要求を使用すれば、適切なアクセス許可を持つコードのみがこちらのコードを呼び出せるようにするのに役立ちます。 </p>
+  <p>コードがローカルにインストールされている場合、コンピュータにインストールされたコードは完全に信頼して実行できるものですので、コード アクセス セキュリティについて心配する必要はありません。 コード アクセス セキュリティは、次のようなシナリオで適用されます:</p>
+  <ul>
+    <li>アプリケーションを展開して実行するために ClickOnce を使用。 <li>完全には信頼できない ASP.NET Web アプリケーションを、例えばホストされているサーバで実行する。 <li>マネージ コントロールを Internet Explorer 内で実行する。 <li>イントラネットのファイル共有からコードを実行する。Internet Explorer <li>Microsoft Office アプリケーション内でコードを実行する。 <li>完全には信頼できないアプリケーションを含む他のアプリケーションによって使用されるクラス ライブラリを開発する。</li></li></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

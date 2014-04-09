@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="905408629" Content_Hash="-1929583414">
+  <Metadata>
+    <Id>058b6e7b-bfd5-4e6d-8958-2d5b92dfb5ed</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>厳密名でアセンブリに遅延署名する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>遅延署名を使用することにより、会社の私有鍵へのアクセスを制限できます。 開発チームのメンバーだけが会社の公開鍵へのアクセスを必要とします。 アセンブリに遅延署名が必要な場合は .snk ファイルを使用します。 </p>
+  <ul>
+    <li>次のコマンドを使用して、組織の鍵ペアを作成します。</li>
+  </ul>
+ <pre>sn.exe -k keypair.snk</pre>
+  <ul>
+    <li>鍵ペア ファイルから公開鍵を抽出するために、次のコマンドを使用します。</li>
+  </ul>
+ <pre>sn -p keypair.snk publickey.snk</pre>
+  <p>Keypair.snk をセキュアにしてください、これは私有鍵と公開鍵の両方を含みます。 例えば、コンパクト ディスク上に置いて、物理的に確保します。 その後、すべての開発者が Publickey.snk を利用できるようにします。 例えば、ネットワーク共有に置いてください。 </p>
+  <p>アセンブリに遅延署名するには、Visual Studio のプロジェクト プロパティ ページから <b>署名</b> タブをクリックしてから、 <b>アセンブリの署名</b> および <b>遅延署名のみ</b> のチェックボックスを選択します。 厳密名の鍵ファイルを選択してから、アセンブリを構築します。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;遅延署名されたプロジェクトは実行されず、デバッグすることができません しかし、開発用にに検証をスキップする <b>-Vr</b> オプションを伴った 厳密名ツール (Sn.exe) を使用することができます。</blockquote>
+  <p>遅延署名プロセスとアセンブリ署名の欠如は、読み込み時にアセンブリが​​検証に失敗することを意味します。 これに対処し、特定アセンブリの検証を無効にするには、次のコマンドを使用します。</p>
+ <pre>sn -Vr assembly.dll</pre>
+  <p>特定の公開鍵を持っているすべてのアセンブリに対して検証を無効にするには、次のコマンドを使用します。</p>
+ <pre>sn -Vr *,publickeytoken</pre>
+  <p>公開鍵と鍵トークン（公開鍵のハッシュを切り捨てたもの）を抽出するには、次のコマンドを使用します。</p>
+ <pre>sn -Tp assembly.dll</pre>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;大文字の <b>-T</b> スイッチを使用してください。<b></b></blockquote>
+  <p>署名プロセスを十分に完了し、アセンブリへのアクセスを制限するためにデジタル署名を作成するには、次のコマンドを使用します。 これは私有鍵を必要とし、結果として、操作は通常、正式なビルドおよびリリース プロセスの一部として実行されます。 次のコマンドは、Assembly.dll と呼ばれるアセンブリを Keypair.snk 鍵ファイルを使用した厳密名で署名し直します。 </p>
+ <pre>sn -R assembly.dll keypair.snk</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

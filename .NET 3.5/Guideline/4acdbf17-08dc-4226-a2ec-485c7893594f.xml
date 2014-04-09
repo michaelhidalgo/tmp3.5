@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1847863214" Content_Hash="1346815367">
+  <Metadata>
+    <Id>4acdbf17-08dc-4226-a2ec-485c7893594f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL サーバーに接続する時に Windows 認証を使用する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>SQL サーバーに接続する時は Windows 認証を使用すると、ローカルアカウント ミラー化や偽装/委任など、他の認証方法と比較してセキュリティ優位性が得られます。 </p>
+  <h1>理由</h1>
+  <p>ドメイン アカウントはミラーリングするローカル アカウントや偽装/委任よりいくつか有利な点があります：</p>
+  <ul>
+    <li>Active Directory パスワード ポリシーを強制することができます。 <li>Active Directory では、単一の管理ツール セットを備えた単一の ID ストアが提供されます。 別個の SQL アカウント セットを維持する必要がありません。 <li>認証の間ネットワーク経由でCredential 情報が渡されず､データベース接続文字列にユーザー名とパスワードを埋め込む必要がありません。 これは、ネットワークを監視するか、または構成ファイルの中の接続文字列を見ることで、悪意のあるユーザーおよび攻撃者がCredential 情報を取得することができないことを意味します｡ <li>アカウント管理の集中化の利点が得られます｡ ユーザーアカウントは、パスワード有効期限､最小長、複数回の無効なログオン要求後のアカウント凍結のような、通常のアカウント管理セキュリティ ポリシーに従います。 </li></li></li></li>
+  </ul>
+  <h1>状況</h1>
+  <p>できる限り Windows 認証を使用してください。&nbsp; しかし、次の場合には Windows 認証が使用できないことがあります：</p>
+  <ul>
+    <li>データベース クライアントとデータベース サーバは Kerberos または NTLM 認証を防いでしまうファイアウォールで分離されています。 <li>アプリケーションサーバおよびデータベースサーバが、信任されてない別個のドメインに置かれている場合｡ </li></li>
+  </ul>
+  <p>これらの状況では、ローカルアカウントのミラー化または偽装/委任モデルを使用します。&nbsp; ローカル アカウンのトミラー化は多くの状況下でより良い選択肢です。&nbsp;</p>
+  <h1>対策</h1>
+  <p>Windows 認証を使用して SQL Server に接続するには、以下の手順を実行してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>接続文字列を設定します。</strong> ASP.NET アプリケーションの場合、接続文字列はアプリケーションの Web.config ファイルの&lt;connectionStrings&gt;部分に収納します。 Windows 認証で使用される接続文字列は Trusted_Connection=Yes （信頼性のある接続＝はい）または同等の属性統合セキュリティ ＝ SSPIを含む必要があります：</p>
+      <blockquote>
+ <pre>&nbsp;&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="MyLocalSQLServer" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="Initial Catalog=pubs;User Id=sa;Password=asdasd;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data source=localhost;Integrated Security=SSPI;"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;</pre>
+      </blockquote>
+      <li>
+        <p>
+          <strong>接続文字列を暗号化します。</strong> Windows 認証のデータベース接続文字列にはユーザー名およびパスワードが含まれていないものの、Web.config で暗号化してサーバ名やデータベース名が開示されることを防ぐ必要があります。 </p>
+        <blockquote>
+          <p>マシン ストアで connectionStrings セクションを暗号化するには、.NET コマンド プロンプトから次のコマンドを実行します。</p>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</pre>
+        </blockquote>
+        <li>
+          <p>
+            <strong>SQL Server のセキュリティを設定してください。</strong> アプリケーションのサービス アカウント用にSQL Server のログインを作成して、データベースにアクセスする制限付き許可を与える必要があります。 ストアド プロシージャなどの特定のデータベース オブジェクトへのアクセスを制限する必要があります。 </p>
+          <li>
+            <p>
+              <strong>セキュリティ アクセスをテストしてください。</strong> データベース アクセスをテストして、適切なデータベース アクセス許可があるかどうか確認してください。 同様に重要なこととして、アプリケーションの運用に不要なアクセス許可が拒否されているかどうかテストしてください。&nbsp;</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/f10679b7-5390-49ee-b529-7a2f7c059ce7">接続文字列を暗号化します</a>
+      <li>
+        <a href="/article/fab1733c-61d7-46a8-88c6-2617a643c0d9">データベースへのアクセスには最小限の特権のアカウントを使用します</a>
+        <li>
+          <a href="/article/c5ec2f64-2cba-45b1-8db1-9d3803f7d397">ドメイン アカウントがない場合にはミラーリングされたローカル アカウントを使用します</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

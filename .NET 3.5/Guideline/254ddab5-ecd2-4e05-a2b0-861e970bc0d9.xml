@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="458595276" Content_Hash="-1587499006">
+  <Metadata>
+    <Id>254ddab5-ecd2-4e05-a2b0-861e970bc0d9</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セッション Cookieを保護する</Title>
+    <Category>セッション管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <h1>行うべき事柄</h1>
+  <p>セッション Cookie の機密性および完全性を保護します。</p>
+  <h1>理由</h1>
+  <p>セッション クッキーは、特定のユーザーに関連付けられたセッションを識別するためにアプリケーションによって使用されます。 セッション Cookie を保護することで、攻撃者によるセッションのハイジャックおよび正規ユーザーとしての動作を防ぐことができます。</p>
+  <h1>状況</h1>
+  <p>お使いのアプリケーションで、ユーザーのセッション状態の維持管理に Cookie が使用されている場合。</p>
+  <h1>対策</h1>
+  <p>以下の手順を使用して、セッション クッキーを保護します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ユーザーに独自のセッション識別子の選択を許可しません</strong>：独自の値を生成してセッション ID として使用すると、値が予測可能なものであったり、ユーザー名のように推測可能なエレメントに基づいていたりする場合に、セッション予知攻撃につながる可能性があります。 代わりに、ASP.NET でそのセッションに対して生成される ID を使用してください。 こうすることで、厳密にランダムな ID が各セッションに割り当てられる (さらに ID には <strong>Session.SessionID</strong> を通じてアクセスできる) ため、攻撃者が他のユーザーのセッションをハイジャックするリスクを最低限に抑えることができます。</p>
+      <li>
+        <p>
+          <strong>セッションを再利用しません</strong>：必ずクリーンなセッションを使用してください。 こうすることで、古いデータ (おそらく別のユーザーのもの) の開示を防ぐことができ、ユーザー アカウントのプライバシーおよび完全性を保護することができます。 セッション ID が決してリサイクルされないようにするには、 <strong>sessionState</strong> 構成の <strong>regenerateExpiredSessionId</strong> 属性を <strong>false</strong> に設定しなければいけません。sessionState エレメントは、以下のように Machine.config または Web.config ファイルで設定することができます。</p>
+ <pre>&lt;sessionState<br />   ...<br />   ...<br />   cookieless="UseCookies"<br />   cookieName="ASP.NET_SessionId"<br />   timeout="20"<br />   allowCustomSqlDatabase="false" <br /><strong>regenerateExpiredSessionId="false"<br /></strong> &lt;/sessionState&gt;</pre>
+        <li>
+          <p>
+            <strong>セッションをタイムアウトさせます</strong>：セッションの有効期限を設定してください。 こうすることで、攻撃者に与えられる機会の窓が狭くなり、<a href="/article/862e51f1-a026-40f9-826b-7a65fa5dc563">HTTP セッション ハイジャック攻撃</a> の脅威を軽減することができます。 お使いのアプリケーションによって、10 ～ 30 分の間で適切なタイムアウトを設定できます。 タイムアウト値 (分) は、sessionState 構成内にある <strong>timeout</strong> 属性によって設定することができます。</p>
+ <pre>&lt;sessionState<br />   ...<br />   ...<br />   cookieless="UseCookies" <br />   cookieName="ASP.NET_SessionId" <br /><strong>timeout="10" <br /></strong>   allowCustomSqlDatabase="false" <br />   regenerateExpiredSessionId="false"<br /> &lt;/sessionState&gt;</pre>
+          <li>
+            <p>
+              <strong>ユーザーにセッションの終了を許可します</strong>：ユーザーにセッションの無効化を許可することで、セッション ハイジャックのリスクを低減することができます。 ユーザーが Web アプリケーションからログオフすることを決めた場合は、<strong>regenerateExpiredSessionId</strong> 属性を false に設定する (ポイント #2 に記載) ことと併せて <strong>Session.Abandon()</strong> メソッドを使用してください。 <strong>Session.Abandon()</strong> メソッドが呼び出されると、現在のセッションは無効となり、新しいセッションを開始することができるようになります。</p>
+            <li>
+              <p>
+                <strong> Cookie をスクリプトから隠します</strong>：認証 Cookie は、ユーザーから送られてくる要求を認証するために、サーバ側でのみ使用されます。 認証 Cookie はクライアントでは絶対に使用されません。 クライアントがスクリプトを通じて認証 Cookie にアクセスできないようにすることで、スクリプト インジェクション攻撃が発生した場合でも、攻撃者はユーザーの Cookie を盗み出すことができなくなります。 この操作は、web.config または machine.config ファイルの <strong>httpCookies</strong> 構成で <strong>httpOnlyCookies</strong> 属性を以下のように設定することで実行できます。</p>
+ <pre>&lt;system.web&gt;<br />...<br /><strong>&lt;httpCookies httpOnlyCookies="true" requireSSL="true" topic="" /&gt;</strong><br />...<br />&lt;/system.web&gt;</pre>
+              <p>また、この値は、<strong>System.Net.Cookie</strong> クラスの <strong>HttpOnly</strong> プロパティを設定することでプログラム的に設定することができます。 この保護は Microsoft の Internet Explorer を使用しているユーザーにのみ有効で、さまざまな方法で回避することができますが、それでも防御レイヤーが追加されます。</p>
+              <li>
+                <p>
+                  <strong> Cookie が暗号化チャンネルを経由して送信されるようにします</strong>：ユーザーが他のユーザーの ID を装ったり、システム内で持っているロールを改変したりできないようにするために、SSL を使用してセッション Cookie の完全性および機密性を認証および認可の両方で保護してください。</p>
+                <p>
+                  <strong>認証の場合</strong>：ASP.NET で Forms Authentication を使用する場合は、お使いのウェブ アプリケーションの web.config ファイルに保存されている <strong>authentication</strong> 構成内にある <strong>requireSSL</strong> 属性を設定してください。 属性は以下のように設定できます。</p>
+ <pre>&lt;authentication mode="Forms"&gt;<br />  &lt;forms loginUrl="member_login.aspx"<br />    cookieless="UseCookies"<br /><strong>requireSSL="true"<br /></strong>    path="/MyApplication" /&gt;<br />&lt;/authentication&gt;</pre>
+                <p>
+                  <strong>認可の場合</strong>：ユーザーが認可 Cookie を改変できる場合は、ユーザーはシステム内で取得が許可されているロールを潜在的に改変することができます。 別のユーザーの認可 Cookie を読み取ることで、ユーザーは実際に使える認可 Cookie を偽造することができ、さらに本来取得している以上のシステムへのアクセス権が得られるようになる可能性があります。 お使いのウェブ アプリケーションの web.config または machine.config ファイル内にある <strong>roleManager</strong> 構成の <strong>cookieProtection</strong> 属性を <strong>All</strong> 設定することで認可 Cookie を暗号化し、<strong>cookieRequireSSL</strong> 属性を設定することで Cookie が安全な接続でのみ送信されるようにしてください。 属性は以下のように設定できます。</p>
+ <pre>&lt;roleManager enabled="true"<br />  cacheRolesInCookie="true"<br />  cookieName=".ASPROLES"<br />  cookieTimeout="30"<br />  cookiePath="/"<br /><strong>cookieRequireSSL="true"<br /></strong>  cookieSlidingExpiration="true"<br /><strong>cookieProtection="All"<br /></strong>  createPersistentCookie="false"&gt;<br />&lt;/roleManager&gt;</pre>
+                <p>
+                  <strong>SSLを使用しない場合</strong>：お使いのアプリケーションで SSL を使用できない (モバイル アプリケーションで時々あります) 場合は、認証 Cookie と認可 Cookie の両方で <strong>cookieSlidingExpiration</strong> 属性を <strong>false</strong> に設定してください。 <strong>timeout</strong> 属性のほかにこの属性が設定されている (上記に記載) 場合、ユーザーはユーザー アクティビティ (またはアクティビティがない状態) にかかわらず、設定されたタイムアウト期間の経過後に再認証を強制されます。 この属性は、以下のように認証 Cookie に設定することができます。</p>
+ <pre>&lt;authentication mode="Forms"&gt;<br />  &lt;forms loginUrl="member_login.aspx"<br />    cookieless="UseCookies"<br />    requireSSL="true"<br />    path="/MyApplication"<br /><strong>slidingExpiration="false"</strong> /&gt;<br />&lt;/authentication&gt;</pre>
+                <p>そして、以下のように認可 Cookie に設定することができます。</p>
+ <pre>&lt;roleManager enabled="true"<br />  cacheRolesInCookie="true"<br />  cookieName=".ASPROLES"<br />  cookieTimeout="30"<br />  cookiePath="/"<br />  cookieRequireSSL="false"<br /><strong>cookieSlidingExpiration="false"<br /></strong>  cookieProtection="All"<br />  createPersistentCookie="false"&gt;<br />&lt;/roleManager&gt;</pre>
+                <li>
+                  <p>
+                    <strong>永続的セッション Cookie を使用しません</strong>：永続的セッション Cookie はユーザー プロフィール内に保存され、攻撃者がマシンに物理的にアクセスできる場合や、お使いのアプリケーションにパブリック マシンからアクセスしているユーザーがログアウトするのを忘れた場合に脅威にさらされる可能性があります。 永続的ユーザーの ID Cookie の使用は認められることであり、このため、サイトに戻ってきたユーザーを名前別に受け入れることができます。 ただし、ID Cookie がログイン Cookie になったり、識別 Cookie によって保護リソースへのアクセスが許可されたりすることはありませんので十分に注意してください。 認可されていないアクセスを防ぐには、以下の手順を 1 つ実行してください。</p>
+                  <ul>
+                    <li>
+                      <p>ログイン制御を使用している場合：<strong>Login</strong> 制御の <strong>DisplayRememberMe</strong> プロパティを <strong>false</strong> に設定してください。</p>
+                      <li>
+                        <p>ログイン コントロールを使用していない場合、以下に示されるようにユーザーの Credential 情報を有効化する、<strong>FormsAuthentication</strong> クラスの <strong>RedirectFromLoginPage</strong> または <strong>SetAuthCookie</strong> メソッドのいずれかを呼び出す際に、非持続 Cookie を指定できます。</p>
+ <pre>public void Login_Click(object sender, EventArgs e)<br />&amp;#123;<br />   // Is the user valid?<br />   if (Membership.ValidateUser(userName.Text, password.Text))<br />   &amp;#123;<br />        // Parameter two set to false indicates non-persistent cookie<br />        FormsAuthentication.RedirectFromLoginPage(username.Text, false);<br />   &amp;#125;<br />   else <br />   &amp;#123;   <br />        Status.Text = "Invalid credentials. Please try again.";<br />   &amp;#125;<br />&amp;#125;</pre>
+                      </li>
+                    </li>
+                  </ul>
+                  <p>認可 Cookie の場合、roleManager 構成の createPersistent Cookie 属性を設定してください。 属性は以下のように設定できます。</p>
+ <pre>&lt;roleManager enabled="true"<br />             cacheRolesInCookie="true"<br />             cookieName=".ASPROLES"<br />             cookieTimeout="30"<br />             cookiePath="/"<br />             cookieRequireSSL="true"<br />             cookieSlidingExpiration="true"<br />             cookieProtection="All"<br />             createPersistentCookie="false"&gt;&lt;/roleManager&gt;</pre>
+                  <li>
+                    <p>
+                      <strong>一意の Cookie 名およびパスを使用します</strong>：一意の名前を使用することで、同一サーバ上で複数のアプリケーションをホストする場合に発生する可能性がある問題を未然に防ぐことができます。 たとえば、はっきりと異なる名前を使用しない場合、あるアプリケーション内で認証されているユーザーは、別のアプリケーションに対して、そのアプリケーションのログイン ページにリダイレクトされていない状態で要求を行うことが可能です。</p>
+                    <p>お使いの web.config ファイル内の以下の場所にある &lt;<strong>forms</strong>&gt; エレメントの <strong>name</strong> および <strong>path</strong> の属性に 一意の値を設定してください。</p>
+ <pre>&lt;forms name="YourAppName"<br />       path="/FormsAuth" ... /&gt;</pre>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>Web アプリケーションは、SSL を使用してユーザー データにセキュアな接続を提供し､各ユーザー向けに強固な新規セッション ID を生成し､セッションを適切にタイムアウトおよび終了させます。 しかしながら、クロスサイト スクリプティング欠陥の影響を受けやすく、また、大部分で IE を使用しているユーザー ベースがあるにもかかわらず、 Cookie に <strong>httpOnlyCookies</strong> が設定されません。 このアプリケーションの web.config ファイルは以下のようなものです:</p>
+ <pre>&lt;system.web&gt;<br />  ...<br />  &lt;httpCookies httpOnlyCookies="<strong>false</strong>" requireSSL="true" topic="" /&gt;<br />  ...<br />&lt;/system.web&gt;</pre>
+  <p><a href="/article/8049f087-514e-4f31-b587-c83f466547d3">クロスサイト スクリプティング攻撃</a>が攻撃者によって発見された場合、攻撃者はユーザーのセッション Cookie を悪意のあるスクリプトを経由して盗み出すためにこの攻撃を使用します。</p>
+  <h1>ソリューションの例</h1>
+  <p>ウェブ アプリケーションの設計者は、教訓を学び、クロスサイト スクリプティング脆弱性の修正と将来の脆弱性の防止に加えて、追加の防御レイヤーとして、認証 Cookie をスクリプトから隠すことも決定します。 設計者は、<strong>httpOnlyCookies</strong> 属性を以下のように設定することでこの操作を実行します。</p>
+ <pre>&lt;system.web&gt;<br />  ...<br />  &lt;httpCookies httpOnlyCookies="<strong>true</strong>" requireSSL="true" topic="" /&gt;<br />  ...<br />&lt;/system.web&gt;</pre>
+  <p>こうすることで、クライアント ブラウザ内のすべてのスクリプト (極めて悪意のあるスクリプトを含む) は認証 Cookie にアクセスできなくなり、システムのユーザーは安全性が高まります。</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/bd63d4b0-205d-4d95-9022-86a3f0af5232">ガイドライン：Credential 情報の送信時に SSL を使用する</a>
+      <li>
+        <a href="/article/862e51f1-a026-40f9-826b-7a65fa5dc563">攻撃：HTTP セッション ハイジャック攻撃</a>
+        <li>
+          <a href="/article/ac219c42-ec7a-4a01-be18-d0a76bd66018">攻撃：セッション予知攻撃</a>
+          <li>
+            <a href="/article/cf06603e-440e-4118-85d5-ad360817fabc">攻撃: ネットワーク傍受攻撃</a>
+            <li>
+              <a href="/article/6ae71499-095c-49bd-bed0-4e08303a4324">攻撃：クロスサイト リクエスト フォージェリ</a>
+              <li>
+                <a href="/article/61f8ac64-c4e1-4c31-9521-f20a1a64b6fd">攻撃：クロスサイト スクリプティング攻撃</a>
+                <li>
+                  <a href="/article/43c19a37-285d-4cdd-a43b-bdea78eb1686">攻撃：HTTP 反復攻撃</a>
+                  <li>
+                    <a href="/article/7d83d845-cd2b-4067-bb4c-5fbb890b9c9e">攻撃：情報漏えい攻撃</a>
+                    <li>
+                      <a href="/article/49b38504-c2de-4d5e-8ba3-d72a1bcd3e26">チェックリスト項目：セッション Cookie は保護されている</a>
+                      <hr />
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

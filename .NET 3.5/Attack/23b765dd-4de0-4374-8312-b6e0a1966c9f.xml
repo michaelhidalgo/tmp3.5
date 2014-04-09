@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1963468740" Content_Hash="-546693000">
+  <Metadata>
+    <Id>23b765dd-4de0-4374-8312-b6e0a1966c9f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ソーシャル エンジニアリング攻撃</Title>
+    <Category>セキュリティ トークン サービス</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <p>機微データを保管、送信、処理システムや、貴重なリソースへのアクセスを制御するシステム。</p>
+  <h1>説明</h1>
+  <p>ソーシャル エンジニアリング攻撃の間、攻撃者は人間のやりとりに頼って、個人や組織に関する機密情報を入手しようとしたり、システムに無許可でアクセスしたりしようとします。 被害者は通常、だまされてセキュリティ対策を回避する行動を取ったり、機密情報を漏らしたりします。 ソーシャル エンジニアリング攻撃の例として以下のようなものがあります。</p>
+  <ul>
+    <li>
+      <strong>フィッシング</strong>: 大量の電子メールを送信し、リンクをクリックしてユーザー名、パスワード、社会保障番号などの機密情報を照合するように受信者に依頼します。リンク先の Web サイトは正当な組織に属しているように見えますが、実は攻撃者が所有するものです。 被害者が攻撃者に機密情報を送信すると、攻撃者はそれを自分のサーバに保存し、自分がスプーフィングしていたサイトの正当なログイン ページにユーザーをリダイレクトします。 <li><strong>電話のフィッシング</strong>: 電話をかけ、正当な組織または従業員になりすまし、ファイアウォールなどのセキュリティ機構を回避するように被害者の支援を要請したり、ユーザーに機密情報や機微な情報を要求したりします。 <li><strong>ショルダー サーフィン</strong>: 誰かがキーボードにユーザー名やパスワードを入力しているところや、ATM で PIN を入力しているところを観察します。<li><strong>ダンプスター ダイビング</strong>: 居住地や商業地のゴミを選り分け、パスワードやクレジット カードなど、機密情報を探します。</li></li></li></li>
+  </ul>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>情報漏えい</strong>: 攻撃者は、直接的に、あるいはゴミを選り分けたり、ユーザーが機密情報を入力するところを観察したりするなどの調査により、ユーザーから情報を入手できることがあります。 <li><strong>認証情報漏えい</strong>: 被害者は不注意で Credential 情報を攻撃者に漏えいすることがあります。 <li><strong>特権の昇格</strong>: 正当なユーザーにアクセス制御の迂回を手伝わせたり、その他の方法で自分の代わりに行動させたりすることで、攻撃者は自分にはアクセスが許されないシステムまたはリソースへのアクセスができるようになることがあります。</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>
+      <strong>教育の不足</strong>: ユーザーや従業員を教育し、アプリケーションやサービス プロバイダーが機密情報や機微な情報を要求することは決してないことを知ってもらう必要があります。 <li><strong>一貫性のない UI</strong>: ユーザーまたは従業員が、無効な証明書を承認したり、奇妙な外観のリンクをクリックしたり、IT スタッフやその他の従業員に機密情報を与えたりすることに慣れてしまってしているようであれば、ソーシャル エンジニアリング攻撃の犠牲者になる可能性が高いです。 <li><strong>物理的データの不適切な破壊</strong>: 紙であれ、デジタル 記憶域メディアであれ、機密情報はすべて完全に破壊してから捨てなければなりません。 </li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>教育</strong>: 機密情報は決して漏えいしないように、また、第三者の傍観者から機密情報を隠すように従業員とユーザーに教育します。 <li><strong>一貫性のある UI</strong>: 一貫性のあるユーザー インターフェイスを作成し、ユーザーがより簡単に無効な/悪意のある行動を認識できるようにします。 <li><strong>ハード コピーはすべて適切に破壊する</strong>: データ バックアップ、紙のハード コピー、ハード ディスク、その他のメディアは、必要な仕様に従って破壊します。</li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ソーシャル エンジニアリング: <a href="http://en.wikipedia.org/wiki/Social_engineering_(computer_security">http://en.wikipedia.org/wiki/Social_engineering_(computer_security)</a><li>ソーシャル エンジニアリング攻撃の例とその防止方法: <a href="http://searchsecurity.techtarget.com/tip/1,289483,sid14_gci865450,00.html">http://searchsecurity.techtarget.com/tip/1,289483,sid14_gci865450,00.html</a><li>紙/データの破砕: <a href="http://en.wikipedia.org/wiki/Paper_shredder">http://en.wikipedia.org/wiki/Paper_shredder</a></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/40188a30-1dab-4905-93ba-377068d670ca">ガイドライン: アプリケーションの信頼性をユーザーに証明する</a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

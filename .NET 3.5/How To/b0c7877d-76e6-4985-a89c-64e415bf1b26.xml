@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="894497955" Content_Hash="-1975562227">
+  <Metadata>
+    <Id>b0c7877d-76e6-4985-a89c-64e415bf1b26</Id>
+    <Library_Id>00000000-0000-0000-0000-000000000000</Library_Id>
+    <Title>ARP ポイズニング バグのテスト方法</Title>
+    <Category>ネットワーキング</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>Andres De Vivanco</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<H1><SPAN>適用対象は次のとおりです。</SPAN></H1>
+<UL>
+<LI><SPAN>交換イーサネットとワイヤレス ネットワーク上の PC、ワークステーション、およびサーバー。</SPAN></LI></UL>
+<P><SPAN>&nbsp;</SPAN></P>
+<H1><SPAN>概要</SPAN></H1>
+<P><SPAN>ARP (アドレス解決プロトコル) は、パケットが最終物理送信先に到達するように、任意のコンピューターが IP の MAC アドレスをクエリーすることを可能にします。<SPAN>&nbsp;&nbsp; </SPAN>ノードが特定の IP と通信する場合、それは APR キャッシュにその IP アドレスに対する MAC アドレスがあるかどうかを確認します。<SPAN> </SPAN>ノードに MAC がない場合、そのノードは ARP リクエストをブロードキャストします。<SPAN> </SPAN>送信先 IP が ARP リクエストを受信したら、それはノードに MAC アドレスを含む ARP 応答を戻します。<SPAN> </SPAN><SPAN>&nbsp;</SPAN>ARP 応答を受信した後、ノードはその ARP キャッシュを更新し、MAC アドレスを送信先 IP に関連付けます。</SPAN></P>
+<P><SPAN>ARP ポイズニング (ARP スプーフィングまたは ARP キャッシュ ポイズニングとも知られる) の間に、攻撃者は被害者のノードに ARP 応答を送信することで、被害者の ARP キャッシュをポイズニングします。<SPAN>&nbsp; </SPAN>ARP プロトコルはステートレスであるため、攻撃者は容易に ARP キャッシュを変更し、被害者のキャッシュにある任意のターゲット IP に対し、正当な MAC アドレスを攻撃者の MAC アドレスと置換することができます。<SPAN>&nbsp; </SPAN>ARP ポイズニング攻撃が成功すると、被害者のノードからターゲット IP へのいかなるネットワーク トラフィックはまず攻撃者を通ることになるため、中間者攻撃の状態に至ります。</SPAN></P>
+<P><SPAN>以下の手順に従って、ARP ポイズニング バグのテストを実行します。</SPAN></P>
+<UL>
+<LI><SPAN>手順 1: <SPAN> </SPAN>攻撃のシナリオを理解する</SPAN> 
+<LI><SPAN>手順 2: <SPAN> </SPAN>原因と対応策を分析する</SPAN> 
+<LI><SPAN>手順 3: <SPAN> </SPAN>テストと調査を開始する</SPAN> 
+<LI><SPAN>手順 4: <SPAN> </SPAN>さらなるテストの実行</SPAN></LI></UL>
+<P><SPAN>&nbsp;</SPAN></P>
+<H1><SPAN>手順 1: <SPAN> </SPAN>攻撃のシナリオを理解する</SPAN></H1>
+<P><SPAN>ARP ポイズニング攻撃のテストにおける最初の手順は、基本的な攻撃シナリオを理解することです。<SPAN>&nbsp; </SPAN>次に一般的な ARP ポイズニング攻撃のシナリオを挙げます。</SPAN></P>
+<UL>
+<LI><SPAN>ARP ポイズニングによるネットワーク トラフィックのスニッフィング</SPAN> 
+<LI><SPAN>ARP ポイズニングによるフィッシング攻撃の実行</SPAN></LI></UL>
+<P><SPAN>&nbsp;</SPAN></P>
+<H2><SPAN><EM>ARP ポイズニングによるネットワーク トラフィックのスニッフィング</EM></SPAN></H2>
+<P><SPAN>最も一般的な ARP ポイズニングのシナリオでは、ネットワーク通信のスニッフィングによって情報を漏らすことを目的とします。<SPAN>&nbsp; </SPAN>攻撃者は、傍受攻撃を実行するために 2 人の被害者 (A と B) を選択します。<SPAN>&nbsp; </SPAN>次に、B の IP に対する MAC が攻撃者の MAC であると示す ARP 応答を被害者 A に送信し、A の IP に対する MAC が攻撃者の MAC であると示す ARP 応答を被害者 B に送信します。<SPAN> </SPAN>次に攻撃者は、パケットが A から B に転送されるように、IP 転送を設定します。<SPAN> </SPAN>最後に、攻撃者はネットワーク監視ツールを使用して、A から B に交換されるパケットのコンテンツを表示します。</SPAN></P>
+<P><SPAN>詳細: </SPAN></P>
+<OL>
+<LI><SPAN>攻撃者は被害者ノードを選択します。<SPAN>&nbsp;&nbsp; </SPAN>多くの場合、攻撃者は被害者の 1 人とインターネット間のすべてのトラフィックをスニッフィングするために、ゲートウェイをもう 1 人の被害者として選択します。</SPAN> 
+<LI><SPAN>攻撃者はキャッシュをポイズニングするために、ARP 応答を被害者に送信します。</SPAN> 
+<LI><SPAN>攻撃者は、IP パケット転送を自分のボックスで設定します。</SPAN> 
+<LI><SPAN>攻撃者は ARP キャッシュがポイズンになるまで待ち、ネットワーク監視ツールの使用によるトラフィックの監視を開始します。</SPAN></LI></OL>
+<P><SPAN>&nbsp;</SPAN></P>
+<H2><SPAN><EM>ARP ポイズニングによるフィッシング攻撃の実行</EM></SPAN></H2>
+<P><SPAN>もう 1 つの危険な ARP ポイズニングの適用は、ネットワーク ノードへのフィッシング攻撃の実行から成ります。<SPAN>&nbsp; </SPAN>たとえば、攻撃者は被害者がオンライン銀行サイトに訪れるとき、元のサイトの代わりに攻撃者によって完全にコントロールされている銀行サイトのフィッシング バージョンを受信するように、被害者の ARP キャッシュをポイズニングします。<SPAN>&nbsp; </SPAN>交換ネットワークでは、これはゲートウェイから被害者へのすべての DNS リスポンスを攻撃者に通してトンネリングすることで実行されます。<SPAN>&nbsp; </SPAN>銀行の DNS リスポンスを受信したら、ゲートウェイはそれらを自分の意思で変更し、元の銀行の IP をフィッシング サイトに対応する IP に置換できる攻撃者に転送します。</SPAN></P>
+<P><SPAN>詳細: </SPAN></P>
+<OL>
+<LI><SPAN>攻撃者は被害者を選択します。<SPAN>&nbsp; </SPAN></SPAN>
+<LI><SPAN>攻撃者は ARP 応答を被害者とゲートウェイに送信して、被害者にゲートウェイの MAC が攻撃者の MAC であることを伝え、ゲートウェイに被害者の MAC が攻撃者の MAC であると伝えます。</SPAN> 
+<LI><SPAN>攻撃者は、ゲートウェイと被害者の ARP キャッシュがポイズニングされるまで待ちます。</SPAN> 
+<LI><SPAN>攻撃者は、ターゲット IP (例ではオンライン銀行) からのトラフィックを傍受するためのイベントを設定します。</SPAN> 
+<LI><SPAN>被害者クライアントはターゲット IP に (ゲートウェイを通して) DNS リクエストを行います。</SPAN> 
+<LI><SPAN>ゲートウェイは DNS リクエストを転送し、DNS サーバーから応答を受信してターゲット IP を解決します。</SPAN> 
+<LI><SPAN>ゲートウェイは DNS 応答を攻撃者の MAC に転送します。<SPAN>&nbsp; </SPAN></SPAN>
+<LI><SPAN>攻撃者は元のターゲット IP をフィッシング IP と置換することで、DNS 応答を変更します。</SPAN> 
+<LI><SPAN>攻撃は変更された DNS 応答を被害者に転送します。</SPAN></LI></OL>
+<P><SPAN>&nbsp;</SPAN></P>
+<H1><SPAN>手順 2: <SPAN> </SPAN>原因と対応策を分析する</SPAN></H1>
+<P><SPAN>ARP ポイズニング バクのテストを実行する次の手順は、何がそれらを発生させるか、およびそれらに対する保護方法を理解することです。<SPAN>&nbsp;&nbsp; </SPAN>これにより、どのネットワークが攻撃の影響を受けやすいか、およびそれらに対する保護方法について分かります。</SPAN></P>
+<H2><SPAN><EM>ARP ポイズニングの原因</EM></SPAN></H2>
+<P><SPAN>交換ローカル エリア ネットワーク (LAN) は、ハブではなくスイッチを使用するネットワークです。<SPAN>&nbsp;&nbsp; </SPAN>スイッチはブロードキャスターとして機能するのではなく、特定ノードにパケットを送信するため、ハブよりセキュアです。<SPAN> </SPAN>ハブ ネットワークとは対照的に、パケットをプロミキャス モードでスニッフィングするネットワーク ノードは、交換ネットワーク上にある他の 2 つのノード間のトラフィックを監視できません。<SPAN> </SPAN>ARP ポイズニング攻撃は、交換ネットワークに特有であり、デフォルトで存在します。<SPAN> </SPAN>交換ネットワークは、ARP リクエストを送信し、ARP 応答を受信することで機能します。<SPAN>&nbsp; </SPAN>このバグの問題と根本原因は、このプロトコルがステートレスであることにあります。<SPAN> </SPAN>ネットワーク ノードは、ARP 応答が実際に正当な ARP 応答からの返答として受信されることを確認しません。<SPAN> </SPAN>それはすべての ARP リクエストが正当であると想定するため、ARP ポイズニング攻撃に余地を与えます。<SPAN>&nbsp; </SPAN></SPAN></P>
+<P><SPAN>&nbsp;</SPAN></P>
+<H2><SPAN><EM>ARP ポイズニング対策</EM></SPAN></H2>
+<P><SPAN>ARP ポイズニングは完全に防げませんが、緩和することは可能です。<SPAN>&nbsp; </SPAN>これを行う方法の 1 つは、ARP テーブルへの変更を完全に拒否するために、静的 ARP テーブルを持つことです。<SPAN>&nbsp; </SPAN>ただし、大きいまたは急激に変化するネットワークにおいては実用的ではありません [i]。<SPAN> </SPAN>より高信頼性の対策は、交換ネットワーク上で ARP パケットを積極的に拒否することから成ります。<SPAN>&nbsp; </SPAN>この DHCP スヌーピングの ARP セキュリティ、または動的 ARP 検査として知られる方法は、ソース IP (ソース プロトコル アドレス フィールド) が本物でない場合、ARP パケットの転送を拒否するネットワーク ポリシーを適用します。</SPAN></P>
+<P><SPAN>追加の ARP ポイズニング検出と防止ツールは、インターネットで入手できます。<SPAN>&nbsp;&nbsp;&nbsp; </SPAN>たとえば、Unix ベースの Arpwatch は ARP キャッシュ エントリが変更されたらすぐに電子メール通知を送信します。Windows ベースの Xarp は、悪意のある ARP パケットを傍受するために、構成オプションも提供します。<SPAN> </SPAN>最後に、ARP スプーフィング攻撃に対して保護するために、ネットワーク侵入検知システム (NIDS) を構成してルールを追加することも可能です。</SPAN></P>
+<P><SPAN>&nbsp;</SPAN></P>
+<H1><SPAN>手順 3: <SPAN> </SPAN>テストと調査を開始する</SPAN></H1>
+<P><SPAN>これで ARP ポイズニング攻撃のシナリオ、それらの発生する原因、および保護対策について学習した上で、この説明を ARP ポイズニングの基本的なテスト ケースの実行方法に導きます。</SPAN></P>
+<P><B><I><SPAN>&nbsp;</SPAN></I></B></P>
+<H2><SPAN><EM>ARP ポイズニングによるネットワーク トラフィックのスニッフィングのテスト</EM></SPAN></H2>
+<P><SPAN>ネットワーク スニッフィングの ARP ポイズニングのテストを実行するには、同じネットワークとゲートウェイボックスに 2 つのボックス (被害者と攻撃者) が必要です。<SPAN>&nbsp; </SPAN>以下の手順を実行します。</SPAN></P>
+<OL>
+<LI><SPAN>Cain と Wireshark をダウンロードして攻撃者のボックスにインストールします。</SPAN> 
+<LI><SPAN>Cain を実行します。 </SPAN>
+<LI><SPAN>メニューで [構成] をクリックして、ネットワーク インターフェースを選択します (ワイヤレス インターフェースでも可)。</SPAN> 
+<LI><SPAN>[スニファ] タブと [ホスト] サブ タブをクリックします。</SPAN> 
+<LI><SPAN>スニファを起動して、プラス (+) サインをクリックします。</SPAN> 
+<LI><SPAN>MAC をスキャンする IP の範囲を選択 (ターゲット ボックスを範囲に含む) し、[OK] をクリックします。<SPAN>&nbsp; </SPAN>ゲートウェイと被害者の IP (およびそれらの MAC) が両方ともホスト リストに表示されるはずです。</SPAN> 
+<LI><SPAN>[ARP ポイズニング] サブ タブをクリックします。</SPAN> 
+<LI><SPAN>プラス サインをクリックして、被害者からゲートウェイへの ARP ルートを追加します。</SPAN> 
+<LI><SPAN>[ARP] ボタンを押すことで、ARP を開始します。<SPAN>&nbsp; </SPAN>被害者がアクティブになったらすぐに、そのステータスは「アイドル」から「ポイズニング」に変わります。<SPAN> </SPAN>下にあるペインでの、傍受されているパケットの表示が始まります (図 1 を参照)。</SPAN> 
+<LI><SPAN>Wireshark を起動し、Cain で選択された同じインターフェースで、ネットワーク トラフィックの捕捉を開始します。</SPAN></LI></OL>
+<P><SPAN>予期される結果:</SPAN></P>
+<P><SPAN>ARP 攻撃が成功したかどうかを確認するための最初のチェックは、被害者のボックスで <I>arp -a</I> コマンド (または Unix でそれに相当するもの) を実行することです。<SPAN>&nbsp; </SPAN>攻撃の実行後、ゲートウェイのエントリが異なる必要があります。<SPAN> </SPAN>たとえば、Windows では攻撃前に <I>arp -a </I> を実行すると、以下が提供されます。</SPAN></P><pre><SPAN>C:\&gt;arp -a</SPAN></pre><pre><SPAN>Interface: 192.168.1.33 --- 0x8<BR>&nbsp; Internet Address&nbsp;&nbsp;&nbsp;&nbsp; IP Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 種類<BR>&nbsp; 192.168.1.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 00-13-49-5c-e3-de&nbsp;&nbsp;&nbsp;&nbsp; dynamic<BR>&nbsp; 192.168.1.255&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ff-ff-ff-ff-ff-ff&nbsp;&nbsp;&nbsp;&nbsp; static<BR>&nbsp; 224.0.0.22&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 01-00-5e-00-00-16&nbsp;&nbsp;&nbsp;&nbsp; static</SPAN></pre>
+<P><SPAN></SPAN></P>
+<P><SPAN>攻撃後、被害者の ARP キャッシュのゲートウェイ エントリが異なる必要があります (今は攻撃者の MAC に等しい)。</SPAN></P><pre><SPAN>C:\&gt;arp -a<BR>&nbsp;<BR>Interface: 192.168.1.33 --- 0x8<BR>&nbsp; Internet Address&nbsp;&nbsp;&nbsp;&nbsp; IP Address&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 種類<BR>&nbsp; 192.168.1.1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <STRONG>00-1b-77-b2-73-f2</STRONG>&nbsp;&nbsp;&nbsp;&nbsp; dynamic<BR>&nbsp; 192.168.1.255&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ff-ff-ff-ff-ff-ff&nbsp;&nbsp;&nbsp;&nbsp; static<BR>&nbsp; 224.0.0.22&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 01-00-5e-00-00-16&nbsp;&nbsp;&nbsp;&nbsp; static<BR></SPAN></pre>
+<P><SPAN></SPAN></P>
+<P><SPAN>ARP ポイズニング攻撃が成功すると、Cain と Wireshark の両方に表示されます。<SPAN>&nbsp; </SPAN>Cain では、[スニファー] &gt; [ARP] タブにある下のペインに、スニファされているパケットが表示されます。 <SPAN> </SPAN>Wireshark を使用して、パケットの実際の内容を確認します (図 2 を参照)。</SPAN></P>
+<P><SPAN><IMG src="|image|clip_image001.png"></SPAN><B><SPAN><SPAN>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></B></P>
+<P><B><SPAN><SPAN></SPAN>図 1 – Cain を使用して、犠牲者とゲートウェイの間の接続を ARP ポイズニングする</SPAN></B></P>
+<P><B><SPAN>&nbsp;</SPAN></B></P>
+<P><SPAN><IMG src="|image|clip_image003.png"></SPAN></P>
+<P><SPAN></SPAN><SPAN><SPAN>&nbsp;&nbsp; </SPAN></SPAN><B><SPAN>図 2 – Wireshark を使用して、スニッフィングされたパケットの内容を確認する</SPAN></B></P>
+<P><B><SPAN></SPAN></B>&nbsp;</P>
+<P><B><I><SPAN></SPAN></I></B></P>
+<H2><SPAN><EM>ARP ポイズニングによるフィッシング攻撃の実行のテスト<SPAN></SPAN></EM></SPAN></H2>
+<P><SPAN>ネットワーク ノードのフィッシングのテストを実行するために、Cain の ARP-DNS 機能を使用します。<SPAN>&nbsp; </SPAN>ARP-DNS 機能は、ただ単なるネットワーク パケットをスニッフィングするだけではありません。<SPAN> </SPAN>それは被害者への任意の DNS 応答のコンテンツを変更し、ターゲット DNS ドメインの IP を攻撃者の IP と置換します。<SPAN> </SPAN><SPAN>&nbsp;</SPAN>以下の手順に従って、テスト ケースを実行します。</SPAN></P>
+<OL>
+<LI><SPAN>前のテスト ケースからの手順 1 ～ 8 を繰り返します (Wireshark のインストールはオプションです)。</SPAN> 
+<LI><SPAN>Cain で、[スニファ] &gt; [ARP] タブをクリックして、[ARP-DNS] を選択します。</SPAN> 
+<LI><SPAN><A href="http://www.facebook.com/">www.facebook.com</A> を <A href="http://ha.ckers.org/">ha.ckers.org</A> にリダイレクトするエントリを追加します。</SPAN> 
+<LI><SPAN>[ARP] ボタンを押すことで、ARP を開始します。<SPAN>&nbsp; </SPAN>被害者がアクティブになったらすぐに、そのステータスは「アイドル」から「ポイズニング」に変化します。<SPAN> </SPAN>下にあるペインでの、傍受されているパケットの表示が始まります (図 1 を参照)。</SPAN> 
+<LI><SPAN>被害者のボックスで、ブラウザーを開き、<A href="http://www.facebook.com/">www.facebook.com</A> を参照してください。</SPAN></LI></OL>
+<P><SPAN>予期される結果:</SPAN></P>
+<P><SPAN>前の例のように arp コマンドを実行することで、ARP ポイズニングが成功したかどうかを確認できます。<SPAN>&nbsp; </SPAN>リダイレクション/改ざんを検証するには、手順 5 が図 3 で示されているように、ha.ckers.org への移動に至るかどうかを確認してください。</SPAN></P>
+<P><EM><SPAN></SPAN></EM></P>
+<P><SPAN></SPAN><B><SPAN><IMG src="|image|Dibujo4.jpg"></SPAN></B></P>
+<P><B><SPAN>図 3 - ARP DNS 攻撃の効果</SPAN></B></P>
+<P><B><SPAN><EM></EM></SPAN></B>&nbsp;</P>
+<H1><SPAN>手順 4: <SPAN> </SPAN>さらなるテストの実行</SPAN></H1>
+<P><SPAN>基本的な ARP ポイズニング テスト ケースを実行した上で、追加の攻撃を検討する必要があります。<SPAN>&nbsp; </SPAN>この手順は、SSL 接続のスニッフィングなどのテスト ケースの実行、およびARP ポイズニング攻撃によるパスワードの復元から成ります。<SPAN> </SPAN><SPAN>&nbsp;&nbsp;</SPAN>Ettercap や Cain などのツールを使用して、以下を含む ARP ポイズニングの複数の攻撃バリエーションを実行します。</SPAN></P>
+<UL>
+<LI><SPAN>HTTP セッション スニッフィング。</SPAN> 
+<LI><SPAN>ボイス オーバー IP (VOIP) スニッフィング。</SPAN> 
+<LI><SPAN>パスワード復元とパスワード クラッキング。</SPAN> 
+<LI><SPAN>DoS 攻撃。</SPAN></LI></UL>
+<P><B><SPAN>&nbsp;</SPAN></B></P>
+<H1><SPAN>結論</SPAN></H1>
+<P><SPAN>ARP ポイズニング攻撃の問題は、実行が簡単ながら、影響力が高いことです。<SPAN>&nbsp; </SPAN>さらに、Windows のようなオペレーティング システムはデフォルトでそれらに対して保護されません。<SPAN> </SPAN>これらの攻撃の危険性を認識するために、ARP ポイズニングに関連する攻撃のシナリオを理解する必要があります。<SPAN> </SPAN>次に、原因と使用可能な対策について学びます。<SPAN> </SPAN>最後に、基本的なテスト ケース、および ARP ポイズニング攻撃のバリエーションに応じて追加のテスト ケースを実行します。 </SPAN></P>
+<DIV><BR>
+<HR>
+
+<DIV>
+<P><SPAN>[i]<STRONG>&nbsp;ARP スプーフィング</STRONG>。Wikipedia http://en.wikipedia.org/wiki/ARP_spoofing</SPAN></P></DIV></DIV>]]></Data>
+  </Content>
+</TeamMentor_Article>

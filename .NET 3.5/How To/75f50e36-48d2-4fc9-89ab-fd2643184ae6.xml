@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-186874175" Content_Hash="545640090">
+  <Metadata>
+    <Id>75f50e36-48d2-4fc9-89ab-fd2643184ae6</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>データベース接続文字列を保護する方法</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>データベース接続文字列を保護するには、構成ファイルの <b>connectionStrings</b> セクション内に保存し、次に保護された構成を使用してこのセクションを暗号化してください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

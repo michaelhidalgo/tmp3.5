@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1538918383" Content_Hash="7935280">
+  <Metadata>
+    <Id>c70e4224-33d8-4f17-a5b4-26adee72ba6e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>保護ファイル形式がHttpForbiddenHandlerを使用してブロックされている</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>チェック対象</h1>
+  <p>アプリケーションが保護ファイル形式をHttpForbiddenHandlerを用いてブロックしていることを確認します。</p>
+  <h1>修正方法</h1>
+  <p>保護ファイルがHTTPを介してダウンロードされることを防止するためにASP.NET <b>HttpForbiddenHandler</b>にマップします。HTTPハンドラは、マシンレベルの&lt;<b>httpHandlers</b>&gt;下のWeb.configファイルに位置しています。 element. HTTPハンドラは特定のファイル拡張子のためのWeb要求の処理を行います。 </p>
+  <p>良く知られるファイル拡張子はすでに<b>System.Web.HttpForbiddenHandler</b>にマップされています。.NET Framework について、もし特定のファイル拡張子を使用しない場合、その拡張子をマシンレベルのWeb.configファイルの<b>System.Web.HttpForbiddenHandler</b>にマップします。</p>
+  <div>
+ <pre>&lt;add verb="*" path="*.asmx" type="System.Web.HttpForbiddenHandler" /&gt;  </pre>
+  </div>
+  <p>この例では、WebサーバがホストWebサービスを持たず、そのため.asmxファイル拡張子が<b>System.Web.HttpForbiddenHandler</b>にマップされることを想定しています。クライアントが .asmx で終わるパスを要求する場合、ASP.NETは"This type of page is not served."というメッセージを返します。アプリケーションがまだマップされていない拡張子のその他ファイルを使用すると、それらは <b>System.Web.HttpForbiddenHandler</b>にマップされます。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

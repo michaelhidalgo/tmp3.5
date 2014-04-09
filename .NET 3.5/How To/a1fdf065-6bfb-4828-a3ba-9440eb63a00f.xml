@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1914235970" Content_Hash="1404552226">
+  <Metadata>
+    <Id>a1fdf065-6bfb-4828-a3ba-9440eb63a00f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構造化例外処理を使用する方法</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>構造化例外処理を行い、未処理の例外がないようにします。 <b>finally</b> ブロックを使用して、例外が発生するしないに関わらず、確実にリソースが公開され、ファイルが閉じられ、オブジェクトが処分されるようにしてください。 次のコード例は、データベース接続を迅速確実に閉じるために <b>finally</b> ブロックを使用する方法を表示します。 </p>
+ <pre>using System.Data.SqlClient;<br />using System.Security;<br />SqlConnection conn = new SqlConnection("...");<br />try{<br />    conn.Open();<br />    // Do some operation that might cause an exception.<br />    // Calling Close as early as possible.<br />    conn.Close();<br />    // ... other potentially long operations.<br />}<br />finally{<br />    if (conn.State==ConnectionState.Open)<br />        conn.Close();  <br />	// ensure that the connection is closed.<br />	}  </pre>
+  <p>セキュリティ問題の診断に役立てるため、<b>catch</b> ブロックを <b>SecurityException</b> クラス用に追加することを検討してください。 <b>SecurityException</b> が強化され、アクセス許可要求が失敗した場合の詳細情報を提供できるようになりました。 さらに、ロール ベースのアクセスまたは ID 問題を診断するためには、次のコード例に表示されるように例外時の ID のログを検討してください。 </p>
+ <pre>catch(Exception ex){...<br />    // Log current identity together with other exception information.<br />    WindowsIdentity wid = WindowsIdentity.GetCurrent();...<br />}&nbsp;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

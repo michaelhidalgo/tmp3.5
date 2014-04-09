@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-243170582" Content_Hash="-1236377777">
+  <Metadata>
+    <Id>b5bea673-9d61-4c66-9a68-77d5ba44643c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>選択的メッセージ保護をサポートする必要がある場合は、メッセージ セキュリティを使用する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>選択的なメッセージ保護をサポートする必要がある場合､Message Security の使用を検討してください。</p>
+  <h1>理由</h1>
+  <p>これで、特に回線上で特定の大きなメッセージのペイロードを保護する必要がない場合､トランスポート セキュリティ以上の柔軟性が得られます｡ </p>
+  <h1>対策</h1>
+  <p>署名は必要だがメッセージに暗号化は不要な場合､メッセージ セキュリティを使用して保護レベルを選択的に減らすことができます。 これで、特に回線上で特定の大きなメッセージのペイロードを保護する必要がない場合､トランスポート セキュリティ以上の柔軟性が得られます｡ </p>
+  <p>暗号化をオフにすることで、Credential 情報等の機微な情報を含むメッセージの中身を攻撃者が閲覧できるようになることを忘れないでください。 </p>
+  <p>保護レベルを設定できるのは、サービス全体の署名に対してのみです。</p>
+ <pre>[ServiceContract(ProtectionLevel=ProtectionLevel.Sign]<br />public interface IService<br />{&nbsp;<br />&nbsp;string GetData(int value);&nbsp;<br />}</pre>
+  <p>一度につき単一のメソッドの署名に対してのみ、保護レベルが設定できます。</p>
+ <pre>[OperationContract(ProtectionLevel=ProtectionLevel.Sign]<br />string GetData(int value);</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メッセージ保護の詳細は､<a href="http://msdn2.microsoft.com/en-us/library/ms733137.aspx">http://msdn2.microsoft.com/en-us/library/ms733137.aspx にある&nbsp;｢メッセージ セキュリティ｣を参照してください｡</a><li>メッセージ セキュリティに関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home) のメッセージ保護のセクションを参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

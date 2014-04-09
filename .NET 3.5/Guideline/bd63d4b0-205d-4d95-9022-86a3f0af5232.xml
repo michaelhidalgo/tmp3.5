@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1703931683" Content_Hash="928566496">
+  <Metadata>
+    <Id>bd63d4b0-205d-4d95-9022-86a3f0af5232</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>資格情報の送信時に SSL を使用する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>セキュア ソケット レイヤー (SSL) を使用してブラウザとサーバ間で渡される認証 Credential 情報を保護してください。</p>
+  <h1>理由</h1>
+  <p>SSL を使用すると、資格情報がネットワーク上に送信されるときに、スニッフィングまたはタンパリングされるのを防止できます。 SSLが使用されていない場合、ユーザー Credential 情報は <a href="/article/74e70134-b639-4cdc-b3e7-fe2952256d98">ネットワーク Credential 情報スニッフィング攻撃</a> または<a href="/article/c8ae222b-ed2e-4621-a46b-3671f82f5a03">フィッシング攻撃</a>などの攻撃者にわたってしまいます。さらに<a href="/article/254ddab5-ecd2-4e05-a2b0-861e970bc0d9">セッション Cookie の保護</a> ガイドラインを使用して、アプリケーションセッション Cookie が攻撃者に渡るリスクを最小限にします。</p>
+  <h1>状況</h1>
+  <p>アプリケーションがユーザーからフォーム ベースの認証 Credential 情報を受け入れる場合。</p>
+  <h1>対策</h1>
+  <p>セキュア ソケット レイヤー (SSL) オーバー HTTP を使用する場合、以下の手順を実行する必要があります。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>証明書リクエストを作成します。</strong> IIS管理コンソールを使用して、SSL証明書要求を生成します。 この要求はその後、署名する認証局に送信されます。 証明書要求を生成するには、次の手順に従ってください。</p>
+      <ol>
+        <li>
+          <strong>IIS管理コンソール</strong> を開始します。これを行うには、 <strong>コンソールパネル</strong> -> <strong>管理ツール</strong> -> <strong>インターネット情報サービス</strong>をクリックします。 <li>アプリケーションの仮想ホストを右クリックし、<strong>プロパティ</strong>を選択します。<li><strong>ディレクトリセキュリティ</strong> タブから<strong>サーバ証明書</strong>をクリックします。  <li><strong>証明書の新規作成</strong> を選択して <strong>次へ</strong>をクリックします。<li><strong>証明書の要求を作成して後で送信する</strong> を選択し、<strong>次へ</strong>をクリックします。<li><strong>アプリケーションの FQDN</strong> とSSL証明書の暗号鍵に対して希望するビット長を提供してから <strong>次へ</strong>をクリックします。<li><strong>組織の詳細</strong> を提供してから <strong>次へ</strong>をクリックします。 <li><strong>アプリケーションの FQDN</strong> を提供してから <strong>次へ</strong>をクリックします。 <li><strong>組織の場所 </strong> を提供してから <strong>次へ</strong>をクリックします。 <li>アプリケーションの証明書要求を保存するIIS管理コンソールの場所を指定します。 <li><strong>終了</strong> をクリックしてプロセスを完了します。</li></li></li></li></li></li></li></li></li></li></li>
+      </ol>
+      <li>
+        <p>
+          <strong>証明機関 (CA) にリクエストを提出します。</strong> SSL 証明書を取得するためのすべての条件を満たしている場合、CA によって証明書リクエストに基づいて新しい SSL 証明書が生成されます。 SSL 証明書を取得するための要件は証明機関によって異なるため、このような証明書を取得するために必要な管理手順については、証明機関にお問い合わせください。</p>
+        <li>
+          <p>
+            <strong>証明書をインストールします。</strong> アプリケーションのSSL証明書を正しくインストールする手順は、次のとおりです。</p>
+          <ol>
+            <li>
+              <strong>IIS管理コンソール</strong> を開始します。これを行うには、 <strong>コンソールパネル</strong> -> <strong>管理ツール</strong> -> <strong>インターネット情報サービス</strong>をクリックします。 <li>アプリケーションの仮想ホストを右クリックし、<strong>プロパティ</strong>を選択します。<li><strong>ディレクトリセキュリティ</strong> タブから<strong>サーバ証明書</strong>をクリックします。  <li><strong>保留中の要求をプロセスし、証明書をインストールする</strong> を選択し、<strong>次へ</strong>をクリックします。 <li>アプリケーションのSSL証明書の場所を特定し、 <strong>次へ</strong>をクリックします。<li><strong>終了</strong> をクリックしてプロセスを完了します。 </li></li></li></li></li></li>
+          </ol>
+          <li>
+            <strong>資格情報が SSL を介して送信されていることを確認します。 </strong>アプリケーションの認証部分を専用のサブドメインに配置します。 認証サブドメインの HTTPS トラフィックのみを受け取るようにサーバーを構成します。 資格情報が含まれているフォーム ポストが HTTPS を介して送信されることを確認します。 いくつかのアプローチを通じてアプリケーションが SSL を使用するよう強制できます:<ul><li><p><strong>サーバの構成。</strong> IIS 管理コンソールを使用して、すべての HTTP 要求に SSLを使用するように IIS を構成してください｡ 以下のステップに従ってこのオプションを有効にしてください:</p><ol><li>IIS 管理コンソールを開始してください。 これを行うには､コントロール パネルで -> [管理者用ツール] -> [インターネット情報サービス] をクリックしてください。 <li>アプリケーションの仮想ホストを右クリックして[プロパティ]を選択してください。 <li>[Directory Security] タブを選択してください。 <li>Secure Communications ダイアログの [Edit(編集)]をクリックしてください｡ <li>[Require Secure Channel (SSL)] を選択して、[OK] をクリックしてください｡ <li>[OK] をクリックして変更を適用し、プロパティ ウィンドウを閉じてください。 <li>http://<your application's FQDN>// をブラウズしてください。 次のようなエラー メッセージを受け取ることを検証してください:<pre>HTTP 403.4 - Forbidden: SSL required.</pre></li></li></li></li></li></li></li></ol><li><p><strong>プログラム型で。</strong> 次の考慮事項を使用してアプリケーションの SSL 使用を改善してください:</p><ul><li><p><strong>絶対 URL</strong>:フォーム リクエストをする際は絶対 URL パスを使用してください。 例:</p><pre>&lt;form method="POST" action="https://login.example.com/myapp/login.aspx"&gt;</pre><li><p><strong>requireSSL 属性</strong>:アプリケーションの <strong>web.config</strong> で、次のように <strong>&lt;forms&gt;</strong> エレメントで <strong>requireSSL="true"</strong> を使用してセキュアなプロパティを設定してください。</p><pre>&lt;authentication mode="Forms"&gt;<br />   &lt;forms loginUrl=<a href="https://login.example.com/myapp/login.aspx">https://login.example.com/myapp/login.aspx</a><br />           requireSSL="true"<br />           ...<br />   /&gt;<br />&lt;/authentication&gt;</pre></li></li></ul></li></li></ul></li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のスニペットは、アプリケーションweb.configの一部です。 アプリケーションはフォームベースの認証を使用し、対応した&lt;forms&gt;エレメントが構成されています。 残念ながら、&lt;forms&gt;エレメントはtrueに設定されたrequireSSLを有しません。 そのためアプリケーションは、フォームベースの認証を行う時、SSLの使用を強制できません。</p>
+ <pre>&lt;&amp;#33;-- The forms element does not have a requireSSL attribute --&gt;<br />&lt;forms loginUrl="Secure/Login.aspx"<br />       protection="All"<br />       timeout="00:30:00" <br />       slidingExpiration="true"<br />       name="MyApp"<br />       path="/Secure"<br /> /&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>次のスニペットは、アプリケーションweb.configの一部です。 アプリケーションはフォームベースの認証を使用し、対応した&lt;forms&gt;エレメントが構成されています。 &lt;forms&gt; エレメントが requireSSL 属性を true に設定しているので、すべてのフォーム ベースの認証は HTTPS 接続上で実行されます。</p>
+ <pre>&lt;&amp;#33;-- The forms element has the requireSSL attribute set to true --&gt;<br />&lt;forms loginUrl="Secure/Login.aspx"<br />       protection="All"<br /><strong>requireSSL="true"<br /></strong>       timeout="00:30:00"<br />       slidingExpiration="true"<br />       name="MyApp"<br />       path="/Secure"<br /> /&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>IIS で SSL を使用する詳細は、<a href="http://support.microsoft.com/kb/299875"> IIS に SSL を実装する方法</a> を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/254ddab5-ecd2-4e05-a2b0-861e970bc0d9">ガイドライン: セッション Cookie を保護する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

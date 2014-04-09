@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-81079320" Content_Hash="937158110">
+  <Metadata>
+    <Id>c1f7adfb-6aac-4a12-a769-250af6effe55</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>安全でないキーストアのバグのテスト方法</Title>
+    <Category>暗号化</Category>
+    <Phase>テスト</Phase>
+    <Technology> 任意</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>暗号化を使用するアプリケーション</li>
+  </ul>
+  <h1>概要</h1>
+  <p>暗号化を実装しているソフトウェア アプリケーションが、適切に動作してクライアントにサービスを提供するためには、暗号化鍵 (および証明書) を作成して保存する必要があります。&nbsp;&nbsp; これらの鍵や証明書は、アプリケーションによって使用される間にメモリに保存されたり、後から使用できるように永続記憶装置に保存されたりします。&nbsp;&nbsp; いずれの場合も、開発者は適切なセキュリティ対策を講じ、<i>キーストアとして知られるこの記憶装置へのアクセスを制限する必要があります。 </i>&nbsp;&nbsp;安全でないキーストアのバグがあると、攻撃者は鍵や証明書などの暗号化の材料をキーストアから読み取り、暗号攻撃に使用することができます。</p>
+  <p>安全でないキーストアのバグをテストするには、以下の手順を実行します。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する</li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>手順 1: 攻撃のシナリオを理解する</h1>
+  <p>最初の手順では、安全でないキーストアのバグの様々な攻撃シナリオをレビューすることが必要です。</p>
+  <ul>
+    <li>一時データ ストア<li>永続データ ストア</li></li>
+  </ul>
+  <h2>
+    <em>シナリオ 1: 一時データ ストア</em>
+  </h2>
+  <p>アプリケーションは、暗号化鍵を永続的に保存することも、メモリに配置して一時利用することもできます。&nbsp;&nbsp; いずれの場合も、アプリケーションが暗号化鍵を保存する場所は、認可されていないユーザーから保護されることが必要です。&nbsp; このシナリオでは、攻撃者はシステム メモリ (RAM やキャッシュ) などだけでなく、ページ/スワップ ファイルやクラッシュ ダンプ ファイルなど、様々な一時データのソースをスニッフィングします。&nbsp;&nbsp; 攻撃者の目的は、キーストアの場所を探し出して鍵をリカバリし、その鍵を使用してさらなる暗号攻撃を実行することです。</p>
+  <h2>
+    <em>シナリオ 2: 永続データ ストア</em>
+  </h2>
+  <p>このシナリオでは、キーストアが、アクセス許可が使用可能なファイルその他の永続データ ストアの場所 (Windows レジストリなど) に保存されていると仮定します。&nbsp; このシナリオでは、攻撃者はターゲット コンピュータにローカルまたはリモートでログインし、キーストアが保存されているフォルダー (またはレジストリの場所) に移動します。その後、ファイル (またはレジストリキー) にアクセスして内容を盗み出し、盗み出したキーストアの材料を利用してさらなる暗号攻撃を実行します。&nbsp; 攻撃は、キーストア ファイルやレジストリの場所に設定されたアクセス許可が弱く、認可されていない攻撃者が機密情報にアクセスできることに依存します。&nbsp; </p>
+  <p>&nbsp;</p>
+  <h1>手順 2: 原因と対策を分析する</h1>
+  <p>安全でないキーストアのバグを発見するための次の手順では、原因と対策を分析します。</p>
+  <h2>
+    <em>一時データ ストアへの攻撃</em>
+  </h2>
+  <p>安全でないキーストアへの攻撃には 2 つの種類があります。&nbsp; 1 つはシステム メモリ (RAM やオペレーティング システムのキャッシュ) などの 一時データ ストアや、オペレーティング システムによってファイル システムに一時的に保存されているページ/スワップファイルやクラッシュ ダンプ ファイルを標的にします。&nbsp; 各攻撃はメモリの種類に応じて、様々な理由で発生します。&nbsp; たとえば、鍵の材料が RAM で安全でない状態にある場合、アプリケーションがカギの保存に使用されるデータ構造を適切にクリーンアップしていないことが原因です。</p>
+ <pre>void Authenticate(char *strUser) { <br />&nbsp;&nbsp;&nbsp; char key[64];<br />&nbsp;&nbsp;&nbsp; <strong>if (ValidateKey(key, sizeof(key))) {</strong><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (AuthenticateUser(strUser, key)) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Use key to authenticate user<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />}<br />&nbsp;<br /></pre>
+ <pre>
+  </pre>
+ <pre>
+  </pre>
+  <p>この攻撃シナリオへの対策として、開発者はメモリから鍵を適切に削除する必要があります。</p>
+ <pre>void Authenticate(char *strUser) { .<br />&nbsp;&nbsp;&nbsp; char key[64];<br />&nbsp;&nbsp;&nbsp; if (ValidateKey(key, sizeof(key))) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (AuthenticateUser(strUser, key)) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Use key to authenticate user<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp; <strong>memset(key, 0, sizeof(key));</strong><br />&nbsp;<br />}<br />&nbsp;<br /></pre>
+ <pre>
+  </pre>
+  <p>しかし、コンパイラ最適化によって <i>memset</i> の呼び出しが無効化される場合があるため、<i>memset</i> を使用する際は注意が必要です。&nbsp; キーストアの材料をクリーンアップするために memset を使用する際は、最適化を無効化することをお勧めします。&nbsp; キーストアの材料を保護して安全なコンパイラの最適化を回避するため、CERT は以下の書式の <i>memset_s</i> と呼ばれる安全な memset 関数の実行をお勧めしています [i]。</p>
+ <pre>void *memset_s(void \*v, int c, size_t n) {<br />&nbsp; <strong>volatile char *p = v;</strong><br />&nbsp; while(n--)<br />&nbsp;&nbsp;&nbsp; *p++ = c;<br />&nbsp;<br />&nbsp; return v;<br />}<br /></pre>
+  <p />
+  <p>その後開発者は、すべてのキーストアの材料に関する memset の呼び出しを安全なバージョンに置き換えます。</p>
+ <pre>&nbsp;void Authenticate(char *strUser) { .<br />&nbsp;&nbsp;&nbsp; char key[64];<br />&nbsp;&nbsp;&nbsp; if (ValidateKey(key, sizeof(key))) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (AuthenticateUser(strUser, key)) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Use key to authenticate user<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp; <strong>memset_s(key, 0, sizeof(key));<br /></strong>&nbsp;<br />}<br /></pre>
+  <p>暗号の材料をメモリからクリーンアップしている場合であっても、この機微データはスワップ ファイルやクラッシュ ダンプ ファイルに残っている場合があります。&nbsp; 開発者は、<i>mlock</i> または <i>VirtualLock, </i>を使用して、鍵や証明書がスワップ ファイルに達しないようにしたり、 <i>setrlimit.などの関数を使用して、アプリケーションがアプリケーション クラッシュ ダンプを作成しないようにしたりするなど、様々なオプションを検討する必要があります。&nbsp; </i>ただし<i>、</i>キーストアの材料はシステム全体のメモリ ダンプによって、ファイル システムに達している場合もあります。&nbsp; このシナリオを回避するため、管理者は、システム クラッシュ ダンプの作成を制限するシステム設定のオプションを検討する必要があります。 一時メモリ スニッフィング バグの対策の詳細については、Team Mentor の記事、<i>「メモリ スニッフィング バグのテスト方法」を参照してください。</i></p>
+ <pre>&nbsp;</pre>
+  <h2>
+    <em>永続データ ストアへの攻撃</em>
+  </h2>
+  <p>2 番目のシナリオは、ターゲット コンピュータのキーストア ファイルやレジストリ キーにアクセスすることによって実行される攻撃に関連し、これらのファイルやレジストリ キーの許可が安全でないことが原因で発生します。&nbsp;&nbsp;&nbsp; たとえば、以下の Java コードはファイル システムに存在するキーストアを処理します。</p>
+ <pre>KeyStore keyStore = KeyStore.getInstance("JKS");<br />String fileName = System.getProperty("java.home") + <br />&nbsp;&nbsp; <strong>"/lib/security/myKeyStore.jks</strong>";<br />&nbsp;<br />FileInputStream stream = new FileInputStream(new File(fileName));<br />keyStore.load( stream, "storeit".toCharArray());&nbsp;</pre>
+  <p>すべてのユーザーが <i>java.home/lib/security</i> という名前のフォルダーを読み取る場合、アプリケーションには、ターゲット コンピュータへのログインが可能な低い権限を持つ攻撃者による安全でないキーストアへの攻撃に対する脆弱性があります。</p>
+  <p>&nbsp;</p>
+  <h1>手順 3: テスト ケースを実行する</h1>
+  <p>安全でないキーストアのバグの論理的側面を確認した後は、必要なテスト ケースによってアプリケーションの脆弱性を確認しなければなりません。</p>
+  <h2>
+    <em>RAM (一時ストア) の安全でないキーストアのテスト</em>
+  </h2>
+  <p>以下の手順を実行し、Windows プラットフォームで物理メモリの記録をテキスト ファイルに作成します。</p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ManTech の Memory DD をダウンロードしてインストールします (<a href="https://sourceforge.net/projects/mdd/)">https://sourceforge.net/projects/mdd/)</a>。<li>管理者特権を持つユーザーとして、コマンド プロンプトを開きます。 <li> <b>mdd_1.3.exe -o c:\ram.txt -v を入力して mdd を実行します。</b><li>mdd の実行後、出力ファイル <i>ram.txt</i> で機密情報をスキャンします。</li></li></li></li></li>
+  </ol>
+  <p>予測結果: ram.txt には暗号化鍵が一切表示されてはなりません。</p>
+  <h2>
+    <em>
+    </em>&nbsp;</h2>
+  <h2>
+    <em>仮想メモリ (一時ストア) の安全でないキーストアのテスト</em>
+  </h2>
+  <p>アプリケーションの仮想メモリに機密情報が含まれているかどうかを確認するには、任意の時点でデバッガを使用して仮想メモリ領域のダンプを作成する方法が最適です。</p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ユーザー モードの Windows デバッギング<i> windbg をダウンロードして実行します。</i><li>テスト中のアプリケーションに windbg をアタッチします。 <li>デバッガにブレークインし、アプリケーションの仮想メモリのフル ダンプを作成するオプションを指定します。<b>.dump /f c:\dump.txt</b></li></li></li></li>
+  </ol>
+  <p>予測結果: 出力ファイル dump.txt には暗号化鍵は一切表示されてはなりません。</p>
+  <p>&nbsp;</p>
+  <p>
+    <b>
+      <i>スワップ ファイル (一時ストア) の安全でないキーストアのテスト</i>
+    </b>
+  </p>
+  <p>Windows では、スワップ ファイルは<i>ページファイル</i>に保存されます。</p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ページファイルの場所を探します<i>。</i>&nbsp; ファイル名は <i>pagefile.sys</i> で、通常 Windows パーティションのルート ドライブ上にあります (c:\pagefile.sys)。 <li>ファイルの読み取り専用コピーを開きます。 <li>ページファイルで機微な鍵情報を検索します。</li></li></li></li>
+  </ol>
+  <p>予測結果: ページファイルには暗号化鍵は一切表示されてはなりません。</p>
+  <p>&nbsp;</p>
+  <h2>
+    <em>ダンプ ファイルの安全でないキーストアのテスト (一時ストア)</em>
+  </h2>
+  <p>ダンプ ファイルの安全でないキーストアをテストするには以下の手順を実行します。</p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ダンプ ファイルの場所を探します (Windows では <i>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CrashControl</i>)。<li>ダンプ ファイルを開き、機密情報を検索します。 <li>各ダンプ ファイルで検索を繰り返します。</li></li></li></li>
+  </ol>
+  <p>予測結果: ダンプ ファイルには暗号化鍵は含まれてはなりません。</p>
+  <p>
+    <b>
+      <i>
+      </i>
+    </b>&nbsp;</p>
+  <h2>
+    <em>ファイル システムの安全でないキーストアのテスト (persistent store)</em>
+  </h2>
+  <p>ファイル システムの安全でないキーストアをテストするには以下の手順を実行します。</p>
+  <ol>
+    <li>権限の低いアカウントまたはゲスト アカウントでターゲット コンピュータ (キーストアを保存しているコンピュータ) にログインします。 <li>キーストア ファイルを含むフォルダーに移動します。 <li>キーストア ファイルを開き、内容を確認します。</li></li></li>
+  </ol>
+  <p>予測結果: 権限の低いアカウントでキーストア ファイルを読み取れる場合、アプリケーションには脆弱性があります。</p>
+  <p>
+    <b>
+      <i>
+      </i>
+    </b>&nbsp;</p>
+  <h2>
+    <em>Windows レジストリの安全でないキーストアのテスト (persistent store) </em>
+  </h2>
+  <p>ファイル システムの安全でないキーストアをテストするには以下の手順を実行します。</p>
+  <ol>
+    <li>権限の低いアカウントまたはゲスト アカウントでターゲット コンピュータ (キーストアを保存しているコンピュータ) にログインします。 <li>Windows <i>[ファイル名を指定して実行]</i> ダイアログ ボックス (<b>[スタートメニュー]</b> &gt; <b>[ファイル名を指定して実行]</b>) を開きます。<li><i>regedit </i>と入力し、[OK] をクリックします。 <li>レジストリ エディターで、キーストアのあるレジストリの場所に移動し、内容を確認します。</li></li></li></li>
+  </ol>
+  <p>予測結果: 権限の低いアカウントでキーストアのレジストリ キーを読み取れる場合、アプリケーションには脆弱性があります。</p>
+  <p>&nbsp;</p>
+  <h1>結論</h1>
+  <p>暗号化を実装するアプリケーションは、キーストアと呼ばれる一時メモリまたは永続メモリ ロケーションに、暗号化鍵と証明書を保存する必要があります。&nbsp;&nbsp; アプリケーションがこの場所を適切に保護していない場合、攻撃者はキーストアの内容を取得し、さらなる暗号攻撃に利用することができます。&nbsp; この脆弱性を防止するには、開発者は一時メモリやファイル システムのキーストアの材料を適切に保護する必要があります。&nbsp; このバグのテストとしては、メモリ ダンピングのテスト ケースとともに、安全でない保存のテスト ケースを実行し、メモリ ダンプ、ファイル、レジストリ キーで暗号化鍵と証明書を検索する方法が推奨されます。</p>
+  <div>
+    <br />
+    <hr />
+    <div>
+      <p>[i] <b>MSCxx-A. 機微データを扱うときは、安全でないコンパイラの最適化を意識します。 </b>Added by Joe Damato, edited by Shaun Hedrick. CERT.&nbsp; <a href="https://www.securecoding.cert.org/confluence/pages/viewpage.action?pageId=2982545&navigatingVersions=true">https://www.securecoding.cert.org/confluence/pages/viewpage.action?pageId=2982545&navigatingVersions=true</a></p>
+      <p>&nbsp;</p>
+    </div>
+  </div>]]></Data>
+  </Content>
+</TeamMentor_Article>

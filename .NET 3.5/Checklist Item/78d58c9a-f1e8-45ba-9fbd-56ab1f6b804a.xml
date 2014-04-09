@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="375850771" Content_Hash="193826307">
+  <Metadata>
+    <Id>78d58c9a-f1e8-45ba-9fbd-56ab1f6b804a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>偽装は finally ブロックを使用することで復帰する</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>プログラム型の偽装で、構造化例外処理を使用することで偽装が復帰することを確認してください。</p>
+  <h1>修正方法</h1>
+  <p>プログラム型の偽装を使用しなければいけない場合は、構造化例外処理を使用して、偽装コードを <b>try</b> ブロック内に置いてください。 <b>catch</b> ブロックを使用して例外を処理し、<b>finally</b> ブロックを使用して偽装が以下のように復帰するようにしてください。</p>
+  <p>
+ <pre>using System.Security.Principal;<br />...<br />WindowsIdentity winIdentity = new WindowsIdentity(<a href="mailto:username@domainName">username@domainName</a>);<br />WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />try<br />{<br />  // Do work<br />}<br />catch(Exception ex)<br />{<br />  // Stop impersonating  ctx.Undo();<br />}<br />finally<br />{<br />  // Stop impersonating<br />  ctx.Undo();<br />}</pre>
+  </p>
+  <p><b>finally</b> ブロックを使用することで、例外が生成されているか否かにかかわらず、偽装トークンが必ず現在のスレッドから削除されます。 また、お使いのコードで例外をキャッチすることができなかった場合、悪意のあるユーザーが例外フィルターを使用して、偽装されたセキュリティ コンテキストのもとで実行されるコードを実行することができる可能性がありますので注意してください。 お使いのコードで特権付きアカウントを偽装している場合は特に深刻です。コードで例外をキャッチすることができなかった場合、<b>finally</b> ブロック内のコードの実行より前に、コール スタック内の高位の例外フィルターが実行されます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;例外フィルターは、Microsoft中間言語(MSIL) および Visual Basic .NET によってサポートされています。<b></b></blockquote>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細情報は、「<a href="http://msdn2.microsoft.com/en-us/library/ms998351.aspx">ハウツー：ASP.NET で偽装および委任を使用する</a>」を参照してください。</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

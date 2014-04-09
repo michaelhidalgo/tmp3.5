@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="288600771" Content_Hash="1598192095">
+  <Metadata>
+    <Id>a92aca4f-314d-40fe-9ecd-e3bbe19a555b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ネットワーク上で機微データを保護する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>Credential 情報やアプリケーション固有のデータなどといった機微データを保護するため、適切な暗号化を行えるプロトコルを使用します。</p>
+  <h1>理由</h1>
+  <p>ネットワーク経由でデータが送信される場合、通常は所定の最終目的地へ向く途上でいくつかの中間リレーを通過して行きます。 伝送中の <a href="/article/cf06603e-440e-4118-85d5-ad360817fabc">ネットワーク盗聴攻撃</a> または <a href="/article/a048eed9-ad5a-4dac-a8d3-68f42da69dbd">中間者攻撃</a> に対する保護を追加するために、情報の送信に安全なプロトコルを使用することが重要です。</p>
+  <h1>状況</h1>
+  <p>伝送メディアとして公共インターネットまたはプライベート LAN のいずれを使用するのであれ、機微データが 2 つのホスト間で送信される場合はいつでもこれが必要とされます｡ 例としては次のようなものがあります:</p>
+  <ul>
+    <li>ウェブ ブラウザとアプリケーション サーバ間の通信｡ <li>アプリケーション サーバとデータベース サーバ間の通信。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <p>以下の手順を使用して、ネットワーク上で機微データを保護します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機密情報を識別します。</strong> 機微データとは、秘密に保たれており、認可されている当事者にのみ開示するべき情報のことです。 機微データの典型的な例として、以下に限定されませんが、顧客名、政府発行のID番号、クレジット カードまたその他の財務情報、パスワード、および私有鍵などが含まれます｡ ヘルス ケアや銀行など一部の業界では、機密情報を定義する規制基準を設けています。 アプリケーションに規制要件が適用される場合、規制要件に従って機微データを識別します。 機微データは次のように定義されます:</p>
+      <ul>
+        <li>Personally Identifiable Informationが含まれるか、またはPersonally Identifiable Informationの導出に使用できる、他者と共有すべきでない情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>適切な保護メカニズムを選択します。</strong> 適切な保護メカニズムの選択は様々な条件に応じて変わります：機微データの目的､相手のネットワークパーティのロール､インフラ、およびサポートされる技術など。 機微データは送信時に暗号化される必要があり、これには2つの方法が考えられます&amp;#8212; アプリケーションデータの暗号化または通信チャネルの暗号化:</p>
+        <ul>
+          <li>
+            <p>
+              <strong>通信経路を暗号化する。</strong> 現在のインフラと相手のネットワークパーティに応じて､SSL、IPSecまたはリモートパーティがサポートする技術を使用して暗号化することができます。 詳細は､ <a href="/article/b070122f-f1d1-47da-a378-57f845d5db61">通信リンクを暗号化する</a> ガイドラインを参照してください｡</p>
+            <li>
+              <p>
+                <strong>アプリケーション･データを暗号化する。</strong> アプリケーションの通信経路を暗号化できない場合､アプリケーション･データを暗号化してください。 アプリケーション データを保護する場合、ハッシュ化または暗号化を使用するようにしてください。 機微データが比較目的だけのために使用され、またデータの中身を回復する必要が絶対ない場合は、ハッシュ化を使用してください。 機微データを後の段階で読み取る必要がある場合は､暗号化を使用してください｡</p>
+              <ul>
+                <li>
+                  <p>
+                    <strong>ハッシュ化</strong>:ハッシュ化が使用される場合､16ビッド以上の長いソルトを選択してください｡ ソルトは、アプリケーションだけが知るランダムなデータです; ハッシュが与えられて元のデータ値を推測するためには攻撃者はソルトも推測する必要があります。 ハッシュ関数に対し大きな入力値を提供することになるので、長いソルトを採用することを推奨します。 生成されたハッシュが危険にさらされたと仮定して、攻撃者が機微データへアクセスする場合､長いソルトの方がより難しいのです。 アプリケーションでランダムに生成されたソルトが使用される場合、ランダムなソルトが暗号化されて構成ファイルに格納されることを確認します。 RNGCryptoServiceProviderを使用してソルトを生成してください｡ 例: </p>
+ <pre>public static byte&amp;#91;&amp;#93;GenerateSalt()<br />&amp;#123;<br />    byte&amp;#91;&amp;#93;randBytes = new byte&amp;#91;4&amp;#93;;<br />    RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();<br />    gen.GetNonZeroBytes(randBytes);<br />    return randBytes;<br />&amp;#125;</pre>
+                  <p>強力なハッシュ化アルゴリズムを選択することも重要です。 強力なアルゴリズムは、複数の一意のデータから同一のハッシュ値が生成されることを防ぎます。 現在推奨されているのは、SHA-256 以上の強度です。</p>
+ <pre>public byte&amp;#91;&amp;#93;HashCredentials(byte&amp;#91;&amp;#93;pass, byte&amp;#91;&amp;#93;salt)<br />&amp;#123;<br />    HMACSHA512 md;<br />    byte&amp;#91;&amp;#93;digest; <br />    md = new HMACSHA256(salt);<br />    md.Initialize();<br />    digest = md.ComputeHash(pass);<br />    md.Clear();<br />    return digest;<br />&amp;#125;</pre>
+                  <li>
+                    <p>
+                      <strong>暗号化</strong>:暗号が使用される場合､対称暗号化用には鍵サイズが256ビット以上の鍵、公開/私有鍵暗号化用には2048ビット以上を使用してください｡ 対称暗号化にはAESを、公開/私有鍵暗号化にはRSAを使用してください｡ アプリケーションが暗号化されたデータにアクセスする唯一のエンティティである場合のみ、またその場合に限り対称暗号化を使用しなければなりません。 データに2つ以上のパーティからのアクセスがある場合、公開/私有鍵の暗号化を使用します。 公開鍵/私有鍵の暗号化では、各当事者の暗号化鍵を公開せずに、アプリケーションで複数の当事者と機微データを共有できます。</p>
+ <pre>Rijndael encMD;ICryptoTransform encCT;<br />byte&amp;#91;&amp;#93;digest;<br />// The following code obtains the encryption key and initialization vector<br />// from the application's key repository. Consult the <a href="/article/cd4ccbbb-be9c-4ff4-8b20-d116819b634b">Use a Secure Key Storage Location</a><br />// guideline for more details when handling encryption keys.<br />encMD = Rijndael.Create();<br />encMD.Key = MyApp.Crypto.GetEncryptionKey();<br />encMD.IV = MyApp.Crypto.GetEncryptionIV();<br />encCT = encMD.CreateEncryptor(); <br />// Note that sensitiveData is of type byte&amp;#91;&amp;#93;and contains<br />// data that is sensitive in nature<br />digest = encCT.TransformFinalBlock(sensitiveData, 0, sensitiveData.Length);<br />encMD.Clear();</pre>
+                  </li>
+                </li>
+              </ul>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>適切な保護メカニズムを適用する</strong>:コードを評価し、機微データが送信される場所を決定してください｡ それぞれの場所で実証済みの保護メカニズムを適用します。 例えば､アプリケーションが敵対的なネットワーク環境を通してクレジット カード取引を処理する場合は､適切なネットワークエンティティへ送信する前にクレジットカード情報を暗号化してください｡</p>
+ <pre>void ProcessPayment(byte&amp;#91;&amp;#93;ccInfo, float amount)<br />&amp;#123;<br />    byte&amp;#91;&amp;#93;ccDigest = MyApp.Crypto.EncryptCCInfo(ccInfo);<br />    SqlConnection connection;<br />    SqlCommand command;<br />    SqlDataReader result;<br />    string query = "execute QueuePayment &amp;#64;ccDigest &amp;#64;amount;";<br />    connection = MyApp.DBManager.GetDBConnection();<br />    command = new SqlCommand(query, connection);<br />    command.Parameters.Add("&amp;#64;ccDigest", System.Data.SqlDbType.Binary);<br />    command.Parameters&amp;#91;"&amp;#64;ccDigest"&amp;#93;.Value = ccDigest;<br />    command.Parameters.Add("&amp;#64;amount", System.Data.SqlDbType.Float);<br />    command.Parameters&amp;#91;"&amp;#64;amount"&amp;#93;.Value = amount;<br />    ...<br />&amp;#125;</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NETに書き込まれた電子商取引のアプリケーションにより、顧客は統一したブローカー経由で請求書の支払いをオンラインで行うことができます。 アプリケーションのウェブ･コンポーネントは、別のサーバに備わった独立の口座管理システムを信頼します。 ウェブ･コンポーネントはSQLソケット接続を使用して口座管理システムと通信します。 2つのサーバは、いつでも建物にアクセスできる多数の他の顧客を収容する、価格競争力のあるデータセンターに設置されています。 悪意のあるユーザーは同一の会社でホスティングサービスを購入し､ホスティング環境を探索した後、ネットワーク･スヌーピングを許容する共有バス･トポロジーを使用してホストされている口座がネットワークにつながっていることを知ります｡ SQL接続は初期設定では暗号化されていないので、攻撃者はスニッファを設定し、口座管理コンポーネントとウェブ･コンポーネント間の通信のすべてを捕獲することができます。 これにより攻撃者は合法的なユーザーとして口座管理サーバにログインし、随意に変更を施します。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NETに書き込まれた電子商取引のアプリケーションにより、顧客は統一したブローカー経由で請求書の支払いをオンラインで行うことができます。 アプリケーションのウェブ･コンポーネントは、別のサーバに備わった独立の口座管理システムを信頼します。 ウェブ･コンポーネントはSQLソケット接続を使用して口座管理システムと通信します。 2つのサーバは、いつでも建物にアクセスできる多数の他の顧客を収容する、価格競争力のあるデータセンターに設置されています。 アプリケーション開発者は、他のネットワーク･エンティティへ送信する前に支払い情報を暗号化します。</p>
+ <pre>void ProcessPayment(byte&amp;#91;&amp;#93;ccInfo, float amount)<br />&amp;#123;<br />    byte&amp;#91;&amp;#93;ccDigest = MyApp.Crypto.EncryptCCInfo(ccInfo);<br />    SqlConnection connection;<br />    SqlCommand command;<br />    SqlDataReader result; <br />    string query = "execute QueuePayment &amp;#64;ccDigest &amp;#64;amount;";<br />    connection = MyApp.DBManager.GetDBConnection();<br />    command = new SqlCommand(query, connection);<br />    command.Parameters.Add("&amp;#64;ccDigest", System.Data.SqlDbType.Binary);<br />    command.Parameters&amp;#91;"&amp;#64;ccDigest"&amp;#93;.Value = ccDigest;<br />    command.Parameters.Add("&amp;#64;amount", System.Data.SqlDbType.Float);<br />    command.Parameters&amp;#91;"&amp;#64;amount"&amp;#93;.Value = amount;<br />    ...<br />&amp;#125; <br />...<br />public byte&amp;#91;&amp;#93;EncryptCCInfo(byte&amp;#91;&amp;#93;ccInfo)<br />&amp;#123;<br />    Rijndael encMD;<br />    ICryptoTransform encCT;<br />    byte&amp;#91;&amp;#93;digest;<br />    encMD = Rijndael.Create();<br />    encMD.Key = MyApp.Crypto.GetEncryptionKey();<br />    encMD.IV = MyApp.Crypto.GetEncryptionIV();<br />    encCT = encMD.CreateEncryptor();<br />    digest = encCT.TransformFinalBlock(ccInfo, 0, ccInfo.Length);<br />    encMD.Clear();<br />    return digest;<br />&amp;#125;</pre>
+  <p>2つのコンポーネント間のデータは暗号化されているので、アプリケーションが支払い情報を安全に送信する能力に送信メディアが影響する可能性は少ないです。</p>
+  <h1>その他のリソース</h1>
+  <li>2 つのサーバ間での IPSec の使用については、<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/SecNetHT18.asp">IPSecを使用して2 つのサーバ間のセキュアな通信に対応する を参照してください｡</a><li>IPSec フィルタリングの使用についての詳細は、<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/HTUseIPSec.asp">フィルタリング ポートと認証にIPSec を使用 を参照してください｡</a><li>IPSec ポリシーについての詳細は、<a href="http://support.microsoft.com/kb/816521"> IPSec ポリシーを使用して Windows Server 2003でセキュアなターミナル サービス通信を確保する を参照してください｡</a><li>SQL Server で SSL を使用する方法は、<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/SecNetHT19.asp">SSL を使用して SQL Serverでセキュアな通信を確保する を参照してください｡</a><li>SSL の設定については、 <a href="http://msdn2.microsoft.com/en-us/library/ms181053(VS.80).aspx">セキュア ソケット レイヤー (SSL) の設定 を参照してください｡</a><h1>関連する項目</h1><ul><li><a href="/article/b070122f-f1d1-47da-a378-57f845d5db61">ガイドライン:通信リンクを暗号化する</a><li><a href="/article/cd4ccbbb-be9c-4ff4-8b20-d116819b634b">ガイドライン:安全な鍵ストレージ場所を使用する</a><li><a href="/article/bd63d4b0-205d-4d95-9022-86a3f0af5232">ガイドライン: 認証資格を送信する際には SSL を使用する</a><li><a href="/article/4e938b66-254d-42ce-b714-a5de348b37e7">攻撃:トラフィック分析攻撃</a><li><a href="/article/7d83d845-cd2b-4067-bb4c-5fbb890b9c9e">攻撃:情報漏えい攻撃</a><li><a href="/article/74e70134-b639-4cdc-b3e7-fe2952256d98">攻撃: セッション認証資格スニッフィング攻撃</a><li><a href="/article/cf06603e-440e-4118-85d5-ad360817fabc">攻撃:ネットワーク盗聴攻撃</a><li><a href="/article/a048eed9-ad5a-4dac-a8d3-68f42da69dbd">攻撃:中間者攻撃</a><li><a href="/article/e2a7e430-e0fd-4443-89d4-76cd4f970d9d">チェックリスト項目:ネットワーク全体で機微データが保護されている</a></li></li></li></li></li></li></li></li></li></ul><hr /><p>出典: Microsoft Patterns &amp; Practices ガイダンス </p></li></li></li></li></li>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-158328502" Content_Hash="2015887602">
+  <Metadata>
+    <Id>63848638-235e-44d5-a839-7bd23bd976d3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>絶対ファイル パスを使用できる場合は絶対ファイル パスを使用する</Title>
+    <Category>ファイル I/O</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>可能な限り、絶対ファイル パスを使用するようにしてください。 ファイル パスを構成する場合は、環境変数を信用しないようにしてください。 </p>
+  <h1>理由</h1>
+  <p>環境変数の値を保証することはできません。 ユーザーから受入れられる全てのファイル名またはパスは攻撃者によるアプリケーションから任意のファイルやリソースへのアクセスを強要することにつながりかねません。</p>
+  <h1>状況</h1>
+  <p>ファイル パスは常に受入れないようにして、その代わりに可能な限り絶対パスを使用するようにしてください。</p>
+  <h1>対策</h1>
+  <p>アプリケーションがファイル名、ファイル パスまたは URL パス等の入力を受ける必要がある場合、パスが正しいフォーマットであり、それがアプリケーションの内容に対して有効な場所を指していることを確認する必要があります。 これを怠ると、攻撃者によりアプリケーションが任意のファイルやリソースにアクセスするようにされてしまう可能性があります。 </p>
+  <h2>ファイル パスの認証</h2>
+  <p>悪意のあるユーザーがコートのファイル実行を操作してしまうことを防ぐためには、ユーザー提供のファイルやパスの入力を受入れるようなコードを書かないようにします。 たとえば、次のようになります。</p>
+  <ul>
+    <li>ファイル名を入力として受入れる必要がある場合、<b>System.IO.Path.GetFileName</b>を使ってファイルのフルネームを使用します。<li>ファイル パスを入力として受入れる必要がある場合、<b>System.IO.Path.GetFullPath</b>を使って完全なファイル パスをしようします。</li></li>
+  </ul>
+  <h2>アプリケーション間でのマッピングを防ぐために MapPath を使用します</h2>
+  <p>支給された仮想パスをサーバ上の物理的パスにマッピングするために<b>MapPath</b>を使用する場合には、アプリケーション間のマッピングを防ぐために<b>ブール</b> のパラメータが受取られる<b>Request.MapPath</b> を過負荷させます。 次のコード例はこの手法を示しています：</p>
+ <pre>try<br />{<br />&nbsp; string mappedPath = Request.MapPath( inputPath.Text, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Request.ApplicationPath, false);<br />}<br />catch (HttpException)<br />{<br />&nbsp; // Cross-application mapping attempted<br />}  </pre>
+  <p>最終の <b>false</b> パラメータは、クロス アプリケーション マッピングを防止します。 これはユーザーがアプリケーションの仮想ディレクトリ階層の外に横断してしまうような<b>".."</b> を含むパスを提供できないということです。 それを試行しようとしても、結果は <b>HttpException</b> 型の例外となります。</p>
+  <p>サーバ制御を使用する場合、<b>Control.MapPathSecure</b> 方法を使って仮想パスがマッピングされている物理的パスを読み出すことができます。 <b>Control.MapPathSecure</b> はコード アクセス セキュリティを使い、サーバ制御に結果となるマッピングのファイルを読み取る権限がない場合には<b>HttpException</b>を発生させます。 更なる情報については .NET Framework SDK 文書の<b>Control.MapPathSecure</b> を参照してください。</p>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

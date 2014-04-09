@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="616127395" Content_Hash="1989615734">
+  <Metadata>
+    <Id>11c1fceb-184c-4767-aee2-9452bb91c4ee</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>カスタム ストアにロール情報を保存する場合は、カスタム認可ポリシーを作成する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>アプリケーションが SQL Server データベースのようなカスタム ストアに認可データを保存する場合、ユーザーを認可するためのカスタム 認可ポリシーを作成してください。</p>
+  <h1>対策</h1>
+  <p>カスタム認可ポリシーを作成するには、ユーザー認可ポリシー用にカスタマイズできるような Evaluate メソッドと共に、IAuthorizationPolicy から派生するクラスを実装してください。</p>
+  <p>ポリシー ライブラリは、config ファイルまたはコード中で構成されます。&nbsp; 次の例では、config ファイル中のポリシーのロケーションを構成します。</p>
+ <pre>&lt;serviceAuthorization serviceAuthorizationManagerType="Microsoft.ServiceModel.Samples.MyServiceAuthorizationManager, service"&gt;<br />&lt;!-- The serviceAuthorization behavior allows one to specify custom authorization policies. --&gt;<br />&lt;authorizationPolicies&gt;<br />&nbsp;&lt;add policyType="Microsoft.ServiceModel.Samples.CustomAuthorizationPolicy.MyAuthorizationPolicy, PolicyLibrary" /&gt;<br />&lt;/authorizationPolicies&gt;<br />&lt;/serviceAuthorization&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx にある 「ハウツー:カスタム認可ポリシーを作成する」 を参照してください。</a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx にある 「認可」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

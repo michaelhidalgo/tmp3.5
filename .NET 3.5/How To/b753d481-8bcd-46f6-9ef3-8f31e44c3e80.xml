@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="195023941" Content_Hash="-902371043">
+  <Metadata>
+    <Id>b753d481-8bcd-46f6-9ef3-8f31e44c3e80</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内に競合状態バグがないかどうかテストする方法</Title>
+    <Category>スレッディング</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <p>
+      <b>
+        <span>
+        </span>
+      </b>
+    </p>
+    <span>要約</span>
+  </h1>
+  <p>一つ以上のアプリケーション スレッドまたはプロセスが同じリソースに同時にアクセスしようとしたり、アプリケーションが予期していない時にスレッドがリソースにアクセスしたりすると競合状態が発生します。<span>&nbsp;&nbsp; </span>目標とされている特定の時間内において、アプリケーションが依存しているリソースを変更したり、ロックしたりせずに別のスレッドまたはプロセスを処理すると、望ましくない動作を実行してしまうかもしれません。<span>&nbsp; </span>特定のタイミング次第で、攻撃者はリソースにアクセスしてそれを変更してアプリケーションの動作を変え、アプリケーションに対してロジカルアタックを仕掛けたり、ターゲットとするアプリケーションにサービス拒否 (DoS) 攻撃を実行したりすることができます。</p>
+  <p>以下の手順に従って､ASP.NETにおける競合状態バグのテストを行ってください。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する</li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 1: 攻撃シナリオを理解する</span>
+  </h1>
+  <p>まず、競合状態の欠陥がASP.NETアプリケーションにどのような影響を与えるかを適切に理解するため、関連する一般的な攻撃シナリオを確認しておくことをお勧めします。</p>
+  <ul>
+    <li>論理攻撃 <li>DoS 攻撃</li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>シナリオ 1:<span> </span>論理攻撃</em>
+    </span>
+  </h2>
+  <p>マルチスレッドを使用している ASP.NET アプリケーションは競合状態において、論理攻撃の犠牲となってしまうかもしれません。<span>&nbsp; </span>開発者が静的メンバー変数を異なる スレッドにより変更されてしまわないように適切に保護しないと、攻撃者が別のスレッドを使って静的メンバー変数の値を改ざんすることができてしまいます。<span>&nbsp;&nbsp; </span>場合によっては、攻撃者が実際に静的メンバーをタイミングよく改ざんすることによってアプリケーションに論理攻撃をかけることができてしまいます。<span>&nbsp; </span>このシナリオは、リソースが確認された時点から使用される時点までの間に攻撃者により変更されてしまう TOCTOU 攻撃と似た状況です。<span>&nbsp; </span>以下のコードについて検討してみます。</p>
+ <pre>
+    <span>1&nbsp; class PriceCalculator()<br />2&nbsp; {<br />3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>static int number_of_coupons = 0;&nbsp; </strong><br />4<br />5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public int CalculatePrice()<br />6&nbsp;&nbsp;&nbsp;&nbsp; {<br />7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int balance = 5000;<br />8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int maximum_coupons_allowed = 10;<br />9<br />10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (number_of_coupons &lt; maximum_coupons_allowed) <br />11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int total = balance - 10*number_of_coupons; <br />13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return total;<br />14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0;<br />16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />17<br />18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void GrabCoupon()<br />19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; number_of_coupons++;<br />21&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />22<br />23&nbsp; } <br /></span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>上記機能のコードは無害なようです。<span>&nbsp; </span>しかし、<i>number_of_coupons</i> （クーポン数）が第３行の特定クラスの静的メンバーとして定義されています。<span>&nbsp; </span>これはマルチスレッド アプリケーションの場合、第１０行が実行されてから第１２行が実行されるまでの間に別のスレッドから<i>number_of_coupons</i> （クーポン数）変数の値が変更されてしまうかもしれないということになります。<span>&nbsp;&nbsp; </span></p>
+  <p>それでは、クーポンの数を増やすために使用することができるクラス <i>GrapCoupon </i>（クーポンをつかむ）クラスのメソッドに注目してください。<span>&nbsp; </span>攻撃者は<i>GrabCoupon</i> （クーポンをつかむ）メソッドを別のスレッドから呼び出すことができる場合、<span>&nbsp; </span>（価格計算）メソッドで計算された総価格を変更してしまうことができるかもしれません<i> </i>。<span>&nbsp; </span>たとえば､攻撃者は以下のURLへの要求によりGrabCouponメソッドを呼び出して、<i>number_of_coupons </i>静的メンバ変数を増やすことができることを発見するかもしれません。</p>
+ <pre>
+    <span>http://some_site/sumbitCoupon.aspx?method=GrabCoupon</span>
+  </pre>
+  <p>攻撃をかけるために攻撃者は上記 URL への要求を繰返しかけながら<i>CalculatePrice()</i> （価格計算）機能を呼び出す必要があります。<span>&nbsp; </span>これにより、<i>number_of_coupons </i>がチェック時(10行)に許容される最大値よりは小さいが使用時(12行)に許容される最大値よりは大きい値になり、その結果、アプリケーションが予想より低い金額を計算してしまうことになる場合があります。</p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>シナリオ 2<span> </span>Denial-of-Service （サービス拒否）攻撃</em>
+    </span>
+  </h2>
+  <p>この二つ目のシナリオではアプリケーションがマルチスレッドである必要がありません。<span>&nbsp;</span>攻撃シナリオは攻撃者が、例えば重要ファイルまたはネットワーク ポートといったような適切に機能するためには ASP.NET に依存するリソースにアクセスして、それをロックしてしまうことから発生するものです。<span>&nbsp;</span>I攻撃者がアプリケーションがアクセスできる前にリソースをロックすることができる場合、アプリケーションは障害を起こし、サービス拒否の状況を起こしてしまいます。<span>&nbsp; </span></p>
+  <h1>
+    <span>手順 2: 原因と対策を分析する</span>
+  </h1>
+  <p>次のステップは、ASP.NET の競合状態バグを試験する方法を学ぶ上でその原因と、それを防ぐ方法を理解するためのものです。<span>&nbsp; </span>この手順を参照することで、コード内でこのバグを特定し、必要なテストケースを実施するための準備を検討することができます。</p>
+  <h2>
+    <span>
+      <em>クラスの静的メンバーへの参照</em>
+    </span>
+  </h2>
+  <p>競合状態バグの一般的な原因は、特定クラスの静的メンバーが確認された時点から使用される時点までの間に変更されることを許してしまうことです（TOCTOU）。<span>&nbsp;&nbsp; </span>この原因は第一シナリオで攻撃者に静的メンバー<i>number_of_coupons</i> （クーポン数）を変更することによって、TOCTOU で確認および使用時点の間にアプリケーションへの論理攻撃をしかけることを許してしまうものです。<span>&nbsp; </span><span>&nbsp;</span>このシナリオによる競合状態の攻撃に対して防御するため、開発者はクラスの静的メンバを定義することを差し控え、関数とメソッド内にローカル変数を使用することができます。</p>
+ <pre>1&nbsp; class PriceCalculator()<br />2&nbsp; {<br />3<br />4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public int CalculatePrice()<br />5&nbsp;&nbsp;&nbsp;&nbsp; {<br />6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>int number_of_coupons = GetCouponCount();</strong>&nbsp; <br />7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int balance = 5000;<br />8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int maximum_coupons_allowed = 10;<br />9<br />10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (number_of_coupons &lt; maximum_coupons_allowed) <br />11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int total = balance - 10*number_of_coupons; <br />13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return total;<br />14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0;<br />16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />17<br />18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public void GrabCoupon()<br />19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; number_of_coupons++;<br />21&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />22<br />23&nbsp; } <span>&nbsp;</span></pre>
+  <p>ASP.NET アプリケーションはメソッド内の<i>number_of_coupons</i> （クーポン数）を定義するため、ローカルの変数が各スレッドのスタックに存在するようになり、攻撃者が変数の共有バージョンを変更して攻撃をかけることを防ぎます。</p>
+  <p>開発者が静的メンバー変数を使用する必要がある場合は、チェックされる時間と使用される時間の間にロックを追加することで、競合状態攻撃を避けることができます。</p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>1&nbsp; class PriceCalculator()<br />2&nbsp; {<br />3<br />4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;static int number_of_coupons;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />5&nbsp;&nbsp;&nbsp;&nbsp; static object synchLock = new Object();<br />6<br />7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public int CalculatePrice()<br />8&nbsp;&nbsp;&nbsp;&nbsp; {<br />9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int balance = 5000;<br />10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int maximum_coupons_allowed = 10;<br />11<br />12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>lock(synchLock)</strong><br />13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />14<br />15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (number_of_coupons &lt; maximum_coupons_allowed) <br />16&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />17&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int total = balance - 10*number_of_coupons; <br />18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return total;<br />19&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />20&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return 0;<br />21&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />22&nbsp;&nbsp;&nbsp;&nbsp; }<br />23&nbsp;&nbsp;&nbsp;&nbsp; <br />24&nbsp;&nbsp;&nbsp;&nbsp; public void GrabCoupon()<br />25&nbsp;&nbsp;&nbsp;&nbsp; {<br />26&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>lock(synchLock)</strong><br />27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />28&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; number_of_coupons++;<br />29&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />30&nbsp;&nbsp;&nbsp;&nbsp; }<br />31<br />32 }<br /></pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p> <i>lock</i> （ロック）命令は、<i>synchLock</i> （同期ロック）変数内のコードを一つだけのスレッドが実行するようにします。<span>&nbsp; </span>これは、2つの Thread が同時に<i>number_of_coupons</i>静的メンバ変数をチェックして使用することはできないこと、したがってもはや攻撃が不可能であることを意味します｡</p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>ロックされているリソースへのアクセス</em>
+    </span>
+  </h2>
+  <p>競合状態バグを起こす二つ目の原因は、ASP.NET アプリケーションが適切に動作するために依存しているリソースに低レベルの特権しかないユーザーにもアクセスできてしまうということです。<span>&nbsp; </span>例えば、ゲスト ユーザーにより削除またはロックされてしまうようなファイルに依存する場合、攻撃者はゲスト アカウントを通して DoS 攻撃をかけることができてしまいます。<span>&nbsp; </span>この攻撃の変形に対して防御するため、開発者は、最重要な依存リソースのすべてが低い特権を持つ攻撃者からの攻撃を受けることがないように、アプリケーションのAttack Surface (攻撃対象領域)を適切に保護する必要があります。</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 3: テスト事例の実行</span>
+  </h1>
+  <p>ASP.NETでの競合状態バグの理論的な局面を確認したところで、アプリケーションが脆弱か否かをチェックするテストケースを理解する必要があります。 </p>
+  <h2>
+    <span>
+      <em>競合状態を通じた論理攻撃のテスト</em>
+    </span>
+  </h2>
+  <p>以下の手順に従って、競合状態を使用してアプリケーションで実行される論理攻撃をテストします。</p>
+  <ol>
+    <li>アプリケーションのアクションの結果を計算するために使用する静的変数へのアクセスが別のスレッドからも可能な静的変数の、アプリケーションのアクションへの要求を探します。<span>&nbsp; </span>詳細は上記のシナリオ1を参照してください。 <li>手順1のアクションとは別に、ターゲットの静的メンバ変数を変更する要求を特定します。 <li>以下の下位手順を同時に実行します。 <ul><li><span><span>a.&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span>手順1で特定したアプリケーションへの要求を送信します。<li><span><span>b.&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span>手順2で特定した要求に対して連続的に要求を送信します。 </li></li></ul></li></li></li>
+  </ol>
+  <p>期待される結果: <span>&nbsp; </span>別のスレッドを使用する要求を繰返し出すことによって静的変数（第２ステップにあったもの）が変化し、それとともにアプリケーションの動作も変わることによって、第１ステップであった要求から期待されるアクションとは異なった結果を生成してしまう場合、そのアプリケーションは脆弱性があるものとなります。 </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>競合状態を通じた DoS 攻撃のテスト</em>
+    </span>
+  </h2>
+  <p>以下の手順に従って、競合状態を使用してアプリケーションで実行される DoS 攻撃をテストします。</p>
+  <ul>
+    <li>低い特権のアカウントを使用してASP.NETアプリケーションをホストしているコンピュータにログインします。 <li>アプリケーションのファイル システムとの相互作用を監視します。<span>&nbsp; </span>この手順を実行するには、Systeinternals.comのProcess Explorerのようなファイルシステム､レジストリ、およびネットワークポート用の監視ツールを使用できます。 <li>低い特権のアカウントにアクセスできるアプリケーションリソースを特定します。 <li>アプリケーション リソースを書き込みアクセス権を使用して開くか、またはロックして、アプリケーションの反応を監視します。</li></li></li></li>
+  </ul>
+  <p>期待される結果: <span>&nbsp; </span>ユーザーへのサービスを停止してしまう場合、そのアプリケーションには脆弱性があります。<span>&nbsp; </span>これはアプリケーションに次のような原因があるために発生します。</p>
+  <ul>
+    <li>低い特権のユーザーにアクセスできるリソースに依存している｡ <li>依存リソースがロックされている場合またはアクセス不可能な場合に、正常に失敗しない。</li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>競合状態攻撃はコード上では捕らえにくいものですが、マルチスレッドを使ったり、低レベルの特権しかないユーザーにもアクセスできるようなリソースに依存する ASP.NET アプリケーションにとっては大きな脅威となるものです。<span>&nbsp; </span>攻撃者はこの脆弱性をエクスプロイトしてアプリケーションに対して論理または DoS 攻撃をかけることができてしまいます。<span>&nbsp; </span>この脆弱性の試験としては、関連する一般的な攻撃シナリオ、ならびにこのバグはどのようなものによって発生してしまい、またそれはどのようにすれば防げるのかを習熟することです。<span>&nbsp; </span>そして、同時アクションをトリガーしてみて、別のスレッドから共有変数またはメソッドにアクセスを試みてください。<span>&nbsp; </span>サービス拒否 (DoS) 攻撃用の競合状態を実行するには、低い特権のユーザーを使用して、最重要な依存リソースをアプリケーションに対してアクセスさせ、アプリケーションがそのリソースを利用できないものとして取り扱うかを確認してください。</p>
+  <p>&nbsp;</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

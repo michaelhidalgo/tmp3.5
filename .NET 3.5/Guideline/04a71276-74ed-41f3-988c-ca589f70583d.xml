@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1641501692" Content_Hash="-1696764925">
+  <Metadata>
+    <Id>04a71276-74ed-41f3-988c-ca589f70583d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>認可オプションを知ってください</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>どのような認証および認可オプションを自分が持っているか、どのオプションが自分のシナリオに適しているかを検討してください。</p>
+  <h1>対策</h1>
+  <p>認可オプションを把握し、自分のシナリオに最も適切なオプションを選択してください。 最初に、リソース ベース認可とロール ベース認可のどちらを行うかを決定してください。&nbsp; リソース ベース認可では、最初の呼び出し元を認可するためにリソース上の ACL が使用されます。&nbsp; ロール ベース認可では、ユーザーが属するグループに基づいてサービス操作またはリソースへのアクセスを認可することができます。</p>
+  <ul>
+    <li>ロール ベース認可を使用することを選択した場合、Windows グループまたは ASPNET ロール内にロールを保存することができます。&nbsp;&nbsp; 
+<li>Active Directory を使用している場合は、保守のしやすさに基づいて Windows グループを使用すること、およびロールと Credential 情報の両方を Active Directory ストア内で維持しているという事実を考慮してください。&nbsp; Active Directory を使用していない場合は、ASPNET ロールおよび ASP.NET ロール プロバイダーの使用を検討してください。</li></li>
+  </ul>
+  <p>また、認可戦略は、認証の選択によって影響される可能性があります。</p>
+  <ul>
+    <li>リソースベース認可
+<ul><li>証明書認証を使用している場合、証明書を Windows グループに割り当てる必要があります。 
+<li>ユーザー名認証を使用している場合、プロトコル トランジションを実行する必要があります。 
+<li>Windows 認証は、デフォルトでリソース ベース認可を用います。 
+<li>Basic 認証は、デフォルトでリソース ベース認可を用います。 
+<li>注記:リソース ベース認可の場合、偽装を行う必要があります。<br /></li></li></li></li></li></ul><li>ロール ベース認可
+<ul><li>証明書認証を使用している場合、証明書を Windows グループに割り当てる必要があります。 
+<li>Windows グループとユーザー名認証を併用している場合、プロトコル トランジションを実行する必要があります。 
+<li>ユーザー名認証は、デフォルトで ASPNET ロールを用います。 
+<li>Windows 認証は、デフォルトで Windows グループを用います。 
+<li>Basic 認証は、デフォルトで Windows グループを用います。</li></li></li></li></li></ul></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

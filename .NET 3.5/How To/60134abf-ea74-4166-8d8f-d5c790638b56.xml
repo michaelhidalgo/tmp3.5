@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1490336251" Content_Hash="-355072012">
+  <Metadata>
+    <Id>60134abf-ea74-4166-8d8f-d5c790638b56</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でインジェクション攻撃を防ぐ方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このガイドでは、インジェクション攻撃からアプリケーションを保護するために、入力を検証する方法を示します。 入力検証の実行が不可欠なのは、アプリケーション レベルの攻撃にはほぼすべて、悪意のある入力が含まれているからです。 </p>
+  <p>フォーム フィールド、クエリ文字列のパラメータ、および Cookie も含めたすべての入力を検証して、悪意のあるコマンド注入からアプリケーションを保護する必要があります。 Web アプリケーションへのすべての入力は悪質であると想定し、すべての入力ソースに対してサーバ検証を必ず行ってください。 Client-side Validation を行って、サーバへのラウンド トリップを軽減し、ユーザー エクスペリエンスを改善します。ただし、これを回避するのは簡単なので、頼りすぎないようにします。 </p>
+  <p>入力を検証するには、アプリケーションの入力フィールドごとに受け入れ可能な入力を定義します。 確実な対策としては、長さ、範囲、書式、および型に関して入力を制約します。 「拒否」 アプローチではなく、「許可」 アプローチをとって、有効な入力を定義します。 「拒否」 アプローチは、非実用的です。好ましくないと思われる入力をすべて事前に想定するのは非常に困難だからです。</p>
+  <p>ある範囲の HTML 文字を受け入れる必要があるときは、そのデータをあらかじめ HTML エンコードして安全化してから、出力として表示します。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  ASP.NET の要求検証の使用</div>
+            <li>
+              <div>手順 2:  入力を制約する</div>
+              <li>
+                <div>手順 3:  安全でないエンコードの出力</div>
+                <li>
+                  <div>手順 4:  SQL クエリでのコマンド パラメータの使用</div>
+                  <li>
+                    <div>手順 5。 ASP.NET エラーがクライアントに戻されないことの検証</div>
+                    <li>
+                      <div>その他のリソース</div>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>長さ、範囲、書式、および型に関して入力を制約する。 <li>開発中に ASP.NET 検証要求を適用し、インジェクション攻撃を識別する。 <li>ASP.NET バリデーター コントロールを使用して、入力を制約する。 <li>安全でない出力をエンコードする。 <li>コマンド パラメータを使用して、 SQL インジェクションを防止する。 <li>詳細なエラー情報がクライアントに戻されないようにする。 </li></li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>アプリケーションへの入力が信頼されないものである場合、それらをすべて検証する必要があります。 ユーザーからの入力はすべて悪質であると想定しなければなりません。 Web アプリケーションへのユーザー入力には、フォーム フィールド、クエリ文字列、クライアント側 Cookie 、および、ユーザー エージェント文字列や IP アドレス等のブラウザ環境値があります。 </p>
+  <p>入力検証の不徹底は一般的な脆弱性であり、アプリケーションにおいて多数のインジェクション攻撃がエクスプロイトすることができます。 以下に、入力検証の不徹底または欠如をエクスプロイトする、典型的なの攻撃を示してあります。</p>
+  <ul>
+    <li>
+      <b>SQL インジェクション。 </b>ユーザー入力に基づいて動的 SQL クエリを生成すると、攻撃者が悪意のある SQL コマンドを注入し、それがデータベースで実行される可能性があります。 <li><b>クロスサイト スクリプティング。</b> クロスサイト スクリプティング (XSS) 攻撃では、クライアント側スクリプト コードの注入によって、Web ページの検証における脆弱性をエクスプロイトします。 そのコードは次に、疑いを抱いていないユーザーのコンピュータに送られて、ブラウザ上で実行されます。 ブラウザは信頼サイトからスクリプト コードをダウンロードしたので、ブラウザにはそのコードが適正かどうかの判断を下す手段がありません。 <li><b>認可されていないファイルへのアクセス。</b> 呼び出し元の入力を受け入れるようになっているコードの場合、悪意のあるユーザーが、コードのファイル操作を細工する可能性があります。たとえば、アクセスしてはならないファイルにアクセスしたり、有害データを注入することによって、コードをエクスプロイトすることができます。 </li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;インジェクション攻撃は、HTTP および HTTPS セキュア ソケット レイヤー (SSL) 接続上でも威力をもちます。 暗号化しても、防護することはできません。</blockquote>
+  <p>入力検証の場合の一般アプローチを以下に要約してあります。 このアプローチは、ネットワークから着信するすべての入力に対して適用する必要があります。そのような入力には、テキスト ボックスやその他のフォーム フィールドの入力、クエリ文字列パラメータ、 Cookie 、サーバ変数、および Web メソッド パラメータなどがあります。 この戦略では、まず正常な入力のみを許可し、次に有害な入力を拒否することに注意してください。 その理由は、アプリケーションにとって正常な入力は簡単に定義できますが、悪意のある入力の書式をすべて予測することは事実上不可能だからです。 </p>
+  <p>次のようにして、有効な入力をチェックします。</p>
+  <ul>
+    <li>
+      <b>制約： </b>型、長さ、書式、および範囲を検証して、既知の正常なデータかどうかをチェックします。 サーバ コントロールからの入力を制約するには、ASP.NET バリデーター コントロールを使用します。 その他のソースからの入力を制約するには、正規表現とカスタム検証を使用します。 <li><b>拒否：</b>既知の有害データかどうかをチェックし、有害入力を拒否します。 <li><b>サニタイズ：</b>場合によっては、入力をサニタイズして、潜在的に悪意のある入力を安全化する必要もあります。 たとえば、コメント フィールドなどの自由形式の入力フィールドがアプリケーションでサポートされている場合、&lt;<b>b</b>&gt; や &lt;<b>i</b>&gt; などの安全な HTML エレメントだけ許可し、他のすべての HTML エレメントを排除することができます。 </li></li></li>
+  </ul>
+  <h1>手順の概要</h1>
+  <p>SP.NET アプリケーションをインジェクション攻撃から保護するには、次のようなステップを行います。</p>
+  <ul>
+    <li>手順 1:  ASP.NET の検証要求の使用。 <li>手順 2:  入力を制約する。 <li>手順 3:  安全でない出力をエンコードする。 <li>手順 4:  SQL クエリでのコマンド パラメータの使用。 <li>手順 5。 ASP.NET エラーがクライアントに戻されないことの検証。 </li></li></li></li></li>
+  </ul>
+  <p>各項目は次のセクションで説明します。</p>
+  <h1>手順 1:  ASP.NET の要求検証の使用</h1>
+  <p>デフォルトでは、ASP.NET の検証のクリエストでは、サーバに送られたデータ内のすべての HTML エレメントと予約文字が検出されます。 それによって、ユーザーはアプリケーションにスクリプトを挿入できなくなります。 検証要求では、潜在的に危険な値をハードコーディングしたリストに照らし合わせて、すべての入力データがチェックされます。 一致が生じた場合、<b>HttpRequestValidationException</b> 型の例外がスローされます。</p>
+  <p>検証要求を無効にするには、Web.config アプリケーション構成ファイル内で<b> </b>、  <b>validateRequest="false"</b> を設定した &lt;<b>pages</b>&gt; エレメントを追加するか、または、個別のページ上で、@ Pages エレメントに <b>ValidateRequest="false"</b> を設定します。 </p>
+  <p>検証要求を無効にする必要が生じても、該当するページ上でのみ無効にしてください。 そのような例としては、HTML 書式の入力を受け入れる自由形式のテキスト フィールドを備えたページがあります。</p>
+  <h2>ASP.NET の検証要求が Machine.config 内で有効になっていることの確認</h2>
+  <p>検証要求は、ASP.NET 内でデフォルトとして有効になっています。 以下のようなデフォルトの設定を、Machine.config.comments ファイルで確認することができます。</p>
+  <div>
+ <pre>&lt;pages validateRequest="true" ... /&gt;  </pre>
+  </div>
+  <p>サーバの Machine.config ファイルまたはアプリケーションの Web.config ファイル内でこのデフォルト設定を指定変更して、検証要求を無効にしていないことを確認してください。 </p>
+  <h2>ASP.NET の検証要求のテスト</h2>
+  <p>検証要求の効果をテストすることができます。 テストするには、次のように <b>ValidateRequest="false"</b> を設定して、検証要求を無効にした ASP.NET ページを作成します。</p>
+  <div>
+ <pre>&lt;%@ Language="C#" ValidateRequest="false" %&gt;<br />&lt;html&gt;<br />&nbsp;&lt;script runat="server"&gt;<br />&nbsp; void btnSubmit_Click(Object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // If ValidateRequest is false, then 'hello' is displayed<br />&nbsp;&nbsp;&nbsp; // If ValidateRequest is true, then ASP.NET returns an exception<br />&nbsp;&nbsp;&nbsp; Response.Write(txtString.Text);<br />&nbsp; }<br />&nbsp;&lt;/script&gt;<br />&nbsp;&lt;body&gt;<br />&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:TextBox id="txtString" runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="&lt;script&gt;alert('hello');&lt;/script&gt;" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:Button id="btnSubmit" runat="server" OnClick="btnSubmit_Click" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="Submit" /&gt;<br />&nbsp; &lt;/form&gt;<br />&nbsp;&lt;/body&gt;<br />&lt;/html&gt;   </pre>
+  </div>
+  <p>このページを実行すると、メッセージ ボックスに "Hello" と表示されます。<b>txtString</b> 内のスクリプトが引き渡されて、ブラウザ内でクライアント側スクリプトとしてレンダリングされるからです。</p>
+  <p><b>ValidateRequest="true" </b> を設定するか、または、<b>ValidateRequest</b> ページを除去した場合、ASP.NET の検証要求によって、スクリプト入力が拒否されて、以下のようなエラーが生成されます。</p>
+  <div>
+ <pre>A potentially dangerous Request.Form value was detected from the client (txtString="&lt;script&gt;alert('hello...").  </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ASP.NET の要求検証に頼りきらないでください。 ご自分で行う入力検証に追加する対抗手段として扱ってください。</blockquote>
+  <h1>手順 2:  入力を制約する</h1>
+  <p>入力を制約するときは、以下のガイドラインを参考にしてください。</p>
+  <ul>
+    <li>
+      <b>サーバー側の入力検証を使用します。</b> Client-side Validation は、簡単に回避できるので、頼りきらないでください。 Server-side Validation に加えて Client-side Validation を使用することにより、サーバへの往復を軽減してユーザー エクスペリエンスを向上させます。 <li><b>長さ、範囲、書式、および型を検証します。</b> 既知の正常な入力に関するガイドラインに、すべての入力が必ず準拠するようにします。 <li><b>強力なデータ型を使用します。 </b>数値を、<b>整数</b>または<b>倍精度</b>などの数値データ型に割り当てます。文字列の値を文字列データ型に割り当てます。 日付を<b>日時指定</b> データ型に割り当てます。 </li></li></li>
+  </ul>
+  <p>サーバ コントロールを通して入力を取得する Web フォーム アプリケーションの場合、ASP.NET バリデーターを使用して入力を制約します。 クエリ文字列、 Cookie 、および HTTP ヘッダーなどのその他の入力データ ソースの場合、<b>System.Text.RegularExpressions</b> 名前空間の <b>Regex</b> クラスを使用して入力を制約します。</p>
+  <h2>フォーム フィールドからの入力の明示的なチェック</h2>
+  <p>サーバ コントロールを通して受信するフォーム フィールド入力を制約するには、次のような ASP.NET バリデーター コントロールを使用することができます。</p>
+  <ul>
+    <li>
+      <b>RegularExpressionValidator。</b> このコントロールは、テキスト入力を制約するのに使用します。 <li><b>RangeValidator。</b> このコントロールは、数値、通貨、日付、および文字列の入力の範囲をチェックするのに使用します。  <li><b>CustomValidator。</b> カスタム検証に対してこのコントロールを使用します。たとえば、日付が必ず将来または過去の日付になるようにするために使用します。 </li></li></li>
+  </ul>
+  <p>HTML 入力 コントロールを通して受信したフォーム フィールド入力を検証するには、サーバ側コードで検証を実行し、<b>Regex</b> クラスを使用して、テキスト入力を制約しやすくします。 この後、さまざまな一般入力型を制約する方法について説明します。</p>
+  <h3>テキスト フィールドの検証</h3>
+  <ul>
+    <li>名前、アドレス、および納税者識別番号などの、テキスト フィールドを検証するには、以下を行う正規表現を使用します。<li>入力文字の許容範囲を制約します。 <li>書式設定ルールを適用します。 例えば、納税者番号や郵便番号などのパターンベースのフィールドは、入力文字の特定パターンを必要とします。 <li>長さをチェックします。 </li></li></li></li>
+  </ul>
+  <h3>RegularExpressionValidator の使用</h3>
+  <p><b>RegularExpressionValidator</b> を使用するには、以下の例に示されているとおり、<b>ControlToValidate</b>、<b>ValidationExpression</b>、および <b>ErrorMessage </b> のプロパティをそれぞれ適した値に設定します。</p>
+  <div>
+ <pre>&lt;form id="WebForm" method="post" runat="server"&gt;<br />&nbsp; &lt;asp:TextBox id="txtName" runat="server"&gt;&lt;/asp:TextBox&gt;<br />&nbsp; &lt;asp:RegularExpressionValidator id="nameRegex" runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="txtName" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ValidationExpression="^[a-zA-Z'.\s]{1,40}$" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="Invalid name"&gt;<br />&nbsp; &lt;/asp:regularexpressionvalidator&gt;<br />&lt;/form&gt;  </pre>
+  </div>
+  <p>上記のコード サンプルで使用されている正規表現では、名前フィールドに入力できるのは、英字 (小文字および大文字)、スペース、O'Dell のような名前に使用される単一アポストロフィ、およびピリオドに制限されます。 さらに、フィールドの長さは40文字に制約されます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>RegularExpressionValidator</b> コントロールの場合、キャレット (^) とドル記号 ($) をユーザーが追加しないと、式の先頭と末尾にこれらが区切り文字として自動的に追加されます。 すべての正規表現にこれらの記号を追加するのが得策です。 表現を区切り文字で囲むことによって、その表現が所定どおりの内容だけで構成されるようにすることができます。</blockquote>
+  <h3>正規表現 (Regex)クラスの使用</h3>
+  <p>サーバ コンロトールを使用していない (つまり、バリデーター コントロールを使用できないということ) 場合や、フォーム フィールド以外のソース (クエリ文字列のパラメータまたは Cookie など) からの入力を検証する必要がある場合、<b>Regex</b> クラスを使用することができます。</p>
+  <p>
+    <b>Regex クラスの使用</b>
+  </p>
+  <ol>
+    <li><b> System.Text.RegularExpressions</b> 名前空間を参照する <b>using</b> ステートメントを追加します。 <li>正規表現を必ず ^ と $ アンカー文字で囲みます (文字列の先頭と末尾)。 <li>以下のコード サンプルに示されているとおり、<b>Regex</b> クラスの <b>IsMatch</b> メソッドを呼び出します。 </li></li></li>
+  </ol>
+  <div>
+ <pre>// Instance method:<br />Regex reg = new Regex(@"^[a-zA-Z'.\s]{1,40}$");<br />Response.Write(reg.IsMatch(txtName.Text));</pre>
+  </div>
+ <pre>// Static method:<br />if (!Regex.IsMatch(txtName.Text,@"^[a-zA-Z'.\s]{1,40}$")) <br />{<br />&nbsp; // Name does not match expression<br />}</pre>
+  <p>頻繁に使用する正規表現をキャッシュできない場合は、パフォーマンス上の理由から不要なオブジェクト生成を避けるために、可能ならスタティック型<b>IsMatch</b> メソッドを使用するようお勧めします。</p>
+  <h3>数値フィールドの検証</h3>
+  <p>たいてい場合、数値フィールドの場合は型と範囲をチェックする必要があります。 サーバ コントロールを使用する数値入力フィールドの型と範囲を検証するときは、<b>RangeValidator</b> コントロールを使用することができます。 <b>RangeValidator</b> は、通貨、日付、整数、倍精度、および文字列の各データ型をサポートします。 </p>
+  <p><b>RangeValidator</b> を使用するには、以下の例に示されているとおり、<b>ControlToValidate</b>、<b>Type</b>、<b>MinimumValue</b>、<b>MaximumValue</b>、および <b>ErrorMessage</b> の各プロパティをそれぞれに適した値に設定します。</p>
+  <div>
+ <pre>&lt;asp:RangeValidator <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ID="RangeValidator1" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="Invalid range. Number must be between 0 and 255."<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="rangeInput" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaximumValue="255" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MinimumValue="0" Type="Integer" /&gt;   </pre>
+  </div>
+  <p>サーバ コントロールを使用しない場合に数値範囲を検証するときは、入力値を整数に変換してから、範囲チェックを実行することができます。 たとえば、整数が有効であることを検証するには、<b>Int32.TryParse</b> メソッドを使用して、入力値を <b>System.Int32</b> 型の変数に変換します。 型変換が失敗した場合、このメソッドから <b>false</b> が戻されます。</p>
+  <div>
+ <pre>Int32 i;<br />if (Int32.TryParse(txtInput.Text, out i) == false)<br />{<br />&nbsp; // Conversion failed<br />}  </pre>
+  </div>
+  <p>以下のコードは、HTML テキスト入力コントロールを介して入力された整数の型と範囲のチェックを実行する方法を示しています。 </p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" %&gt;</pre>
+ <pre>&lt;script runat="server"&gt;</pre>
+ <pre>&nbsp; void Page_Load(object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; if (Request.RequestType == "POST")<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int i;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (Int32.TryParse(Request.Form["integerTxt"], out i) == true)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // TryParse returns true if the conversion succeeds<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ((0 &lt;= i && i &lt;= 255) == true)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("Input data is valid.");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("Input data is out of range");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("Input data is not an integer");<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp; }<br />&nbsp;&nbsp; <br />&lt;/script&gt;</pre>
+  </div>
+ <pre>&lt;html&gt;<br />&nbsp; &lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" action="NumericInput.aspx" method="post"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Enter an integer between 0 and 255:<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input name="integerTxt" type="text" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input name="Submit" type="submit" value="submit" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&nbsp; &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <h3>日付フィールドの検証</h3>
+  <p>日付フィールドが正しい型であることを検証する必要があります。 たいていの場合、その範囲もチェックする必要があります。それによって、たとえば、日付が将来または過去のものであることを検証します。 サーバ コントロールを使用して入力日付を捕捉する場合に、ある特定の範囲内に日付が収まっていることを検証する必要もあるときは、<b>Type</b> フィールドを<b>Date</b> に設定した <b>RangeValidator</b> コントロールを使用することができます。このコントロールを介して、定数の日付値を使用して範囲を指定することができます。 たとえば、日付が将来または過去のものであることを検証するために、今日の日付をベースにして日付範囲を検証する必要がある場合、<b>CustomValidator</b> コントロールを使用することができます。</p>
+  <p><b>CustomValidator</b> コントロールを使用して日付を検証するには、検証ロジックのあるカスタム メソッドを指すように、<b>ControlToValidate</b> および <b>ErrorMessage</b> プロパティと、<b>OnServerValidate</b> イベントを設定します。 以下のサンプルの .aspx ページ コードは、そのようなアプローチを示しています。</p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" %&gt;</pre>
+ <pre>&lt;script runat="server"&gt;</pre>
+ <pre>&nbsp;void ValidateDateInFuture(object source, ServerValidateEventArgs args)<br />&nbsp;{<br />&nbsp;&nbsp; DateTime dt;</pre>
+  </div>
+ <pre>&nbsp;&nbsp; // Check for valid date and that the date is in the future<br />&nbsp;&nbsp; if ((DateTime.TryParse(args.Value, out dt) == false) || <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (dt &lt;= DateTime.Today))<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp; args.IsValid = false;<br />&nbsp;&nbsp; }<br />&nbsp;}&nbsp;</pre>
+ <pre>&lt;/script&gt;</pre>
+ <pre>&lt;html&gt;<br />&nbsp; &lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Label ID="Label1" Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="Future Date:"&gt;&lt;/asp:Label&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="futureDatetxt" Runat="server"&gt;&lt;/asp:TextBox&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:CustomValidator <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ID="CustomValidator1" Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="Invalid date. Enter a date in the future."<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="futureDatetxt"&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnServerValidate="ValidateDateInFuture"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:CustomValidator&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="submitBtn" Runat="server" Text="Submit"&nbsp; /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&nbsp; &lt;/body&gt;<br />&lt;/html&gt;<br /></pre>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;上記のコードでは、.NET Framework 2.0 の新機能である<b>DateTime.TryParse</b> が使用されています。</blockquote>
+  <h2>フリーテキスト フィールドのサニタイズ</h2>
+  <p>入力を<i>サニタイズ</i>するには、信頼されない入力がコードとして取り扱われないようにして、その入力を安全化します。 たとえば、アプリケーションが制約できないユーザー入力を取り扱う場合や、共用データベースからデータを読み取る場合、そのデータをページに書き込むときに、そのデータをサニタイズするか、または出力を安全化する必要があります。 <b>AntiXSSLibrary.HtmlEncode</b> を使用して、出力の前にデータをサニタイズしてください。</p>
+  <h2>制限付きの HTML 入力の使用を可能にする</h2>
+  <p>たとえば、コメント フィールドなどのリッチ テキスト入力フィールドを通して、ある範囲の HTML エレメントをアプリケーションが受け入れる必要がある場合、ASP.NET の検証要求をオフにし、アプリケーションで受け入れようとしている HTML エレメントだけを許容するフィルターを作成します。 一般的な対策としては、&lt;<b>b</b>&gt; (太字) や &lt;<b>i</b>&gt; (イタリック) といった安全な HTML エレメントのみに書式設定を限定します。 データを書き込む前に、HTML エンコードします。 それによって、そのデータは、実行可能コードではなくテキストとして処理されることになるので、悪意のあるスクリプトがすべて安全化されます。 </p>
+  <h2>制限付きの HTML 入力の使用可能化</h2>
+  <ol>
+    <li><b>ValidateRequest="false"</b> 属性を <b>@ Page</b> ディレクティブに追加して、ASP.NET の検証要求を無効にします。 <li><b>HtmlEncode</b> メソッドを使用して、文字列入力をエンコードします。 <li><b>StringBuilder</b> を使用し、その Replace メソッドを呼び出して、許可しても差し支えのない HTML エレメントに対するエンコーディングをより分けて除去します。 </li></li></li>
+  </ol>
+  <p>以下の .aspx ページ コードに、そのようなアプローチを示しています。 このページでは、<b>ValidateRequest="false"</b> が設定され、ASP.NET の検証要求が無効になっています。ここでは、入力が HTML エンコードされ、<b> </b>シンプル テキスト書式設定に加えて や &lt;<b>i</b>&gt;  &lt;b&gt; の HTML エレメントに限り使用できるようになります。 </p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" ValidateRequest="false"%&gt;</pre>
+ <pre>&lt;script runat="server"&gt;</pre>
+ <pre>&nbsp; void submitBtn_Click(object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Encode the string input<br />&nbsp;&nbsp;&nbsp; StringBuilder sb = new StringBuilder(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AntiXSSLibrary.HtmlEncode(htmlInputTxt.Text));<br />&nbsp;&nbsp;&nbsp; // Selectively allow&nbsp; and &lt;i&gt;<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;b&gt;", "&lt;b&gt;");<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;/b&gt;", "");<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;i&gt;", "&lt;i&gt;");<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;/i&gt;", "");<br />&nbsp;&nbsp;&nbsp; Response.Write(sb.ToString());<br />&nbsp; }<br />&lt;/script&gt;</pre>
+ <pre>&lt;html&gt;<br />&nbsp; &lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="htmlInputTxt" Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TextMode="MultiLine" Width="318px"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Height="168px"&gt;&lt;/asp:TextBox&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="submitBtn" Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="Submit" OnClick="submitBtn_Click" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&nbsp; &lt;/body&gt;<br />&lt;/html&gt;   </pre>
+  </div>
+  <h2>クエリ文字列の値の検証</h2>
+  <p>長さ、範囲、書式、および型に関してクエリ文字列の値を検証します。 それには通常、正規表現を組み合わせて使用して、次のようにします。</p>
+  <ul>
+    <li>入力値を制約します。 <li>明示的な範囲チェックを設定します。 <li>実行する明示的な型チェックを指定します。それには、入力値をそれと同等の .NET Framework 型に変換し、その結果のすべての変換エラーを処理します。 </li></li></li>
+  </ul>
+  <p>次のコード サンプルは、<b>Regex</b> クラスを使用して、クエリ文字列で渡された名前文字列を検証する方法を示しています。 </p>
+  <div>
+ <pre>void Page_Load(object sender, EventArgs e)<br />{<br />&nbsp; if (!System.Text.RegularExpressions.Regex.IsMatch(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Request.QueryString["Name"], @"^[a-zA-Z'.\s]{1,40}$"))<br />&nbsp;&nbsp;&nbsp; Response.Write("Invalid name parameter");<br />&nbsp; else<br />&nbsp;&nbsp;&nbsp; Response.Write("Name is " + Request.QueryString["Name"]);<br />}  </pre>
+  </div>
+  <h2>Cookie 値の検証</h2>
+  <p>クエリ文字列パラメータなどの、 Cookie 内に保存されている値は、クライアントで簡単に操作できます。 Cookie 値は、クエリ文字列パラメータの場合と同じ方法で検証します。 すなわち、その長さ、範囲、書式、および型を検証します。</p>
+  <h2>ファイルおよび URL パスの検証</h2>
+  <p>アプリケーションがファイル名、ファイル パスまたは URL パス等の入力を受ける必要がある場合、パスが正しいフォーマットであり、それがアプリケーションの内容に対して有効な場所を指していることを確認する必要があります。 これを怠ると、攻撃者によりアプリケーションが任意のファイルやリソースにアクセスするようにされてしまう可能性があります。 </p>
+  <h3>ファイル パスの認証</h3>
+  <p>悪意のあるユーザーがコートのファイル実行を操作してしまうことを防ぐためには、ユーザー提供のファイルやパスの入力を受入れるようなコードを書かないようにします。 たとえば、次のようになります。</p>
+  <ul>
+    <li>ファイル名を入力として受入れる必要がある場合、<b>System.IO.Path.GetFileName</b>を使ってファイルのフルネームを使用します。<li>ファイル パスを入力として受入れる必要がある場合、<b>System.IO.Path.GetFullPath</b>を使って完全なファイル パスをしようします。</li></li>
+  </ul>
+  <h3>アプリケーション間でのマッピングを防ぐために MapPath を使用します</h3>
+  <p>支給された仮想パスをサーバ上の物理的パスにマッピングするために<b>MapPath</b>を使用する場合には、アプリケーション間のマッピングを防ぐために<b>ブール</b> のパラメータが受取られる<b>Request.MapPath</b> を過負荷させます。 次のコード例はこの手法を示しています：</p>
+  <div>
+ <pre>try<br />{<br />&nbsp; string mappedPath = Request.MapPath( inputPath.Text, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Request.ApplicationPath, false);<br />}<br />catch (HttpException)<br />{<br />&nbsp; // Cross-application mapping attempted<br />}  </pre>
+  </div>
+  <p>最終の <b>false</b> パラメータは、クロス アプリケーション マッピングを防止します。 これはユーザーがアプリケーションの仮想ディレクトリ階層の外に横断してしまうような<b>".."</b> を含むパスを提供できないということです。 それを試行しようとしても、結果は <b>HttpException</b> 型の例外となります。</p>
+  <p>サーバ制御を使用する場合、<b>Control.MapPathSecure</b> 方法を使って仮想パスがマッピングされている物理的パスを読み出すことができます。 <b>Control.MapPathSecure</b> はコード アクセス セキュリティを使い、サーバ制御に結果となるマッピングのファイルを読み取る権限がない場合には<b>HttpException</b>を発生させます。 更なる情報については .NET Framework SDK 文書の<b>Control.MapPathSecure</b> を参照してください。</p>
+  <h3>ファイル I/O の制限のためのコード アクセス セキュリティの使用</h3>
+  <p>管理者は、中の信頼度で稼働するようにアプリケーションを構成して、アプリケーションのファイル I/Oをそれ自身の仮想ディレクトリ階層内に限定することができます。 その場合、.NET コード アクセスセキュリティによって、アプリケーションの仮想ディレクトリ階層外では、どのファイルアクセスも一切許可されないようになります。</p>
+  <p>中の信頼度で稼働するようにアプリケーションを構成するには<b> </b>、 Web.config または Machine.config で、&lt;trust&gt; エレメントを設定します。</p>
+  <div>
+ <pre>&lt;trust level="Medium" /&gt;   </pre>
+  </div>
+  <h3>URL の検証</h3>
+  <p>以下のような正規表現を使用して、有効な URL 書式をフィルターすることができます。</p>
+  <div>
+ <pre>^(?:http|https|ftp)://[a-zA-Z0-9\.\-]+(?:\:\d{1,5})?(?:[A-Za-z0-9\.\;\:\@\&\=\+\$\,\?/]|%u[0-9A-Fa-f]{4}|%[0-9A-Fa-f]{2})*$   </pre>
+  </div>
+  <p>これで、入力は制約されますが、アプリケーション境界の見地から URL が有効かどうかの検証は行われません。 アプリケーションのコンテキストに沿って、ターゲットが有効かどうかをチェックする必要があります。 たとえば、アプリケーションの通信相手であるはずの許可済みのサーバを指しているかどうかをチェックします。</p>
+  <h1>手順 3:  安全でないエンコードの出力</h1>
+  <p>Web ページに出力されるテキストを作成する場合、<b>AntiXSSLibrary.HtmlEncode</b> を使用してエンコードします。これを行うのは、ユーザー入力、データベース、またはローカル ファイルからテキストを取り込んだ場合です。 </p>
+  <p>同様に、入力データまたは共用データベースのデータで作成したという理由で安全でないかもしれない文字を使用して URL を作成する場合は、<b>AntiXSSLibrary.UrlEncode</b> を使用して安全化を図ります。 </p>
+  <p>早い時点でデータをエンコーディングしないようにしてください。 クライアントに対してデータを表示する前の、できるだけ遅い時点でエンコードを行ってください。 </p>
+  <p>ASP.NET によって提供される <strong>HttpUtilty </strong> クラスは使用しないでください。このクラスでは、クロスサイト スクリプティング攻撃を防ぐ完全なジョブが実行されません。<strong>AntiXSSLibrary </strong> のほうがはるかに効果的です。</p>
+  <h2>安全でない出力をエンコードするための HtmlEncode の使用</h2>
+  <p><b>HtmlEncode</b> メソッドによって、HTML 内で特別な意味を持つ文字は、その文字を表す HTML 変数に置換されます。 たとえば、&lt; は <b>&lt;</b> に置き換えられ、<b>"</b> は <b>"</b> に置き換えられます。データをエンコードしても、ブラウザがそのコードを実行する原因にはなりません。 それどころか、データは無害なテキストに生まれ変わり、タグは HTML と解釈されなくなります。</p>
+  <p><b>HtmlEncode</b> の使用法を示した以下のページでは、ユーザーからの入力が受け入れられ、<b>ValidateRequest="false"</b> の設定によって、潜在的に安全でない HTML 文字が許容されます。入力を元のユーザーに書き戻す前に、入力されたテキストに対して <b>AntiXSSLibrary.HtmlEncode</b> がコードによって呼び出されます。 それによって、潜在的に安全でない HTML はすべて、無害なテキストに変わります。 </p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" ValidateRequest="false" %&gt;</pre>
+ <pre>&lt;script runat="server"&gt;<br />&nbsp; void submitBtn_Click(object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write(AntiXSSLibrary.HtmlEncode(inputTxt.Text));<br />&nbsp; }<br />&lt;/script&gt;</pre>
+ <pre>&lt;html&nbsp; &gt;<br />&nbsp; &lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="inputTxt" Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TextMode="MultiLine" Width="382px" Height="152px"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:TextBox&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="submitBtn" Runat="server" Text="Submit" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnClick="submitBtn_Click" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&nbsp; &lt;/body&gt;<br />&lt;/html&gt;   </pre>
+  </div>
+  <p>HTML エンコーディングの効果を確かめるには、上記のページを仮想ディレクトリ内に置き、そのページを参照し、何らかの HTML コードを入力テキスト ボックスに入力し、[<b>Submit</b>] をクリックします。たとえば、次のような入力がテキストに変わります。</p>
+  <div>
+ <pre>Run script and say hello &lt;script&gt;alert('hello');&lt;/script&gt;  </pre>
+  </div>
+  <p>上記は、次のような安全な出力を生じます。</p>
+  <div>
+ <pre>Run script and say hello &lt;script&gt;alert('hello');&lt;/script&gt;  </pre>
+  </div>
+  <p><b>HtmlEncode</b> の呼び出しを除去し、入力を単に書き戻すだけにすると、ブラウザはスクリプトを実行してメッセージ ボックスを表示します。 悪意のあるスクリプトは、大きな脅威になる可能性があります。 </p>
+  <h2>安全でない URL のエンコードでの UrlEncode の使用</h2>
+  <p>完全に信頼できない入力に基づいて URL を作成する必要がある場合、<b>AntiXSSLibrary.UrlEncode</b> を使用して URL 文字列をエンコードします。</p>
+  <div>
+ <pre>AntiXSSLibrary.UrlEncode( urlString );  </pre>
+  </div>
+  <h1>手順 4:  SQL クエリでのコマンド パラメータの使用</h1>
+  <p>SQL インジェクションの防止の一策として、SQL クエリに対してコマンド パラメータを使用します。 <b>Parameters</b> コレクションを使用して、型チェックと長さの検証を行うことができます。 <b>Parameters</b> コレクションを使用すると、入力はリテラル値として扱われ、SQL で実行可能コードとして扱われることはありません。 <b>Parameters</b> コレクションを使用した場合の別の利点として、型と長さのチェックを実施することができます。 範囲外の値は例外をトリガーします。</p>
+  <h2>ストアド プロシージャの呼び出し時のパラメータ コレクションの使用</h2>
+  <p>以下のコード断片は、ストアド プロシージャを呼び出すための <b>Parameters</b> コレクションの使用法を示しています。</p>
+  <div>
+ <pre>SqlDataAdapter myCommand = new SqlDataAdapter("AuthorLogin", <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; myConnection);<br />myCommand.SelectCommand.CommandType = CommandType.StoredProcedure;<br />SqlParameter parm = myCommand.SelectCommand.Parameters.Add(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@LoginId", SqlDbType.VarChar, 11);<br />parm.Value = Login.Text;  </pre>
+  </div>
+  <h2>SQL ステートメントの作成時の パラメータ コレクションの使用</h2>
+  <p>ストアド プロシージャを使用できない場合も、以下のコード断片に示されているとおり、パラメータを使用することはできます。</p>
+  <div>
+ <pre>SqlDataAdapter myCommand = new SqlDataAdapter(<br />"SELECT au_lname, au_fname FROM Authors WHERE au_id = @au_id", myConnection);<br />SQLParameter parm = myCommand.SelectCommand.Parameters.Add(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@au_id" ,SqlDbType.VarChar, 11);<br />Parm.Value = Login.Text;  </pre>
+  </div>
+  <p>SQL インジェクションを防止する方法の詳細については、「<a href="http://msdn2.microsoft.com/en-us/library/ms998271.aspx">How to: ASP.NET で SQL インジェクションから保護する方法</a>」を参照してください。</p>
+  <h1>手順 5。 ASP.NET エラーがクライアントに戻されないことの検証</h1>
+  <p>&lt;<b>customErrors</b>&gt; エレメントを使用して、アプリケーション例外条件の発生時にクライアントに戻すカスタムの汎用エラー メッセージを構成することができます。</p>
+  <p>以下の例に示されているとおり、Web.config ファイル内で、<b>mode</b> 属性を必ず <b>"remoteOnly"</b> に設定してください。</p>
+  <div>
+ <pre>&lt;customErrors mode="remoteOnly" /&gt;   </pre>
+  </div>
+  <p>ASP.NET アプリケーションのインストール後、以下の例に示されているとおり、カスタム エラー ページを指すように、設定値を変更することができます。</p>
+  <div>
+ <pre>&lt;customErrors mode="On" defaultRedirect="YourErrorPage.htm" /&gt;   </pre>
+  </div>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

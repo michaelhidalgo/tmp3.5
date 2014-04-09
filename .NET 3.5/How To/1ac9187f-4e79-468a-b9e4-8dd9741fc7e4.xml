@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-378001256" Content_Hash="2092397170">
+  <Metadata>
+    <Id>1ac9187f-4e79-468a-b9e4-8dd9741fc7e4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パスワードを使用して鍵を生成する方法</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>パスワードから鍵を生成するために<b>PasswordDeriveBytes</b> を使用するのではなく、<b>Rfc2898DeriveBytes</b> を使用することをお勧めします。主な利点は、RSA パスワード ベースの鍵導出関数バージョン 2 (PBKDF2) をサポートしていることです。これは <b>PasswordDeriveBytes</b> に使用される PBKDF1 標準実装の改良版です。</p>
+  <p><b>Rfc2898DeriveBytes</b> を使用するには、最低限、パスワードとソルトを提供してください。 デフォルトの 1000 イタレーションをオーバーライドしたい場合、鍵を導出するためのイタレーション数を指定することもできます。 <b>Rfc2898DeriveBytes</b> は、HMACSHA1 を基本的な疑似乱数ジェネレータとして使用します。 鍵が使用されてデータが暗号化された後、メモリから消去しますが、デフォルト値を変えていた場合はソルトとイタレーション数を持続させてください。 これらの値は保護されなくてはならず、復号時の鍵の再生成に必要です。 </p>
+  <p>次のコードは、<b>Rfc2898DeriveBytes</b> の呼び出し方法を示します。</p>
+ <pre>using System.Security.Cryptography;...<br />// Get salt (random bytes) <br />using RNGCryptoServiceProvider.byte[] salt = new byte[8];<br />new RNGCryptoServiceProvider().GetBytes(salt);<br />// Get the Password derived bytes using password and salt.<br />Rfc2898DeriveBytes passwordBytes = new Rfc2898DeriveBytes ("P@ssword!",salt);<br />// Create a TripleDESCryptoServiceProvider object.<br />TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();<br />// Get the password derived bytes key of length 16 bytes and add <br />// it to the Key property.<br />tdes.Key = passwordBytes.GetBytes(16);<br />// Use the TripleDESCryptoServiceProvider object to encrypt and decrypt data....  </pre>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;データを復号するには、暗号化ルーチンが使用する初期化ベクトル (IV) 値が必要です。これは復号コードで利用できる必要があります。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

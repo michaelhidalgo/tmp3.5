@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1426657272" Content_Hash="-541160083">
+  <Metadata>
+    <Id>5b641c0a-a63a-4524-8ce8-432150e6df6d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能な場合はウェブ ユーザー用の Windows 認証を使用する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ASP.Net Forms Authenticationの代替手段として、Windows 認証を検討してください。 </p>
+  <h1>理由</h1>
+  <p>Forms Authenticationと異なり、Windows 認証はパスワードおよびパスワードの直接ハッシュのいずれもネットワークを通じて送信することはありません。 これにより、攻撃者が、ネットワーク トラフィックを監視することによりパスワードを盗む、または反復攻撃によりセッションを盗むことがより困難になります。 さらに、統一アイデンティティ ストア、集中アカウント管理、強制可能なアカウントおよびパスワード方針も利用できます。 </p>
+  <h1>状況</h1>
+  <p />アプリケーション要件により許可されている場合は、常にWindows 認証を使用することをお勧めします。 Windows 認証における3つの主なデメリットとは：<ul><li>アプリケーションのユーザー アカウントが同じサーバまたは Active Directory アカウントになければならないこと。 <li>アプリケーションに接続するためにユーザーは Microsoft Windows 上の Internet Explorer または FireFox 1.5（以降）を使用しなければならないこと。 <li>ウェブ プロキシによっては Windows 認証そのものも問題を起こしかねないこと。 インターネットへのアクセスが可能なウェブ アプリケーションでは一般的に理想とはいえないソリューションです。</li></li></li></ul><h1>対策</h1><p>これらの手順に従ってアプリケーションをWindows認証用に設計また構成してください｡</p><ol><li><p><strong>クロスサイト リクエスト フォージェリ攻撃から保護してください</strong>。Windows認証を使用するためにウェブアプリケーションを構成する場合､インターネットエクスプローラーはユーザーにプロンプトせずに、現在ログオンしているユーザーのCredential 情報を使用して自動的に認証します。 これは｢サイレントな認証｣として知られており、アプリケーションは<a href="/article/6ae71499-095c-49bd-bed0-4e08303a4324">クロスサイト リクエスト フォージェリ</a>に対してより脆弱になります。アプリケーションを保護するためには、攻撃の節で挙げられている対策に必ず従うようにしてください。</p><li><p><strong>アプリケーションをWindows認証用に構成します｡ </strong>ASP.NETでWindows認証を使用するには、Microsoft インターネット･インフォメーション･サービス(IIS)を使用して匿名アクセスを無効化し、またウェブアプリケーションの仮想ディレクトリ用にWindowsベースの認証方式を構成しなければなりません。 また、&lt;<strong>authentication</strong>&gt; エレメントの <strong>mode</strong> 属性が Web.config ファイルで"Windows" (デフォルト設定) に設定されていることを確認する必要があります。  "Windows" (デフォルト設定) に設定されていることを確認します。</p></li></li></ol><h1>問題の例</h1><p>ジョンは会社のために給与支払いのASP.NETウェブアプリケーションを作成し、Active Directory メンバーシッププロバイダーが付属する ASP.NET Forms Authenticationを使用することに決めました｡その時点では最も簡単なオプションに思えたからです。 Forms Authenticationがネットワーク上でパスワードと認証 Cookieをプレーンテキストで送信することなど思いつきませんでした。 アプリケーションがリリースされて一週間後、とある従業員がこの脆弱性を利用してマネージャになりすまし自分の給与を上げようとしました。</p><h1>ソリューションの例</h1><p>この状況を見直したことで、ジョンはForms Authenticationの使用はそのような機微なアプリケーションにはまったく不適切だと理解しました｡ ジョンはアプリケーションが代わりにWindows認証を使用するように切り替え、それ以降は問題が出ませんでした。</p><h1>関連する項目</h1><ul><li><a href="/article/12b0959c-774b-4dde-86b9-a4ff3d264317">チェックリスト アイテム：可能な限りウェブ ユーザーに対しては Windows 認証を使用します。</a></li></ul><hr /><p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

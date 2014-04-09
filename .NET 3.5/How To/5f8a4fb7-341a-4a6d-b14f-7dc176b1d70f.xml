@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1452745684" Content_Hash="-1717482413">
+  <Metadata>
+    <Id>5f8a4fb7-341a-4a6d-b14f-7dc176b1d70f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クロスサイト スクリプティングの脆弱性のテスト方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <p>XSS バグは、HTML 入力および出力を操作するアプリケーションに影響を及ぼします。&amp;nbsp;特に、ASP、ASP、.NET、PHP、PERL、Java、および Visual Basic で開発された Web アプリケーションです。</p>
+  <h1>概要</h1>
+  <p>クロスサイト スクリプティング (または XSS) は、一般的に XSS に対して脆弱なサーバーを介してインターネット クライアントに影響を及ぼす、周知の HTML 関連のセキュリティの脆弱性です。&amp;nbsp;Web サーバーの XSS バグにより、攻撃者は、脆弱なサーバーを介して IE、Firefox、Netscape などの被害者のブラウザに悪意のあるペイロードを送信します。&amp;nbsp;&amp;nbsp;ペイロードは、HTML を表示して任意の実行文字列を実行していれば、必ずしも Web を閲覧している必要はなく、他の HTTP クライアントで実行することもできます。 </p>
+  <p>以下に、XSS バグをテストするのに必要な手順の概要を示します。</p>
+  <ul>
+    <li>
+      <b>手順 1</b>:  XSS の攻撃シナリオの理解 
+<li><b>手順 2</b>:  リスクの高いコンポーネントとエントリ ポイントのリストを作成する<b></b><b></b>
+<li><b>手順 3</b>:  テストと調査を開始する
+<li><b>手順 4</b>:  テスト ケース データを調整する</li></li></li></li>
+  </ul>
+  <p>
+    <b>手順 1: XSS の攻撃シナリオの理解</b>
+  </p>
+  <p>XSS には反射型と永続型の 2 つのタイプがあります。&amp;nbsp;反射型 XSS バグは、Web サーバーが訪問者からの入力を受け入れて、入力されたデータに文字列が含まれているかどうかをチェックすることなく訪問者に入力を自動的に返す際に発生します。&amp;nbsp;こうして、入力データは訪問者に反映されて訪問者のブラウザで実行されます。<i></i> &amp;nbsp;</p>
+  <p>永続型 XSS バグは、悪意のあるデータに埋め込まれた文字列がデータベース、ファイル、またはその他の保存方法などで永続的に保存される場合です。&amp;nbsp;文字列が含まれた悪意のあるデータはサーバーに保持されます。<i></i> &amp;nbsp;&amp;nbsp;サーバーのアプリケーションがこの保存されたコンテンツを検証せずにクライアントに送信すると、文字列はブラウザで実行されます。&amp;nbsp;</p>
+  <p>両方の XSS 攻撃シナリオを理解して、テストする場合に何に注目すればよいのかを知っておくことが重要です。</p>
+  <p>
+    <b>
+      <i>Web 検索フォームによる反射型 XSS のシナリオ</i>
+    </b>
+  </p>
+  <p>ある Web サイトには以下のフォームが含まれた search.php という名前の検索ページがあります:</p>
+  <p>
+    <img src="about:../../../LibrariesImages/72525c65-a233-49df-8821-a45107b7e327/clip_image001.png" />
+  </p>
+  <p>&lt;form&gt;</p>
+  <p>&lt;入力名="searchInput" タイプ="text" サイズ="50"&gt;</p>
+  <p>&lt;入力名="searchButton" タイプ="button" サイズ="20" 値="search"&gt;</p>
+  <p>&lt;/form&gt;</p>
+  <p>&amp;nbsp;searchInput 変数を使用して入力を収集し、同じページに結果を表示します:</p>
+  <p>&amp;nbsp;&lt;p&gt; &lt;?php echo $_GET['searchInput']?の検索結果：&gt; are:</p>
+  <p>&amp;nbsp;ユーザーがテストを入力すると、以下が表示されます:</p>
+  <p>
+    <img src="about:../../../LibrariesImages/72525c65-a233-49df-8821-a45107b7e327/clip_image003.png" />
+  </p>
+  <p>攻撃者は SCRIPT タグを使用して searchInput 変数をエクスプロイトし、以下を入力します:</p>
+  <p>
+    <img src="about:../../../LibrariesImages/72525c65-a233-49df-8821-a45107b7e327/clip_image005.png" />
+  </p>
+  <p>サーバーはユーザーに SCRIPT タグが含まれたページを送信し、ユーザーのブラウザはそのコンテンツを実行して XSS のワードでメッセージ ボックスを表示します。&amp;nbsp;攻撃者は被害者に電子メールを送信して以下の URL をクリックするように伝えます:</p>
+  <p>http://teammentorexample.com/search/search.php?searchInput=&lt;SCRIPT&gt;payload&lt;/SCRIPT&gt;</p>
+  <p>リンクをたどると、悪意のあるペイロードが被害者のブラウザのコンテキストで実行され、セッションや Cookie の情報を盗んだりするのに使用されます。</p>
+  <p>
+    <b>
+      <i>SQL データベース サーバーによる持続型 XSS</i>
+    </b>
+  </p>
+  <p>Web アプリケーションは、データベース テーブルにクエリし、そこからプロファイル情報を取得することによって、プロファイル Web ページを作成します。 問題は、データベースがデータベースに保存されている潜在的な文字列を検査しないことにあります。&amp;nbsp;ユーザーのお気に入りの引用文を以下の PHP コードを使用して表示します:</p>
+  <p>echo 'favorite quote:  &lt;br&gt;';</p>
+  <p>$connection = odbc_connect("sqldb", "admin", "root");</p>
+  <p>$query = "SELECT quote FROM ProfileTable WHERE UserName = " . $_GET['user']"; </p>
+  <p>$result = odbc_exec($connection, $query);</p>
+  <p>odbc_fetch_row($result);</p>
+  <p>$quote = odbc_result($result, 1); </p>
+  <p>print($quote);</p>
+  <p>'JohnB' のプロファイル名の攻撃者は、前もってデータベースに接続し、自分のプロファイルにこの情報をお気に入りの引用文として設定します:</p>
+  <p>&lt;SCRIPT&gt;alert('XSS') &lt;/SCRIPT&gt;</p>
+  <p>これで、このようなリンクをたどって訪問するユーザーには毎回次のようなアラート ボックスが表示されます:</p>
+  <p>&amp;nbsp;http://teammentorexample.com/showProfile.php?user=JohnB</p>
+  <p>攻撃者は、セッションや Cookie の情報を盗んだりするなど、より危険性の高いペイロードでアラート ボックスを変更することができます。</p>
+  <p>
+    <b>手順 2: リスクの高いコンポーネントとエントリ ポイントのリストを作成する</b>
+  </p>
+  <p>
+    <b>
+      <i>リスクの高いコンポーネントを特定する</i>
+    </b>
+  </p>
+  <p>XSS バグをテストする次の手順では、インターネット クライアントから入力データを取得してそれをクライアントに返送するのに使用するコンポーネントを広範かつ慎重に見直します。&amp;nbsp;大規模の Web サービスの場合、設計や構造などのドキュメントを入手できる場合は、現段階では極めて便利です。 &amp;nbsp;&amp;nbsp;テスト担当者は、Web クライアントにデータを反映 (反映型 XSS) し、後で Web クライアントに送信するためにデータを保存 (永続型 XSS) するコンポーネントについて考慮する必要があります。&amp;nbsp;これを実行する一般的なコンポーネントには以下が含まれます。</p>
+  <p>Web ページの検索</p>
+  <p>プロファイルに関係する Web ページ</p>
+  <p>Web フォーラム</p>
+  <p>ブログ</p>
+  <p>RSS フィード</p>
+  <p>シック クライアント用の HTML ベースのヘルプ ブラウザー</p>
+  <p>
+    <b>
+      <i>HTML レスポンスを書くコードの検索</i>
+    </b>
+  </p>
+  <p>サーバー レスポンスに HTML を追加するスクリプティング関数はさまざまで多数あります。&amp;nbsp;データを書き出すサーバー側のコードを見つけることは、潜在的な XSS 問題を評価して探し出すための最初の手順です。&amp;nbsp;ここにそれを行う関数の例をいくつか示します:</p>
+  <p>Response.Write &amp;nbsp;&amp;nbsp;(ASP)</p>
+  <p>&lt;%= %&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;(ASP)</p>
+  <p>echo &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;(PHP)</p>
+  <p>print &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;(PHP)</p>
+  <p>レスポンスにデータを書き込む関数は、テストする言語およびプラットフォームによって異なります。&amp;nbsp;使用する言語ですべての関連する関数について理解していることを確認してください。</p>
+  <p>
+    <b>
+      <i>レスポンス内で検証および暗号化されていないデータの確認</i>
+    </b>
+  </p>
+  <p>次に、上記のメカニズムによって何が出力されたのかをチェックする&amp;nbsp;たとえば、アプリケーションは以下を行うことができます:</p>
+  <p>Response.Write(Request.QueryString(search))</p>
+  <p>URL に検索値のコンテンツを書き込む方法。&amp;nbsp;変数が文字列に設定されている場合、クライアントが書き込まれたページを表示するとすぐに実行されます。</p>
+  <p>以下の PHP コードは、最初はそれほど危険であるように見えません。&amp;nbsp;</p>
+  <p>print($quote);</p>
+  <p>しかし、上記の持続型シナリオのように、引用変数がデータベースから直接送信された文字列である場合は XSS の影響を受けます。</p>
+  <p>出力データがデータベースまたは Web メソッドであってもバックエンドから送信される場合について慎重に調べます。&amp;nbsp;Web メソッドは未検証データを返す場合があります:</p>
+  <p>Response.Write(ExternalApplication.GetRSSFeedMethod())</p>
+  <p>アプリケーションによって書き込まれたデータが直接ユーザーから送信されてフォーマットについて特別に検証されていない場合でも、適切にエンコードされている場合は、安全である可能性があります。&amp;nbsp;すなわち、エンコーディングには、一般的に試行されるブラックリストではなく、安全であることがわかっている文字 (一般的に英数字のみ) を使用するホワイトリストの形式を採用する必要があります。</p>
+  <p>
+    <b>
+      <i>リスクのあるコンポーネントをエントリ ポイントと対応させる</i>
+    </b>
+  </p>
+  <p>未検証データは Web だけでなく、すべてのアプリケーションのエントリ ポイントから送信されます。&amp;nbsp;クライアントに渡される可能性のある悪意のあるデータのすべての可能性のあるソースが網羅されていることを確認します。&amp;nbsp;一般的なデータ ソースを以下に示します:</p>
+  <ul>
+    <li>Web フォーム
+<li>URL の内容
+<li>Cookie コンテンツ
+<li>Flash パラメータ
+<li>SQL データベース クエリ コンテンツ
+<li>Web サービス データ
+<li>グラフィカル ユーザー インターフェイス</li></li></li></li></li></li></li>
+  </ul>
+  <p>レビューとテスト中にアプリケーション内の危険性の高い変数とそれらのデータ ソースが確実にカバーされるように、それらをリストしてください。&amp;nbsp;</p>
+  <p>
+    <img src="about:../../../LibrariesImages/72525c65-a233-49df-8821-a45107b7e327/clip_image007.png" />
+  </p>
+  <p>
+    <b>手順 3:&amp;nbsp; テストと調査の開始 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;  </b>
+  </p>
+  <p>この手順では、基本的な XSS ファズ文字列を送信してアプリケーションの反応を観察し、バグの存在を示す簡単なアラート ボックスを表示するテストを行います。</p>
+  <p>
+    <b>
+      <i>単純なファズ文字列を使用して開始する</i>
+    </b>
+  </p>
+  <p>XSS バグの検出に成功するには、テスターが HTML 文字列をサーバーにまたはサーバーを介して保存または反映できるかどうかによります。&amp;nbsp;ほとんどすべてのケースで文字列は SCRIPT タグの間に含まれています (後で説明しますが他のタグでも機能します)。&amp;nbsp;この手順では、サーバー アプリケーションのハイリスク コンポーネントがタグ関連の入力にどのように反応するか、調査を始めることを推奨します。&amp;nbsp;テストを開始するにあたって、以下のような簡単なファズ文字列を使用すると便利です:</p>
+  <p>'&gt;;!--"&gt;&lt;XYZ&gt;&lt;=&amp;{()}</p>
+  <p>次に、サーバーのレスポンスで文字列 XYZ を探し出し、サーバーが特定の文字列に関係のある文字をどのように処理したのかを調べます。&amp;nbsp;サーバーがタグの内側で文字列を使用していることが判明する場合があります:</p>
+  <p>&lt;<b>input</b> type="text" name="keyword" id="keyword" maxlength="255" value="'&gt;;!--"&gt;&lt;<a name="line163"></a><b>XYZ</b>&gt;&lt;=&amp;{()}" style="height:10px; color:#000;" /&gt;</p>
+  <p>最初の文字列を変更することによって、アラートを表示できるようにします。&amp;nbsp;元のファズ文字列の二重引用符が<i>値</i>のプロパティを囲んでいるため、その前に何が配置されていても関係ありません。&amp;nbsp;また、文字 Z の横にある閉じ丸括弧の後ろの文字列は任意の文字列です。&amp;nbsp;文字列の取得は次のように簡易化することができます:</p>
+  <p>"&gt;&lt;XYZ&gt;</p>
+  <p>サーバーの応答は以下のようになります:</p>
+  <p>&lt;<b>input</b> type="text" name="keyword" id="keyword" maxlength="255" value=""&gt;&lt;<a name="line1631"></a><b>XYZ</b>&gt;" style="height:10px; color:#000;" /&gt;</p>
+  <p>詳細については、XSS Cheat Sheet を参照してください (Ha.ckers.com (<a href="http://ha.ckers.org/xss.html">http://ha.ckers.org/xss.html</a>))。</p>
+  <p>
+    <b>
+      <i>アラート ボックス表示の試行</i>
+    </b>
+  </p>
+  <p>以下の目的は文字列を実行することで、テストのための最も簡単な文字列は、最初のシナリオで表示したアラート ボックスが表示される文字列です。&amp;nbsp;これで、テスターは悪意のある文字列が HTML ドキュメントに表示されるようにするには "&gt; 文字を使用して開始する必要があることを理解しました。</p>
+  <p>"&gt;&lt;script&gt;alert('Works')&lt;/script&gt;</p>
+  <p>サーバーが SCRIPT タグをフィルタリングしないと、アラート ボックスが表示されます。&amp;nbsp;テスターに送り返されるコードは次のようになります。</p>
+  <p>&lt;<b>input</b> type="text" name="keyword" id="keyword" maxlength="255" value=""&gt;<a name="line16311"></a><u>&lt;script&gt;alert('Works')&lt;/script&gt;</u>" style="height:10px; color:#000;" /&gt;</p>
+  <p>
+    <b>
+      <i>さまざまなタグをカバー</i>
+    </b>
+  </p>
+  <p>時にはサーバーが文字列 &lt;script&gt; を出力から除外する場合があります。&amp;nbsp;サーバーがスクリプト タグを許可しない場合は、img タグを試行してコードを src プロパティに配置します:</p>
+  <p>"&gt;&lt;img src="javascript:alert('Works');"&lt;/img&gt;</p>
+  <p>実際に、&lt;iframe&gt;、&lt;body&gt;、&lt;embed&gt;、&lt;meta&gt;、&lt;html&gt;、&lt;frame&gt;、&lt;frameset&gt;、&lt;input&gt;、&lt;layer&gt;、&lt;object&gt;, および &lt;style&gt; など、その他にも危険性のあるタグは多数あります。 </p>
+  <p>スクリプト タグや JavaScript コマンドを必要としない次のようなものを試してみることをお勧めします:</p>
+  <p>"&gt;&lt;body onload=alert('Works')&gt;</p>
+  <p>
+    <b>手順 4:  テスト ケース データの調整 &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;  </b>
+  </p>
+  <p>この手順では、すべてのエントリ ポイントを網羅し、特定のエントリ ポイントのフォーマットに基づいてテスト ケース データを調整するテストを行います。&amp;nbsp;&amp;nbsp;</p>
+  <p>
+    <b>
+      <i>エントリ ポイントに応じて文字列の書式とエンコーディングを考慮する</i>
+    </b>
+  </p>
+  <p>手順 3 の例では、ファズ文字列をアプリケーションに渡した方法を指定していません (この場合は Web フォームから渡されたと推測することができます)。 &amp;nbsp;この手順では、テスターはコンポーネントとエントリ ポイントのリストを調べて、エントリ ポイントに応じてテスト ケース データを変更する必要があります。&amp;nbsp;すべてのエントリ ポイントが網羅されていることを確認してください。</p>
+  <p>
+    <b>
+      <i>Web フォーム</i>
+    </b>
+  </p>
+  <p>Web フォームは一般的に ASCII 文字列のみを許可するため、最も簡単にテストすることができます。&amp;nbsp;このエントリ ポイント全体をテストするには、ハイリスク コンポーネント リストを調べて Web フォームがあるコンポーネントを探します。&amp;nbsp;次に、Web ブラウザを使用してフォーム経由でコンポーネントにテスト文字列を送信し、可能な場合は Burp Suite のような攻撃プロキシを使用してデータ検証に使用するクライアント側 JavaScript を回避します。</p>
+  <p>
+    <b>
+      <i>URL コンテンツ</i>
+    </b>
+  </p>
+  <p>password の変数で渡される値を通して、Web アプリケーションは XSS に対して脆弱です。</p>
+  <p>http://www.xvulnerablesite.com/login.asp?username=[value]&amp;password=[value]</p>
+  <p>試験者が以下の文字列を password の値で試行する場合:</p>
+  <p>&lt;script&gt;alert('Works')&lt;/script&gt;</p>
+  <p>上記の URL を次のように変更する必要があります:</p>
+  <p>http://www.xvulnerablesite.com/login.asp?username=any&amp;password=&lt;script&gt;alert('Works')&lt;/script&gt;</p>
+  <p>URL 経由でテスト ケースを実行する場合は、テスト文字列のさまざまなエンコーディングを試行することが重要です。&amp;nbsp;&amp;nbsp;たとえば、以下の最初の攻撃文字列を実行しても何ら影響が認められません。&amp;nbsp;次に、2 番目の文字列を実行すると、アラート ボックスが機能します。&amp;nbsp;このケースでは、Web アプリケーションは ASCII で (丸カッコ以外の) 記号文字を許可しませんでしたが、16 進数のエンコーディングでは許可されました。</p>
+  <p>&lt;img src="javascript:alert('Works');"&gt;</p>
+  <p>&amp;nbsp;http://www.xvulnerablesite.com/login.asp?username=any&amp;password=&lt;img%20src%3d%22javascript:alert(%27Works%27)%22&gt;</p>
+  <p>URL 経由またはその他の場所でテストする場合は、サーバーが使用しているエンコーディングのタイプを調査し、それに応じてテスト ケースを変更する必要があります。</p>
+  <p>
+    <b>
+      <i>Cookie コンテンツ</i>
+    </b>
+  </p>
+  <p>アプリケーションは時々盲目的に、Web ブラウザに以下の PHP コードに表示されているような Cookie のコンテンツを表示する場合があります:</p>
+  <p>&lt;?php  echo $_COOKIE["testcookie"]; ?&gt;</p>
+  <p>このエントリ ポイントから危険性の高いコンポーネントをテストするには、ディスクの Cookie ファイルを変更して単純なスクリプトを挿入する必要があります。</p>
+  <p>
+    <img src="about:../../../LibrariesImages/72525c65-a233-49df-8821-a45107b7e327/clip_image009.png" />
+  </p>
+  <p>次に、ブラウザを再開始して PHP コードが含まれているページに移動し、アラート ボックスが表示されるか確認します。&amp;nbsp;または、攻撃プロキシを使用してこの変更をオンザフライで実行することもできます。これは複雑なアンプリケーションの場合に特に役立ちます。</p>
+  <p>
+    <b>
+      <i>Flash パラメーター</i>
+    </b>
+  </p>
+  <p>Flash パラメータは URL で頻繁に渡されるため、Flash パラメータをテストすることは、URL のコンテンツをテストすることと同じです。&amp;nbsp;ここでは、URL の各パラメータを調べてアプリケーションの反応を観察する必要があります。&amp;nbsp;Flash は <b>FlashVars</b> の使用により頻繁にパラメーターも受け取ります。 以下のコードを考慮して Flash ムービーを読み込みます:</p>
+  <p>&amp;nbsp;&lt;object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"</p>
+  <p>&amp;nbsp;codebase=""http://macromedia.com/cabs/swflash.cab#version=6,0,0,0""</p>
+  <p>&amp;nbsp;width="250" height="250" id="flaMovie1" align="center"&gt;</p>
+  <p>&amp;nbsp;&lt;param name=movie value="flaMovie1.swf"&gt;</p>
+  <p>&amp;nbsp;&lt;param name=<b>FlashVars</b> value=<b>"inputURL=usersinput"</b>&gt; </p>
+  <p>&amp;nbsp;&lt;param name=quality value=high&gt; </p>
+  <p>&amp;nbsp;&lt;param name=bgcolor value=#ffffff&gt;</p>
+  <p>&amp;nbsp;&lt;embed src="flaMovie1.swf" <b>FlashVars</b>=<b>"inputURL=usersinput"</b></p>
+  <p>&amp;nbsp;quality="high" bgcolor="#ffffff" width="250" height="250"</p>
+  <p>&amp;nbsp;name="flaMovie1" align type="application/x-shockwave-flash"</p>
+  <p>&amp;nbsp;pluginspage="http://www.macromedia.com/go/getflashplayer"&gt;</p>
+  <p>&lt;/object&gt;</p>
+  <p>&amp;nbsp;この手順では、テスターは Flash のエントリ パラメータを以下のように変更する必要があります:</p>
+  <p>&amp;nbsp;&lt;object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"</p>
+  <p>&amp;nbsp;codebase=""http://macromedia.com/cabs/swflash.cab#version=6,0,0,0""</p>
+  <p>&amp;nbsp;width="250" height="250" id="flaMovie1" align="CENTER"&gt;</p>
+  <p>&amp;nbsp;&lt;param name=movie value="flaMovie1.swf"&gt;</p>
+  <p>&amp;nbsp;&lt;param name=<b>FlashVars</b> value=<b>"inputURL=%3cscript%3ealart%28%b4XSS%b4%29%3c%2fscript%3e"</b>&gt; </p>
+  <p>&amp;nbsp;&lt;param name=quality value=high&gt; </p>
+  <p>&amp;nbsp;&lt;para name=bgcolor value=#ffffff&gt; </p>
+  <p>&amp;nbsp;&lt;embed src="flaMovie1.swf" <b>FlashVars</b>=<b>"inputURL=%3CSCRIPT%3Ealert%28%B4XSS%B4%29%3C%2FSCRIPT%3E"</b></p>
+  <p>&amp;nbsp;quality="high" bgcolor="#ffffff" width="250" height="250"</p>
+  <p>&amp;nbsp;name="flaMovie1" align type="application/x-shockwave-flash"</p>
+  <p>&amp;nbsp;pluginspage="http://www.macromedia.com/go/getflashplayer"&gt;</p>
+  <p>&lt;/object&gt;</p>
+  <p>
+    <b>
+      <i>グラフィカル ユーザー インターフェース</i>
+    </b>
+  </p>
+  <p>UI によるテストは、試験者がテスト値を画面に入力するという点において、Web フォーム テストに似ています 。&amp;nbsp;GUI テストのケースでは、使用されるアプリケーションは Web ブラウザーでなく、危険性の高いコンポーネントと交信、HTML をレンダリング、 およびユーザー入力を許可しないか信頼されていないデータを受信する任意の他のアプリケーションです。<b></b></p>
+  <p>
+    <b>
+      <i>さらなるエントリ ポイントの検索</i>
+    </b>
+  </p>
+  <p>各アプリケーションにはエントリ ポイントの固有のセットがあります。&amp;nbsp;この項では、XSS 攻撃の一般的なものをリストに表示します。&amp;nbsp;しかし、テスターはデータを渡す他の方法で XSS 脆弱性を招く恐れがないかアプリケーションを調査する必要があります。&amp;nbsp;妨害して一致したら置換ルールを追加して HTTP パケットのコンテンツを変更することができる www.sysinternals.com からのシステム監視ツールや Burp プロキシなどの専用の攻撃ツールを使用することをお勧めします。</p>
+  <p>
+    <b>
+      <i>テスト ケースを調整し続ける</i>
+    </b>
+  </p>
+  <p>初期のテスト文字列ではソース コードの一部に配置される場合があり、スクリプト タグを使用せずに XSS が可能になります。&amp;nbsp;テスターは少しだけ埋めるか、JavaScript コマンドを書き込むだけになる場合があります。&amp;nbsp;初期入力が実際のコマンドまたはパラメータの内側または内部に配置されたかどうかを常にチェックしてください。</p>
+  <p>スクリプトを挿入するためのタグの変更には、さまざまな方法があります。&amp;nbsp;Web アプリケーションに対するクロスサイト スクリプティング脆弱性のテストの詳細については、<a href="http://www.microsoft.com/technet/community/columns/secmvp/sv0505.mspx">http://www.microsoft.com/technet/community/columns/secmvp/sv0505.mspx</a>と <a href="http://www.owasp.org/index.php/OWASP_Testing_Guide_Appendix_C:_Fuzz_Vectors">http://www.owasp.org/index.php/OWASP_Testing_Guide_Appendix_C:_Fuzz_Vectors</a> を参照してください。</p>
+  <p>
+    <b>
+      <i>持続型 XSS のケースの検討</i>
+    </b>
+  </p>
+  <p>テスターがテスト ケースの結果をすぐに確認できない場合があります。&amp;nbsp;攻撃者が別のページを訪問するなど、他の動作を行った場合にのみ受信した悪意のある入力を送り返す XSS バグが存在する場合があります。&amp;nbsp;これは、持続型 XSS 攻撃によくあるケースです。</p>
+  <p>以下のケースについて考慮します。&amp;nbsp;アプリケーションがユーザーのパスワードのヒントを尋ねます。&amp;nbsp;サーバーがユーザーにヒントを入力するようにプロンプトを表示すると、攻撃者は以前説明した XSS テスト文字列の 1 つを入力します。&amp;nbsp;次に登録を送信しますが、サーバーはアラート ボックスを表示しません。&amp;nbsp;次に、攻撃者は被害者にサイトのパスワード ページを参照させてヒントを尋ねます。&amp;nbsp;サイトがヒントを表示すると、アラート ボックスが表示されます。&amp;nbsp;</p>
+  <p>持続型 XSS をテストする際には、テスターは入力される可能性のあるすべての場所について考慮し、チェックする必要があります。&amp;nbsp;テスターは開発者に伝えて仕様書を使用し、持続型 XSS バグが出現する可能性のあるすべてのデータ ストアをチェックする必要があります。</p>
+  <p>
+    <b>
+      <i>テスト ケースの自動化</i>
+    </b>
+  </p>
+  <p>成功した XSS 攻撃を収集するサーバーを設定することによって XSS テストを自動化することができます。&amp;nbsp;たとえば、以下のコードを保有する ASP ページを作成してページに results.asp という名前を付けます。</p>
+  <p>&lt;%<br />&amp;nbsp;&amp;nbsp;set fso = Server.CreateObject("Scripting.FileSystemObject")<br />&amp;nbsp;&amp;nbsp;set fw = fso.CreateTextFile("c:\inetpub\wwwroot\results.txt",True)<br />&amp;nbsp;&amp;nbsp;fw.WriteLine("test case:")<br />&amp;nbsp;&amp;nbsp;fw.WriteLine(Request.QueryString("testcase"))&amp;nbsp;<br />&amp;nbsp;&amp;nbsp;fw.Close <br />%&gt;</p>
+  <p>&amp;nbsp;次に、変更するか、または新しい HTTP リクエストを作成することによってターゲット サーバーにテスト ケースを生成します。&amp;nbsp;アラートを表示する代わりに、スクリプトは対応するテスト ケース番号を渡すことによって results.asp を呼び出します (HTML タグの src プロパティを使用)。&amp;nbsp;たとえば、テスターがログイン ページのパスワード フィールドで img タグを使用して XSS を網羅するとします。&amp;nbsp;このテスト ケースに 17 のラベルを付けます。&amp;nbsp;次に自動化を使用して以下の文字列を渡します:</p>
+  <p>http://www.xvulnerablesite.com/login.asp?username=any&amp;password=&lt;img src="http://xyoursite.com/results.asp?testcase=17"&gt;</p>
+  <p>&amp;nbsp;このテスト ケースが失敗した場合、17の値がファイルに表示され、テスターは XSS バグの検出とその原因を知ることができます。&amp;nbsp;テスターは何百ものこのようなテスト ケースをコード化して HTTP クライアントなどで自動的にテストを生成することができます。&amp;nbsp;</p>
+  <p>さらに、<a href="http://en.wikipedia.org/wiki/Fuzz_testing">http://en.wikipedia.org/wiki/Fuzz_testing</a> にて無料で利用可能なさまざまなファザーを参照してください。 これらのほとんどは XSS テストを実行する機能があり、脆弱性を発見することができます。</p>
+  <h1>結論</h1>
+  <p>XSS バグのテストは複雑ではありませんが、徹底的に行う必要があります。&amp;nbsp;Web サーバーが HTML 出力を表示するすべての場所を調べることが重要です。&amp;nbsp;試行する文字列は多数あり、調べるタグも多数あり、テスト データの入力方法にもさまざまな方法がある上に、自動化の余地もあります。&amp;nbsp;しかし、留意すべき最も重要なことはテスト データに従うということです。&amp;nbsp;アラート ボックスをただ見るだけではなく、背後にあるコードを観察してください。&amp;nbsp;テスト ケース データを調整する方法を知ることができれば、XSS テストは成功したと言えます。</p>
+  <h1>追加リソース</h1>
+  <ul>
+    <li>XSS (クロスサイト スクリプティング) チート シート。&amp;nbsp;Ha.ckers.com (<a href="http://ha.ckers.org/xss.html">http://ha.ckers.org/xss.html</a>)
+<li>クロスサイト スクリプティング脆弱性に対して Web アプリケーションをテストする、クリス ウェーバー <a href="http://www.microsoft.com/technet/community/columns/secmvp/sv0505.mspx">http://www.microsoft.com/technet/community/columns/secmvp/sv0505.mspx</a> 
+<li>OWASP Testing Guide Appendix C: Fuzz Vectors:  <a href="http://www.owasp.org/index.php/OWASP_Testing_Guide_Appendix_C:_Fuzz_Vectors">http://www.owasp.org/index.php/OWASP_Testing_Guide_Appendix_C:_Fuzz_Vectors</a><li>&amp;nbsp;ファズ テスト。&amp;nbsp;Wikipedia <a href="http://en.wikipedia.org/wiki/Fuzz_testing">http://en.wikipedia.org/wiki/Fuzz_testing</a></li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <div>
+    <ul>
+      <li>
+        <div><a href="/article/61f8ac64-c4e1-4c31-9521-f20a1a64b6fd">攻撃: クロスサイト スクリプティング攻撃</a></div>
+      </li>
+    </ul>
+  </div>]]></Data>
+  </Content>
+</TeamMentor_Article>

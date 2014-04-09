@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="375829003" Content_Hash="1749295956">
+  <Metadata>
+    <Id>d252b573-591c-4d11-9aab-621fb0a04993</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ワンクリック攻撃への対処としてページにViewStateUserKeyが使用されている</Title>
+    <Category>パラメータ操作</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>認証を必要とする、または重要な機能のトリガーに使用されるすべてのフォームがViewStateUserKeyで保護されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>ワンクリック攻撃は、既知の脆弱な Web サイトに悪意のあるHTTPフォームを掲載することで行われます。 この攻撃は通常、電子メールのリンクや、多くの投稿で賑わうフォーラムで見つけた面白そうなリンクをユーザーが何も知らずにクリックしてひっかかってしまうことが発端となるため、「ワンクリック」と呼ばれます。&nbsp; ユーザーはリンクをたどることで、知らないうちにリモート プロセスをトリガーし、ついには特定のサイトに悪意のあるフォームを送信してしまいます。&nbsp; これにより、攻撃者は、攻撃の対象となったユーザーの Credential 情報を使用して、脆弱なフォームを悪用した攻撃を実行することができます。</p>
+  <p>
+    <strong>ViewStateUserKey</strong> はハッカーがクライアント側ビューコンテンツを使用して悪意のある掲載をサイトに行うことを困難にします。&nbsp; フォームが呼び出されるたびに、一意の鍵が生成されます。&nbsp; 鍵には暗号化された時間およびセッションの情報が含まれており、鍵が別のセッションで使用された場合や、セッションのタイムアウトの有効期限が切れた後はフォームの送信は拒否されます。 </p>
+  <h1>チェック方法</h1>
+  <p>以下の手順に従ってViewStateUserKey が適切に使用されているかどうかを確認します:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>保護が必要なページを特定します。 </strong>アプリケーションを見直し、ViewStateUserKey で保護されるべきすべてのフォームの一覧を作ります。&nbsp; 下記のいずれかの基準に該当するフォームは保護が必要です。</p>
+      <ul>
+        <li>このフォームは認証が必要です<li>このフォームは、重要なアプリケーション動作、または persistent store（ SQL データベースなど）への書き込み操作をトリガします。</li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>ページが保護されているかどうかチェックしてください。 </strong>ViewStateUserKeyはページごとに、またはページ派生クラスの <strong>OnInit</strong>仮想メソッドで設定できます。&nbsp; </p>
+        <ol>
+          <li>保護を見つけたらまず<strong>OnInit</strong>をクリックすると、全ページに適用されます。<br /><br /><pre>protected override OnInit(EventArgs e) {<br />&nbsp;&nbsp; base.OnInit(e); <br />&nbsp;&nbsp; ViewStateUserKey = Session.SessionID;<br />}</pre><li>次に、個別のページをチェックしてください。たとえば、下記のようなページです。<br /><br /><pre>void Page_Init (object sender, EventArgs e) {<br />&nbsp;&nbsp; ViewStateUserKey = Session.SessionID;<br />}</pre></li></li>
+        </ol>
+        <li>
+          <p>
+            <strong>ViewStateUserKey が適切に設定されていることを確認してください。 </strong>一定の文字列(全ユーザー共通)に<strong>ViewStateUserKey</strong>を設定するのは、空白にしておくのと似ています。&nbsp; 鍵はユーザー ID やセッション ID など、ユーザーごとに異なるものに設定する必要があります。&nbsp; 技術上や社会的なさまざまな理由から、セッション ID は鍵としてはるかに優れているといえます。セッション ID は予測不可能で、時間制限があり、ユーザーごとに異なるからです。 </p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>各ページに追加される下記のコードによって、セッション ID に基づく鍵が設定されます。</p>
+ <pre>void Page_Init (object sender, EventArgs e) {<br />   ViewStateUserKey = Session.SessionID;<br />}</pre>
+  <p>代わりに、このコードを<b>ページ</b>派生クラスの<b>OnInit</b>仮想メソッドに追加します。&nbsp; (このプロパティは <b>Page.Init</b> イベントに設定する必要があることに留意してください)。&nbsp; こうすればコードを一度書けばよく、ページごとにコードを書く必要がありません。</p>
+ <pre>protected override OnInit(EventArgs e) {<br />   base.OnInit(e); <br />   ViewStateUserKey = Session.SessionID;<br />}</pre>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

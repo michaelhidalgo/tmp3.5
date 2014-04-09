@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="342291349" Content_Hash="-381041362">
+  <Metadata>
+    <Id>f10eb9ab-4a83-4eb6-8e99-992b9a7dd3d9</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メモリー内のシークレットの曝露を最小化する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>シークレットを操作する際は、シークレット データがどのようにメモリーに保存されているかを考慮します。 また、シークレット データがどれだけの期間平文形式で維持されるかを考慮します。</p>
+  <h1>理由</h1>
+  <p>攻撃者がアプリケーションのアドレス空間を検知できる場合、プロセスのアドレス空間にある平文 (暗号化されていない文) で記述された機密情報は脆弱です。 また、その機密情報を含むメモリのページがページ ファイルにスワップ アウトされるときに、ユーザーがそのページ ファイルにアクセスできる場合、その機密データは脆弱です。 同様に、メモリに保持されている平文で記述された機密情報は、プロセスがクラッシュするとクラッシュ ダンプ ファイルに表示されてしまいます。</p>
+  <h1>状況</h1>
+  <p>アプリケーション内で機微データを扱う時。</p>
+  <h1>対策</h1>
+  <p>メモリ内の機密情報の暴露を最小限にするために、次の方法について検討します。</p>
+  <ul>
+    <li>
+      <b>シークレットのコピーを複数作成しないようにします</b>。機密データのコピーを複数作成することにより、Attack Surface (攻撃対象領域) が増加します。 機密データのコピーを作成するのではなく、リファレンスを渡します。 また、秘密を不変の <b>System.String</b> オブジェクトに保存する場合、各文字列操作の後に新しいコピーが作成されることを理解しておいてください。 <li><b>シークレットの暗号化できるだけ長く維持します</b>。データは、機密情報を使用する直前に復号化します。 <li><b>平文 バージョンを可能な限り削除します</b>。機密データの平文によるコピーは、使用後即座にゼロで置き換えます。</li></li></li>
+  </ul>
+  <p>これらガイドラインを実施するには、バイト配列を使用することもあります。 バイト配列はメモリにピン止めされ、暗号化され、ゼロで置換されます。 状況に応じて、バイト配列の代わりに、より自動で行えるSecureStringを使用することも可能です。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>SecureString クラスについて<a href="http://msdn.microsoft.com/en-us/library/system.security.securestring.aspx">http://msdn.microsoft.com/en-us/library/system.security.securestring.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

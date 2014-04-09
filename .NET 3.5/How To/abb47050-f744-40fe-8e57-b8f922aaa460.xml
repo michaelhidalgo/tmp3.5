@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-596875034" Content_Hash="-429771105">
+  <Metadata>
+    <Id>abb47050-f744-40fe-8e57-b8f922aaa460</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で偽装と委任を使用する方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft Windows Server 2003 以降の&nbsp;オペレーティング システム</li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、ASP.NET アプリケーションにおいて、どのような場合に偽装を用いたらよいか、またその場合はどのように行ったらよいかについて説明します。 偽装は、デフォルトで無効化されていて、リソースへは ASP.NET ウェブ アプリケーションのプロセス ID を使用することでアクセスできます。 しかしながら、偽装を利用することで、認証されたユーザーの ID または特定の Windows ID を用いて、ローカル リソースへのアクセスや操作の実行が可能になります。 偽装は、プログラム的または、Web.config ファイルで適切なコンフィグレーション設定を適用することにより有効化することができます。</p>
+  <p>委任は、偽装トークンを用いることで、ネットワーク リソースへのアクセスを可能にします。 委任を利用できるか否かは、使用する認証メカニズムと、アカウント コンフィグレーションが適切かどうかに依存します。 偽装と委任は、セキュリティやスケーラビリティに関する新たな問題を生じることがあるため、使用する場合は注意が必要です。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>偽装のシナリオ<li><div>最初の呼び出し元を偽装する</div><li><div>最初の呼び出し元を一時的に偽装する </div><li><div>LogonUser の使用による偽装 </div><li><div>WindowsIdentity コンストラクタの使用による偽装 </div><li><div>固定 ID を偽装する </div><li><div>委任</div><li><div>なりすまし/委託 対 信任サブシステム</div><li><div>委任テーブル </div><li><div>Windows 2000 Server に関する考慮事項</div><li><div>Windows Server 2003 に関する考慮事項</div><li><div>その他のリソース</div></li></li></li></li></li></li></li></li></li></li></li></li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>最初の呼び出し元を偽装するようウェブ アプリケーションを設定します。 <li>特定の Windows ID を偽装するようウェブ アプリケーションを設定します。 <li>最初の呼び出し元をプログラム的に偽装し、偽装された ID のもとウェブ アプリケーションで特定のコードを実行します。 <li>委任を用いてネットワーク リソースにアクセスします。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET のデフォルトでは偽装を使用しません。そのため、コードは、ASP.NET アプリケーションのプロセス ID を用いて実行されます。 Microsoft Windows Server 2003 およびそれ以降のオペレーティング システム上で、ASP.NET アプリケーションは、デフォルトで、 Internet Information Services (IIS) のアプリケーション プールで動作します。 IIS アプリケーション プールは､ NT AUTHORITY\Network Service の IDのもとで実行されます。 Microsoft Windows 2000 Server オペレーティング システム + IIS 5.0 あるいは Windows Server 2003 + IIS 5.0 のプロセス分離モードに構成された IIS 6.0 環境の場合、ASP.NET アプリケーションは、ローカル ASPNET アカウント ID を使用するワーカー プロセスで動作します。</p>
+  <p>偽装が無効化されているので、アプリケーションは、プロセス ID を使用することですべてのリソースにアクセスします。 ファイルやレジストリ鍵など、すべての Windows リソースは、このプロセス ID にアクセスするアクセス制御リスト (ACL) を持っていなければいけません。</p>
+  <p>認証された呼び出し元 ID、あるいはプロセス ID 以外の特定の Windows ID を用いてリソースにアクセスする必要がある場合は、ASP.NET アプリケーションを設定することで偽装を使用することができます。 特定の操作を実施する、または特別なリソースへアクセスするためにメソッド レベルで偽装する必要がある場合､<b>WindowsIdentity.Impersonate</b> メソッドを使用してプログラム型の偽装を使用できます。</p>
+  <h2>LogonUser と WindowsIdentidy(userPrincipalName) の比較</h2>
+  <p>アプリケーションが、Forms Authentication などのカスタム認証を用いて呼び出し元を認証する場合、ASP.NET コンフィグレーションでは最初の呼び出し元を偽装することができません。 代わりに、最初の呼び出し元に対して作成した <b>WindowsIdentity</b> オブジェクトの <b>Impersonate</b> メソッドを呼び出さなければいけません。 最初の呼び出し元の偽装トークンは、その呼び出し元に Windows アカウントがあれば、Win32 <b>LogonUser</b> API を呼び出すか、または、ユーザー プリンシパル名 (UPN) の単一のパラメータをとる特別な形式の <b>WindowsIdentity</b> コンストラクターを使用することで取得できます。 使用すべき手法は、次の条件によって異なります。</p>
+  <ul>
+    <li>サーバが Windows 2000 Server を実行している場合は、Win32 <b>LogonUser</b> API を使用しなければいけません。 <b>WindowsIdentity(<i>userPrincipalName</i>)</b> コンストラクターで使用する Kerberos プロトコルの拡張は、Windows 2000 Server では使用できません。 <li>ローカル アカウントを偽装する場合は、<b>LogonUser</b> を使用しなければいけません。<li>サーバが Windows Server 2003 を実行している場合は、次のような選択肢があります。<ul><li>アプリケーションに呼び出し元のユーザー名とパスワードへのアクセス権があり (ログオン Web ページ等の手段で)、アプリケーションがローカル リソースへのアクセスを必要とする場合は、Win32 <b>LogonUser</b> API を使用してください。 Win32 LogonUser API を使用すると、ASP.NET プロセス アカウントに "オペレーティング システムの一部として機能" 特権を付与する必要がありません。そのため、<b>WindowsIdentity</b> コンストラクターの使用より、Win32 LogonUser API の使用の方が望ましいといえます。 <li>アプリケーションにユーザー名へのアクセス権しかない場合は、<b>WindowsIdentity</b> コンストラクターを使用しなければいけません。 ただし、アプリケーションがローカル リソースにアクセスする必要がある場合は、ASP.NET プロセス アカウントに "オペレーティング システムの一部として機能" 特権を付与しなければいけません。 </li></li></ul></li></li></li>
+  </ul>
+  <h1>偽装のシナリオ</h1>
+  <p>偽装および委任が必要となる最も一般的な状況としては、次のようなものがあります。</p>
+  <ul>
+    <li>
+      <b>最初の呼び出し元を偽装する。</b> アプリケーションのドメイン ユーザー アカウントに対して設定された ACL により保護された、Windows リソースにアクセスしたい場合。 <li><b>最初の呼び出し元をプログラム的に偽装する。 </b>ほとんどのリソースには、アプリケーションのプロセス ID を用いてアクセスするが、特定のメソッドが最初の呼び出し元の ID を用いる必要がある場合。 <li><b>特定の Windows ID を偽装する。</b> 特定の ID または複数の Windows ID を使用してあるリソースへアクセスする必要がある場合。 <li><b>偽装された ID を用い、ネットワーク リソースへのアクセスに委任を使用する。</b> リモート リソースへのアクセスに、偽装された ID を使用する必要がある場合。 </li></li></li></li>
+  </ul>
+  <p>このガイドでは、上記それぞれのアプローチを使用する場合と方法について説明します。</p>
+  <h1>最初の呼び出し元を偽装する</h1>
+  <p>最初の呼び出し元  (認証されたユーザー) の ID を装いながら、ファイル システムやローカル データベースなどのローカル リソースにアクセスする必要がある場合、適切な IIS 認証タイプを使用する必要があります。 できれば、IIS を使用して、アプリケーションの仮想ディレクトリには統合 Windows 認証を使用するよう設定し、ASP.NET アプリケーションには Windows 認証と偽装を使用するよう設定するのが理想です。 このアプローチを図 1 に示します。</p>
+  <p>&nbsp;</p>
+  <p>
+    <b>図 1:  最初の呼び出し元を偽装する<img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998351.impersonationoriginalcaller(en-us,MSDN.10).gif" border="0" /></b>
+  </p>
+  <p>一般に、アプリケーションの個々のユーザーに対して設定されている ACL を持つ Windows リソースへのアクセスを制御する必要がある場合は、このようなコンフィグレーションが必要とされます。</p>
+  <p>最初の呼び出し元を偽装するには、IIS を使用することで、アプリケーションの仮想ディレクトリに適切な認証を構成し、Web.config ファイル内で適切な構成を使用する必要があります。</p>
+  <h3>最初の呼び出し元を偽装する</h3>
+  <ol>
+    <li>IIS を以下のように構成します。<ol><li>Web サイトを右クリックしてから、[Properties] をクリックします。 <li>[ディレクトリ セキュリティ] タブをクリックします。 <li>[Authentication] で [Edit] ボタンをクリックし、コントロール パネルにアクセスします。 <li>[Integrated Windows authentication] を選択し、残りのチェック ボックスをすべてオフにします。 <blockquote><b>注意</b>: &nbsp;&nbsp;基本またはダイジェスト認証を選択することもできますが、上記のようなシナリオの場合は、統合 Windows 認証を推奨します。<b></b></blockquote></li></li></li></li></ol><li>アプリケーションの web.config ファイルの &lt;<b>system.web</b>&gt; セクションに次の構成を追加することで、ASP.NET アプリケーションを構成します。 接続文字列を構成してください。 <div><pre>&lt;authentication mode="Windows" /&gt;<br />&lt;identity impersonate="true" /&gt;   </pre></div></li></li>
+  </ol>
+  <p>このコンフィグレーションでは、ASP.NET は、IIS による認証ユーザーを偽装し、ウェブ アプリケーションのコードを実行する ASP.NET の要求 Thread は、自らに対して偽装トークンをアタッチします。 IIS は、認証ユーザーの Windows トークンを ASP.NET に渡します。 IIS が統合 Windows 認証、あるいは基本、ダイジェストなどの別の認証形態、あるいはクライアント証明書認証を実行するよう設定されていると、ASP.NET に渡された Windows トークンは、この認証ユーザーを表すことができます。 IIS が匿名アクセスを有効化するよう構成されていると、Windows トークンは匿名ユーザー ID (IUSR_MACHINENAME) を表します。</p>
+  <p>上記のコンフィグレーションでは、すべてのリソース アクセスの実行に最初の呼び出し元の ID を用いることができますが、プロセス ID を用いてローカル ファイルのような特定リソースにアクセスする必要があるときは、次のコードを使用することで、ASP.NET 要求  Thread から一時的に偽装トークンを削除できます。</p>
+  <div>
+ <pre>// Stop impersonation<br />WindowsImpersonationContext ctx = WindowsIdentity.Impersonate(IntPtr.Zero);<br />try<br />{<br />&nbsp; // Thread is now running under the process identity.<br />&nbsp; // Any resource access here uses the process identity.<br />}<br />finally <br />{<br />&nbsp; // Resume impersonation<br />&nbsp; ctx.Undo(); <br />}</pre>
+  </div>
+  <h1>最初の呼び出し元を一時的に偽装する </h1>
+  <p>ほとんどのリソース アクセスにはプロセス ID を使用し、特定の操作や特定のリソースへのアクセスで最初の呼び出し元を偽装する必要があるときは、プログラム的な偽装を用いる必要があります。 (図 2 を参照)</p>
+  <p>
+    <img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998351.impersonationoriginalcallertemporary(en-us,MSDN.10).gif" border="0" />
+  </p>
+  <p>
+    <b>図 2:  プログラム的な偽装を用いて最初の呼び出し元を一時的に偽装する</b>
+  </p>
+  <p>特定のメソッド内で最初の呼び出し元を一時的に偽装するには、認証されたユーザーを表す <b>WindowsIdentity</b> オブジェクトを入手してから、そのオブジェクトの <b>Impersonate</b> メソッドを呼び出す必要があります。</p>
+  <h3>最初の呼び出し元を一時的に偽装するには</h3>
+  <ol>
+    <li>ASP.NET アプリケーションで偽装が常に無効化されるようにします。 たとえば、Web.config ファイルで次のような構成を使用します。<div><pre>&lt;identity impersonate="false" /&gt;   </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;概定では、偽装はすべての ASP.NET アプリケーションで無効化されています。</blockquote><li>偽装を必要とするメソッドに次のコードを追加します。  <div><pre>using System.Security.Principal;<br />...<br />// Obtain the authenticated user's Identity<br />WindowsIdentity winId = (WindowsIdentity)HttpContext.Current.User.Identity;<br />WindowsImpersonationContext ctx = null;<br />try<br />{<br />&nbsp; // Start impersonating<br />&nbsp; ctx = winId.Impersonate();<br />&nbsp; // Now impersonating<br />&nbsp; // Access resources using the identity of the authenticated user<br />}<br />// Prevent exceptions from propagating<br />catch<br />{<br />}<br />finally<br />{<br />&nbsp; // Revert impersonation<br />&nbsp; if (ctx != null)<br />&nbsp;&nbsp;&nbsp; ctx.Undo();<br />}<br />// Back to running under the default ASP.NET process identity   </pre></div><p>このコードは最初の呼び出し元を偽装します。 最初の呼び出し元の ID は <b>HttpContext.Current.User.Identity</b> オブジェクトに保持されています。 </p></li></li>
+  </ol>
+  <h2>例外処理</h2>
+  <p>上記のコードでは、<b>finally</b> ブロックの使用により、例外の発生時に必ず偽装が取り消されるようにしている点に注目してください。 また、上記のコードは、<b>catch</b> ブロックの使用により、例外が発生しても、スレッド が偽装を行っている間はコール スタックに伝播できないようにしています。</p>
+  <h1>LogonUser の使用による偽装 </h1>
+  <p>ユーザーに Windows ドメイン アカウントがありながら、Forms Authentication などのカスタム認証を使用している場合、IIS は呼び出し元を認証せず、匿名ユーザー アカウントを表すログオン トークンを ASP.NET に渡します。 このような場合に呼び出し元を偽装するには、その呼び出し元に対してプログラム的に <b>WindowsIdentity</b> オブジェクトを作成する必要があります。偽装はこのオブジェクトを使用して行います。 <b>WindowsIdentity</b> オブジェクトを、Win32 <b>LogonUser</b> API から返されるログオン トークンを使用するか、またはユーザー プリンシパル名 (UPN) の単一パラメータをとる <b>WindowsIdentity(<i>userPrincipalName</i>)</b> コンストラクターを使用して作成します。 このコンストラクターで必要とされる Kerberos プロトコルの基本拡張は、Windows Server 2003 以降でのみ使用できます。 詳細については、本ガイドで後述する「<a href="http://msdn2.microsoft.com/en-us/library/ms998351.aspx#paght000023_impersonatingbyusingwindowsidentity">WindowsIdentity コンストラクターの使用による偽装</a>」を参照してください。</p>
+  <p>ドメインまたはローカル アカウントのWindows トークンおよびそれに付随するログオン セッションは、Win32 <b>LogonUser</b> API を使用することで作成することができます。 この API にはユーザー名とパスワード、それから必要なログオン セッションのタイプなどのパラメータを渡さなければいけません。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>LogonUser</b> に渡す Credential 情報は、暗号化して保護するようにしてください。</blockquote>
+  <p>返されたトークンを用いることで偽装することができ、そのユーザーがどの Windows グループに属するかもチェックすることができます。 ローカル リソースとネットワーク リソースのどちらにアクセスできるかは、要求トしたログオン セッションの種類に依存します (ログオン セッション タイプは <b>LogonUser</b> の第三引数で指定します)。この API の呼び出し時に最もよく使用されるログオン セッションの種類は以下の2 つです。</p>
+  <ul>
+    <li>
+      <b>対話的ログオン</b> リモート リソースにアクセスする必要がある場合は、インタラクティブ ログオン セッションを要求します。 このタイプを指定すると、ネットワーク Credential 情報を持つログオン セッションが確立されます。 ログオン ユーザーに渡されるユーザー アカウントには、"<b>ローカルでログオン</b>" ユーザー権限が付与されていなければいけません。 <li><b>ネットワーク ログオン:</b> このタイプを指定すると、ネットワーク Credential 情報を持たないログオン セッションが確立されます。 つまり、トークンを偽装して、ローカル リソースのみにアクセスできることを意味します。 ログオン ユーザーに渡されるユーザー アカウントには、"<b>ネットワークからこのコンピュータにアクセス</b>" ユーザー権限が付与されていなければいけません。 この権限は、<b>Everyone</b> グループに付与されているため、デフォルトではすべてのアカウントに付与されています。 </li></li>
+  </ul>
+  <h3>「ネットワークからこのコンピュータにアクセス」のユーザー権限があるかどうかをチェックするには</h3>
+  <ol>
+    <li>[<b>Start</b>] メニューから、[<b>Control Panel</b>] をクリックします。<li>[<b>Administrative Tools</b>] をクリックします。<li>[<b>Local Security Policy</b>] をクリックします。<li>[<b>Local Policies</b>] を展開し、[<b>User Rights Assignments</b>] をクリックします。<li>[<b>Access this computer from the network</b>] をダブルクリックして、この権限が割り当てられているユーザー アカウントおよびグループを確認します。 必要に応じて、[<b>Add User or Group</b>] ボタンをクリックして偽装したいアカウントを追加します。 </li></li></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ネットワーク ログオン セッション タイプという名前は、しばしば混乱を引き起こすことがあります。 このタイプのログオンが、<i>ネットワーク</i> ログオンと呼ばれる理由は、どこか他のネットワーク上からローカル コンピュータにアクセスするユーザーに相当するからです。 結果として確立されるログオン セッションはネットワーク Credential 情報を持たないため、ネットワーク リソースのアクセスに用いることができません。<b></b></blockquote>
+  <p>対話的ログオンを要求すると、<b>LogonUser</b> から、偽装中にプロセスの作成を可能にするプライマリ トークンが返されます。 ネットワーク ログオンを要求すると、<b>LogonUser</b> から、ローカル リソースへのアクセスに使用できる偽装トークンが返されます。ただし、プロセスを作成することはできません。 必要であれば、Win32 <b>DuplicateToken</b> 関数を呼び出すことで、偽装トークンをプライマリ トークンに変換することができます。</p>
+  <p>次のコード サンプルは、Win32 <b>LogonUser</b> API を使用して、トークンから <b>WindowsIdentity</b> オブジェクトを構築し、そのトークンを現在のスレッドにアタッチして偽装を開始し、その後、偽装を取り消す方法を示しています。</p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" %&gt;<br />&lt;%@ Import Namespace="System.Security.Principal" %&gt;<br />&lt;%@ Import Namespace="System.Runtime.InteropServices" %&gt;</pre>
+ <pre>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "<a href="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</a>"&gt;</pre>
+ <pre>&lt;script runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; // Declare signatures for Win32 LogonUser and CloseHandle APIs<br />&nbsp;&nbsp;&nbsp; [DllImport("advapi32.dll", SetLastError = true)]<br />&nbsp;&nbsp;&nbsp; static extern bool LogonUser(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string principal,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string authority,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string password,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LogonSessionType logonType,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LogonProvider logonProvider,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; out IntPtr token);<br />&nbsp;&nbsp;&nbsp; [DllImport("kernel32.dll", SetLastError = true)]<br />&nbsp;&nbsp;&nbsp; static extern bool CloseHandle(IntPtr handle);<br />&nbsp;&nbsp;&nbsp; enum LogonSessionType : uint<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Interactive = 2,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Network,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Batch,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Service,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NetworkCleartext = 8,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NewCredentials<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; enum LogonProvider : uint<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Default = 0, // default for platform (use this!)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WinNT35,&nbsp;&nbsp;&nbsp;&nbsp; // sends smoke signals to authority<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WinNT40,&nbsp;&nbsp;&nbsp;&nbsp; // uses NTLM<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WinNT50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // negotiates Kerb or NTLM<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; protected void logonUserbtn_Click(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IntPtr token = IntPtr.Zero;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WindowsImpersonationContext impersonatedUser = null;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create a token for DomainName\Bob<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Note: Credentials should be encrypted in configuration file<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool result = LogonUser("Bob", "DomainName",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "<a href="mailto:P@ssw0rd">P@ssw0rd</a>",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LogonSessionType.Network,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LogonProvider.Default,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; out token);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (result)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WindowsIdentity id = new WindowsIdentity(token);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Begin impersonation<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; impersonatedUser = id.Impersonate();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Log the new identity<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write(String.Format(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "&lt;/p&gt;Identity after impersonation: {0}&lt;br&gt;",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WindowsIdentity.GetCurrent().Name));<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Resource access here uses the impersonated identity<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("&lt;/p&gt;LogonUser failed: " +<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Marshal.GetLastWin32Error().ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; catch<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Prevent any exceptions that occur while the thread is <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // impersonating from propagating<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; finally<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Stop impersonation and revert to the process identity<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (impersonatedUser != null)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; impersonatedUser.Undo();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Free the token<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (token != IntPtr.Zero)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CloseHandle(token);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Verify the old process identity<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write(String.Format("&lt;/p&gt;Identity after Undo: {0}&lt;br&gt;",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WindowsIdentity.GetCurrent().Name));<br />&nbsp;&nbsp;&nbsp; }<br />&lt;/script&gt;</pre>
+ <pre>&lt;html&nbsp; &gt;<br />&lt;head runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;title&gt;LogonUser Test Page&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="logonUserbtn" runat="server" OnClick="logonUserbtn_Click" Text="LogonUser" /&gt;&lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;   </pre>
+  </div>
+  <p>上記のサンプルでは、<b>LogonSessionType.Network</b> を <b>LogonUser</b> に渡しています。そのため、ネットワーク Credential 情報を持たないネットワーク ログオン セッションが確立します。 ネットワーク リソースへのアクセスに使用できるトークンおよびログオン セッションが必要な場合は、<b>LogonSessionType.Interactive</b> を使用します。詳細については、本ガイドの「<a href="http://msdn2.microsoft.com/en-us/library/ms998351.aspx#paght000023_delegation">委任</a>」を参照してください。</p>
+  <p>上記のコード サンプルでは、便宜上、リテラル文字列を使用して、<b>LogonUser</b> に渡される Credential 情報を指定していますが、実際に <b>LogonUser</b> を使用するときは、LogonUser メソッドに渡す Credential 情報を暗号化フォーマットを用いて Web.config ファイルに格納しなければいけません。 Credential 情報を以下の例に示すように &lt;<b>appSettings</b>&gt; セクションに格納してから、Aspnet_regiis.exe ユーティリティと保護された構成プロバイダーを使用することでこのセクションを暗号化します。</p>
+  <div>
+ <pre>&lt;appSettings&gt;<br />&nbsp; &lt;add key="ImpIdentity" value="Domainname\Username;secretpassword"/&gt;<br />&lt;/appSettings&gt;   </pre>
+  </div>
+  <p>以下のサンプルでは、どのようにこの構成データにアクセスし、<b>LogonUser</b> に渡すのかを示しています。</p>
+  <div>
+ <pre>string domain;<br />string username;<br />string password;</pre>
+  </div>
+ <pre>// Access the &lt;appSettings&gt; value<br />string[] userAndPassword = ((string)ConfigurationManager.AppSettings["ImpIdentity"]).Split(';');<br />// Parse out the domain, username and password<br />domain = userAndPassword[0].Substring(0, userAndPassword[0].IndexOf(@"\"));<br />userName = userAndPassword[0].Substring(userAndPassword[0].IndexOf(@"\")+1);<br />password = userAndPassword[1];<br />// Call LogonUser<br />bool result = LogonUser(userName, domain, password, LogonSessionTypes.Network,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LogonProviders.Default, out token);</pre>
+  <h2>Windows Server で LogonUser を使用する</h2>
+  <p>Windows Server 2003 以降で <b>LogonUser </b>API を使用して偽装を行う場合は、アプリケーションのプロセス ID に "<b>オペレーティング システムの一部として機能</b>" ユーザー権限を付与する必要はありません。</p>
+  <p>Windows Server では、<b>LogonUser</b> を使用する代わりに、<b>WindowsIdentity</b> コンストラクターを使用することでトークンを生成することができます。 このアプローチのメリットは、Credential 情報をウェブ サーバ上に格納する必要がないという点です。 デメリットとしては、ローカル リソースへのアクセスに使用する偽装レベルのトークンを取得するためには、プロセス ID に "<b>オペレーティング システムの一部として機能</b>" ユーザー権限が必要になるという点です。 詳細については、本ガイドの「<a href="http://msdn2.microsoft.com/en-us/library/ms998351.aspx#paght000023_impersonatingbyusingwindowsidentity">WindowsIdentity コンストラクターの使用による偽装</a>」を参照してください。</p>
+  <h2>Windows 2000 Server で LogonUser を使用する</h2>
+  <p>Windows 2000 Serverで <b>LogonUser</b> API を使用して偽装を行う場合は、アプリケーションのプロセス アカウント に "<b>オペレーティング システムの一部として機能</b>" 特権を付与しなければいけません。 Web アプリケーションの特権の昇格を回避するため、このアプローチはなるべく避けるようにしてください。</p>
+  <h1>WindowsIdentity コンストラクタの使用による偽装 </h1>
+  <p><b>WindowsIdentity</b> クラスのコンストラクターのオーバーロードの 1 つに、ユーザー プリンシパル名 (UPN) を提供することで、任意のドメイン アカウントの Windows トークンとログオン セッションの取得を可能にするものがあります。 このアプローチ (以下のコード例を参照) を使用した場合、アカウントのパスワードが必要なくなります。</p>
+  <div>
+ <pre>using System.Security.Principal;<br />...<br />WindowsIdentity wi = new WindowsIdentity(<a href="mailto:userName@fullyqualifieddomainName">userName@fullyqualifieddomainName</a>);<br />WindowsImpersonationContext ctx = null;<br />try<br />{<br />&nbsp; ctx = wi.Impersonate();<br />&nbsp; // Thread is now impersonating<br />}<br />catch<br />{<br />&nbsp; // Prevent exceptions propagating.<br />}<br />finally<br />{<br />&nbsp; // Ensure impersonation is reverted<br />&nbsp; ctx.Undo();<br />}  </pre>
+  </div>
+  <p>この  <b>WindowsIdentity</b> コンストラクターは、Service for User to Self (S4U2Self) という名前の Kerberos プロトコルへの Windows Server 拡張を利用します。 このアプローチは、アプリケーションが Windows Server 2003以降&nbsp;の上で動作し、かつ &nbsp;Windows 2000 のサーバ&nbsp;ドメインを使用していない場合に使用することができます。 このアプローチのメリットは、<b>LogonUser</b> のときとは違い、Credential 情報を格納する必要がないという点です。ただし、コードでローカル リソースにアクセスする必要がある場合は、Web アプリケーション プロセス アカウントに "<b>オペレーティング システムの一部として機能</b>" 特権を付与して偽装レベルのトークンを取得しなければならないというデメリットがあります。 </p>
+  <h3>「オペレーティング システムの一部として機能する」特権を付与するには</h3>
+  <ol>
+    <li>[<b>Start</b>] メニューで、[<b>Control Panel</b>] をクリックします。<li>[<b>Administrative Tools</b>] をクリックします。<li>[<b>Local Security Policy</b>] をクリックします。<li>[<b>Local Policies</b>] を展開してから、[<b>User Rights Assignments</b>] をクリックします。<li>右側ペインで、[<b>オペレーティング システムの一部として機能</b>] を右クリックしてから、[<b>Properties</b>] をクリックします。<li>[<b>Add User or Group</b>] ボタンをクリックしてから、ASP.NET アプリケーションの実行に使用するアカウントを入力します (デフォルトでは <b>Network Service </b>)。 </li></li></li></li></li></li>
+  </ol>
+  <h2>トークン タイプ</h2>
+  <p>S4U2Self 拡張で生成されたトークンのタイプにより、そのトークンで偽装中にできることが決まります。 取得できるトークン タイプは以下の通りです。</p>
+  <ul>
+    <li>
+      <b>ID レベル トークン</b> 概定ではこのタイプが返されます。 このタイプのトークンを使用すると、トークン内に含まれているグループをチェックすることはできますが、ローカルまたはリモート リソースにアクセスするために偽装トークンとして使用することはできません。 <li><b>偽装レベル トークン</b> プロセス アカウントに "オペレーティング システムの一部として機能" ユーザー権限を付与すると、<b>WindowsIdentity</b> コンストラクターはこの型のトークンを返します。 このタイプのトークンを使用すると、偽装を行い、ローカル リソースにアクセスすることができます。 <blockquote><b>注意</b>: &nbsp;&nbsp;このトークン タイプは、プロセスをウェブ サーバの TCB (Trusted Computing Base) に配置するため、ウェブ サーバ プロセスは非常に高い特権を持つことになります。 このとき、攻撃者が何らかの方法でコードに侵入し、ウェブ アプリケーションを脅かそうとすれば、その攻撃者はローカル コンピュータ上で無制限な能力を得ることになります。そのため、このアプローチはできる限り回避するようにしてください。<b></b></blockquote><li><b>デリゲート レベル トークン </b>Active Directory 内のサービスまたはマシン アカウントを、制約されたデリゲートと信頼関係を結ぶよう設定していると、ネットワーク リソースへのアクセスに使用できるトークンを取得します。 <blockquote><b>注意</b>: &nbsp;&nbsp;通常、リモート サービスにアクセスする際は TCB が必要になります。 ローカル リソースの場合、TCB 特権がアクセスを制御します。 リモート サービス アクセスの場合、TCB の必要はありませんが、たいていの場合 ID レベルのトークンでは不十分です。 そのため、ID レベルのトークンを生成するには TCB が必要となります。 たとえば、ADO.NET を使用してリモート SQL Server データベースと通信する場合、SQL Server が管理するデータ プロバイダーがアクセスを必要とするパフォーマンス カウンタ (必然的にレジストリ キーも) などのローカル リソースが原因で、呼び出しはウェブ サーバを出る前に失敗します。</blockquote></li></li></li>
+  </ul>
+  <h2>固定 ID を偽装する </h2>
+  <p>アプリケーションのライフタイムを通じて同じ ID を偽装する必要がある場合は、Web.config ファイルの &lt;<b>identity</b>&gt; エレメントに Credential 情報を指定することができます。 次の&lt;<b>authorization</b>&gt;エレメントをWeb.config ファイルの&lt;<b>authentication</b>&gt; エレメントの下に追加します。 次のサンプル コードは、TestUser という名前の Windows アカウントを偽装する方法を示しています。</p>
+  <div>
+ <pre>&lt;identity impersonate="true" username="TestUser" password="P@ssw0rd" /&gt;   </pre>
+  </div>
+  <p>このアプローチを使用する場合、Credential 情報を暗号化する必要があります。&nbsp;&nbsp&nbsp;ASP.NET Aspnet_regiis.exe ツールを使用することができます。 </p>
+  <p>
+    <b>Aspnet_regiis を使用して</b> &lt;<b>identity</b>&gt;<b> 要素を暗号化するには</b></p>
+  <ul>
+    <li>次のコマンドを実行して、Web.config ファイル内の &lt;<b>identity</b>&gt; エレメントを暗号化するには、次のコマンドを実行します。  エレメントを使用することにより、ASP.NET は、ページ レベルまたはアプリケーション レベルで文字セットを指定することを可能にします。 <p><b>aspnet_regiis -pef "system.web/identity" " C:\Sites\IntranetSite"</b></p></li>
+  </ul>
+  <p>
+    <b> </b>&lt;<b>identity</b>&gt;<b>要素を複合化するには</b></p>
+  <ul>
+    <li>&lt;<b>identity</b>&gt; エレメントをプレーン テキストに戻すには、次のコマンドを実行します。 要素をプレーン テキストに戻すには次のコマンドを実行します。 <p><b>aspnet_regiis -pdf "system.web/identity" " C:/Sites/IntranetSite "</b></p></li>
+  </ul>
+  <p>上記のコマンドは、概定で指定される保護されたコンフィグレーション プロバイダーを使用するため、RSA 暗号化を使用します。 別のプロバイダーを選択するには、必要なプロバイダーを指定する <b>-prov</b> オプションを追加します。 アプリケーションをウェブ ファームで実行する場合は、基本的に RSA プロバイダーを使用するようにしてください。&nbsp; </p>
+  <h2>Windows Server 上で固定 ID を使用する</h2>
+  <p>Windows Server では、&lt;<b>identity</b>&gt; の Credential 情報を構成することで、ASP.NET アプリケーションのリソース アクセスに固定 ID を使用することができます。 要素を設定することで、ASP.NET アプリケーションのリソース アクセスに固定 ID を使用することができます。 ただし、ワーカー プロセス分離モード (デフォルト) で動作するよう設定された IIS 6.0 が動作する Windows Server 2003 以降を実行している場合は、ASP.NET アプリケーションを特定のドメイン ID に基づいて動作するカスタム アプリケーション プールで動作するよう構成することで、偽装の必要がなくなります。</p>
+  <h3>委任</h3>
+  <p>偽装トークンを取得してネットワーク リソースへのアクセスを可能にする方法としては、いくつか選択肢があります。 </p>
+  <ul>
+    <li>
+      <b>Kerberos 認証およびデリゲートを使用する方法</b> ユーザーの認証に Kerberos を使用している場合は、本ガイドの「最初の呼び出し元を偽装する」および「最初の呼び出し元を一時的に偽装する」のセクションに記載されている手法を使用することで最初の呼び出し元を偽装することができます。さらに、Kerberos 委任を使用することでネットワーク リソースにアクセスできます。 それには以下を実行します。<ul><li>アプリケーションが Network Service アカウントに基づいて動作する場合は、Active Directory のコンピュータ アカウントを構成して、委任を実行できるように信頼関係を結ぶ必要があります。 <li>アプリケーションがカスタム ドメイン アカウントに基づいて動作する場合、Active Directory のドメイン アカウントを設定して、委任を実行できるよう信頼関係を結ぶ必要があります。 また、Active Directory にサービス プリンシパル名を登録し、ドメイン アカウントとウェブ サーバ上の HTTP サービスとを関連付けしなければいけません。 </li></li></ul><p>ウェブ アプリケーションの実行またはアクセス中のダウンストリーム サービスの実行にドメイン アカウントを使用している場合は、それらのアカウントに対する適切なサービス プリンシパル名 (SPN) を Active Directory 内に作成しておかなければいけません。&nbsp; </p><li><b>LogonUser を呼び出して対話的ログオン セッションを要求する方法</b> 対話的ログオン セッションは、ネットワーク サービスに対する認証を可能にするネットワーク Credential 情報を持ちます。 このアプローチは、ユーザー認証に Kerberos 認証を使用することができない場合やプロトコル トランジションを使用できない場合に用います。 <p><b>LogonUser</b> を呼び出すには、ユーザー名およびパスワードの両方を入手できなければいけません。取得したトークンは 1 回のホップによるネットワーク リソースにしか用いることができませんが、Kerberos 委任の場合、偽装された ID は複数のネットワーク階層を通過することができます。 </p><li><b>プロトコル トランジションを使用する方法 </b>このアプローチでは、非 Kerberos 認証メカニズムを使用してユーザーを認証してから、新しい <b>WindowsIdentity</b> コンストラクターを使用してサーバ上のユーザーの Windows トークンを取得します。 このアプローチは、ユーザーに Windows ドメイン アカウントがなく、インターネット経由でアプリケーションへの接続を行っているなどの理由で、ユーザー認証に Kerberos 認証を使用できない場合に用います。 この方法でデリゲート レベルのトークンを取得するには、Windowsドメインで Windows Server 2003 を実行していなければいけません。また、コンピュータあるいは Active Directory のプロセス アカウントを設定して、委任およびプロトコル トランジションを実行できるよう信頼関係を結ぶ必要があります。&nbsp; <li><b>Basic 認証および偽装を使用する方法</b> Basic 認証を使用すると、サーバ上で平文のユーザー名およびパスワードを利用することができます。 IIS が呼び出し元をBasic 認証を用いて認証する場合、これらのCredential 情報を持つトークンを作成します。 このトークンはネットワーク アクセスに用いることができます。 そのため、アプリケーションで &lt;<b>identity</b>&gt; エレメントを使用して最初の呼び出し元を偽装する、あるいは <b>WindowsIdentity.Impersonate</b> を使用してプログラム的に偽装するための構成を行っている場合、偽装を行いながらネットワーク リソースにアクセスすることができます。 <p>Basic 認証は、Kerberos 認証や委任を使用することができない場合や <b>LogonUser</b> やプロトコル トランジションを使用することができない場合に用います。 たとえば、統合 Windows 認証を使用するよう IIS を設定していると、IIS は可能であれば Kerberos 認証を使用しますが、それができない場合は、偽装された ID ではネットワーク リソースにアクセスすることのできないデフォルトの NTLM 認証を使用します。 Windows Server 2003 以降を実行していないために新しい <b>WindowsIdentity</b> コンストラクターを使用できず、さらに <b>LogonUser</b> を呼び出すためのユーザー パスワードを利用できない場合は、Basic 認証が解決策となります。 ただし、Basic 認証を使用した場合、ユーザーのCredential 情報は平文の状態でネットワーク上を行き交います。 そのため、SSL または IPSEC などを用いてすべてのネットワーク接続がセキュリティで保護された状態であることを保証する必要があります。 </p></li></li></li></li>
+  </ul>
+  <h1>なりすまし/委託 対 信任サブシステム</h1>
+  <p>アプリケーションで必要な認証を設計する場合、偽装を用いて、バックエンド リソースへのアクセスに最初の呼び出し元の ID を使用するのか、それともウェブ またはアプリケーション サーバがユーザー認証を担当し、サーバはサービスの ID を使用してバックエンド リソースにアクセスする、信頼済みサブシステムを使用するかを検討してください。 いずれの手法にも、以下のセクションで説明するメリットとデメリットがそれぞれあります。</p>
+  <h2>信任サブシステム</h2>
+  <p>信任サブシステムのモデルでは、データベースサーバがウェブアプリケーションのIDを信頼します。 ウェブアプリケーションのIDは信頼されているため、元の呼び出し元の代理で呼び出しを行います｡ (図 3 を参照)</p>
+  <p>
+    <img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998351.trustedsubsystemmodel(en-us,MSDN.10).gif" border="0" />
+  </p>
+  <p>
+    <b>図 3 信任サブシステムのモデル</b>
+  </p>
+  <h3>信頼済みサブシステム</h3>
+  <p>信任サブシステムモデルの利点には次のことがあります:</p>
+  <ul>
+    <li>
+      <b>スケーラビリティ。</b> 信任サブシステムのモデルは効率の良いコネクションプーリングをサポートします。 コネクションプーリングは、複数のクライアントがプール済みの利用可能な接続を再利用できるようにします。 アクセスされるすべてのバックエンド リソースは、呼び出し元の ID に関係なく、アプリケーションのサービス アカウントのセキュリティ コンテキストを使用するため、接続プーリングはこのモデルで使用すると有効です。 <li><b>最低限のバックエンド ACL 管理</b> サービスアカウントのみがバックエンドリソース(例えばデータベース)にアクセスします。 ACLはこの単独ID用に構成されます。 <li><b>直接的なデータ アクセスが皆無</b> 信任サブシステムモデルでは、サービスアカウントのみがバックエンドリソースへのアクセスを与えられます。 結果として、ユーザーはアプリケーションを経由せずに直接バックエンドのリソースにはアクセスできません。その上、アプリケーションの認可が必要です。 </li></li></li>
+  </ul>
+  <h3>信頼済みサブシステムのデメリット</h3>
+  <p>信頼済みサブシステム モデルのデメリットには次のようなものがあります。</p>
+  <ul>
+    <li>
+      <b>監査。</b> バックエンドで監査を実施する場合、バックエンドに対して最初の呼び出し元を明示的に渡し（アプリケーション レベルにおいて）、監査はそこで実行されます。 この方法の場合、中間階層と信頼関係を結ばなければならず、否認という潜在的なリスクが伴います。 代替方法として、中間階層に監査証跡を生成し、生成した監査証跡をバックエンド側の監査証跡と関連付けすることができます。 このアプローチを用いるには、サーバ クロックを常に同期させておかなければいけません。 <li><b>サーバの漏洩リスクの増大。</b> 信頼されているサブシステム モデルの場合、中間階層サービスによるバックエンド リソースへの広汎なアクセスが与えられています。 そのため、中間階層サービスへの対策を怠ると、攻撃者にバックエンド リソースへの広範囲なアクセスを許してしまう可能性があります。 </li></li>
+  </ul>
+  <h2>偽装/委任 </h2>
+  <p>偽装と委任モデルにも、それぞれメリット・デメリットがあります。</p>
+  <h3>偽装/委任のメリット</h3>
+  <p>偽装/委任モデルのメリットには次のようなものがあります。</p>
+  <ul>
+    <li>
+      <b>監査。</b> オペレーティング システムの監査が利用できます。<b></b> これにより管理者はどのユーザーが特定のリソースにアクセスしようとしたかを追跡することができます。 <li><b>階層を横断した監査</b> ユーザーのセキュリティ内容はアプリケーションの物理階層全般において維持されるため、管理者は階層を横断した監査を実施することができます。 リソースへのアクセスが発生したその時、そしてリソースをアクセスしたルーチンと同じルーチンでもって監査が生成された場合、その監査は一般的に最も権威のあるものであるとされます。 <li><b>緻密なアクセス制御</b> データベースで緻密なアクセスを設定することができます。 個々のユーザー アカウントを、データベース内の他のユーザーとは切り離した状態で制限することができます。 </li></li></li>
+  </ul>
+  <h3>偽装/委任のデメリット</h3>
+  <p>偽装/委任モデルのデメリットには次のようなものがあります。</p>
+  <ul>
+    <li>
+      <b>スケーラビリティ。 </b>データベース アクセスは、最初の呼び出し元のセキュリティ コンテキスト別に結び付けられた接続を用いることで行われます。そのため、偽装/委任モデルでは、データベース接続プーリングを有効利用することができません。 これにより多数のユーザーに対応するためのアプリケーションのスケーラビリティーが著しく制約されています。 <li><b>管理努力の増大。</b> バックエンド リソースへのアクセス制御リスト（ ACL） は各ユーザーに対して適切なレベルのアクセスが与えられるように管理されなければなりません。 バックエンド リソースの数が増加した場合（そしてユーザー数が増加した場合）、ACLの管理には大量の努力が必要となります。 </li></li>
+  </ul>
+  <h1>委任テーブル </h1>
+  <p>使用する IIS の認証タイプにより、最初の呼び出し元を偽装し、偽装トークンを用いることでネットワーク リソースにアクセスできるかどうかが決まります。 それには委任が必要です。 表 1 は、呼び出し元を偽装してネットワーク リソースにアクセスできるか否かを IIS の認証タイプ別に示したものです。</p>
+  <p>
+    <b>表 1: IIS の認証タイプと委任の可否</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>認証タイプ</th>
+          <th>デリゲートの可否</th>
+          <th>説明</th>
+        </tr>
+        <tr>
+          <td>匿名</td>
+          <td>条件に依存</td>
+          <td>IIS のローカル アカウントとして匿名アカウント (概定では IUSR_MACHINE) が設定されている場合、そのアカウントをデリゲートするには、ローカル (ウェブ サーバ) とリモート コンピュータのローカル アカウントが全く同じでなければいけません (ユーザー名とパスワードそれぞれが一致していなければいけません) <br />匿名アカウントがドメイン アカウントであれば、そのアカウントはデリゲートすることができます。</td>
+        </tr>
+        <tr>
+          <td>Basic </td>
+          <td>はい</td>
+          <td>ローカル アカウントでBasic 認証を使用する場合、ローカル コンピュータとリモート コンピュータ上のローカル アカウント同士が全く同じであれば、そのアカウントはデリゲートすることができます。 Domain accounts can also be delegated.</td>
+        </tr>
+        <tr>
+          <td>ダイジェスト</td>
+          <td>いいえ</td>
+          <td>&nbsp;</td>
+        </tr>
+        <tr>
+          <td>統合 Windows</td>
+          <td>条件に依存</td>
+          <td>統合 Windows 認証の場合、NTLM または Kerberos のいずれかが行われます (クライアントとサーバ コンピュータのオペレーティング システムのバージョンに依存します)。<br />NTLM は委任をサポートしていません。<br />Kerberos は、Active Directory が適切に設定されていれば委任をサポートします。</td>
+        </tr>
+        <tr>
+          <td>クライアント証明書</td>
+          <td>条件に依存</td>
+          <td>IIS 証明書マッピングを使用していて、なおかつ証明書がリモート コンピュータ上に複製のあるローカル アカウントにマップされている、あるいはドメイン アカウントにマップされていると、デリゲートすることができます。 この認証タイプは、マップされたアカウントのCredential 情報がローカル サーバに格納され、対話型ログオン セッション (ネットワーク Credential 情報を持ちます) の作成に使用されるので便利です。<br />Active Directory の証明書マッピングは委任をサポートしていません。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h1>Windows 2000 Server に関する考慮事項</h1>
+  <p>Windows 2000 Server を使用する場合は、以下の点を考慮するようにしてください。 </p>
+  <ul>
+    <li>Windows 2000 Server 上で <b>LogonUser</b> を呼び出すには、プロセス アカウントに "<b>オペレーティングシステムの一部として機能</b>" 特権が付与されていなければいけません。 Windows 2000 Server 上における LogonUser の呼び出しはできれば回避するようにしてください。 <li>UPN を受け入れてトークンを構築する新しい <b>WindowsIdentity</b> コンストラクターは、Windows 2000 Server 上では使用することができません。 このコンストラクターは、KERB_S4U_LOGON フラグを指定した <b>LsaLogonUser</b> API を内部的に使用しています。 このフラグは、Windows Server 2003 でのみ使用できます。 </li></li>
+  </ul>
+  <h1>Windows Server 2003 以降に関する考慮事項</h1>
+  <p>Windows Server 2003 以降を使用する場合は、以下の点を考慮するようにしてください。</p>
+  <ul>
+    <li>
+      <b>Windows Server 2003 より、制約付き委任を導入しています。</b> Windows 2000 Server における Kerberos 委任に制約はありません。 Active Directory において委任を実行できるよう信頼関係が構成されているサーバであれば、偽装されたユーザーのセキュリティ コンテキストを使用している間は、ネットワーク上にあるいかなるネットワーク リソースまたはマシンにもアクセスすることができます。 ただしこの状況は、特に、Web サーバがコンプロマイズされた場合に、潜在的なセキュリティ脅威となります。 Windows Server 2003 以降の制約付き委任を使用すると、管理者は、偽装されたユーザーのセキュリティ コンテキストを使用することで、コンピュータがどのサーバ上のどのサービスにアクセスすることができるかを正確に指定することができます。<p>&nbsp;</p><li><b>WindowsIdentity と LogonUser の比較。</b> Windows Server 上では、<b>WindowsIdentity</b> コンストラクターを使用するか、または <b>LogonUser </b> API を呼び出すことで、偽装トークンを取得することができます。 <b>LogonUser</b> を使用した場合の欠点は、Credential 情報を強制的に格納させられる点です。 ただし、<b>WindowsIdentity</b> コンストラクターを使用して、ローカル リソースへのアクセスに使用する偽装レベルのトークンを取得する場合は、プロセス ID に "オペレーティング システムの一部として機能" ユーザー権限を付与しなければいけません。 . リモート リソースへのアクセスが必要となる最も一般的なシナリオ、たとえばSQL Server が管理するデータ プロバイダーを使用するシナリオでは、このユーザー権限が必要となります。 グループ メンバーシップの確認にしかトークンを使用する必要がなければ、"オペレーティング システムの一部として機能" ユーザー権限を付与する必要はありません。 </li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

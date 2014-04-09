@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1802835074" Content_Hash="680650612">
+  <Metadata>
+    <Id>d8fe3664-89ab-4a9a-b5a1-abfe4aa90f84</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>3DES を使用してブロック暗号でファイルを暗号化する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコードの目的は、対称ブロック暗号の適切な使用を示すことです。 このサンプルコードは、主に他のアプリケーションとの下位互換性のために使用され、コードの新しい実装では AES に置き換える必要がある、トリプル DES の使用方法を示します。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>安全でない、または信頼されない通信チャネルを介して伝送されるファイルの機密性を提供する。 <li>ユーザーまたはアプリケーションが必要とするまでストレージのファイルの機密性を提供するために<li>3DES を使用した暗号化のみを提供する他のアプリケーションとの下位互換性を提供するために</li></li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーション開発者は、ストレージ内または伝送中のファイルの機密性を必要としている。 <li>3DES は、新しい NIST 標準暗号化であるAES を実装していないアプリケーションとやりとりするための下位互換性を必要とする実装でのみ使用されるべきです。</li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>private static void EncryptFile(string sInputFilename, string sOutputFilename, string sKey, string sIV)<br />{<br />&nbsp;&nbsp;&nbsp; // The default 3DES key size under the .NET framework is 192 (168).&nbsp; The following<br />&nbsp;&nbsp;&nbsp; // call will create a 3DES crypto provider and create a random initialization<br />&nbsp;&nbsp;&nbsp; // vector and key. The crypto mode defaults to CBC ensuring the proper chaining <br />&nbsp;&nbsp;&nbsp; // of data to mitigate repetition of cipher text blocks.</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; TripleDESCryptoServiceProvider tdes = (TripleDESCryptoServiceProvider) TripleDESCryptoServiceProvider.Create();</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; // One could override the default randomly generated key and initialization vector<br />&nbsp;&nbsp;&nbsp; // by setting the following properties to the Rijndael Crypto Provider, e.g.:<br />&nbsp;&nbsp;&nbsp; //<br />&nbsp;&nbsp;&nbsp; //&nbsp; tdes.Key = some_key_val;<br />&nbsp;&nbsp;&nbsp; //&nbsp; tdes.IV = some_iv_val;<br />&nbsp;&nbsp;&nbsp; //&nbsp; tdes.KeySize = 192;&nbsp; <br />&nbsp;&nbsp;&nbsp; // <br />&nbsp;&nbsp;&nbsp; // Similarly a developer may wish to change the default encryption mode, e.g.:<br />&nbsp;&nbsp;&nbsp; //<br />&nbsp;&nbsp;&nbsp; //&nbsp; tdes.Mode = CipherMode.CFB; // Defaults to CBC mode. Use of ECB mode is not recommended<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // as it provides no feedback chaining of ciphertext</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Set secret key For 3DES algorithm.<br />&nbsp;&nbsp;&nbsp; tdes.Key = ASCIIEncoding.ASCII.GetBytes(sKey);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Set initialization vector.<br />&nbsp;&nbsp;&nbsp; tdes.IV = ASCIIEncoding.ASCII.GetBytes(sIV);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; FileStream fsPlaintext = new FileStream(sInputFilename, FileMode.Open, FileAccess.Read);<br />&nbsp;&nbsp;&nbsp; FileStream fsCiphertext = new FileStream(sOutputFilename, FileMode.Create, FileAccess.Write);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Create an 3DES encryptor from the TripleDES instance.<br />&nbsp;&nbsp;&nbsp; ICryptoTransform tdesencrypt = tdes.CreateEncryptor();</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Create crypto stream set to read and do an 3DES encryption transform on incoming bytes.<br />&nbsp;&nbsp;&nbsp; CryptoStream cipherstream = new CryptoStream(fsCiphertext, tdesencrypt, CryptoStreamMode.Write);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; byte[] bytearrayinput = new byte[fsPlaintext.Length];<br />&nbsp;&nbsp;&nbsp; fsPlaintext.Read(bytearrayinput, 0, bytearrayinput.Length);<br />&nbsp;&nbsp;&nbsp; cipherstream.Write(bytearrayinput, 0, bytearrayinput.Length);<br />&nbsp;&nbsp;&nbsp; cipherstream.Close();<br />&nbsp;&nbsp;&nbsp; fsPlaintext.Close();<br />&nbsp;&nbsp;&nbsp; fsCiphertext.Close();<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、いくつかの一般的なセキュア コーディング問題が含まれる暗号化ルーチンの実装を示しています。</p>
+ <pre>private static void ProblematicFileEncrypt(string sInputFilename, string sOutputFilename)<br />{<br />&nbsp;&nbsp;&nbsp; TripleDESCryptoServiceProvider tdes = (TripleDESCryptoServiceProvider)TripleDESCryptoServiceProvider.Create();</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Set secret key For 3DES algorithm.<br />&nbsp;&nbsp;&nbsp; tdes.Key = ASCIIEncoding.ASCII.GetBytes("ASAMPLEKEYWEUSETOENCRYPT");<br />&nbsp;&nbsp;&nbsp; //We don't use an IV because the book doesn't show us an example using a <br />&nbsp;&nbsp;&nbsp; //more secure, chained mode!<br />&nbsp;&nbsp;&nbsp; // tdes.IV = ASCIIEncoding.ASCII.GetBytes("SAMPLEIV");</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Set encryption mode to an unchained value (because the book says so!)<br />&nbsp;&nbsp;&nbsp; tdes.Mode = CipherMode.ECB;</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Create a file stream to read the plaintext contents in.<br />&nbsp;&nbsp;&nbsp; FileStream fsPlaintext = new FileStream(sInputFilename, FileMode.Open, FileAccess.Read);<br />&nbsp;&nbsp;&nbsp; FileStream fsCiphertext = new FileStream(sOutputFilename, FileMode.Create, FileAccess.Write);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Create an 3DES encryptor<br />&nbsp;&nbsp;&nbsp; ICryptoTransform tdesencrypt = tdes.CreateEncryptor();</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Create crypto stream set to read and do an 3DES encryption transform on incoming bytes.<br />&nbsp;&nbsp;&nbsp; CryptoStream cipherstream = new CryptoStream(fsCiphertext, tdesencrypt, CryptoStreamMode.Write);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; //Write the contents of the encrypted file.<br />&nbsp;&nbsp;&nbsp; byte[] bytearrayinput = new byte[fsPlaintext.Length];<br />&nbsp;&nbsp;&nbsp; fsPlaintext.Read(bytearrayinput, 0, bytearrayinput.Length);<br />&nbsp;&nbsp;&nbsp; cipherstream.Write(bytearrayinput, 0, bytearrayinput.Length);<br />&nbsp;&nbsp;&nbsp; cipherstream.Close();<br />&nbsp;&nbsp;&nbsp; fsPlaintext.Close();<br />&nbsp;&nbsp;&nbsp; fsCiphertext.Close();<br /></pre>
+  <ul>
+    <li>平文の暗号鍵は、ソースコードやコンパイルされたコードへのアクセス権を持つすべてのユーザーが抽出することが可能<li>弱い暗号鍵の使用は、辞書攻撃を使ってブルートフォース（総当たり）されかねない<li>安全でない暗号モード（ECB）は、CBC および他の連鎖モードがそうであるように、後続ブロックへのフィードバックなく単独に各ブロックの暗号化を 64 ビットで実行します。 攻撃者は、ブロックを再配置するか、観察していた前のブロックに置き換えることができます <li>ECB モードが初期化ベクトルを利用せず、各プレーンテキスト値に同一の暗号化された値を生成します。 したがって攻撃者は、暗号化されたブロック内のパターンを観察して、既知のプレーンテキスト攻撃を行うことができます (注記: 初期化ベクトルは非公開のままにしておく必要はありませんが、プレーンテキストの暗号化されたそれぞれの値に対してランダムでなければなりません)。</li></li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System;<br />using System.Text;<br />using System.IO;<br />using System.Security.Cryptography;</pre>
+  <p>次のテストケースは、EncryptFile 関数の使用例を示します。</p>
+ <pre>static void Main(string[] args)<br />{<br />    Console.Out.WriteLine("Encrypting: " + args[0] + " to file: " + args[1]);<br />    EncryptFile(args[0], args[1], sKey, sIV);<br />    Console.Out.WriteLine("Decrypting: " + args[1] + " to file: " + args[0] + ".new");<br />    DecryptFile(args[1], args[0] + ".new", sKey, sIV);<br />}</pre>
+  <ul>
+    <li>sKey と sIV はアプリケーション コード内の DataProtection API から取得される</li>
+  </ul>
+  <h1>期待される結果</h1>
+  <p>復号化されたファイルの値を元のファイルのテキストと比較すると、同じテキストになります。</p>
+  <h1>詳細情報</h1>
+  <ul>
+    <li>テスト ケースは、ユーザー コード内に実装されているデータ保護 API を使用して暗号鍵を安全に保存して取得することを想定しています。</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

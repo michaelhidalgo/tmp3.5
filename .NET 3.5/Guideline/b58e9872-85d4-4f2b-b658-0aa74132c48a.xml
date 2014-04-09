@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1755633030" Content_Hash="1998780762">
+  <Metadata>
+    <Id>b58e9872-85d4-4f2b-b658-0aa74132c48a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ビジネス ロジックに基づいてファイングレインドな認可を実行する必要がある場合は、命令型の認可を使用する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ビジネス ロジックに基づく粒度別の認可を実施する必要がある場合､強制認可の使用を検討してください。</p>
+  <h1>状況</h1>
+  <p>ビジネス ロジックに基づいて粒度別の認可の選択をする必要がある、またはコード メソッドのレベルを超えた粒度別のアクセス制御が要求される時には､強制的なロール ベースの認可を使用してください。 </p>
+  <h1>対策</h1>
+  <p>
+    <strong>Windows のプリンシパルを使用した強制チェック:</strong>
+  </p>
+ <pre>WindowsPrincipal myPrincipal = new WindowsPrincipal(ServiceSecurityContext.Current.WindowsIdentity);<br />if(myPrincipal.IsInRole(@"domain\Accounting"))<br />{<br />//authorized<br />}<br />else<br />{<br />//not authorized<br />}</pre>
+  <p>
+    <strong>ASP.NET ロール プロバイダーを使用した強制チェック:</strong>
+  </p>
+ <pre>if (Roles.IsUserInRole(@"accounting"))<br />{<br />//authorized<br />}<br />else<br />{<br />//authorization failed<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認可の詳細情報については、「認可」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx) を参照してください。</a><li>認可の Q&A については、<a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home">http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home にある｢WCF 3.5 質疑応答｣を参照してください｡</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1305102690" Content_Hash="1095740457">
+  <Metadata>
+    <Id>8ad10ef2-79eb-4d45-b92a-832f01c7e66d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データの保護に役立つように XML 暗号化を使用する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p><b>EncryptedXml</b> クラスを含む<b>System.Security.Cryptography.Xml</b> 名前空間内のクラスを使用して、XML 文書全て、または XML 文書内の個別エレメントを暗号化することができます。 性能上の理由から、AES などの対称暗号化アルゴリズムを使用して、データを暗号化するセッション鍵を作成することをお勧めします。 その後、必要に応じて、RSA などの非対称暗号化アルゴリズムを使用して対称セッション鍵を暗号化します。 これにより、受取人にセッション鍵を暗号化された形式で転送することができます。 関連する RSA 私有鍵を所有した受取人だけがセッション鍵を解読し、その後、 暗号化された XML データを解読できます。 </p>
+  <p>XML 暗号化を使用するには、AES などの対称アルゴリズムを用いてセッション鍵を作成して、XML データを暗号化します。 その後、RSA 公開鍵を使用して AES セッション鍵を暗号化します。 これにより、関連する私有鍵の所持者だけがデータを解読できるようになります。 セッション鍵を使用して、<b>EncryptedXml</b> クラスのデータを暗号化します。 <b>EncryptedData</b> エレメントを作成し、暗号化された暗号テキストによってそれを事前設定します。 これにより、受取人は暗号化にどのアルゴリズムが使用されたか、また必要に応じて、データを解読するのに必要な暗号化セッション鍵を知ることができます。 最後に、XML データ内の平文のエレメントを<b>EncryptedData</b> エレメントと置き換えます。 </p>
+  <p>XML 暗号化を使用するには、暗号化された XML データの受取人は、帯域外メカニズムを使用して自身の公開鍵を、受取人に暗号化されたデータを送信する必要がある関係者に配布する必要があります。 通常、これは X.509 デジタル証明書を使用することで実現できます。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

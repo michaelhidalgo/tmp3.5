@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-25094976" Content_Hash="800557166">
+  <Metadata>
+    <Id>b6fa1078-dbb0-48ed-8207-6617c4b40224</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>限定付きアカウントのもとでアプリケーションを実行するように展開する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>Microsoft Windows Server &nbsp;オペレーティング システム上で稼動する ASP.NET アプリケーションを展開する場合、使用するアプリケーション プールは必ずファイル システムおよびレジストリへのアクセスが制限されている、限られたアカウント下で実行されているようにしてください。 制限されたカスタム アカウントを使用する場合は必ず、 <b>-ga</b> スイッチ付きの Aspnet_regiis.exe ユーティリティを実行してアカウントが必要とするアクセス許可を適用してください。 その後、カスタム アカウントのユーザー情報で実行する専用アプリケーション プールで実行するようにアプリケーションを構成してください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

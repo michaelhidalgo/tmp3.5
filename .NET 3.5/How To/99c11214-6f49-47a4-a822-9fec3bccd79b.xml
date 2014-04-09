@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-336455133" Content_Hash="-1948878426">
+  <Metadata>
+    <Id>99c11214-6f49-47a4-a822-9fec3bccd79b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アンマネージ コードの呼び出しを保護する方法</Title>
+    <Category>アンマネージ コード</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アンマネージ コードのアクセス許可をアサートする前にカスタムのアクセス許可を要求することにより、アンマネージ コードへのアクセスを制限してください。 アンマネージ コードを呼び出すときは、アンマネージ API に渡されるインプットを検証し、潜在的なバッファ オーバーフローから防御し、境界違反を配置してください。 インプットとアウトプット文字列パラメータの長さを検証し、配置バウンドを検証し、ファイル パスの長さをチェックしてください。 安全でない API がないか、アンマネージ コードを検査してください。 </p>
+  <p>アンマネージ コードが自己の所有するものである場合は、バッファ オーバーフローの検出を助けるためにスタック プローブを有効にする <b>-GS</b> スイッチを使用して、自分でコンパイルすることを確実にしてください。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

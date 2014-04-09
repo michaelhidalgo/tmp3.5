@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-283704239" Content_Hash="288983193">
+  <Metadata>
+    <Id>b541ba53-6354-47be-9d89-8209b9807d93</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>強制的ブラウズ攻撃</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>すべての Web アプリケーション</p>
+  <h1>説明</h1>
+  <p>強制的ブラウズ攻撃では、攻撃者は、アプリケーション内の他のページからリンクをたどるのではなく URL を直接指定することにより (強制的ブラウズ)、Web アプリケーション内の制限されたページへのアクセスを得ます。 制限されたページへ至る、想定されているワークフローでは、ユーザーに対し、ターゲット ページへのアクセスを認可する、別のページを経由することです。 この攻撃ではまた、攻撃者は、直接のリンクが存在しないリソースへのアクセスも得ます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>Web サイトの機能に対する認可されていないアクセス。</li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>貧弱な認可制御<li>ページに認証が存在しないこと</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>すべてのオブジェクトは、アクセス要求に関し、被認証者の身元の原則に基づいてアクセスを認可する、認可制御を持つことを必要とします。 <li>すべての機微ページへのアクセスは、有効な認証チケットを要求するべきです。 <li>ワークフローの一部となることを意図しているページは、そのワークフローを強制するべきです。</li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://www.imperva.com/application_defense_center/glossary/forceful_browsing.html">強制的ブラウズ攻撃の説明</a>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/a5b7e377-103e-4805-a567-6092cbbaeba7">ガイドライン:パブリックとプライベート ドメインの間でアプリケーションを区分する</a>
+      <li>
+        <a href="/article/17034ef0-8935-4fb2-bbae-d79982e710c7">ガイドライン: ロールベースのセキュリティ チェックを実行する</a>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

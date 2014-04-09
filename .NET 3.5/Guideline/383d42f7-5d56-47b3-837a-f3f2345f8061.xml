@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1444602287" Content_Hash="-311494641">
+  <Metadata>
+    <Id>383d42f7-5d56-47b3-837a-f3f2345f8061</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SSL を使用してセッション認証 Cookie を保護する</Title>
+    <Category>セッション管理</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>認証 Cookie をSSLで保護する必要があります。 </p>
+  <h1>理由</h1>
+  <p>セッション ハイジャックおよびCookie反復攻撃を防ぐため、HTTPSプロトコルを使用したSSL接続のみでやり取りされるようにして Cookieをセキュアに保ちます。 さらにリスクを軽減するために、クライアントに送信する前にCookieを暗号化し、Cookie の有効期間に制限を設けます。 </p>
+  <h1>状況</h1>
+  <p>Forms Authentication を使用する場合は、アプリケーションが <b>&lt;forms&gt; </b>要素に <b>protection="All"</b> 属性を使用して認証 Cookieを暗号化していることを確認します。 ユーザーの認証 Cookie を盗むXSS攻撃のリスクを軽減するために、SSLに加えて、この方法が推奨されます。&nbsp; </p>
+  <h1>対策</h1>
+  <p>認証 Cookie を HTTP 接続で送信しないでください。 認証 Cookie 内部のセキュアな Cookie プロパティを設定し、HTTPS 接続経由の場合だけ Cookie をサーバに送り返すようブラウザに指示します。 詳細は第10章 「セキュアな ASP.NET ウェブ ページおよび制御を確立する」を参照してください。</p>
+  <p>.NET Framework バージョン 1.1 を使用している場合、以下のように、<b>&lt;forms&gt;</b> 要素で <b>requireSSL="true"</b> を使用してセキュアなプロパティを設定してください。</p>
+  <div>
+    <div>
+    </div>
+    <div>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="true" . . . /&gt;</pre>
+    </div>
+    <div>
+      <p>.NET Framework バージョン 1.0 を使用している場合、次のコードを使用してGlobal.asax の<b>Application_EndRequest</b>イベントハンドラでセキュア プロパティを手動で設定します。</p>
+      <div>
+        <div>
+        </div>
+        <div>
+ <pre>protected void Application_EndRequest(Object sender, EventArgs e) <br />{<br />&nbsp; string authCookie = FormsAuthentication.FormsCookieName;<br /><br />&nbsp; foreach (string sCookie in Response.Cookies) <br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; if (sCookie.Equals(authCookie))<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Set the cookie to be secure. Browsers will send the cookie<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // only to pages requested with https<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Cookies[sCookie].Secure = true;<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp; }<br />}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>「Design Guidelines for Secure Web Applications (セキュリティ保護された Web アプリケーションの設計ガイドライン)」<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a><li>「Architecture and Design Review for Security (セキュリティのためのアーキテクチャと設計レビュー)」<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

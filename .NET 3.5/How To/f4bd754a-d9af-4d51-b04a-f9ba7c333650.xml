@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1260908198" Content_Hash="1200866527">
+  <Metadata>
+    <Id>f4bd754a-d9af-4d51-b04a-f9ba7c333650</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SecureString を使用してメモリ内のデータを保護する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>ユーザーから直接機微データを受け取り、<b>AppendChar</b> メソッドを使用して一回に一文字ずつ <b>SecureString</b> オブジェクトを構築します。 以下の例では、これを行う方法が示されています。 </p>
+ <pre>
+    <pre>using System.Securtiy;<br />SecureString securePassword = new SecureString();<br /> Console.WriteLine("Enter Password....");<br /> while (true)<br /> {<br />    ConsoleKeyInfo conKeyInfo = Console.ReadKey(true);<br />    if (conKeyInfo.Key == ConsoleKey.Enter)<br />        break;<br />    else if (conKeyInfo.Key == ConsoleKey.Escape)<br />        return;<br />    else if (conKeyInfo.Key == ConsoleKey.Backspace)<br />    {<br />        if (securePassword.Length != 0)<br />            securePassword.RemoveAt(securePassword.Length - 1);<br />    }<br />    else<br />        securePassword.AppendChar(conKeyInfo.KeyChar);<br />}<br />Console.WriteLine(securePassword.Length.ToString());  </pre>
+  </pre>
+  <blockquote>
+    <p>
+      <b>注意</b>: &nbsp;&nbsp;<b>SecureString</b> は、検査、比較または変換機能に対応していません。 操作されてデータが公開されることはありません。</p>
+  </blockquote>
+  <p>その後 <b>SecureString</b> からデータを使用するには、次のように <b>Marshal.SecureStringToBSTR</b> メソッドを使用します。</p>
+ <pre>
+    <p>
+    </p>
+    <pre>using System.Runtime.InteropServices;<br />void UseSecretData(SecureString secret)<br />{<br />    IntPtr bstr = Marshal.SecureStringToBSTR(secret);<br />    try<br />    {<br />        // Use the bstr here<br />    }<br />    finally<br />    {<br />        // Make sure that the clear text data is zeroed out.<br />        Marshal.ZeroFreeBSTR(bstr);<br />    }<br />}  </pre>
+  </pre>
+  <p>データの使用が終わり次第、<b>Marshal.ZeroFreeBSTR</b> メソッドを使用してテキスト データを消去してください。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;通常文字列は不変でありそれらを消去することはできないため、通常の文字列とセキュリティ保護された文字列間で変換をしないでください。 その結果、暗号化されていない文字列の複数のコピーがメモリーに存在する可能性があります。</blockquote><b>SecureString</b> クラスの使用は、ASP.NET アプリケーションではあまり適切ではありません。 機微データ (クレジット カード番号など) を含む Web ページから、中間<b>System String</b> オブジェクトを通過させることなくデータを抽出し、<b>SecureString</b> 内に設置することができる可能性は<b>  </b>ほとんどありません。 <hr /><p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

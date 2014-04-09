@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-422907821" Content_Hash="-1768424254">
+  <Metadata>
+    <Id>79dbdf5f-fe9c-474f-8b10-cc68e6007879</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で Active Directory とForms Authentication を併用する方法</Title>
+    <Category>Forms Authentication</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft Active Directory ディレクトリ サービス</li>
+  </ul>
+  <h1>概要</h1>
+  <p>このハウツーは、<b>ActiveDirectoryMembershipProvider</b> を使用することによりMicrosoft® Active Directory® ディレクトリ サービスでの Forms Authentication の使用法を示します。 このガイドでは、プロバイダーを構成しユーザーを作成して認証する方法を説明します。 ここではドメイン ポリシーにより定義されるパスワード複雑性要件を適用する方法およびどのように Active Directory スキーマを拡張してパスワードの質問と答えを保存できるかについても説明します。 これによりユーザーが自分のパスワードを忘れた場合にパスワードのリセットをサポートすることができます。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  ログオン ページを持つウェブ アプリケーションを作成する</div>
+            <li>
+              <div>手順 2:  ウェブ アプリケーションのForms Authenticationを設定する</div>
+              <li>
+                <div>手順 3:  ASP.NET でメンバーシップを設定する</div>
+                <li>
+                  <div>手順 4:  Forms Authentication をテストする</div>
+                  <li>
+                    <div>セキュリティに関する考慮事項</div>
+                    <li>
+                      <div>追加考慮事項</div>
+                      <li>
+                        <div>コンフィギュレーション属性</div>
+                        <li>
+                          <div>その他のリソース</div>
+                        </li>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>Forms Authentication を持つ<b>ActiveDirectoryMembershipProvider</b> を使用してください。 <li>Active Directory に保存されているアプリケーションのユーザー アカウントとパスワードを管理する。 <li>パスワードの複雑性ルールを強制するには、 <b>ActiveDirectoryMembershipProvider</b> を使用します。 <li>メンバーシップおよびForms Authenticationを使用する際の運用上の重要考慮事項を学習する。 <li>メンバーシップおよびForms Authenticationを使用する際のセキュリティ上の重要考慮事項を学習する。 </li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET&nbsp; メンバーシップ機能は、ユーザー名やパスワードのようなユーザー Credential 情報を保持するために使用する基本データ ストアの抽象概念を提供します。 メンバーシップ機能には、ユーザー Credential 情報を容易に検証しユーザー データベースの管理を支援する API が含まれています｡ サポートされたメンバーシップ プロバイダーには、Microsoft SQL Server™ ユーザー ストア データベース用の <b>SqlMembershipProvider</b>、そしてActive Directory および Active Directory Application Mode (ADAM) ユーザー ストア用の<b>ActiveDirectoryMembershipProvider</b> が含まれます。 </p>
+  <p>このガイドでは、Active Directory で Forms Authentication を使用する単純なウェブサイトの開発の方法を説明します。 それは、<b>ActiveDirectoryMembershipProvider</b> の構成、ユーザーの作成、ユーザーの認証、およびパスワードの複雑性ルールを確立する方法を示します。 また、パスワード リセット機能をサポートする質問と答えの使用方法も説明します。</p>
+  <h1>手順の概要</h1>
+  <p>ASP.NET の Active Directory で Forms Authentication を使用するには、次の手順を実行します。</p>
+  <ul>
+    <li>手順 1:  ログオン ページを持つウェブ アプリケーションを作成する。 <li>手順 2:  ウェブ アプリケーションでForms Authenticationを設定する。 <li>手順 3:   ASP.NET でメンバーシップを設定する。 <li>手順 4:  Forms Authentication をテストする。 </li></li></li></li>
+  </ul>
+  <h1>手順 1:  ログオン ページを持つウェブ アプリケーションを作成する</h1>
+  <p>この手順では､デフォルト ページとログオン ページを持つ単純なウェブ アプリケーションを作成します。 既存のユーザーはログオン ページを使用してサイトへログオンし、新規ユーザーはログオン ページを使用してサイトに登録を行い新規アカウントを作成することができます。</p>
+  <h2>ログオン ページを持つウェブ アプリケーションを作成するには</h2>
+  <ol>
+    <li>Microsoft Visual Studio .NET を起動し、FormsAuthAD と呼ばれる新規 ASP.NET Web サイトを作成します。 <li>Login.aspx と呼ばれるサイトに新規 Web フォームを追加するには、Solution Explorer を使用します。 <li><b>Login</b> 制御を Login.aspx に追加します。 <p>デフォルトで、この制御はユーザー名フィールド、パスワードフィールド、および <b>Remember me next time</b> チェックボックスを表示します。 ユーザーがこのチェックボックスを選択した場合､蓄積型認証 Cookie が作成され、ユーザーのコンピュータ上には作成された Cookie がブラウザにより保存されます。 </p><p>攻撃者にクライアント コンピュータから認証 Cookie を盗ませないようにするには、基本的に、蓄積型認証 Cookie の作成はすべきではありません。 したがって、<b>Login</b> 制御の<b>DisplayRememberMe</b> プロパティを <b>false</b> に設定することにより、この機能を無効にします。 </p><p>ユーザーが <b>Login</b> 制御の  <b>Login</b> をクリックすると、構成されたメンバーシップ プロバイダーを呼び出すことによってユーザーを自動的に検証し、Forms Authentication チケットを作成し、そして最初に要求したページにユーザーをリダイレクトすることに注意してください。 </p><li>テスト環境で作業していて、Active Directory  に新規ユーザー アカウントを作成するアクセス許可のあるサービス アカウントを持っている場合は、<b>CreateUserWizard</b> 制御を <b>Login</b> 制御の下に追加して、ユーザーがサイトに登録し新規アカウントを作成できるようにします。 <blockquote><b>注意</b>: &nbsp;&nbsp;新規ユーザーを作成する権限がない場合､既存のアカウントを使用して認証をテストする必要があります。<b></b></blockquote></li></li></li></li>
+  </ol>
+  <h1>手順 2:  ウェブ アプリケーションのForms Authenticationを設定する</h1>
+  <p>この手順では､ASP.NETアプリケーションでForms Authenticationを使用するための設定を行います。</p>
+  <h2>ウェブ アプリケーションのForms Authenticationを設定するには</h2>
+  <ol>
+    <li>Solution Explorer を使用して、Web.config ファイルをプロジェクトに追加してください。 <li>アプリケーションのWeb.configファイルまたはマシンレベルのWeb.configファイル内で&lt;<b> authentication (認証)</b>&gt; <b>authentication</b>&gt;エレメントを見つけて<b>mode</b> 属性を<b>Forms</b> に変更します。<li>次の &lt;forms&gt; エレメントを&lt;<b>authentication</b>&gt;  の子として追加してください<b> </b>。 次の&lt;<b>forms</b>&gt;エレメントを&lt;<b>authentication</b>&gt;エレメントの子として追加し、次の例に示すように、<b>name</b> および <b>timeout</b> 属性を設定します。 <div><pre>&lt;authentication mode="Forms"&gt;<br />&nbsp; &lt;forms<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name=".ADAuthCookie"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeout="10" /&gt;<br />&lt;/authentication&gt;   </pre></div><p>&lt;<b>authentication</b>&gt; エレメントの mode 属性のみを設定し、&lt;<b>forms</b>&gt; エレメントの &lt;<b>authentication</b>&gt;エレメントにのみmode 属性を設定して、&lt;forms&gt;エレメントにその属性を設定するのを省略する場合、&lt;<b>forms</b>&gt;  構成はデフォルト設定を使用します<b> </b>。 コンフィギュレーションはデフォルト設定を使用します。 上書きしたい属性だけを構成するようにしてください。 Machine.config.comments ファイルで定義されている Forms Authentication のデフォルト設定は、次の例に示されています。 </p><div><pre>&lt;forms name=".ASPXAUTH" loginUrl="login.aspx" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultUrl="default.aspx" protection="All" timeout="30" path="/" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="false" slidingExpiration="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieless="UseDeviceProfile" domain="" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enableCrossAppRedirects="false"&gt;<br />&nbsp; &lt;credentials passwordFormat="SHA1" /&gt;<br />&lt;/forms&gt;   </pre></div><li>Web.config ファイル 中に &lt;<b>authentication</b>&gt; エレメントの下にある次のような &lt;authorization&gt; エレメント を追加してください、<b> </b>これですべての認証されたユーザーが 次の&lt;<b>authorization</b>&gt;エレメントをWeb.config ファイルの&lt;<b>authentication</b>&gt; エレメントの下に追加します。 <div><pre>&lt;authorization&gt; <br />&nbsp; &lt;deny users="?" /&gt;<br />&nbsp; &lt;allow users="*" /&gt;<br />&lt;/authorization&gt;   </pre></div><p>この構成では、認証されたユーザーのみがアプリケーションにアクセスできます。 <b>"?"</b> は認証されないユーザーを示し、<b>"*"</b> はすべてのユーザーを示します。 未認証のユーザーを拒否することで、未認証のユーザーによる要求はすべてログイン ページにリダイレクトされます。 &lt;<b>forms</b>&gt; 上の <b>loginUrl</b>  属性 エレメントで、ログオン ページの名前を判断します。 Machine.config.comments でのこの属性のデフォルト設定は、 <b>"Login.aspx"</b> です。 </p></li></li></li></li>
+  </ol>
+  <h1>手順 3:  ASP.NET でメンバーシップを設定する</h1>
+  <p>この手順では、アプリケーションの Web.config ファイルでメンバーシップ設定を指定することで、Active Directory のメンバーシップ プロバイダーを構成します。</p>
+  <h3>ASP.NET メンバーシップの設定を行う</h3>
+  <ol>
+    <li>Web.config ファイルで、次のような接続文字列を追加し、それが Active Directory のユーザー コンテナを指すようにそれを変更します。 <div><pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="ADConnectionString" connectionString="<a href="ldap://testdomain.test.com/CN=Users,DC=testdomain,DC=test,DC=com">LDAP://testdomain.test.com/CN=Users,DC=testdomain,DC=test,DC=com</a>" /&gt;<br />&nbsp;&lt;/connectionStrings&gt;   </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;上記の接続文字列は､<i>testdomain.test.com</i> という名のドメイン内にあるユーザー コンテナに接続します。ドメイン内の関連するユーザー コンテナを指すようにこの文字列を更新してください｡<b></b></blockquote><li>次の例に示すように、&lt;<b>authorization</b>&gt;エレメントの後ろに  &lt;<b>membership</b>&gt;エレメントを追加します。 確認します。 <div><pre>&lt;membership defaultProvider="MyADMembershipProvider"&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="MyADMembershipProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.ActiveDirectoryMembershipProvider, System.Web, Version=2.0.0.0, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="ADConnectionString"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionUsername="testdomain\administrator" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionPassword="password"/&gt;<br />&nbsp; &lt;/providers&gt;<br />&nbsp;&lt;/membership&gt;   </pre></div><p><b>connectionStringName</b> 属性を、 <b>connectionStrings</b> セクションで先に指定したのと同じ名前 (<b>"ADConnectionString"</b>)に設定したことを確認します。  </p><p>これは上書きされる必要があるため、<b>defaultProvider</b> 属性値を   <b>MyADMembershipProvider</b> に設定することを確認します。 マシンレベルのデフォルト値は、ローカルSqlExpress インスタンスを使用して <b>SQLMembershipProvider</b> 型を指します。 この属性を上書きしない場合､ASP.NET はデフォルト設定のプロバイダーを使用します。 </p><blockquote><b>注意</b>: &nbsp;&nbsp;上の例では､テスト用ドメイン内で新規アカウントを作成できる管理者アカウントのパスワードを持っていることを想定しています。 管理者の名前とパスワードはプレーン テキストで提供する必要があります。 結果として、この構成セクションと  &lt;<b>connectionStrings</b>&gt; を暗号化する必要があります。 セクションが備わっていることを確認します。 </blockquote></li></li>
+  </ol>
+  <p><b>ActiveDirectoryMembershipProvider</b> に対する属性設定の完全なリストは、「構成の属性」セクションをご覧ください。</p>
+  <h2>Active Directoryへの接続</h2>
+  <p><b>ActiveDirectoryMembership</b> プロバイダーが Active Directory に接続する際、Credential 情報が <b>connectionUsername</b> プロパティで指定されている(小文字の <i>n</i> は、<b>connectionStringName</b> のプロパティとは異なることに注意) アカウントを使用します。 <b>connectionUsername</b> プロパティを指定する場合、<b>connectionPassword</b> も指定する必要があり、そうでなければ例外がスローされます。</p>
+  <p>アカウントの Credential 情報を指定しない場合､Active DirectoryはASP.NET Web アプリケーションのプロセスアカウントを使用します。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Active Directory への接続に使用するサービス アカウントには、Active Directory での十分なアクセス許可が付与されている必要があります。 Active Directory 組織単位 (OU)内でユーザーアカウントを管理している場合は､そのOU上で読み取り、書き込み、削除を行う権限権のみ (オプションで､パスワードのリセット特権) を持つサービスアカウントを作成して使用できます。<b></b></blockquote>
+  <h1>手順 4:  Forms Authentication をテストする</h1>
+  <p>このステップでは、Forms Authenticationテストを行います。</p>
+  <h2>Page_Load イベント ハンドラーを追加する</h2>
+  <p>次のコードを Default.aspx ページの <b>Page_Load</b> イベント ハンドラーに追加します。 このページは認証されたユーザーにのみ表示することが推奨されます。 このページが認証されたユーザーにのみ表示されることを確認するには、認証されたユーザーに発行される Forms Authentication チケットから取得した情報がコードで示されていることを確認します。</p>
+  <div>
+ <pre>protected void Page_Load(object sender, EventArgs e)<br />{<br />&nbsp; Response.Write("Hello, " + Server.HtmlEncode(User.Identity.Name));</pre>
+  </div>
+ <pre>&nbsp; FormsIdentity id = (FormsIdentity)User.Identity;<br />&nbsp; FormsAuthenticationTicket ticket = id.Ticket;</pre>
+ <pre>&nbsp;</pre>
+ <pre>&nbsp; Response.Write("&lt;p/&gt;TicketName: " + ticket.Name );<br />&nbsp; Response.Write("&lt;br/&gt;Cookie Path: " + ticket.CookiePath);<br />&nbsp; Response.Write("&lt;br/&gt;Ticket Expiration: " +&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ticket.Expiration.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;Expired: " + ticket.Expired.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;Persistent: " + ticket.IsPersistent.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;IssueDate: " + ticket.IssueDate.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;UserData: " + ticket.UserData);<br />&nbsp; Response.Write("&lt;br/&gt;Version: " + ticket.Version.ToString());<br />}</pre>
+  <h2>既存ユーザーとしてログオンする</h2>
+  <p>既存ドメインのアカウントを使用してログオンすることにより認証をテストできます。</p>
+  <h3>既存ユーザーとしてログオンするには</h3>
+  <ol>
+    <li>アプリケーションの Default.aspx ページを参照します。 <p>以前の&lt;<b>authorization</b>&gt; エレメントの構成は、認証されていないユーザーがアプリケーション内のページにアクセスするのを防ぎます。 エレメントは未認証のユーザーによるアプリケーション内の全ページへのアクセスを阻止します。 それらは Login.aspx ページにリダイレクトされます。 </p><li>ドメインのアカウントの有効な Credential 情報を入力し、 <b>Login</b> をクリックします。<p>ユーザー名の書式は、&lt;<b>membership</b>&gt;エレメントの <b>attributeMapUsername</b> 属性に依存します。  element. <b>ActiveDirectoryMembershipProvider</b> のデフォルト構成は、次の例に示すように、名前のマッピングにユーザー プリンシパル名（UPN）を使用します。 </p><div><pre>attributeMapUsername="userPrincipalName"   </pre></div><p>このため、すべてのユーザー名は <b>UserName@DomainName</b>; フォーマット、たとえば mary&#64;testdomain.com または steve&#64;testdomain.com を持っていなければなりません。例: mary@testdomain.com または steve@testdomain.com など。 </p><p>Web.config ファイル内のメンバーシップ プロバイダー構成に次の属性を設定することにより、単純なユーザー名書式を使用できるように、名前のマッピングを変更することができます。 </p><div><pre>attributeMapUsername="sAMAccountName"   </pre></div><p>この設定を使用して、たとえば Mary や Steve などの単純なユーザー名を使用できます。 </p></li></li>
+  </ol>
+  <h2>新規ユーザーとしてログオンする</h2>
+  <p>新規ユーザーを作成してログオン機能性をテストできます。 これは、テスト用ドメインで作業しているか、またはActive Directory で新規ユーザーを作成する特権のある管理者アカウントを設定していた場合にだけ実施できる手順です。</p>
+  <h3>新規ユーザーを作成するには</h3>
+  <ol>
+    <li>アプリケーションの Default.aspx ページを参照します。 <li>強力なパスワードを持つ新規ユーザーを作成します。 Active Directory のメンバーシップ プロバイダーには次のようなデフォルト設定のパスワード要件が付与されています｡<ul><li>パスワードは最低 7 文字である必要があります。 <li>パスワードには 1 つ以上の非英数字が含まれている必要があります。 </li></li></ul><p>プロバイダーにより定義されるポリシーまたは Active Directory により定義されるポリシーのいずれか強固な方に適合するパスワードを提供する必要があります。 Active Directory は最初にメンバーシップの設定をチェックします。 それが成功すると、次にプロバイダーにより Active Directoryへのアカウントの作成が試行されます。 提供されたパスワードがパスワード ポリシーの基準に満たない場合､プロバイダーによりアカウントは作成されません。 </p><li>新規ユーザー アカウントでログオンする 正常にログオンした場合は、最初に要求した Default.aspx ページにリダイレクトされ、ページが Forms Authenticationチケットの詳細を表示するはずであり。 </li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ユーザー アカウントの作成時にデフォルト設定を使用した場合は､次の形式でユーザー名を指定する必要があります。<i>UserName@DomainName.</i></blockquote>
+  <p><b>CreateUserWizard</b> 制御の使用に加えて、次の方法でユーザーを作成することができます：</p>
+  <ul>
+    <li>新規ユーザーを作成するウィザード形式のインターフェイスを持つ ASP.NET ウェブサイト管理ツールを使用する。 <li>TextBox  制御を有するASP.NET Web ページを使用してユーザー名およびパスワード（およびオプションで電子メール アドレス）を所得してから、新規ユーザーをプログラムで作成するために<b>Membership</b>.<b> CreateUser</b> メソッドを使用します。 </li></li>
+  </ul>
+  <h1>セキュリティに関する考慮事項</h1>
+  <p>認証チケットを保護できないことは、不正なスプーフィングやなりすまし、セッション ハイジャック、および特権の昇格につながる可能性のある一般的な脆弱性です。 Forms Authenticationを使用する場合、安全な認証アプローチの確保に役立つ次の推奨事項を考慮してください。</p>
+  <ul>
+    <li>
+      <b>認証Cookieを HTTPS 接続に制限する。</b> ネットワーク送信中のForms Authentication Cookieの傍受や改ざんを防ぐためには、認証アクセスを必要とするすべてのページで Secure Sockets Layer (SSL) を使用し、Forms Authenticationチケットの使用を SSL チャネルのみに制限するようにしてください。 <li><b>SSL 用にサイトのパーティショニングを行う。</b> これにより、サイト全体で SSL を使用しなくてもよくなります。<b></b><li><b>Forms Authentication Cookieに固執しないでください。 </b>Forms Authentication Cookieに固執しないでください。クライアントコンピューターのユーザープロファイルに保存されているため、攻撃者がユーザーのコンピュータに物理的にアクセスできる場合に盗まれる可能性があるからです。 <li><b>チケット寿命を短縮することを検討してください｡</b> 攻撃者が捕獲したCookieを使用してスプーフした(なりすました)身元でアプリケーションにアクセスすることができる時間ウィンドウを短くするため、Cookie寿命の短縮を検討してください｡ <li><b>固定期限切れの使用を検討してください｡</b> SSL が使用できないシナリオでは、<b>slidingExpiration="false"</b> の設定を検討してください。<li><b>堅牢なユーザー管理方針を実施してください｡</b> 他人のパスワードを推測できないように、また辞書攻撃のリスクを軽減するためにも、すべてのユーザーアカウントで強力なパスワードの使用を強制してください｡ <li><b>パスワード複雑化のルールを実施してください｡</b> <b>PasswordRegularExpression</b> プロパティを適切な正規表現に設定することにより、<b>CreateUserWizard</b> コントロール経由で入力されたパスワードを検証してください。 また、サーバ上のメンバーシップ プロバイダーでも同じ正規表現を使用するよう設定を行ってください。<b></b><li><b>効果的なデータ検証をすべての要求上で実行する。 </b>厳密なデータ検証を実行し、SQL インジェクションやクロスサイト スクリプティング等の可能性を最小限に抑えます。 <li><b>個別のCookie名とパスを使用してください｡</b> 一意なCookie名やパスを使用することで、1 つのサーバ上で複数アプリケーションをホストした場合に発生し得る問題が回避されます。 <li><b>認証Cookieとパーソナル化 Cookie を別個にしておいてください。</b> ユーザー指定の設定条件と非機微データを含むパーソナライゼーション Cookie は、認証 Cookie からは分離して保管してください｡ <li><b>ナビゲーションには絶対URLを使用してください｡</b> これにより、HTTP から HTTPS ページへのリダイレクトで発生し得る問題を回避します。 </li></li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>追加考慮事項</h1>
+  <p>Active Directory で Forms Authentication  を使用する場合は､以下のような追加セキュリティ メカニズムの使用を検討してください。</p>
+  <ul>
+    <li>
+      <b>パスワードのリセット</b>
+      <li>
+        <b>アカウントのロックアウト</b>
+      </li>
+    </li>
+  </ul>
+  <h2>パスワードのリセット</h2>
+  <p><b>ActiveDirectoryMembershipProvider</b> クラスは、ユーザーにセキュリティ保護用の質問に回答するよう要求することにより、パスワード リセット セキュリティをサポートします。 ユーザーがアカウントを作成する際に、この質問と答えを設定することになります。 </p>
+  <h3>パスワードのリセットを有効化するには</h3>
+  <ol>
+    <li>組込の <b>User</b> クラスに新規属性を追加するには、Active Directory スキームを拡張します。 <p>次の 2 つの新規属性を追加して質問と答えを保存します。</p><ul><li>パスワードの質問を保持するための、<b>文字列</b>型の単一値属性。 <li>パスワードの答えを保持するための、<b>文字列</b>型の単一値属性。 </li></li></ul><p>次の 3 つの新規属性を追加して、アカウントのロックアウトを管理するために使われる追跡データを保存します。</p><ul><li>失敗した回答数を追跡するための<b>整数</b>型の単一値属性。 <li>パスワードをリセットしようとしたときに、ユーザーが無効な答えを提示した最後の時間を保持するための、 <b>Large Integer/Interval </b>型の単一値属性。 <li>ユーザーが連続して何回か無効なパスワードの答えを提供したためにアカウントがロックされた時刻を保持するための、 <b> Large Integer/Interval </b> 型の単一値属性。 ただし、Active Directory のアカウントがロック アウトされたわけではありません。 したがって、ユーザーによるそのアカウントでの Windows へのログオンは引き続き可能です。 しかし、<b>ActiveDirectoryMembershipProvider</b> は、プロバイダーを使用するアプリケーションにユーザーがロックアウト期間が経過するまでログオンできないようにするため、アカウントがロックアウトされたものとして取扱います。 </li></li></li></ul><blockquote><b>注意</b>: &nbsp;&nbsp;Windows Server 2003 上で Active Directory スキームを編集するには、Regsvr32.exe を使ってschmmgmt.dllを登録し、<b>Active Directory Schema</b> Microsoft Management Console (MMC) スナップインを読み込みます。</blockquote><blockquote>Active Directory 内で属性値を表示および編集するには、<b>ADSIEdit</b> MMC スナップインを使用することができます。<b></b></blockquote><li>Web.config ファイルの&lt;<b>providers</b>&gt; セクションに &lt;<b>add</b>&gt;エレメントを使用することにより、 次の構成属性を設定します。<ul><li><b>enablePasswordReset</b> を <b>true</b> に設定します。 <li><b>requiresQuestionAndAnswer</b> を <b>true</b> に設定します。 <li><b>attributeMapPasswordQuestion</b> を、パスワード セキュリティ用の質問を含む <b>User</b> クラスのActive Directory 属性の名前に設定します。  <li><b>attributeMapPasswordAnswer</b> を、パスワード セキュリティ用の質問への答えを含む <b>User</b> クラスのActive Directory 属性の名前に設定します。 <li><b>attributeMapFailedPasswordAnswerCount</b> を、パスワードセキュリティの質問に失敗した回答の数を追跡する <b>User</b> クラスの Active Directory 属性の名前に設定します。 <li><b>attributeMapFailedPasswordAnswerTime</b> を、ユーザーがパスワードセキュリティの質問に間違った答えを入力した時刻を追跡する <b>User</b> クラスの Active Directory 属性の名前に設定します。 <li><b>attributeMapFailedPasswordAnswerLockoutTime</b> を、アカウントがロックされている時間を追跡する <b>User</b> クラスの Active Directory 属性の名前に設定します。 </li></li></li></li></li></li></li></ul><blockquote><b>注意</b>: &nbsp;&nbsp;Active Directory に接続するために使用される Credential 情報が、<b>Domain Administrator</b> 特権(推奨されない) もしくは <b>Reset password</b> 特権のいずれかを持っていない限り、パスワードをリセットすることはできません。<b></b></blockquote><p>パスワード リセットをサポートするプロバイダー コンフィグレーションは、次のようになります。 </p><div><pre>&lt;add<br />&nbsp; name="MyADMembershipProvider"<br />&nbsp; type="System.Web.Security.ActiveDirectoryMembershipProvider, System.Web, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"<br />&nbsp; connectionStringName="ADConnectionString"<br />&nbsp; connectionUsername="dc\administrator" <br />&nbsp; connectionPassword="<a href="mailto:P@ssw0rd">P@ssw0rd</a>"<br />&nbsp; attributeMapUsername="sAMAccountName"<br />&nbsp; enablePasswordReset="true"<br />&nbsp; requiresQuestionAndAnswer="true"<br />&nbsp; attributeMapPasswordQuestion="passwordQuestion"<br />&nbsp; attributeMapPasswordAnswer="passwordAnswer"<br />&nbsp; attributeMapFailedPasswordAnswerCount="badPasswordAnswerCount" <br />&nbsp; attributeMapFailedPasswordAnswerTime="badPasswordAnswerTime"<br />&nbsp; attributeMapFailedPasswordAnswerLockoutTime=<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "badPasswordAnswerLockoutTime" <br />&nbsp; requiresUniqueEmail="true" /&gt;   </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;ユーザーが一意の電子メールIDを持っていることを確認するために、オプションの属性を<b>requiresUniqueEmail="true"</b> に設定する必要があります。</blockquote><li><b>PasswordRecoveryText</b> および <b>PasswordRecoveryURL</b> を<b>Login</b> 制御上に設定します。 URL を <b>PasswordRecovery</b> 制御を含むページに設定します。 <p>ユーザーがパスワードを忘れた場合は、 <b>Login</b> 制御上で忘れたパスワード リンクをクリックし、ユーザー名を入力することができます。 すると<b>PasswordRecovery</b> 制御はユーザーに既定の質問に答えるよう指示します。 ユーザーが正しい答えを送信すると、<b>ActiveDirectoryMembershipProvider</b> は、ユーザーのパスワードを、無作為に作成された適切な長さのパスワード値にリセットした後、新しいパスワードをユーザーの電子メール メッセージに送信します。 </p><blockquote><b>注意</b>: &nbsp;&nbsp;電子メールメッセージが正常に送信されるためには、アカウント作成時にユーザーが有効な電子メールアドレスを提供している必要があり、Machine.config ファイルの&lt;<b>system.net</b>&gt;  セクション内の&lt;<b>mailSettings</b>&gt;  構成が、適切なSMTPサーバの詳細を備えて適切に構成されていなければなりません。<b></b></blockquote></li></li></li>
+  </ol>
+  <h2>アカウント ロックアウト</h2>
+  <p>パスワード推測攻撃によるリスクを軽減するために、 <b>ActiveDirectoryMembershipProvider</b> はアカウントのロックアウトおよびアカウント ロックアウト期間をサポートします。 ただし、それは Active Directory からは独立して行われます｡ <b>ActiveDirectoryMembershipProvider</b> は指定した時間内に失敗したパスワード試行と失敗したパスワード入力試行回数を追跡し、構成されたしきい値をユーザーが超えた場合にはアカウントをロックアウトします。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>ActiveDirectoryMembershipProvider </b> がアカウントをロックしても、Active Directoryにはロックアウトされたように表示されません。 結果として、ユーザーは依然として Active Directory アカウントで Windows にログオンすることができますが、 <b>ActiveDirectoryMembershipProvider</b> を使用するアプリケーションを介してログオンすることはできません。<b></b></blockquote>
+  <p>アカウント ロック アウト ポリシーは、次の 2 つのプロバイダー属性により設定することができます。</p>
+  <ul>
+    <li>
+      <b>maxInvalidPasswordAttempts. </b>この属性は､プロバイダーがユーザーのアカウントをロックアウトする前に可能な、パスワード入力試行の失敗回数または誤った回答の入力回答数を定義します｡ 失敗回数がこの属性に定義された値と等しくなると、プロバイダーはそのユーザーのアカウントを「ロック アウトされた」と見なします。 初期値は 5 回です。 <li><b>passwordAttemptWindow</b> この属性は､プロバイダーがパスワード入力試行の失敗と誤った回答の入力回数を追跡する時間の長さを分単位で定義します｡ 初期値は 10 分です。 </li></li>
+  </ul>
+  <p>初期値を使用する場合､10 分以内に 5 回のログオン試行の失敗または 5 回の誤った回答の入力があると、プロバイダーはアカウントを「ロック アウトされた」と見なします。</p>
+  <h3>アカウント ロックの解除</h3>
+  <p>ロックされたアカウントを解除するには、  <b>MembershipUser</b> オブジェクト上で<b>UnlockUser</b> メソッドを呼び出すか、または <b>attributeMapFailedPasswordAnswerLockoutTime</b> 属性で指定された制限時間が経過するのを待つことができます。 指定した時間が経過すると、アカウントは自動的にロック解除され､再度ログオンできるようになります。</p>
+  <h2>コンフィギュレーション属性</h2>
+  <p><b>ActiveDirectoryMembershipProvider</b> は次の属性を持っており、オプションとして Web.config 構成で上書きすることができます。</p>
+  <p>
+    <b>表1: ActiveDirectoryMembershipProvider の属性と初期設定値</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>属性</th>
+          <th>既定値</th>
+          <th>説明</th>
+        </tr>
+        <tr>
+          <td>
+            <b>connectionProtection</b>
+          </td>
+          <td>
+            <b>Secure</b>
+          </td>
+          <td>ディレクトリへの接続を開く時に使用されるトランスポート層セキュリティのオプションを指定します。 この属性を <b>Secure</b> または <b>None</b>のいずれかに設定することができます。<b>Secure</b> に設定した場合、<b>ActiveDirectoryMembershipProvider</b> は SSL を使って Active Directory に接続しようとします。 SSL が失敗した場合､プロバイダーはサインアンドシール (署名捺印) を使用して 2 つ目の接続を試みます｡ 両方の試行に失敗すると、<b>ProviderException</b> 例外が生成されます。 <p>この属性は、プロセスの Credential 情報と明示的な Credential 情報の両方をサポートします｡</p></td>
+        </tr>
+        <tr>
+          <td>
+            <b>enablePasswordReset</b>
+          </td>
+          <td>
+            <b>true</b>
+          </td>
+          <td>プロバイダーで、ユーザーがパスワードをリセットすることを許可するかどうかを指定します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>enableSearchMethods</b>
+          </td>
+          <td>
+            <b>false</b>
+          </td>
+          <td>管理者が、プロバイダーのインスタンス上で検索志向メソッドを呼び出すことができるか否かを設定できるようになります。 </td>
+        </tr>
+        <tr>
+          <td>
+            <b>requiresQuestionAndAnswer</b>
+          </td>
+          <td>
+            <b>false</b>
+          </td>
+          <td>セキュリティの質問と答えを提供する必要があるか否か指定します｡</td>
+        </tr>
+        <tr>
+          <td>
+            <b>applicationName</b>
+          </td>
+          <td>
+            <b>/</b>
+          </td>
+          <td>メンバーシップ ロバイダーを使用しているアプリケーションの名前を指定します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>requiresUniqueEmail</b>
+          </td>
+          <td>
+            <b>false</b>
+          </td>
+          <td>アカウントを作成する際、ユーザーから一意のメールアドレスを要求するか否かを指定します。 </td>
+        </tr>
+        <tr>
+          <td>
+            <b>maxInvalidPasswordAttempts</b>
+          </td>
+          <td>
+            <b>5</b>
+          </td>
+          <td>ユーザーがロック アウトになるまでに可能なログオンの失敗回数を指定します｡</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordAttemptWindow</b>
+          </td>
+          <td>
+            <b>10</b>
+          </td>
+          <td>ユーザーがロック アウトされるまでに、ログオンを試行できる期間を分単位で指定します｡</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordAnswerAttemptLockout</b>
+            <br />
+            <b>Duration</b>
+          </td>
+          <td>
+            <b>30</b>
+          </td>
+          <td>無効なパスワード入力試行の最大回数を超えた後にユーザーがロック アウトされる時間の長さを指定します｡</td>
+        </tr>
+        <tr>
+          <td>
+            <b>minRequiredPasswordLength</b>
+          </td>
+          <td>
+            <b>7</b>
+          </td>
+          <td>パスワードの最小限文字数を指定します｡</td>
+        </tr>
+        <tr>
+          <td>
+            <b>minRequiredNonalphanumeric</b>
+            <br />
+            <b>Charaters</b>
+          </td>
+          <td>
+            <b>1</b>
+          </td>
+          <td>パスワードに含める非英数字の最小文字数を指定します｡</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordStrengthRegular</b>
+            <br />
+            <b>Expression</b>
+          </td>
+          <td>
+            <b>""</b>
+          </td>
+          <td>強固なパスワードを作成するために使用できる正規表現を指定します。 初期設定では､強固なパスワードは最低 1 文字以上の非英数文字を含む、最低 7 文字以上でなければいけません。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapUsername</b>
+          </td>
+          <td>
+            <b>userPrincipal</b>
+            <br />
+            <b>Name</b>
+          </td>
+          <td><b>MembershipUser</b> オブジェクト上のプロパティからActive Directory 内の属性へのマッピングを定義します。 この属性は、ユーザーが新規アカウントを作成するか、あるいは<b>CreateUserWizard</b> および <b>Login</b> 制御を介してログオンする際に、ユーザー名がどのように供給されなければならないかを定義します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapEmail</b>
+          </td>
+          <td>
+            <b>mail</b>
+          </td>
+          <td><b>MembershipUser</b> オブジェクト上のプロパティからActive Directory 内の属性へのマッピングを定義します。 この属性には､ユーザーのメールアドレスが格納されます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapPasswordQuestion</b>
+          </td>
+          <td>&nbsp;</td>
+          <td><b>MembershipUser</b> オブジェクト上のプロパティからActive Directory 内の属性へのマッピングを定義します。 この属性には､パスワードをリセットするためにユーザーが正しく答えなければならない質問が格納されます。 この属性は、アカウント作成時に  <b>CreateUserWizard</b> 制御によりスローされます。 </td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapPasswordAnswer</b>
+          </td>
+          <td>&nbsp;</td>
+          <td><b>MembershipUser</b> オブジェクト上のプロパティからActive Directory 内の属性へのマッピングを定義します。 この属性には､パスワード セキュリティの質問への答えが格納されます｡ この属性は、アカウント作成時に  <b>CreateUserWizard</b> 制御によりスローされます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapFailedPassword</b>
+            <br />
+            <b>AnswerCount</b>
+          </td>
+          <td>&nbsp;</td>
+          <td><b>MembershipUser</b> オブジェクト上のプロパティからActive Directory 内の属性へのマッピングを定義します。 この属性には､アカウントがロックアウトされるまでにユーザーが間違ったパスワードを提供できる最大回数が格納されます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapFailedPassword</b>
+            <br />
+            <b>AnswerTime</b>
+          </td>
+          <td>&nbsp;</td>
+          <td><b>MembershipUser</b> オブジェクト上のプロパティからActive Directory 内の属性へのマッピングを定義します。 この属性には､Active Directory がパスワードの答えを追跡する時間が分単位で格納されます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapFailedPassword</b>
+            <br />
+            <b>AnswerLockoutTime</b>
+          </td>
+          <td>&nbsp;</td>
+          <td><b>MembershipUser</b> オブジェクト上のプロパティからActive Directory 内の属性へのマッピングを定義します。 この属性には､ユーザーが連続して誤った回答を提供した場合にアカウントがロック アウトされる長さが分単位で格納されます｡</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

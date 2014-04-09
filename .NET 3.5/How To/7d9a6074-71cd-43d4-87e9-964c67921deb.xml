@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1940491257" Content_Hash="747605693">
+  <Metadata>
+    <Id>7d9a6074-71cd-43d4-87e9-964c67921deb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内に Client-side Validation バイパスバグがないかどうかテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<p>
+    <p>
+      <b>
+        <span>
+        </span>
+      </b>
+    </p>
+    <h1>
+      <p>
+        <b>
+          <span>
+          </span>
+        </b>
+      </p>
+      <span>要約</span>
+    </h1>
+    <p>Web アプリケーションは、SQL インジェクションやクロスサイト スクリプティングなどのインジェクション バグをチェックするために、クライアントの入力を検証する必要があります。<span>&nbsp; </span>多くのウェブ アプリケーションは、ウェブ ページとともにクライアントに 送信されるクライアント側スクリプトに依存します。 アプリケーションは、ページがサーバに送信される前に、クライアント側でWebフォームに入力されたデータを適切な形式かどうかを確認するために、これらのスクリプトを使用します。こうして、電子メールアドレス、電話番号、郵便番号などの単純な書式チェックのためのラウンドトリップを回避します。<span>&nbsp; </span><span>&nbsp;</span>クライアント側スクリプト検証バイパス攻撃中に、攻撃者は悪意のある入力をチェックするクライアント側スクリプトを変更または無効にすることで、入力を送信し、アプリケーションに対する攻撃を実行します。</p>
+    <p>ASP.NET 内のclient-side validation のバイパス バグをテストするため、以下の手順に従うことをお勧めします。</p>
+    <ul>
+      <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テストと調査を開始する<li>手順 4: 追加テストを実行する</li></li></li></li>
+    </ul>
+    <p>&nbsp;</p>
+    <h1>
+      <span>ステップ1：攻撃シナリオを理解する</span>
+    </h1>
+    <p>まず、攻撃者が Client-side Validation バイパスバグをどのようにエクスプロイトするかを理解する必要があります。<span>&nbsp; </span>クライアント側スクリプトをバイパスする2つの一般的な方法は：</p>
+    <ul>
+      <li>リクエストの送信前にクライアント側スクリプトを無効にする <li>HTTP プロキシを使用して要求を送信した後に検証データを変更する</li></li>
+    </ul>
+    <p>
+      <b>
+        <i>
+          <span>
+          </span>
+        </i>
+      </b>
+    </p>
+    <h2>
+      <span>
+        <em>要求の送信前にクライアント側スクリプトを無効にする</em>
+      </span>
+    </h2>
+    <p>このシナリオでは、攻撃者は、アプリケーション サーバに対する実際の要求を行う前に JavaScript が無効になるようにブラウザのオプションを設定することで、クライアント側スクリプトを無効にします。 <span>&nbsp;</span>こうすることで、攻撃者はあらゆる文字列をアプリケーションに送信することができます。</p>
+    <p>詳細: </p>
+    <ol>
+      <li>攻撃者はウェブ フォーム等、入力フィールドを含むウェブ ページを要求します。 アプリケーションはクライアント側入力検証スクリプトを含むウェブ ページを送信します。<li>攻撃者はウェブ ページを受信し、ブラウザの JavaScript を無効にすることで client-side validation を無効にします。<li>攻撃者は入力フィールドに悪意のあるデータを入力して、ウェブ フォームを送信します。</li></li></li>
+    </ol>
+    <p>ただし、AJAX ベースのアプリケーションを含む多くのアプリケーションが JavaScript の機能に依存していることに注意してください。そのため、攻撃者は、JavaScript を無効にした状態でフォームを送信できない場合があります。 この場合、攻撃者は以下の攻撃を実行する必要があります。</p>
+    <h2>
+      <em>HTTP プロキシを使用して要求を送信した後に検証データを変更する</em>
+    </h2>
+    <p>このシナリオでは、攻撃者はクライアント側スクリプトを変更または無効にせず、 Burp プロキシや WebScarab 等の HTTP パケット傍受プロキシを経由してブラウザをプロキシします。 次に、攻撃者は、整形式入力データをターゲットの入力フィールドに入力し、要求を送信します。 次いで、攻撃者は、プロキシを使用して要求を傍受し、整形式入力を悪意のある文字列に変更します。</p>
+    <p>詳細: </p>
+    <ol>
+      <li>攻撃者はウェブ フォーム等、入力フィールドを含むウェブ ページを要求します。 アプリケーションがクライアント側入力検証スクリプトを含むウェブ ページを送信します。<li>攻撃者は HTTP プロキシを経由してブラウザをプロキシし、 HTTP パケットの傍受を有効にします。<li>攻撃者は整形式データ (許容データ) を入力フィールドに入力し、ウェブ フォームを送信します。 入力が有効なので、 ウェブ ページがアプリケーションに要求を行い、要求が  HTTP プロキシによって傍受されます。<li>HTTP プロキシで、攻撃者が整形式データを悪意のあるデータに置き換え、パケットをアプリケーションに転送します。</li></li></li></li>
+    </ol>
+    <p>&nbsp;</p>
+    <h1>
+      <span>手順 2: 原因と対策を分析する</span>
+    </h1>
+    <p>Client-side Validation バイパス バグをテストする 2 番目の手順は、このバグの原因とその保護方法の分析です。</p>
+    <p>この脆弱性は、アプリケーションがセキュリティ特有のチェックに際してクライアント側チェックだけに依存することによって生じます。 <span>&nbsp;</span>ASP.NET アプリケーションは、クライアントとサーバ間のラウンドトリップ数を軽減するために、クライアント側の JavaScript コードを使用することがあります。<span>&nbsp; </span>たとえば、次のページでは、ウェブ フォームの送信前に電子メール アドレスが有効か否かのチェックが行われます。 クライアントが <i>ボタン1</i> 送信ボタンをクリックすると、次の ASP ページによって <i>validateForm()</i> が呼び出され、フォームを送信する前に、有効な電子メール アドレスをチェックします。<i></i></p>
+    <p>
+      <i>C＃ページに必要なコード</i>
+    </p>
+ <pre>
+      <span>protected void Page_Load(object sender, EventArgs e)<br />{<br />&nbsp; Button1.Attributes.Add("onClick",<br />&nbsp;&nbsp;&nbsp; "return validateForm(document.forms[0]['txbUserName'].value);");<br />. . . etc . . . <br />&nbsp;</span>
+    </pre>
+    <p>
+      <i>ASPX ページのコード</i>
+      <span>&nbsp;</span>
+    </p>
+ <pre>
+      <span>&lt;%@ Page Language="C#" AutoEventWireup="true" CodeFile="login.aspx.cs" Inherits="login" %&gt;<br />&nbsp;<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;<br />&nbsp;<br />&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;<br />&lt;head runat="server"&gt;<br />&nbsp; &lt;title&gt;Untitled Page&lt;/title&gt;<br />&nbsp;<br />&lt;script&gt;<br />function validateForm(emailStr)<br />{<br />	// checks if the e-mail address is valid<br />&nbsp; 	var emailPat = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$";<br />	var matchArray = emailStr.match(emailPat);<br />&nbsp; 	if (matchArray == null) {<br />		alert("Incorrect email address format");<br />&nbsp;&nbsp;&nbsp; 		return false;<br />&nbsp; 	}<br />&nbsp; 	document.forms[0].submit();<br />}<br />&lt;/script&gt;<br />&lt;/head&gt;<br />&nbsp;<br />&lt;body style="font-weight: 700"&gt;<br />&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp; Username:<br />&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="txbUserName" runat="server"&gt;&lt;/asp:TextBox&gt;&lt;br/&gt;<br />&nbsp;&nbsp;&nbsp; Password:<br />&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="txbPassword" TextMode="Password" runat="server"&gt;&lt;/asp:TextBox&gt;&lt;br/&gt;<br />&nbsp; &lt;/div&gt;<br />&lt;asp:Button ID="Button1" runat="server" onclick="Button1_Click" Text="Login" Width="195px" /&gt;<br />&nbsp; &lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;</span>
+    </pre>
+    <p>
+      <span>
+      </span>
+    </p>
+    <p><i>Page_Load </i> 内の C# コードによって client-side validation がどのように設定されるかに注目してください。 クライアントがフォームを送信すると、JavaScript 関数の <i>validateForm()</i> が実行され、電子メール アドレスの形式が正しくない場合はクライアントにアラートします。 これにより、開発者はサーバーとのデータの往復を避けながら、有効な電子メール アドレス書式を確認できます。</p>
+    <p>開発者がこの種のチェックに依存している場合には、アプリケーション セキュリティ攻撃者 (SQL インジェクション、クロスサイト スクリプティング、コマンド インジェクションなどの,アプリケーションに悪い意図を持った入力を送信する攻撃)に対して保護するときに問題が発生します。<span>&nbsp; </span>攻撃者は、アプリケーションを攻撃するために上記のようなクライアント側チェックを簡単にバイパスすることができます。</p>
+    <p>クライアント側バイパス バグを防ぐため、ASP.NET アプリケーションはサーバ側で適切な検証を実行しなければいけません。</p>
+ <pre>
+      <span>private bool isValidEmail(string emailStr)<br />{<br />	Regex validEmail = new Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$");<br />&nbsp; 	if (!validEmail.IsMatch(emailStr))<br />&nbsp; 	{<br />&nbsp;&nbsp;&nbsp; 		return false;<br />&nbsp; 	}<br />	&nbsp; return true;<br />}<br />&nbsp;<br />protected void Button1_Click(object sender, EventArgs e)<br />{<br />&nbsp;<br />	if (!isValidEmail(txbUserName.Text))<br />&nbsp; 	{<br />&nbsp;&nbsp;&nbsp; 		Response.Write("Incorrect email address format");<br />&nbsp;&nbsp;&nbsp; 		return;<br />&nbsp; 	}<br />&nbsp; <br />	// continue with authentication process...<br />}</span>
+      <span>
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      </span>
+    </pre>
+    <p>上記のコードは電子メール検証関数を <i>Button1_Click</i> 内で呼び出すもので、この関数はクライアントがフォーム ボタンをクリックするとサーバで実行されます。<i></i> このリクエストでは、まず電子メールが正しい形式かどうかが確認され、形式が正しくない場合は認証プロセスが終了します。</p>
+    <p>クライアント側バイパス バグを完全に防ぐためには、 ASP.NET  の開発者は ASP.NET 制御に組み込まれている検証ルーチンを活用して、クライアント側とサーバ側の両方で実行されるルーチンからバイパス攻撃を防ぎます。 MSDN によれば：</p>
+    <p>「検証は、すでにクライアントで実行された場合でもサーバで実行されます。 これにより、検証ステータスをサーバ コードで決定することが可能になり、 client-side validation をバイパスするユーザーにセキュリティを提供します。」</p>
+    <p>&nbsp;</p>
+    <h1>
+      <span>ステップ3：テストと探索の開始</span>
+    </h1>
+    <p>client-side validation のバイパス バグを検出する上での次の手順は、アプリケーション内にあるこれらのバイパス バグを検出するため、攻撃者の視点に立って基本的なテスト ケースを実行することです。</p>
+    <h2>
+      <em>インターネット ブラウザーでの JavaScript の無効化によるテスト</em>
+    </h2>
+    <p>以下の手順に従って、JavaScript を無効にして Client-side Validation バイパスをテストします。</p>
+    <ol>
+      <li>ブラウザを開いて、 client-side validation スクリプトを含む ウェブ ページに移動します。<li>ブラウザー オプションを開いて、セキュリティ オプションに移動します。<li>JavaScript を無効にして [OK] をクリックします。<li>悪意のあるデータをウェブ フォームで送信します。 </li></li></li></li>
+    </ol>
+    <p>予想される結果: アプリケーションで、適切な Server-side Validation が実行され、悪意のあるデータが拒否されます。</p>
+    <h2>
+      <em>プロキシを使用した HTTP リクエストの傍受によるテスト</em>
+    </h2>
+    <p>以下の手順を実行して、ウェブ ページを変更することで client-side validation をバイパスします。</p>
+    <ol>
+      <li>ブラウザを開いて、 client-side validation スクリプトを含む ウェブ ページに移動します。<li>Burp スイートをダウンロードし実行します(<a href="http://portswigger.net/suite/">http://portswigger.net/suite/</a>)。<li>Proxy-&gt;Intercept タブで、プロキシを “intercept is on” に設定します。<li>ブラウザで、Burp プロキシを使用するように接続オプションを設定します。<li>ウェブ ページに有効な電子メール アドレス等の許容値を入力します。<li>ウェブ ページを送信します。<li>Burp プロキシで、 許可された値を不正形式のものに変更することにより、傍受した要求を変更します（図1および図2を参照）。要求を転送します。</li></li></li></li></li></li></li>
+    </ol>
+    <p>予想される結果: アプリケーションで、適切な Server-side Validation が実行され、悪意のあるデータが拒否されます。</p>
+    <p>&lt;&lt;図 1 をここに挿入します。</p>
+    <p>
+      <span>
+        <strong>図 1 – 元の要求を示すBurp プロキシ(有効な電子メール値を持つ)</strong>
+      </span>
+    </p>
+    <p>&lt;&lt;図&nbsp;2 をここに挿入&gt;&gt;</p>
+    <p>
+      <span>
+        <strong>図 2 – 要求変更後のBurp プロキシ (不正書式の電子メール値を持つ)</strong>
+      </span>
+    </p>
+    <p>
+      <span>
+        <strong>
+        </strong>
+      </span>&nbsp;</p>
+    <span>
+      <h1>
+        <span>ステップ 4: 追加テストの実行</span>
+      </h1>
+      <p>Client-side Validation バグをテストする最後の手順は、テストが必要な追加シナリオの理解です。</p>
+      <h2>
+        <em>危険性が高い AJAX アプリケーション</em>
+      </h2>
+      <p>AJAX (非同期 JavaScript と XML) アプリケーションは、クライアント側スクリプトに大きく依存しています。 <span>&nbsp;</span>AJAX アプリケーションにこのバグがないかどうかテストする場合、 JavaScript を無効にするとブラウザが要求をできなくなるため、 JavaScript を無効にすることはできません。 このため、プロキシの使用がこのテストでは必須です。 </p>
+      <h2>
+        <em>追加フレームワークの検討</em>
+      </h2>
+      <p>ウェブ開発者は、 Flash/Flex 等の他のインターネット フレームワークに ASP.NET アプリケーションを統合することもあります。 <span>&nbsp;</span>このようなフレームワークは、データ検証オプションを備えた独自のクライアント側フォームを提供している場合があります。 開発者は Flex 等のウェブ フォーム バリデータに依存してクライアント側だけで入力の検証を行い、サーバ側では行わない可能性があるため、必ず Flash パラメータの脆弱性をテストしてください。</p>
+      <p>&nbsp;</p>
+      <h1>
+        <span>結果</span>
+      </h1>
+      <p>Client-side Validation バイパス バグにより、攻撃者は、アプリケーションで想定されていない誤った形式のデータを送信して、XSS、SQL インジェクションなどの入力に関連した攻撃を実行することができます。 <span>&nbsp;</span>アプリケーションがクライアント側スクリプトだけに依存してセキュリティ チェックを実行し、こうしたチェックがサーバに実装されていない場合、アプリケーションは攻撃を受けやすくなります。 テストでは、テスト対象アプリケーションの性質（伝統的、AJAX、Flash など）に応じて、JavaScript を無効にしたり、HTTP プロキシを使用して行うことができます。<span>&nbsp; </span></p>
+      <p />
+    </span>&nbsp;</p>
+  <p>
+    <span>
+      <strong>
+      </strong>
+    </span>&nbsp;</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1340936895" Content_Hash="1449615154">
+  <Metadata>
+    <Id>48ebd4c2-b51d-47b6-8c4c-f7bc37edfb1f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>使用されなくなった機微データがメモリから消去されている</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>暗号化鍵や個人情報といった機微データが、必要な最低限の時間だけメモリに保持されていることを確認します。 スワップ ファイルにデータが漏えいされないよう、使用されなくなるとすぐにデータがメモリから削除され、そのトレースがすべて削除されることを確認します。</p>
+  <h1>理由</h1>
+  <p>厳密に必要な時間以上にメモリに残っている機微データは、ディスクにスワップされる高いリスクがあります。 これにより、アプリケーションの終了後もデータの断片が利用可能な状態のまま残ってしまう可能性があります。 このようなデータは、ディスク、一時ファイル、またはスワップ ファイルのコンテンツを検査することで収集される場合があります。</p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションで機微データが処理される場合、以下の手順を使用して、メモリの機微なデータが適切に処理されていることを確認します。 </p>
+  <ol>
+    <li>
+      <p>
+        <strong>機密情報を識別します。 </strong>機微データとは、秘密に保たれており、認可されている当事者にのみ開示するべき情報のことです。 機微データの典型的な例として、以下に限定されませんが、顧客名、政府発行のID番号、クレジット カードまたその他の財務情報、パスワード、および私有鍵などが含まれます｡ ヘルス ケアや銀行など一部の業界では、機密情報を定義する規制基準を設けています。 アプリケーションに規制要件が適用される場合、規制要件に従って機微データを識別します。 機微データは次のように定義されます:</p>
+      <ul>
+        <li>Personally Identifiable Informationが含まれるか、またはPersonally Identifiable Informationの導出に使用できる、他者と共有すべきでない情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>機微データを処理するすべてのコードを確認します。 </strong>アプリケーションのコード ベースを調べます。 機微データを処理するすべての機能を確認します。 一般的な箇所には以下が含まれます。</p>
+        <ul>
+          <li>認証機構 <li>ユーザー管理 <li>機微な性質のすべてのユーザー･トランザクション</li></li></li>
+        </ul>
+        <li>
+          <p>
+            <strong>機微データが可変オブジェクトに格納されていることを確認します。 </strong>機微データの識別された断片はそれぞれ、文字配列のような変更可能なオブジェクトに保存しなければなりません。 これにより、ガーベジ コレクタを使用することなく、メモリで機微データを上書きできます。 機微データが、割り当てられた後でメモリ領域を変更できない、.NET文字列のような変更不可なオブジェクトに保存されていないか確認してください｡ 機微データが含まれているメモリが、使用後にできる限り早く上書きされることを確認します。 絶対に必要な場合を除き、機微データが関数､クラスまたはオブジェクト境界の間を通過しないか確認してください。 下記の例で、<strong>Byte</strong>と<strong>byte</strong>の違いに留意してください。.NETは<strong>Byte</strong>がすでに占有しているヒープで、同一のメモリ ロケーションを上書きする保証がありません。しかしながら､<strong>byte</strong> 変数または <strong>byte&amp;#91; &amp;#93; 内のエレメントを上書きする場合は、 </strong>実際のデータを含む同一のメモリ ロケーションを上書きしたことになります。 </p>変更可能なオブジェクトの例:<ul><li>char <li>char&amp;#91;&amp;#93;<li>byte <li>byte&amp;#91;&amp;#93;</li></li></li></li></ul>変更不可なオブジェクトの例:<ul><li>文字列<li>Byte <li>Byte&amp;#91;&amp;#93;<li>Char</li></li></li></li></ul><li><p><strong>機微データのすべてのインスタンスが消去されていることを確認します。 </strong>機微データが格納されていたすべてのメモリ ロケーションが、データの使用後に消去または上書きされていることを確認します。 ポインターを NULL に設定しても、メモリは消去または上書きされないため、新しい値を割り当てる必要があります。 文字配列の場合、各 char にスペースやゼロなどの新しい値を設定することで、メモリに格納されている値が上書きされます。 以下に、機微データを不適切に削除した場合の例を示します。</p><pre>char&amp;#91;&amp;#93; ssn = GetSocialSecurity();<br />...<br />//insufficient for removing sensitive data from memory<br />ssn = null;</pre><p>以下に、機微データを適切に削除した場合の例を示します。</p><pre>char&amp;#91;&amp;#93; ssn = GetSocialSecurity();<br />...<br />//proper clearing of character array to remove sensitive data from memoryfor(int i=0; i&lt;ssn.Length; i&amp;#43;&amp;#43;)<br />&amp;#123;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; ssn&amp;#91;i&amp;#93; = ' ';<br />&amp;#125;<br />ssn = null;</pre></li></li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードでは、パスワードを使用しています。 文字列へのポインターが取り外されガーベジコレクションが呼ばれますが、.NETはデータが消去されることを保証しません。</p>
+  <p />
+ <pre>string pass = GetPassword();<br />...<br />pass = null;GC.Collect();</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>.NET データ型の詳細については、<a href="http://msdn.microsoft.com/en-us/magazine/cc301569.aspx">.NET: Type Fundamentals</a> を参照してください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/23c21386-b64a-4872-8727-714977ba84a4">Guideline: Clear Sensitive Data from Memory when No Longer Used </a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-723620587" Content_Hash="-631583294">
+  <Metadata>
+    <Id>68d423c7-e013-4ccc-8fe1-a210083c4c3d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASMXクライアントをサポートする必要がある場合は、BasicHttpBinding を使用します。</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ASMX クライアント ベースを有している場合、サービスにおいて basicHttpBinding を使用することを検討してください。&nbsp; </p>
+  <h1>理由</h1>
+  <p>basicHttpbinding は、既存のレガシー クライアントにサポートを提供する柔軟な方法です。なぜなら、それは既存のレガシー クライアントの WCF へのアップグレードを必要としないためです。 さらに、basicHttpbinding は幅広い認証スキームを提供します。 トランスポート セキュリティは、ベーシック、ダイジェスト、windows および証明書認証に対応します。 メッセージ セキュリティは、ユーザー名および証明書認証に対応します。</p>
+  <h1>状況</h1>
+  <p>ASMX クライアント ベースを有している場合、サービスにおいて basicHttpBinding を使用することを検討してください。なぜなら、それは&nbsp; WCF およびレガシー&nbsp;クライアントの両方で使用可能であるためです。</p>
+  <h1>対策</h1>
+  <p>basicHttpBinding を使用するには、basicHttpBinding を使用するためのバインディング構成を使用してエンドポイントを作成します。 セキュリティ モードは、デフォルトでオフになっています。 セキュリティおよび認証を有効化するには、バインディング構成を作成してそれを使用するようにエンドポイントを構成します。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="32928544" Content_Hash="2014112758">
+  <Metadata>
+    <Id>3d7d45c7-5ec0-4531-b989-802d2678210c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切なアルゴリズムと適切な鍵サイズを使用する</Title>
+    <Category>暗号化</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>アプリケーションによって使用されるアルゴリズムとその目的を調査し、正しいアルゴリズムと正しい鍵サイズが使用されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>暗号化が適切に使用され、正しいアルゴリズムが正しいジョブに対して使用される場合にのみ、暗号化によって真のセキュリティが提供されます。 アルゴリズムの強度も重要です。&nbsp; 鍵サイズが大きいとセキュリティが強化されますが、パフォーマンスは低下します。 長時間にわたってデータ ストアに保有される永続化データに対しては、より強力な暗号化が最も重要となります。</p>
+  <h1>状況</h1>
+  <p>セキュリティを提供するために暗号化をアプリケーションで使用する場合は、使用されるアルゴリズムと鍵サイズ、および使用方法を調査してください。</p>
+  <h1>対策</h1>
+  <p />処理内容にふさわしい適切なアルゴリズムを必ず使用し、十分なセキュリティを保証する鍵サイズを必ず使用することが重要です。 鍵サイズが大きくなれば一般的にセキュリティは増加します。 次のリストは、主要なアルゴリズムと、それぞれで使用される鍵サイズをまとめたものです。<ul><li>DES (データ暗号化標準規格) 64 ビット鍵 (8 バイト)<li>TripleDES 128 ビット鍵または 192 ビット鍵 (16 または 24 バイト) <li>Rijndael 128-256 ビット鍵 (16 ～ 32 バイト) <li>RSA 384-16,384 ビット鍵 (48 ～ 2,048 バイト) </li></li></li></li></ul><p>大規模データ暗号化に対しては、TripleDES 対称暗号化アルゴリズム (Triple Data Encryption Algorithm または略して TDEA とも呼ばれる) を使用してください。大規模データのより低速でより強力な暗号化に対しては、高度暗号化標準 (AES) として知られる Rijndael を使用してください。 NIST 推奨に基づき、高度な機微データには 192 ～ 256 ビットの AES 鍵が必要です。&nbsp;&nbsp;短期間保管されるデータの暗号化には、DESのように速いが強度の低いアルゴリズムを検討してください。 デジタル署名には、RSA (Rivest、Shamir、Adleman) またはDSA (Digital Signature Algorithm) を使用します。 NIST ガイドラインでは、15360 ビットの RSA 鍵が 256 ビットの対称鍵と強度的に等しいものであると示しています。 ハッシュ化に対しては、Secure Hash Algorithm (SHA) 1.0 を使用してください。鍵付きハッシュに対しては、Hash-Based Message Authentication Code (HMAC) SHA1.0 を使用してください。</p><h1>その他のリソース</h1><ul><li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」を参照してください。<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li></ul><h1>&nbsp;</h1><hr /><p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-53065934" Content_Hash="-9495274">
+  <Metadata>
+    <Id>3f0ca71b-fd6a-448c-a4c2-fefce1e595ae</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内に信頼されていないデータのデシリアライズ バグがないかどうかテストする方法</Title>
+    <Category>シリアル化</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>要約</span>
+  </h1>
+  <p>データのシリアル化およびデシリアライズを使用する ASP.NET アプリケーションは、信頼されていないデータのバグのデシリアライズに対して脆弱な場合があります。<span>&nbsp; </span>このバグをエクスプロイトして、アプリケーションがデータをデシリアライズするときに、悪意のあるデータ ストリームまでデシリアライズするように、攻撃者はデータを改ざんします。<span>&nbsp;&nbsp; </span>攻撃者は、悪意のあるシリアル化データを使用して、クライアント側スクリプトの挿入、DoS 攻撃、またはターゲット アプリケーションの論理攻撃を実行できます。</p>
+  <p>次の手順を実行して、ASP.NET 内で信頼されていないデータ バグの逆シリアル化が生じていないかテストしてください。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する</li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 3: 攻撃シナリオを理解する</span>
+  </h1>
+  <p>ASP.NET でデシリアライズのバグをテストする方法を学習する最初のステップは、攻撃シナリオの骨格を理解することです。<span>&nbsp; </span>攻撃シナリオとしては、以下のものがあります。ただし、これらに限られません。</p>
+  <ul>
+    <li>クライアント側スクリプトの挿入 <li>DoS 攻撃<li>論理攻撃 <br /></li></li></li>
+  </ul>
+  <p>信頼されていないデータの逆シリアル化攻撃において、攻撃者は、アプリケーションがデータの逆シリアル化を開始したときに予期しない動作をするように、シリアル化されたデータの改ざんや悪意のあるシリアル化データの送信を行います。 <span>&nbsp;</span></p>
+  <p>詳細: </p>
+  <ol>
+    <li>攻撃者は、アプリケーションがシリアル化されたデータを動的に、またはパーマネント ストアから入力するアプリケーションの機能を見つけ出します。<li>アプリケーションが動的にシリアル化したデータを入力する場合、攻撃者は悪意のあるシリアル化したデータを入力します。<span>&nbsp;&nbsp;&nbsp; </span>アプリケーションで、ファイルやデータベースといった永続的なストアからシリアル化データが入力される場合、攻撃者はそのストアを改ざんして、悪意のあるシリアル化データを書き込みます。<li>攻撃者は、アプリケーションが悪意のあるデータを非シリアル化する際の反応を待ちます。 </li></li></li>
+  </ol>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h3>
+    <span>
+      <em>シナリオ 1: クライアント側スクリプトの挿入</em>
+    </span>
+  </h3>
+  <p>データ シリアル化の反対である、データのデシリアライズは、一連のバイトを C# または VB オブジェクト (使用中の言語に応じて) に抽出する ASP.NET アプリケーションに使用されます。<span>&nbsp; </span><span>&nbsp;&nbsp;</span>たとえば、次のアプリケーションは、サーバ側ファイルに格納されているシリアル化された JSON データを使用して ASP.NET 応答を生成します。</p>
+ <pre>public partial class deserialize : System.Web.UI.Page<br />{<br />&nbsp;&nbsp;&nbsp; [Serializable]<br />&nbsp;&nbsp;&nbsp; public class Address<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string Street;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string City;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string State;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string Zip;<br />&nbsp;<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;<br />&nbsp;&nbsp;&nbsp; [Serializable]<br />&nbsp;&nbsp;&nbsp; public class Customer<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public string Name;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public DateTime Entered = DateTime.Now;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public List&lt;Address&gt; Addresses = new List&lt;Address&gt;();<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;<br />&nbsp;&nbsp;&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; StreamReader sr = new StreamReader(Server.MapPath("data.txt"));<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MemoryStream ms = new&nbsp;MemoryStream(Encoding.Unicode.GetBytes(sr.ReadToEnd()));<br />&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(Customer));<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Customer person = ser.ReadObject(ms) as Customer;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ms.Close();<br />&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write(person.Name);<br />&nbsp;<br />&nbsp;&nbsp;&nbsp; }<br />}<br />&nbsp;</pre>
+  <p>次のデータを含む <i>data.txt </i>：</p>
+ <pre>{"Addresses":<br />[{"City":"Seatle","State":"WA","Street":"123 Wall St.","Zip":"98101"},<br />{"City":"Boston","State":"MA","Street":"33 St. Paul St","Zip":"02109"}],<br />"Entered":"\/Date(1191992400000-0500)\/",<br />"Name":"John Smith"}<span>&nbsp;</span></pre>
+  <p>次の出力を生成します:<span>&nbsp; </span><span><strong>John Smith (ジョン・スミス)</strong></span></p>
+  <p>この攻撃シナリオを実行するにあたって、攻撃者はシリアル化されたデータを改変することで以下のクライアント側スクリプトを追加することができます。</p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>{"Addresses": <br />[{"City":"Seatle","State":"WA","Street":"123 Wall St.","Zip":"98101"}, <br />{"City":"Boston","State":"MA","Street":"33 St. Paul St","Zip":"02109"}], <br />"Entered":"\/Date(1191992400000-0500)\/", <br />"Name":"&lt;<strong>script&gt;alert('exploiting deserialization')&lt;/script&gt;"}</strong><br /></span>
+  </pre>
+  <p>この結果、ブラウザはクライアント側のスクリプトがインジェクトされたことを確認するアラート ボックスを表示します。<span>&nbsp; </span>上記の要求をサービスするために使用される信頼されていないデータ ソースを修正できる攻撃者は、すべてのクライアントに対し表示されるクライアント側のスクリプトをインジェクトできる可能性があります。<span>&nbsp;&nbsp; </span>この攻撃シナリオは、攻撃者がデータ ソースにクライアント側スクリプトをインジェクトするストアド クロスサイト スクリプティング (XSS) と類似します。</p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 2：DoS 攻撃</em>
+    </span>
+  </h2>
+  <p>攻撃者は、ASP.NET アプリケーションをクラッシュさせ、またはアプリケーションをユーザーのサービスを適切に処理できない状態にすることで、アプリケーションに対してDoS 攻撃を試みる可能性もあります。</p>
+ <pre>{"Addresses": <br />[{"City":"Seatle","State":"WA","Street":"123 Wall St.","Zip":"98101"}, <br />{"City":"Boston","State":"MA","Street":"33 St. Paul St","Zip":"02109"}], <br />"Entered":"\/Date(1191992400000-0500)\/",<br />"Name<strong>":"}]}})} </strong></pre>
+  <p>ここで攻撃者は、最終的にはアプリケーション スレッドを終了させる可能性のある未処理の例外をもたらすよう試みて、アプリケーションに解析エラーを引き起こそうとします。<span>&nbsp; </span>さらに、攻撃者は、過剰な反復レベル数を追加することで反復エレメントをエクスプロイトしたり、または過剰な配列エレメント数を追加することで配列エレメントをエクスプロイトしたりする可能性があります。<span>&nbsp;&nbsp; </span>たとえば、攻撃者は、現在の例を使用して、<i>アドレス</i> 配列におびただしい数の配列エレメントを追加する可能性があります。<span></span></p>
+ <pre>
+    <span>{"Addresses": <br /><strong>[{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}{"City":"a","State":"b","Street":"c","Zip":"d"}<br />{"City":"a","State":"b","Street":"c","Zip":"d"}</strong><br />{"City":"Seatle","State":"WA","Street":"123 Wall St.","Zip":"98101"}, <br />{"City":"Boston","State":"MA","Street":"33 St. Paul St","Zip":"02109"}],<br />"Entered":"\/Date(1191992400000-0500)\/",<br />"Name":"John Smith"}</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+  <h2>
+    <span>
+      <em>シナリオ 3：ロジックを狙った攻撃</em>
+    </span>
+  </h2>
+  <p>最後のシナリオは、アプリケーションに対するロジックを狙った攻撃に関するもので、攻撃者によって改変されたデータによって、アプリケーションに予期しない実行パスをたどらせたり、攻撃者から与えられた追加コードを実行させたりすることで、アプリケーションに異なる動作をさせるものです。 <span>&nbsp;&nbsp;</span></p>
+  <p>たとえば、アプリケーションは次のコードを動的に評価し、アクセス レベルが常に 2 であることを想定します。</p>
+ <pre>{"username": jsmith<br />"password": I3483y0824nmnNJKBQSDVhvhv38u902hf08h0esubfe9f7w7gvb9<br />"Access-Level": 2}</pre>
+  <p>
+    <span>
+      <span>
+      </span>
+    </span>
+  </p>
+  <p>ところが、攻撃者は、シリアル化時に使用されるデータ ソースを改ざんすることでアクセス レベルを 1 に変更することができます。</p>
+ <pre>{"username": jsmith<br />"password": I3483y0824nmnNJKBQSDVhvhv38u902hf08h0esubfe9f7w7gvb9<br />"<strong>Access-Level": 1</strong>}<span>&nbsp;</span></pre>
+  <p>その結果、アプリケーションが攻撃者の特権に関して不正確な想定を行い、アプリケーションの重要な部分へのアクセス権を攻撃者に付与する可能性があります。</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 2: 原因と対策を分析する</span>
+  </h1>
+  <p>次に、信頼されていないデータの非シリアル化攻撃の原因と、その保護方法を分析する必要があります。</p>
+  <h2>
+    <span>
+      <em>信頼されないシリアル化データを受け取る</em>
+    </span>
+  </h2>
+  <p>この攻撃は、攻撃者による改ざん防止のためにアプリケーションが信頼されていないデータの完全性を検証せず、その信頼されていないデータをデシリアライズルーチンへの入力として受け入れることで可能になります。<span>&nbsp;&nbsp; </span>結果として、攻撃者はアプリケーションがデシリアライズするために悪意のあるデータを送信できます。<span>&nbsp; </span>軽減策としては、シリアル化されたメッセージに暗号化チェックサムを追加することでシリアル化データのタンパリングを検出する方法が考えられます。</p>
+  <h2>
+    <span>
+      <em>セキュアなチャンネルを使用する</em>
+    </span>
+  </h2>
+  <p>これに類似したシリアル データの暗号化フレームワークとしては、全シリアル データをセキュアなチャンネルを使用して送信することが挙げられます。<span>&nbsp;&nbsp; </span>開発者は、SSL/TLS や IPSec 等、さまざまなセキュア チャンネル実装を選択することができます。</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 3 : テスト ケースの実行</span>
+  </h1>
+  <p>
+    <span>これで、信頼されていないデータ バグの逆シリアル化の理論的な側面を確認できたので、次に以下のテスト ケースを実行してアプリケーションが脆弱でないかどうかチェックする必要があります。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>信頼されていないデータを動的にデシリアライズするテスト</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>これらのステップに従ってください:</span>
+  </p>
+  <ol>
+    <li>
+      <span>信頼されていないシリアル データを動的に取るアプリケーションの機能を探し (URL、Web フォーム、またはクライアントがアクセス可能な他の入力ポイント)、データをデシリアライズしてください。</span>
+      <li>
+        <span>入力するデータを変更して悪意のあるデータ (挿入されるスクリプトなど) を追加し、データをアプリケーションに入力します。</span>
+        <li>
+          <span>アプリケーションによってデータが非シリアル化されるまで待ちます。</span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>シリアル データに悪意のある変更が行える場合、アプリケーションは脆弱になります。<span>&nbsp; </span>すわなち、変更によりスクリプト インジェクション、サービス拒否、またはアプリケーションのロジカル攻撃のような非セキュアな状態が作り出される場合です。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>信頼されていないデータの逆シリアル化が生じていないかデータ ストアからテストする</em>
+    </span>
+  </h2>
+  <p>
+    <span>これらのステップに従ってください:</span>
+  </p>
+  <ol>
+    <li>
+      <span>信頼されていないシリアル化データを物理ストア (ファイル、データベース、またはその他のクライアントからアクセス可能なデータ ストア) から受け取ってデータを非シリアル化するアプリケーションの機能を見つけます。</span>
+      <li>
+        <span>データ ストアを改変して悪意のあるデータ (インジェクトされたスクリプト等) を追加し、そのデータをアプリケーションにフィードします。</span>
+        <li>
+          <span>アプリケーションによってデータが非シリアル化されるまで待ちます。</span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>シリアル データに悪意のある変更が行える場合、アプリケーションは脆弱です。<span>&nbsp; </span>すわなち、変更によりスクリプト インジェクション、サービス拒否、またはアプリケーションのロジカル攻撃のような非セキュアな状態が作り出される場合です。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>攻撃者が、クライアント側のスクリプトのインジェクション、アプリケーションの DoS、攻撃者の便益のためアプリケーションの動作を論理的にエクスプロイトするなどのようなアプリケーションに対する様々な攻撃を実行できるようにするので、信頼されていないデータのデシリアライズは、セキュリティ上の懸念事項でもあります。<span>&nbsp; </span>ASP.NET アプリケーションのこの脆弱性をテストするには、様々な攻撃シナリオを理解することから始めることをお勧めします。<span>&nbsp; </span>引き続き、この脆弱性の原因と対策を見ていきます。<span>&nbsp; </span>最後に、アプリケーションがシリアル化データの収集に使用する入力ポイントに基づいて、さまざまなテスト ケースを実行します。</p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1838224953" Content_Hash="-660964258">
+  <Metadata>
+    <Id>5d567293-f93c-4b5b-95e2-a18c9a1c8010</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>未処理の例外をダウンストリーム サービスで処理する方法</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>グローバル例外ハンドラーを使用して未処理の例外を捕らえ、クライアントへ伝播することを防止してください。</p>
+  <p>サービス ホスト オブジェクトの失敗したイベントへサブスクライブすることにより、WCF サービスでの未処理の例外を処理できます。 このイベントにサブスクライブすることにより、失敗の原因を見極め､そしてサービスを破棄もしくは再開するために必要な操作をすることができます。</p>
+  <p>次のコード断片に、Faulted イベントをサブスクライブする方法を示します。</p>
+ <pre>// hosting a WCF service <br />ServiceHost customerServiceHost;<br />customerServiceHost = new ServiceHost(…);<br />…<br />// Subscribe to the Faulted event of the customerServiceHost object<br />customerServiceHost.Faulted += new EventHandler(faultHandler);<br />…<br />// FaultHandler method - invoked when customerServiceHost enters the Faulted state<br />void faultHandler(object sender, EventArgs e)<br />{     // log the reasons for the fault…<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>フォールト コントラクトの詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms733721.aspx">http://msdn.microsoft.com/en-us/library/ms733721.aspx にある「コントラクトとサービスのフォールトを指定し処理する」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

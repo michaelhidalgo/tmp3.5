@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1414255878" Content_Hash="-380064723">
+  <Metadata>
+    <Id>85421be0-4dbf-4db3-9e49-66b711d02236</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内に整数アンダーフローバグがないかどうかテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <p>
+      <b>
+        <span>
+        </span>
+      </b>
+    </p>
+    <span>要約</span>
+  </h1>
+  <p>整数アンダーフロー バグは、整数の変数を含む算術演算の境界をアプリケーションが適切にチェックしないときに発生し、それによって整数の変数が最小整数よりも小さい値になるのを許容してしまいます。<span>&nbsp;&nbsp; </span>こうなると、アンダーフローが発生した整数の変数は非常に大きな整数になり、想定外の値を維持することになります。<span>&nbsp;&nbsp; </span></p>
+  <p>整数アンダーフローは整数オーバーフローに似ていて、唯一の違いは、整数アンダーフローの攻撃の目標が整数の低い方の境界よりも低い値を生成することである一方で、オーバーフローの目標は整数の高い方の境界を超えることです。<span>&nbsp;&nbsp; </span>攻撃者は整数アンダーフロー バグを使用してASP .NET Web アプリケーションにロジカル攻撃を実行します。</p>
+  <p>ASP .NET 内における整数アンダーフローをテストするには以下のステップに従います:</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する</li></li></li>
+  </ul>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>手順 1: 攻撃のシナリオを理解する</span>
+  </h1>
+  <p>整数アンダーフロー バグをテストする方法を学ぶ上での最初のステップは、整数アンダーフローのシナリオの構造を理解することです。<span>&nbsp; </span>C または C++ などの言語で書かれたアンマネージ アプリケーションでは、攻撃者は整数アンダーフローの条件を使用して、バッファサイズ変更によるスタック領域またはヒープ領域のオーバーフローをトリガーさせ、任意のコードを実行したり、アプリケーションをクラッシュさせて、  DoS 攻撃を行います。<span>&nbsp;&nbsp; </span>これらの二つの攻撃は ASP .NET ではできませんが、 攻撃者は、整数アンダーフロー状態を悪用して ASP.NET アプリケーションのビジネス ロジックに攻撃を仕掛けます｡</p>
+  <p>アプリケーションがクライアント提供の入力を整数演算における変数として使用する場合には、整数アンダーフロー攻撃が可能になります。<span>&nbsp;&nbsp;&nbsp; </span>アンダーフローをトリガーするには、<span>&nbsp; </span>攻撃者は通常、基になるアプリケーションによりますが、十分に小さいまたは大きい値を渡して、<span>&nbsp; </span>演算の結果が予期できないようにします。<span>&nbsp;&nbsp; </span>以下のコードを考えてみます。</p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>uint fixed_monthly_deposit = 10000;<br />uint current_deposit = 0;<br />&nbsp;<br />uint taxes_withheld&nbsp; = Convert.ToUInt32(Request.QueryString["taxes"]);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br /><strong>current_deposit = fixed_monthly_deposit - taxes_withheld;</strong><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />Response.Write("Current deposit is: " + current_deposit.ToString());<br /></span>
+  </pre>
+  <p>アプリケーションは上記のコードを使用して従業員の現在の月々の預金を計算します。<span>&nbsp;&nbsp; </span>これは 10,000 に設定された一定の毎月の預金から、 URL パラメータ<i>税</i>に定める源泉徴収税を減算するものです。<span>&nbsp;&nbsp; </span>変数がいずれも負の値を持つとは想定しておらず、アプリケーションは符号なしの整数を使用しています。<span>&nbsp; </span>クライアントが源泉徴収税額を 1,500 のような正規の金額で渡すと､アプリケーションは予測される現在の給与を計算します。</p>
+ <pre>
+    <span>http://some_site/example.aspx?taxes=1500</span>
+  </pre>
+ <pre>
+    <span>Current deposit is: 8500</span>
+  </pre>
+  <p>しかしながら、攻撃者は、<i>taxes</i> URL パラメータをタンパリングして、アプリケーションが現在の給与額を計算する際に、<i>current_deposit</i> 変数がその低位境界 (符号なしの整数の場合は 0) をアンダーフローする原因となる値を渡します。</p>
+ <pre>
+    <span>http://some_site/example.aspx?taxes=<span><strong>10001</strong></span></span>
+  </pre>
+ <pre>
+    <span>
+      <strong>Current deposit is: 4294967295</strong>
+    </span>
+  </pre>
+  <p>
+    <span>これにより、アプリケーションは攻撃者のアカウントへ巨額の送金をしようと試みることになります。</span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>要約すれば、整数アンダーフロー攻撃は次のようなステップに従います:</span>
+  </p>
+  <ol>
+    <li>
+      <span>攻撃者が、整数値を受け取る入力変数を見つけます。</span>
+      <li>
+        <span>攻撃者が、入力変数を、デフォルトとは大きく異なる想定外の値に変更します。</span>
+        <li>
+          <span>攻撃者が変更した入力変数を含む要求を送信します。</span>
+          <li>
+            <span>攻撃者が、アプリケーションの反応を観察します。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 2: 原因分析と対策</span>
+  </h1>
+  <p>
+    <span>次に､整数アンダーフロー バグの原因とその防御策を分析する必要があります。<span>&nbsp;&nbsp; </span>この知識によって、ソースコードにおける整数アンダーフローの脆弱性を特定し、それらをアプリケーションでテストする準備ができます。</span>
+  </p>
+  <p>
+    <span>整数アンダーフローが発生するのは、アプリケーションで、クライアントによって提供された値によっていずれかの整数変数が下限を超えることになるかどうかを確認せずに、整数変数を扱う算術演算でそのような値が使用される場合です。<span>&nbsp; </span>例えば、前のシナリオで、アプリケーションは<i>税</i>の URL パラメータを使用して、クライアントから直接提供された符号なし整数である <i></i><i>taxes_withheld</i> の変数によって現在の預金額を計算します。</span>
+  </p>
+ <pre>
+    <span>current_deposit = fixed_monthly_deposit - taxes_withheld;</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>アンダーフロー状況を防ぐために、アプリケーションは次のような簡単なチェックを追加できたでしょう:</span>
+    <span>&nbsp;</span>
+  </p>
+ <pre>uint fixed_monthly_deposit = 5000;<br />uint current_deposit = 0;<br />&nbsp;<br />uint taxes_withheld&nbsp; = Convert.ToUInt32(Request.QueryString["taxes"]);<br />&nbsp;<br /><strong>if (taxes_withheld &lt; fixed_monthly_deposit)</strong><br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; current_deposit = fixed_monthly_deposit - taxes_withheld;<br />&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("Current deposit is: " + current_deposit.ToString());<br />}<br />else<br />{<br />     Response.Write("Invalid input");<br />}</pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>さらに、C# 開発者は、C または C++ のそれに類似する <i>checked/unchecked</i> ステートメントを使用することによって、実行時とコンパイル時の両方で算術アンダーフローおよびオーバーフローをチェックできます。 <i>チェック済み</i> ステートメントは上に示されているような攻撃に対処するときに非常に<span>&nbsp; </span>手軽で有用です。</p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>
+      <strong>current_deposit = checked<span></span>(fixed_monthly_deposit - taxes_withheld);</strong>
+    </span>
+  </pre>
+  <p>この対策に関する詳細は、<i>コード プロジェクトの</i><i><span>&nbsp;</span><span>チェック済み/未チェックを使用した演算オーバーフロー チェック</span></i><span>の記事(</span><a href="http://www.codeproject.com/KB/cs/overflow_checking.aspx"><span>http://www.codeproject.com/KB/cs/overflow_checking.aspx</span></a>)を参照してください。<span></span></p>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>ステップ 3: テストケースの実行</span>
+  </h1>
+  <p>整数アンダーフロー バグについての理論的局面を確認したところで、ASP.NET アプリケーションでそれらのバグをチェックする実際のテスト ケースを実施する必要があります。</p>
+  <h2>
+    <span>
+      <em>整数アンダーフロー バグのテスト</em>
+    </span>
+  </h2>
+  <p>シナリオに示した通り、URL パラメータなどのクライアントがアクセス可能な整数変数を変更して、整数アンダーフロー バグをテストすることをお勧めします。<span>&nbsp;&nbsp;&nbsp; </span>以下の手順に従い､整数アンダーフロー バグをテストしてください。</p>
+  <ol>
+    <li>整数変数を引数にする入力変数を特定します。<span>&nbsp; </span>そのような入力変数は、通常、URL パラメータ、ウェブ フォーム (可視または非表示の入力タグを使用)、Cookie、またはフラッシュのパラメータの形で渡されます｡ <li>入力変数を期待される整数値に変更して、アプリケーションがどう反応するかを見ます。<span>&nbsp; </span><li>入力変数を最小および最大整数値に近い超過値に変更します（以下のテーブル1 を参照）。<span>&nbsp; </span><span>&nbsp;&nbsp;</span>このステップでは、セクション 1 に示したシナリオのような、アプリケーションがクライアントの入力の算術演算を実行するケースを考慮します。<span>&nbsp; </span>このシナリオでは、攻撃者は整数変数をどの整数型の境界にも近くない 10,001,  に変更します。<span>&nbsp; </span>しかし、アプリケーションは 10,000 から入力値を減算するので、攻撃者は実際には目標（符号なし）整数を境界に近い  -1 に変更しようとします。<span>&nbsp; </span>to -1, a value that is close the boundary.</li></li></li>
+  </ol>
+  <p>予期される結果:攻撃を受けやすいアプリケーションはほぼ間違いなくステップ 2 と 3 で別の動作または出力を示します。<span>&nbsp; </span>たとえば､手順 2 には予測される出力を表示する一方で手順 3 については極端に大きな数字を表示する場合があります。</p>
+  <p>&nbsp;</p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>データ型</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>最小 / 最大値</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>int</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>-2147483647 / 2147483647</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>int16</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>-32767 / 32767</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>Uint</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>0 / 4294967295</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>uint16</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>0 / 65535</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>short</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>±</span>
+            <span>
+            </span>
+            <span>32767</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>ushort</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>0 / 65535</span>
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <b>
+      <span>テーブル 1 - ASP.NET における整数関連型の最小および最大整数値</span>
+    </b>
+  </p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>整数アンダーフローの脆弱性は実装欠陥によって起こり、それによって攻撃者はアプリケーションによって算術演算で使用される整数の変数を変更できるようになります。<span>&nbsp; </span>攻撃者は目標整数の変数に変数の型によって許可されている最小値よりも小さい値を保存しようとします。<span>&nbsp;&nbsp; </span>整数アンダーフローは攻撃者がアプリケーションのビジネス ロジックを攻撃するために（例：正しくない預金の計算など）使用できます。<span>&nbsp; </span>それらをテストするには、まず整数アンダーフローがどのようにして起こるかと、それをどのように保護するかを理解することが必要です。<span>&nbsp; </span>次に､そのデータ型の最小または最大の境界に近い値を使用して任意の入力整数変数を変更します。</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

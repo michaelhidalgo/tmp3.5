@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="162631136" Content_Hash="-1757140636">
+  <Metadata>
+    <Id>5e8f0069-3ed8-4d12-83dc-6a7f4cd3ab41</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Authenticode を用いてアセンブリに署名する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アセンブリに Authenticode 署名をするには、Signcode.exe ツールを使用します。 このツールは、.NET Framework 内の以下の場所にあります。</p>
+  <p>\Program Files\Microsoft Visual Studio\Common7\Tools\Deployment\Vspkgs</p>
+  <p>このツールで、portable executable (PE) ファイル (a .dll または .exe ファイル) に Authenticode デジタル署名をすることができます。 アセンブリに署名することも、マルチファイル アセンブリに含まれている個別のファイルに署名することもできます。 アセンブリを配布している場合は、個別のファイルではなくアセンブリに署名してください。 </p>
+  <p>次のコマンドで、アセンブリに署名する方法を示します。</p>
+ <pre>signcode -spc myCertificate.spc -v myKey.pvk myAssembly </pre>
+  <p>ソフトウェア発行元証明書 (SPC) ファイルを用いて署名を行うには、私有鍵が .pvk ファイル内にある場合は <b>-spc</b><i></i> および <b>-v</b> オプションを指定する必要があります。 私有鍵がレジストリ鍵コンテナー内にある場合は、<b>-spc</b><i></i> および <b>-k</b> オプションを指定する必要があります。 </p>
+  <p>有効な SPC は、VeriSign または Thawte 等の認証局から取得することができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Authenticode の詳細については、「ファイル署名ツール (Signcode.exe)」 (<a href="http://msdn.microsoft.com/library/en-us/cptools/html/cpgrfFileSigningToolSigncodeexe.asp">http://msdn.microsoft.com/ja-jp/library/9sh96ycy(v=VS.80).aspx) を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

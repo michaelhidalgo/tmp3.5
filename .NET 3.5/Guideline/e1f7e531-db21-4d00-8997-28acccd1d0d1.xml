@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1093811218" Content_Hash="159477861">
+  <Metadata>
+    <Id>e1f7e531-db21-4d00-8997-28acccd1d0d1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>リダイレクトとフォワードの宛先をユーザー入力なしで計算する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology> 任意</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>OWASP</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>リダイレクトとフォワードの宛先はユーザー入力なしで計算します。</p>
+  <h1>理由</h1>
+  <p>入力を使用してリダイレクトやフォワードの宛先を計算すると、攻撃者は正当なサイトへのリンクに見せかけたハイパーリンクを作成し、攻撃者の管理する悪意のあるページへとリダイレクトできるようになります。 この手法はしばしば、フィッシング詐欺で利用され、人をだまして偽のサイトに誘い込み、Credential 情報を盗みます。</p>
+  <h1>状況</h1>
+  <p>リダイレクトやフォワードを使用するウェブ アプリケーションを作成する際は本ガイドラインを使用します。 ウェブ アプリケーションでのリダイレクトやフォワードの使用は、可能な限り避けます。</p>
+  <h1>対策</h1>
+  <p>次のアクションを実行して、ユーザー入力なしでリダイレクトとフォワードの宛先を計算します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>リダイレクトとフォワードを見つけます。</strong> リダイレクトまたはフォワードを実行するすべてのページを見つけます。 リダイレクトは .NET では「フォワード」とも呼ばれています。</p>
+      <li>
+        <p>
+          <strong>危険なリダイレクトとフォワードを特定します。</strong> 宛先の計算をユーザー入力に依存するリダイレクトとフォワードをすべて見つけます。</p>
+        <li>
+          <p>
+            <strong>リダイレクトとフォワードを書き直します。</strong> 可能であれば、リダイレクトまたはフォワードを取り除くように設計またはコードを変更することを考慮してください。 リダイレクトまたはフォワードが絶対に必要であれば、ユーザー入力なしで作動するように書き換える方法を考慮してください。これは通常、アプリケーション設計の条件設定で可能です。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>リダイレクトまたはフォワードの無効化に関する詳細は、次を参照してください。<a href="http://www.owasp.org/index.php/Top_10_2010-A10-Unvalidated_Redirects_and_Forwards">http://www.owasp.org/index.php/Top_10_2010-A10-Unvalidated_Redirects_and_Forwards</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/32c35abe-a470-4a9c-8bb6-54c1461d3295">URL リダイレクション攻撃</a>
+      <li>
+        <a href="/article/d4612e8e-78c6-444e-a252-45ab97616a0b">URL リダイレクション バグのテスト方法</a>
+        <li>
+          <a href="/article/c8ae222b-ed2e-4621-a46b-3671f82f5a03">フィッシング攻撃<br /></a>
+        </li>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

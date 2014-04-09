@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1097769412" Content_Hash="-1841166824">
+  <Metadata>
+    <Id>38c2136b-1997-4aa3-b785-0df07a94c3d8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>トレース情報を表示する方法</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>次のステップを使用してトレース情報を閲覧してください:</p>
+  <ol>
+    <li>アプリケーションのweb.config または app.config ファイルへコンフィグレーション情報を追加してトレーシングを有効にしてください。 たとえば、次のようになります。
+<ol><pre>&lt;system.diagnostics&gt;<br />    &lt;trace autoflush="true" /&gt;<br />    &lt;sources&gt;<br />            &lt;source name="System.ServiceModel" <br />                    switchValue="Information, ActivityTracing"<br />                    propagateActivity="true"&gt;<br />            &lt;listeners&gt;<br />               &lt;add name="sdt" <br />                   type="System.Diagnostics.XmlWriterTraceListener" <br />                   initializeData= "WCFTraceLog.svclog" /&gt;<br />            &lt;/listeners&gt;<br />         &lt;/source&gt;<br />    &lt;/sources&gt;<br />&lt;/system.diagnostics&gt;</pre></ol><li>SvcTraceViewer.exe のインストールした場所 (C:\Program Files\Microsoft SDKs\Windows\v6.0\Bin) までナビゲートし、 SvcTraceViewer.exe を実行してください。 
+<li>File(ファイル) メニュー、次にOpen(開く)メニューをクリックしてください。 トレース ファイルが保存されているロケーションまでナビゲートしてください。 
+<li>ダブルクリックして、トレース ログ ファイルを開いてください。<br /></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>トレーシングの詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms730342.aspx">http://msdn.microsoft.com/en-us/library/ms730342.aspx にある「トレーシング」を参照してください。</a><li>Service Trace Viewer Tool の詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms732023.aspx">http://msdn.microsoft.com/en-us/library/ms732023.aspx にある“Service Trace Viewer Tool” を参照してください。</a><li>認証の詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733082.aspx">http://msdn2.microsoft.com/en-us/library/ms733082.aspx にある 「Authentication (認証)」を参照してください。</a><li>監査のガイドラインは、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=Guidelines&referringTitle=Home にある “WCF 3.5 Guidelines “ の監査およびログのセクションを参照してください。</a></li></li></li></li>
+  </ul>
+  <p>
+    <br />
+  </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1472479533" Content_Hash="678630195">
+  <Metadata>
+    <Id>94f9b38a-392e-4eaf-a764-158694bbdf26</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>すべてのデータベース入力が検証されている</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>入力がデータベースに渡される前にすべて検証されることを確認します。</p>
+  <h1>理由</h1>
+  <p>未検証の入力は、蓄積型クロスサイト スクリプティング、SQL インジェクションなど、攻撃者が機微データへ不正アクセスすることを可能にする脆弱性につながります。</p>
+  <h1>チェック方法</h1>
+  <p>下記の手順に従い、データベースに渡されるすべての入力が検証されるようにしてください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>データベースへの全ての入力ソースを特定します。 </strong>アプリケーションは様々な入力ソースを持つ場合があります。 各ソースは、アプリケーションのエントリ ポイントであり、アプリケーションのセキュリティ モデルの破壊に使用される可能性があります。 データベースに最終的にプッシュすることになる、全ての入力ソースを決定します。</p>
+      <p>通常、Web アプリケーションの入力ソースには以下のものが含まれる可能性があります。</p>
+      <ul>
+        <li>URL ベースのパラメーター <li>フォームベースのパラメーター <li>隠しフィールド <li>Cookie<li>HTTP ヘッダ<li>ローカルのファイル システムに保存されているデータ<li>データベース <li>他の関連サービス</li></li></li></li></li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>入力の確認にバリデータが使用されていることをチェックします。 </strong>各エントリ ポイントにコンテンツ特有のバリデータが配置されていることをチェックします。<br />各データベース入力ソースにはデータ検証ルーチンが関連付けられている必要があります。 可能であれば、アプリケーションに入力があったらすぐに検証が行われるようにします。 共有検証ルーチンは、数多く作成してコード ベース全体に散っているものより効果的です。ルーチンの統合をチェックしてテストを支援します。 データベース入力ソースに検証ルーチンが関連付けられていない場合は、修正フラグを設定してください。</p>
+      </li>
+      <li>
+        <p>
+          <strong>Type-Safe パラメータとストアド プロシージャが使用されていることを確認します。 </strong>動的SQL クエリの構造化においてストアド プロシージャとパラメータ化したクエリが、入力値を直接使用する代わりに実装されていることをチェックします。後者は SQL インジェクションを受けやすい傾向があるためです。　 </p>
+        <li>
+          <p>
+            <strong>データベース エントリ パスの監査が行われていることを確認します。 </strong>データベース入力パスがすべて特定されていること、および全てのエントリ ポイントにバリデータが正しく実装されていることを、サードパーティのレビュー担当者に確認させます。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードでは、特定のユーザー名およびパスワードに基づいてユーザーが検証されます。 パスワードをランダムなソルトでハッシュします。 その後、ユーザー名と生成されたハッシュが、バックエンド データベースに格納されているデータと比較されます。</p>
+  <p>ただし、SQL クエリがユーザーの入力を使用して動的に作成されています。 適切な入力検証機能が存在しない場合、攻撃者は SQL インジェクションを使用して、アプリケーションのデータベース サーバーにアクセスできてしまいます。</p>
+  <p />
+ <pre>public boolean validateUser(String user, char[] pass)<br />{<br />      byte[] salt = MyApp.generateSalt();<br />      String passHash;<br />      SqlConnection cn;<br />      SqlCommand sqlCommand;<br />      String query;<br />      passHash = hashCredentials(pass, salt);<br />      // The application crafts the SQL query based on user's input<br />      cn = MyApp.getDBConnection();<br />      sqlCommand = new SqlCommand("select user from myappUsers where user = \"" + user + "\"<br />                                     + and pass = \"" + passHash + "\" and login_attempts &lt; 3;", cn);<br />      SqlDataReader reader = sqlCommand.ExecuteReader();<br />      updateLastLoginAttempt(user);<br />      ...<br />}</pre>
+  <p>ユーザーが'foo\" or 1 = 1; drop table *; --'ユーザー名のログイン要求を送信すると、システムはユーザーをまず認証してから、データベース内のすべてのテーブルを削除します。</p>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

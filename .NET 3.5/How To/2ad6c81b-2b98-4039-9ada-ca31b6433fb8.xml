@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1182542742" Content_Hash="-1940906418">
+  <Metadata>
+    <Id>2ad6c81b-2b98-4039-9ada-ca31b6433fb8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でプロトコル トランジションと制約付き委任を使用する方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Internet Information Services 6.0 以降<li>Microsoft Windows Server 2003 以降の&nbsp;オペレーティング システム</li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、プロトコル トランジションと制約付き委任を構成、使用することで、最初の呼び出し元を偽装しながら、ASP.NET アプリケーションからネットワーク リソースへのアクセスを可能にする方法について説明します。 Microsoft Windows 2000 オペレーティング システムは委任をサポートしています。 しかしながら、ダウンストリーム サーバまたはサービスへのアクセスについては、委任によって制限することはできません。 Microsoft Windows Server 2003 以降のオペレーティング システムは、<i>制約付き委任</i>と呼ばれるよりセキュアな形の委任を提供しています。制約付き委任の使用により、Microsoft Active Directory® ディレクトリ サービスを構成することで、ASP.NET アプリケーションから偽装された ID を用いてアクセス可能なサービスおよびサーバを制限することができます。</p>
+  <p>Windows Server における制約付き委任ではKerberos 認証が必須です。 アプリケーションが、自身の呼び出し元の認証に Kerberos 認証を使用できない場合は、プロトコル トランジションを使用することで、代替の非 Windows 認証モード (Forms Authentication や証明書認証) から Kerberos 認証に切り替えることができます。 その上で、制約付き委任で Kerberos を使用することで、ダウンストリーム ネットワーク リソースにアクセスすることができます。</p>
+  <p>このガイドでは、デモンストレーション目的において、Forms Authentication でプロトコル トランジションを使用していますが、 実際には、ユーザー名とパスワードはすでに取得しているので、<b>LogonUser</b> API を使用します。 本番シナリオとしてのプロトコル トランジションを用いた例としては、証明書を使用してユーザー認証を行っていて、これらのユーザーを既存の Windows アカウントにマップしたい場合などがあります。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>シナリオ</div>
+          <li>
+            <div>手順の概要</div>
+            <li>
+              <div>手順 1:  S4U ログオンの使用により最初の呼び出し元の Windows トークンを作成する</div>
+              <li>
+                <div>手順 2:  サービスまたはマシン アカウントで制約付き委任の構成</div>
+                <li>
+                  <div>手順 3:  プロトコル トランジションの実装と検証</div>
+                  <li>
+                    <div>制約付き委任を使用して複数層にアクセスする</div>
+                    <li>
+                      <div>ドメインの機能レベル</div>
+                      <li>
+                        <div>その他のリソース</div>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>プロトコル トランジションを使用して、非 Windows 認証から Kerberos 認証への切り替えを行う。 <li>制約付き委任を使用して、特定のサービスへのアクセスを制限する。  <li>Web サーバから取得した最初の呼び出し元 ID をデータベース サーバに渡す。 <li>Web サーバから取得した最初の呼び出し元 ID をアプリケーション サーバ、続いてデータベース サーバに渡す。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET アプリケーションが最初の呼び出し元を偽装する場合、認証されたユーザーのセキュリティ コンテキストを使用することでリソースへのアクセスを行います。 ただし、この場合のアプリケーションはローカル リソースにしかアクセスできません。 リモート ユーザーを偽装しながらネットワーク リソースにアクセスするには、アプリケーションは委任を使用しなければいけません。 アプリケーションがユーザー認証に Kerberos 認証を使用していると、委任を使用することで、アプリケーションの複数レイヤーを通って呼び出し元の ID を渡すことができ、さらにネットワーク リソースへのアクセスも可能になります。 アプリケーションが Kerberos 認証を使用していない場合は、プロトコル トランジションを使用することで、非 Kerberos 認証メカニズムから Kerberos に切り替えし、その上で委任を用いて ID を渡すことができます。</p>
+  <h2>プロトコル トランジション</h2>
+  <p>例えばユーザーがインターネット経由でウェブサイトにアクセスした場合といったような、多くの状況において、ファイアウォールがクライアント コンピュータとドメイン コントローラが直接通信できなくしてしまうため、Kerberos 認証が使えない場合があります。 代わりにアプリケーションは Forms Authentication、もしくはエキストラネット シナリオではクライアント証明書認証といった、他のアプローチでクライアントを認証しなければなりません。</p>
+  <p>Windows サーバにはプロトコル遷移があり、それによりアプリケーションは Kerberos 認証を使いながら、非 Windows 認証機構およびユーザーを認証委任で下流ネットワーク リソースにアクセスすることができます。 これによりアプリケーションが Windows 認証を必要とする下流サーバにアクセスして、Windows 監査でユーザーのバックエンド リソースへのアクセスを監視することができます。</p>
+  <p>注意しなければならないのは、Windows ID の偽装によるダウンストリーム リソースへのアクセスには多くのメリットがありますが、同時にデメリットもあることです。 メリットとしては、Windows 監査機能を用いたバックエンド リソースへのユーザー アクセスのトラック、リソース (データベース等) へのアクセス制御をユーザー単位で行えるファイングレインド アクセス コントロールの実装が可能になることなどが挙げられます。 一方、デメリットは、粒度別アクセス制御の管理に別のアドミニストレーションが必要となるため、スケーラビリティが低下することです。 多くのアプリケーションの場合、 たとえば、Web サーバが呼び出し元を認証しても、ダウンストリーム リソースへのアクセスには最初の呼び出し元の代わりとしてサービス ID を使用するような、信頼されたサブシステム モデルが適切です。 これにより、アドミニストレーションの負担が軽減し、スケーラビリティも改善できます。 アプリケーションで適切な認証モデルを選択する場合の情報については、「<a href="http://msdn2.microsoft.com/en-us/library/aa302383.aspx">セキュリティ保護された ASP.NET アプリケーションの構築 : 認証、認可、および通信のセキュリティ保護</a>」を参照してください。</p>
+  <p>プロトコル トランジションを使用してダウンストリーム リソースにアクセスする場合は、2 つの Kerberos プロトコル拡張を利用します。 どちらの拡張も Windows Server に実装されています。 実装されている拡張は次の 2 つです。</p>
+  <ul>
+    <li>
+      <b>Service-for-User-to-Self (S4U2Self)</b>。ユーザー プリンシパル名 (UPN) をパスワードなしで指定することで、クライアント用の Windows トークンを入手することができます。 <li><b>Service-for-User-to-Proxy (S4U2Proxy)</b>。S4U2Self トークンを用いてアクセスできるダウンストリーム サービスの正確な制御を管理者が行うことができます。 </li></li>
+  </ul>
+  <p>プロトコル トランジションおよび、ユーザー (S4U) Kerberos プロトコル拡張の関連サービスについては、「Windows Server の S4U Kerberos 拡張の探求」を参照してください。</p>
+  <h2>制約付き委任</h2>
+  <p>Windows Server 2000 上の Kerberos 委任に制約はなく、Active Directory 内で委任を行えるよう信頼関係を構成したサーバからは、偽装されたユーザーのセキュリティ コンテキストを使用していても、ネットワーク上のどんなネットワーク リソース、マシンにもアクセスすることができます。 ただしこの状況は、特に、Web サーバがコンプロマイズされた場合に、潜在的なセキュリティ脅威となります。</p>
+  <p>この問題を解消するために、Windows Server では制約付き委任を導入しています。 これにより、管理者は、偽装されたユーザーのセキュリティ コンテキストの使用時に、ダウンストリーム サーバ上のサービスや、アクセスできるドメイン アカウントを正確に指定することができるようになります。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;委任によりアクセスできるサービスのリストは、A2D2 リストという名称で Active Directory リストに保持されています。<b></b></blockquote>
+  <p>このガイドでは、Windows Server でプロトコル トランジションと制約付き委任を使用することで次のような一般的な問題を解決する方法を示します。</p>
+  <ul>
+    <li>外部のクライアントに対して非 Windows 認証メカニズムを使用し、Kerberos 認証に遷移してネットワーク リソースにアクセスする。 <li>Kerberos 認証されたクライアントを偽装し、その Windows セキュリティ コンテキストを使用して ID を複数層を通って渡すことでネットワーク リソースにアクセスする。 </li></li>
+  </ul>
+  <h2>シナリオ</h2>
+  <p>Web アプリケーションが非 Windows 認証機構を使ってユーザーを認証する場合は、プロトコル遷移が適しています。 次のシナリオを考えてみてください：</p>
+  <ul>
+    <li>
+      <b>クライアントがを使用する場合</b>
+      <b>forms authentication、LogonUser（ログオン ユーザー）を使用することができます。</b> アプリケーションはフォーム ログイン ページ マップ経由で Windows ドメイン アカウントに直接入力されたユーザー名およびパスワードを <b>LogonUser</b>（ログイン ユーザー）API を呼び出してプロトコル遷移を避けることができます。 <blockquote><b>注意</b>: &nbsp;&nbsp;例えば、How To （方法）は簡素化のためにForms Authentication を使用します。</blockquote><li><b> </b> <b>クライアントが証明書認証を使用している場合、プロトコル トランジションを検討することができます。</b> クライアントがウェブ サーバとの認証に証明書を使用する場合、アプリケーションは証明書をもとに Active Directory を参照し、プロトコル遷移を使ってユーザーのログオンを許可することができます。 </li></li>
+  </ul>
+  <h1>手順の概要</h1>
+  <p>Windows Server 上の ASP.NET でプロトコル トランジションと制約付き委任を使用するには次のステップを実行します。</p>
+  <ul>
+    <li>手順 1:  S4U ログオンの使用により最初の呼び出し元の Windows トークンを作成する。 <li>手順 2:  サービスまたはマシン アカウントで制約付き委任の構成を行う。 <li>手順 3:  プロトコル トランジションの実装とテスト。 </li></li></li>
+  </ul>
+  <h1>手順 1:  S4U ログオンの使用により最初の呼び出し元の Windows トークンを作成する</h1>
+  <p>ユーザーに Windows ドメイン アカウントがあるが、ドメインの外側あるいは信頼関係を結んでいないドメイン (たとえば、インターネット上のドメインなど) から Web サーバに接続しなければいけない場合は、統合 Windows 認証を使用することができません。 代わりに、非 Windows 認証メカニズムを使用することで、図 1 に示すように、Kerberos に遷移することができます。</p>
+  <p>
+    <img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998355.f01paght00002401(en-us,MSDN.10).gif" border="0" />
+  </p>
+  <p>
+    <b>図 1:  S4U ログオンを用い、呼び出し元の ID を使用して ASP.NET アプリケーションからデータベースを呼び出すメカニズム</b>
+  </p>
+  <h2>ASP.NET で Forms Authentication の構成を行う</h2>
+  <p>ASP.NET アプリケーションを作成し、Forms Authentication を行うよう構成します。 Forms Authentication の代わりに、アプリケーションのユーザー認証に非 Windows 認証メカニズムのいずれかを使用してもかまいません。</p>
+  <h3>Web サイトで Forms Authentication の構成を行うには</h3>
+  <ol>
+    <li>Web アプリケーションを作成します。 <li>Internet Information Services Administratorで、Web サイトのプロパティを編集します。 [<b>Directory security</b>] タブの [<b>Anonymous access and authentication control</b><b></b>] を編集し、[<b>Anonymous access</b>] チェックボックスをオンにします。 <li>Web アプリケーションを作成します。 Web.config ファイルを追加し、Forms Authentication を有効化し、さらに次の構成を追加することで認証に失敗したユーザーへのアクセスを拒否します。 <div><pre>&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Forms"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;deny users="?" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;/authorization&gt;<br />&nbsp;&nbsp; ...<br />&lt;/system.web&gt;   </pre></div></li></li></li>
+  </ol>
+  <h3>Web サイト用のログイン フォームを作成するには</h3>
+  <ol>
+    <li>Login.aspx と呼ばれる Web フォームを追加します。 <li>以下の例に示すように、<b>Login</b> コントロールと <b>CreateUserWizard</b> コントロールを追加します。 <div><pre>&lt;%@ Page Language="C#" %&gt;<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "<a href="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</a>"&gt;<br />&lt;html&nbsp; &gt;<br />&lt;head runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;title&gt;Protocol Transition&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Login ID="Login1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:Login&gt;<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:CreateUserWizard ID="CreateUserWizard1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;WizardSteps&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:CreateUserWizardStep runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:CreateUserWizardStep&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:CompleteWizardStep runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:CompleteWizardStep&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/WizardSteps&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:CreateUserWizard&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;   </pre></div></li></li>
+  </ol>
+  <h2>最初の呼び出し元の Windows トークンを取得する</h2>
+  <p>アプリケーションに次のコードを追加します。 このコードは、ログイン フォームに入力されたユーザー名を使用して、<i>userName</i>@<i>domainName</i> という書式で UPN を構築し、その UPN を <b>WindowsIdentity</b> コンストラクターに渡します。 このコンストラクターは、Kerberos S4U 拡張を使用してユーザーの Windows トークンを取得します。 そして、このトークンを使用してコードは偽装を開始します。</p>
+  <div>
+ <pre>using System.Security.Principal;<br />...<br />// Obtain the user name (obtained from forms authentication)<br />string identity = User.Identity.Name;</pre>
+ <pre>// Convert the user name from domainName\userName format to <br />// <a href="mailto:userName@domainName">userName@domainName</a> format if necessary<br />int slash = identity.IndexOf("\\");<br />if (slash &gt; 0)<br />{<br />&nbsp; string domain = identity.Substring(0, slash);<br />&nbsp; string user = identity.Substring(slash + 1);<br />&nbsp; identity = user + "@" + domain;<br />}</pre>
+ <pre>// The WindowsIdentity(string) constructor uses the new<br />// Kerberos S4U extension to get a logon for the user<br />// without a password.<br />WindowsIdentity wi = new WindowsIdentity(identity);<br />WindowsImpersonationContext wic = null;<br />try<br />{<br />&nbsp; wic = wi.Impersonate();<br />&nbsp; // Code to access network resources goes here.<br />}<br />catch()<br />{<br />&nbsp; // Ensure that an exception is not propagated higher in the call stack.<br />}<br />finally<br />{<br />&nbsp; // Make sure to remove the impersonation token<br />&nbsp; if( wic != null)<br />&nbsp;&nbsp;&nbsp; wic.Undo();<br />}  </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;多くの場合、UPN はユーザーのメール アドレスですが、必ずしもそうである必要はありません。 アカウントの中には、全く構成がされていないものもあります。 UPN のデフォルトの書式は <i>userName</i>@<i>DomainName</i> です。ドメインにログオンしている場合、コマンド プロンプトから <b>whoami /upn</b> コマンドを実行することで、ユーザー名を UPN 書式で表示することができます。 <b>Whoami</b> は、Windows Server で利用可能なコマンドライン ツールですが、Windows XP Professional オペレーティング システム CD 上の Support/Tools ディレクトリにも含まれています。</blockquote>
+  <h3>トークン タイプ</h3>
+  <p>S4U2Self 拡張で生成されたトークンのタイプにより、そのトークンで偽装中にできることが決まります。 取得できるトークン タイプは以下の通りです。</p>
+  <ul>
+    <li>
+      <b>ID レベル トークン</b> 概定ではこのタイプが返されます。 このトークン タイプでは、トークンに含まれているグループを確認することができます。ただし、この種類のトークンでは、偽装しながらローカルまたはリモート リソースにアクセスすることはできません。 <li><b>偽装レベル トークン</b> この種類のトークンを使用すると、偽装しながらローカル リソースにアクセスすることができます。 <b>WindowsIdentity</b>コンストラクターからこの種類のトークンを取得するには、プロセス アカウントに "オペレーティング システムの一部として機能" ユーザー権限を付与しなければいけません。 <blockquote><b>注意</b>: &nbsp;&nbsp;このトークン タイプは、プロセスをウェブ サーバの TCB (Trusted Computing Base) に配置するため、ウェブ サーバ プロセスは非常に高い特権を持つことになります。 何らかの方法でコードを挿入しWeb アプリケーションをコンプロマイズさせた攻撃者はローカル コンピュータ上で無制限な能力を得ることになるので、できる限りこの権限を与えないようにしてください。<b></b></blockquote><blockquote><b>注意</b>: &nbsp;&nbsp;プロセス アカウントが TCB の一部である場合、偽装レベルのトークンを取得します。 ネットワーク リソースにアクセスするには、Active Directory 内でプロトコル トランジションを有効にしておく必要があります。 この場合、A2D2 リストに定義されているリモート サービスにアクセスすることで、クライアントに代わって S4U2Proxy チケットを取得することができます。<b></b></blockquote></li></li>
+  </ul>
+  <h1>手順 2:  サービスまたはマシン アカウントでの制約付き委任の構成</h1>
+  <p>このステップでは、Web アプリケーションから制約付き委任を使用して、リモート データベース サーバへのアクセスを可能にする構成を Active Directory で行います。</p>
+  <p>ASP.NET アプリケーションが Network Service マシン アカウントを使用して動作している場合は、Web サーバ コンピュータに対してプロトコル トランジションと制約付き委任を有効にしておく必要があります。 ただし、ASP.NET アプリケーションがカスタム ドメイン アカウントに基づき動作している場合は、カスタム ドメイン アカウントに対してプロトコル トランジションと制約付き委任を有効にしておかなければなりません。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;SQL Server の実行にカスタム ドメイン アカウントを使用している場合は、そのアカウントに対してサービス プリンシパル名 (SPN) を作成しなければいけません。 サービス プリンシパル名は次のコマンドを実行することで作成できます。</blockquote>
+  <blockquote>
+    <b>setspn -A MSSQLSvc/ databaseservername.fullyqualifieddomainname</b>
+  </blockquote>
+  <blockquote>
+    <b>domain\customAccountName </b>
+  </blockquote>
+  <blockquote>SQL Server の実行に System アカウントを使用している場合は (ただし、System アカウントは特権が高く、攻撃者がエクスプロイトする可能性が高いために推奨していません)、自動的に SPN が作成されます。 </blockquote>
+  <h2>マシン アカウントに対するプロトコル トランジションの構成</h2>
+  <p>以下の手順は、Network Service マシン アカウントに基づいて Web アプリケーションを実行している場合を前提とします。 </p>
+  <ol>
+    <li>Microsoft Management Console (MMC) Active Directory Users and Computers スナップインを起動します。 <li>MMC スナップインの左側ペインで、[<b>Computers</b>] ノードをクリックします。 <li>右側ペインで、使用する Web サーバ コンピュータをダブルクリックして [<b>Properties</b>] ダイアログ ボックスを表示します。 <blockquote><b>注意</b>: &nbsp;&nbsp;[<b>Properties</b>] ダイアログ ボックスに [<b>Delegation</b>] タブが表示されず、[<b>General</b>] タブに [<b>Trust Computer for Delegation</b>] というチェックボックスが 1 つだけある場合は、そのドメインが Windows 2000 の混合モードのドメインとして動作していることを示します。 その場合、後述の "ドメインの機能レベル" の手順に従ってドメイン機能レベルを Windows Server 2003 に昇格させる必要があります。<b></b></blockquote><li>Web サーバ コンピュータの [<b>Properties</b>] ウィンドウの [<b>Delegation</b>] タブでは、デフォルトで [<b>Do not trust the computer for delegation</b>] が選択されています。 制約付き委任を使用するには、[<b>Trust this computer for delegation to specified services only</b>] を選択してください。アクセス可能なサービス (複数も可) の詳細な指定は一番下のペインで行います。 <li>[<b>Trust this computer for delegation to specified services only</b>] の下にある、[<b>Use any authentication protocol</b>] を選択します。<p>[<b>Use Kerberos only</b>] を選択していると、制約付き委任はKerberos 認証でしか有効になりません。 プロトコルトランジションを使用して Forms Authentication (あるいは Forms Authentication に代わる非 Kerberos 認証メカニズム) から Kerberos に切り替えを行っている場合は、[<b>Use any authentication protocol</b>] を選択しなければいけません。</p><li>[<b>Add</b>] ボタンをクリックします。 [<b>Add Services</b>] ダイアログ ボックスが表示されます。 <li>[<b>Users or computers</b>] ボタンをクリックします。 <li>[<b>Select Users or Computers</b>] ダイアログで、SQL Server を System または Network Service として実行している場合は、使用するデータベース サーバ コンピュータ名を入力します。 そうではなく、カスタム ドメイン アカウントの使用により  SQL Server を実行している場合は、代わりにそのアカウント名を入力します。 [<b>OK</b>] をクリックします。<li>選択したユーザーまたはコンピュータ アカウントに対して設定されたすべてのサービス プリンシパル名が表示されます。 SQL Server へのアクセスを制限するには、[<b>MSSQLSvc</b>] サービスを選択し、[<b>OK</b>] をクリックします。<blockquote><b>注意</b>: &nbsp;&nbsp;ファイル共有上のファイルに対してデリゲートしたい場合は、[Common Internet File System (CIFS)] サービスを選択する必要があります。<b></b></blockquote></li></li></li></li></li></li></li></li></li>
+  </ol>
+  <h2>カスタム ドメイン アカウントに対するプロトコル トランジションの構成</h2>
+  <p>以下の手順は、カスタム ドメイン アカウントに基づいて Web アプリケーションを実行している場合を前提とします。 </p>
+  <ol>
+    <li>カスタム ドメイン アカウントに対して SPN を作成します。 Kerberos では、相互認証をサポートするため SPN を必要とします。 ドメイン アカウントに対して SPN を作成するには:<b></b><ol><li>Windows Server CD から Windows Server Tools をインストールします。 <li>コマンド プロンプトから、<b>C:\Program Files\Support Tools</b> のディレクトリにある <b>Setspn</b> ツールを以下のように二度実行します。   <p><b>setspn -A HTTP/<i>webservernamedomain</i><i></i>\<i>customAccountName</i></b></p><p><b>setspn -A HTTP/<i>webservername.fullyqualifieddomainname</i></b></p><p><b><i>domain</i>\<i>customAccountName</i></b></p><blockquote><b>注意</b>: &nbsp;&nbsp;HTTP サービス (DNS) 名には 1 つの SPN しか関連付けができません。つまり、同じ HTTP サーバに割り当てられた複数のサービス アカウントに対しては、それらが異なるポート上にない限り、複数の SPN を作成することはできません。 SPN には、ポート番号を含めることができます。 </blockquote></li></li></ol><li>Microsoft Management Console (MMC) Active Directory Users and Computers スナップインを起動します。 <li>MMC スナップインの左側ペインで、[<b>Users</b>] ノードをクリックします。 <li>右側ペインで、ASP.NET アプリケーションの実行に使用しているユーザー アカウントをダブルクリックします。 ユーザー アカウント プロパティが表示されます。 <blockquote><b>注意</b>: &nbsp;&nbsp;アカウントの [<b>Properties</b>] ダイアログ ボックスに [<b>Delegation</b>] タブが表示されない場合は、そのユーザーにサービス プリンシパル名 (SPN) が存在していないことを意味します。 前述のステップ 1 の手順に従い、SPN を作成してください。<b></b></blockquote><li>Web サーバ コンピュータの [<b>Properties</b>] ウィンドウの [<b>Delegation</b>] タブでは、デフォルトで [<b>Do not trust the computer for delegation</b>] が選択されています。 制約付き委任を使用するには、[<b>Trust this user for delegation to specified services only</b>] を選択してください。アクセス可能なサービス (複数も可) の詳細な指定は一番下のペインで行います。 <li>[<b>Trust this user for delegation to specified services only</b>] の下にある、[<b>Use any authentication protocol</b>] を選択します。<p>[<b>Use Kerberos only</b>] を選択していると、制約付き委任はKerberos 認証でしか有効になりません。 プロトコルトランジションを使用して Forms Authentication (あるいは Forms Authentication に代わる非 Kerberos 認証メカニズム) から Kerberos に切り替えを行っている場合は、[<b>Use any authentication protocol</b>] を選択しなければいけません。</p><li>[<b>Add</b>] ボタンをクリックします。 [<b>Add Services</b>] ダイアログが表示されます。 <li>[<b>Users or computers</b>] ボタンをクリックします。 <li>［<b>ユーザーまたはコンピュータの選択</b> ］ダイアログボックスで、データベース サーバの名前を入力して、［ <b>OK</b>］をクリックします。<li>利用できるすべてのサービスがデータベース サーバに表示されます。 SQL Server へのアクセスを制限するには、[<b>MSSQLSvc</b>] サービスを選択し、[<b>OK</b>] をクリックします。</li></li></li></li></li></li></li></li></li></li>
+  </ol>
+  <h1>手順 3:  プロトコル トランジションの実装と検証</h1>
+  <p>このステップでは、呼び出し元の ID を使用して、データベースを呼び出すのに必要なコードを実装します。 この例では、対象のデータベースが DBServer という SQL Server で、データベース サーバには Windows 認証が必要で、必要なデータベースは Northwind データベースであると想定します。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;SQL Server へのアクセスを許可するには、各アプリケーションのエンドユーザーまたはユーザーが属するグループのまとまりに対し SQL Server のログインを作成し、彼らに Northwind データベースへの読み取りアクセスを付与する必要があります。<b></b></blockquote>
+  <h2>呼び出し元の ID を使用したコードを実装するには</h2>
+  <ol>
+    <li> 以下の例で示されているように、データベースにWindows 認証を指定することで、Web.config ファイル内のデータベース サーバに接続文字列を定義します。 <div><pre>&lt;configuration xmlns="<a href="http://schemas.microsoft.com/.NetConfiguration/v2.0">http://schemas.microsoft.com/.NetConfiguration/v2.0</a>"&gt;<br />&nbsp; &lt;connectionStrings&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="nwindConnectionString" connectionString=<br />"Data Source=DBServer;Initial Catalog=northwind;Integrated Security=True" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; providerName="System.Data.SqlClient" /&gt;<br />&nbsp; &lt;/connectionStrings&gt;<br />&nbsp; ...<br />&lt;/configuration&gt;  </pre></div><li>以下のようなコードを使用して、呼び出し元を偽装し、データベースにアクセスします。 <div><pre>Using System.Data.SqlClient;<br />Using System.Security.Principal;<br />...<br />private DataTable CallDatabase()<br />{<br />&nbsp; DataTable dt = new DataTable();<br />&nbsp; WindowsImpersonationContext wic = null;<br />&nbsp; try<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // First, impersonate the original caller<br />&nbsp;&nbsp;&nbsp; wic = ImpersonateEndUser();<br />&nbsp;&nbsp;&nbsp; // Fetch data from the database using the original caller's <br />&nbsp;&nbsp;&nbsp; // security context<br />&nbsp;&nbsp;&nbsp; using (SqlConnection conn = new SqlConnection())<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; conn.ConnectionString = ConfigurationManager.ConnectionStrings<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ["nwindConnectionString"].ConnectionString;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; conn.Open();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlCommand cmd = new SqlCommand("Select ProductName from Products",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; conn); <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlDataAdapter da = new SqlDataAdapter(cmd);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; da.Fill(dt);<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp; }<br />&nbsp; catch<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Do not let the exception propagate higher up the call stack<br />&nbsp; }<br />&nbsp; finally<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Ensure that impersonation is stopped<br />&nbsp;&nbsp;&nbsp; if( wic != null)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; wic.Undo();<br />&nbsp; }<br />&nbsp; return dt;<br />}<br />private WindowsImpersonationContext ImpersonateEndUser()<br />{<br />&nbsp; // Obtain the user name (from forms authentication)<br />&nbsp; string identity = User.Identity.Name;<br />&nbsp; // Convert from domainName\userName format to <a href="mailto:userName@domainName">userName@domainName</a> format<br />&nbsp; // if necessary<br />&nbsp; int slash = identity.IndexOf("\\");<br />&nbsp; if (slash &gt; 0)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string domain = identity.Substring(0, slash);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string user = identity.Substring(slash + 1);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; identity = user + "@" + domain;<br />&nbsp; }<br />&nbsp; // The WindowsIdentity(string) constructor uses the new<br />&nbsp; // Kerberos S4U extension to get a logon for the user<br />&nbsp; // without a password.<br />&nbsp; WindowsIdentity wi = new WindowsIdentity(identity);<br />&nbsp; return wi.Impersonate();<br />}  </pre></div><li><p>先行コードについて以下の点に注意してください:</p><ul><li><b>ImpersonateEndUser</b> メソッドは forms authentication によって認証されたユーザーのユーザー名を使用します。 それはユーザー名をUPN 形式(<i>userName</i>@<i>domainName</i>) に変換して、UPN を<b>WindowsIdentity</b> コンストラクターに渡します。 このコンストラクターはアカウントのパスワードを必要とすることなく、ドメイン アカウントの Windows トークンを返します。 <p>既定では、ID レベルのトークンが返されます。 これはユーザーのグループ メンバーシップをチェックする時にのみ使用できます。 ローカルまたはリモートのリソースにアクセスすることはできません。 しかし、 Active Directory でプロトコル切り替えを構成すると、 A2D 2 リストで定義されているように、トークンを使用して選択サーバの特定のサービスにアクセスすることができます。 </p><li>アプリケーションは、フォーム ログインページで送信済みのユーザー名とパスワードを使用して要求を認証する必要があります。 アプリケーションが認証済みユーザーであると確認したら、既存の Windows アカウントを選択して、バックエンドのユーザーを表さなければなりません。 この例は、ユーザーがフォーム ログインページの Windows のユーザー名とドメイン名を送信し、 ASP.NET メンバーシップ プロバイダーが確認できるパスワードを提供したと想定しています。 これは Windows アカウント用のパスワードではありません。 プロトコル切り替えの目的は、この方法で Windows のパスワードが公開されるのを回避することです。 <p>この例では、ASP.NET  におけるメンバーシップ システムがユーザーのパスワードを確認した後、 Web アプリケーションがユーザー名を UPN フォームに変換して、<b>WindowsIdentity</b> オブジェクトを構成します。 </p><p>存在しないユーザーの<b>WindowsIdentity</b> オブジェクトを作成しようとすると、<b>WindowsIdentity</b> コンストラクターは <b>ログオン失敗: ユーザー名を認識できないか、パスワードが間違っています</b>というメッセージとともに<b>System.Security.SecurityException</b> を生成します。</p></li></li></ul></li></li></li>
+  </ol>
+  <h2>プロトコル切り替えと制約付き委任のテスト方法</h2>
+  <ol>
+    <li>アプリケーションを起動します。 <li>ログイン ページの<b>CreateUserWizard</b> コントロールを使用して 次の2 つのユーザー アカウントを作成します:ドメイン アカウントに一致するユーザー名を有し、また Northwind  データベースへの読み取りアクセスを認可する SQL Server のログインを有するユーザーアカウント、およびドメイン アカウントに一致しないユーザー名を有するユーザー アカウント。 <blockquote><b>注意</b>: &nbsp;&nbsp;既定では、ASP.NET ログイン コントロールは自動で SQL Express メンバーシップ データベースを \app_data フォルダに作成および構成し、メンバーシップ データベースとしての役割を果たします。 </blockquote><li>ドメイン アカウントに一致しないユーザー アカウントには <b>ログイン</b> コントロールを使用してログインします。 ログインは成功しますが、ユーザーを偽装しようとする試みには失敗し、ユーザー名がドメイン名に一致しないために<b>SecurityException</b> が生成されます。 <li>アプリケーションを再起動します。 ドメイン アカウント名に一致するユーザー名を使用してログインします。 Web サーバで、ASP.NET アプリケーションは最初の呼び出し元を偽装し、その呼び出し元の ID を使用して実行します。 制約付き委任の構成は、データベースへのアクセスに同じ ID が使用されることを確認します。 </li></li></li></li>
+  </ol>
+  <h1>制約付き委任を使用して複数層にアクセスする</h1>
+  <p>制約付き委任を使用して、例えば、Web サーバからアプリケーション サーバ、そしてデータベース サーバへという形で、最初の呼び出し元の ID を複数のアプリケーション層に渡すことができます。</p>
+  <h2>Web からアプリケーション サーバ、そしてデータベースに</h2>
+  <p>以下のイントラネット シナリオでは、クライアントのコンピュータはサーバのドメインと同じドメイン上にあり、ドメイン コントローラと直接通信することができるものとします。 その結果、 ASP.NET アプリケーションには Windows 認証が構成され、Web サイトは統合 Windows 認証のために IIS に構成されます。 </p>
+  <p>Web サーバはアプリケーション サーバ上でWeb サービスによって公開された中間層のビジネス ロジックにアクセスします。 このシナリオは図 2 に示されています。</p>
+  <p>
+    <img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998355.f01paght00002402(en-us,MSDN.10).gif" border="0" />
+  </p>
+  <p>
+    <b>図 2:  最初の呼び出し元が Windows 認証によって認証されている場合には、複数の層におけるプロトコル切り替えがあるか否かにかかわらず、制約付き委任を使用します。</b>
+  </p>
+  <p>このシナリオの主な特徴：</p>
+  <ul>
+    <li>アプリケーションはユーザーを認証するために Kerberos 認証を使用します。 そのためプロトコル切り替えは不要です。 <li>制約付き委任は、偽装中にWeb アプリケーションを許可して、アプリケーション サーバ上のHPPT サービスにアクセスするために必要です。 <li>制約付き委任は、偽装中にアプリケーション サーバを許可して、データベース サーバ上の SQL Server (MSSQLSvc) サービスにアクセスするために必要です。 <li>アプリケーション サーバ上の Web サービスは Kerberos 認証を使用して呼び出し元（Web アプリケーション）を認証し、その後、データベースにアクセスする間、認証された呼び出し元を偽装します。 </li></li></li></li>
+  </ul>
+  <h2>Web サーバの構成</h2>
+  <p>Web サーバを構成するには、IIS 内の Windows 認証を有効にして、偽装用にASP.NET アプリケーションを構成してから、 Web サービス プロキシの<b>Credential 情報</b> プロパティを設定する必要があります。</p>
+  <h3>Web サーバと ASP.NET プレゼンテーション層アプリケーションを構成する</h3>
+  <ol>
+    <li>IIS を使用して Web サイトの統合 Windows 認証を構成します。 匿名アクセスが無効になっていることを確認します。 <li>以下の設定を使用して、ASP.NET アプリケーションが Windows 認証と偽装を使用するように構成します。 <div><pre>&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;identity impersonate="true"/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&lt;/system.web&gt;   </pre></div><li>以下のコードで示されているように、認証されたユーザーのセキュリティ コンテキストを Web サービスに渡すようにWeb サービス プロキシの<b>Credential 情報</b> プロキシを設定します。 <div><pre>// Call the web service passing the original user's credentials<br />DataAccessWS.WebService ws = new DataAccessWS.WebService();<br />ws.Credentials = CredentialCache.DefaultCredentials;<br />&nbsp; <br />ws.GetData();</pre></div></li></li></li>
+  </ol>
+  <h2>アプリケーション サーバの構成</h2>
+  <p>アプリケーション サーバを構成するには、 IIS 内の Windows 認証を有効にして、ASP.NET アプリケーションの偽装を構成してから、Windows 認証をデータベースにアクセスするために使用します。 </p>
+  <h3>アプリケーション サーバと Web サービスを構成する</h3>
+  <ol>
+    <li>IIS を使用して Web サイトの統合 Windows 認証を構成します。 匿名アクセスが無効になっていることを確認します。 <li>以下の設定を使用して、Web サービスが Windows 認証および偽装を使用するように構成します。 <div><pre>&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;identity impersonate="true"/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&lt;/system.web&gt;<br /></pre></div><li>Windows 認証を使用してデータベースにアクセスします。 偽装の構成は、認証されたユーザーの Credential 情報がデータベースにアクセスするために使用されていることを保証します。 関連するエンドユーザーのアカウントに SQL Server のログインと関連するデータベースのアクセス許可があることを確認する必要があります。 </li></li></li>
+  </ol>
+  <h2>Active Directory の構成</h2>
+  <p>Web アプリケーションが制約付き委任を使用してアプリケーション サーバ上の Web サービスにアクセスできるようにするには、Active Directory を構成する必要があります。 また、アプリケーション サーバ上の Web サービスが SQL Server のデータベースにアクセスできるようにするときにも、Active Directory を構成する必要があります。</p>
+  <h3>Web サーバに制約付き委任を構成する</h3>
+  <ol>
+    <li>［<b>Active Directory Users and Computers</b> ］MMC スナップ インを使用して、Web サーバ コンピュータ（ ASP.NET Web アプリケーションを実行するために、ネットワーク サービス アカウントを使用している場合）またはカスタム ユーザー アカウント（アプリケーションを実行するために、カスタム アカウントを使用している場合）のいずれかの［<b>プロパティ</b> ］ダイアログ ボックスを表示します。 <li><b>プロパティ</b> ウィンドウの［ <b>委任</b>］タブで、［<b>指定されたサービスへの委任でのみ<i>このコンピュータ</i>/<i>ユーザー</i> を信頼する</b>］を選択します。これにより、以下のウィンドウで選択するサービスに対する制約付き委任が有効になります。 <li>［<b>指定されたサービスへの委任でのみ<i>このコンピュータ</i>/<i>ユーザー</i> を信頼する</b>］の後に［<b>Kerberos のみ使用</b>］を選択します。これは、呼び出し元が Kerberos  認証のみを使用することで認証されているシナリオの場合に、制約付き委任の使用を制限します。 Kerberos 以外の方法によって呼び出し元を Web サーバに認証する場合には、<b> </b>この文書の"ステップ1. プロトコル トランジションを使用してオリジナル呼び出し元用に Windows トークンを作成する" で説明されている通りに、 Use any protocol を選択して、プログラムによって呼び出し元用の Windows トークンを取得する必要があります。 <li>[<b>Add</b>] ボタンをクリックします。 [<b>Add Services</b>] ダイアログ ボックスが表示されます。 <li>［ <b>ユーザーまたはコンピュータ</b> ］ボタンをクリックします<li>［<b>ユーザーまたはコンピュータの選択</b>ダイアログ ボックスでアプリケーション サーバの名前を入力してから、［ <b>OK］をクリックします。</b><li>アプリケーション サーバで利用できるサービスがすべて表示されます。  ［<b>HTTP</b> ］サービスを選択してから［ <b>OK</b>］をクリックします。</li></li></li></li></li></li></li>
+  </ol>
+  <h3>アプリケーション サーバの制約付き委任を構成する</h3>
+  <p>データベース サーバ上での MSSQLSvc サービスへの制限アクセスを除き、Web サーバ用の上記の構成ステップに従います。 </p>
+  <ul>
+    <li>［ <b>Active Directory ユーザーとコンピュータ</b> ］MMC スナップインで、アプリケーション サーバ コンピュータのアカウントを選択します（Web サービス アプリケーション実行用に、既定のネットワーク サービス アカウントを使用している場合）。 Web サービス アプリケーションがカスタム ドメイン アカウントの下で実行している場合には、そのユーザー アカウントを選択します。 <li>制約付き委任が許可されるサービスを構成する際に、データベース サーバ コンピュータとそのコンピュータ上の<b>MSSQLSvc</b> サービスを選択します。 </li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Web アプリケーション、Web サービスまたはSQL Serverの実行にカスタム ドメイン アカウントを使用している場合には、アカウントの SPN を作成したことを確認します。 SPN の作成に関する詳細は、"ステップ 2. サービスまたはマシン アカウントで制約付き委任の構成を行う" を参照してください。<b></b></blockquote>
+  <h1>ドメインの機能レベル</h1>
+  <p>既定では、 Windows Server 2003 のドメインはWindows 2000 の混在モードで起動します。 制約付き委任とプロトコル切り替えを使用するためには、ドメインの機能レベルを Windows Server 2003 に上げる必要があります。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;この変更は元に戻せません。<b></b></blockquote>
+  <h2>ドメインの機能レベルを確認する</h2>
+  <ol>
+    <li>［<b>Active Directory ユーザーとコンピュータ</b> ］MMC スナップインの左側のウィンドウで、ドメインの root ノード を右クリックしてから［<b>プロパティ</b>］をクリックします。<li>［ <b>プロパティ</b> ］ダイアログ ボックスはドメインの機能レベルを含む情報を表示します。 ドメインが Windows 2000 混在ドメインとして機能している場合には、ドメインの機能レベルを Windows Server 2003 に上げることで、制約付き委任を使用することができます。 </li></li>
+  </ol>
+  <h2>ドメインの機能レベルを Windows Server 2003 に上げる</h2>
+  <ol>
+    <li>［Active Directory ユーザーとコンピュータ］MMC スナップインで、<b>Active Directory ユーザーとコンピュータ[<i>machinename</i>.<i> domain</i>]</b> と題された root ノードをクリックします。<li>［ <b>アクション</b> ］メニューで［ <b>すべてのタスク</b>］をクリックしてから［ <b>ドメインの機能レベルを上げる</b>］をクリックします。<li>［ <b>利用可能なドメインの機能レベルを選択してください</b> ］ドロップダウン ボックスから［<b>Windows Server 2003</b>］を選択します。  <b>OK</b> をクリックします。</li></li></li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

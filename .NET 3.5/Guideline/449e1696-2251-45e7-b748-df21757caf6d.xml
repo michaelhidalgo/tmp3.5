@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="965597428" Content_Hash="-1962202635">
+  <Metadata>
+    <Id>449e1696-2251-45e7-b748-df21757caf6d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>認可 Cookie を持続しない</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>認可 Cookie を持続させません。 </p>
+  <h1>理由</h1>
+  <p>持続する認可 Cookie はユーザーのプロフィールに補完され、攻撃者によりマシンへ物理的なアクセスされた場合には盗まれてしまいます。&nbsp; また、これにより公共または共有されたマシンからアプリケーションにアクセスしてログアウトするのを忘れてしまうようなユーザーの問題を防ぐことができます。 </p>
+  <h1>状況</h1>
+  <p>認可 Cookie を使用する全てのアプリケーションは、 Cookie が持続しないことを確認してください。 </p>
+  <h1>対策</h1>
+  <p>次の例では認可 Cookie を保護するために構成された&lt;roleManager&tg; （ロール管理）エレメントを示します。 </p>
+ <pre>&lt;roleManager enabled="true"<br />             cacheRolesInCookie="true"<br />             cookieName=".ASPROLES"<br />             cookieTimeout="30" <br />             cookiePath="/"<br />             cookieRequireSSL="true"<br />             cookieSlidingExpiration="true"<br />             cookieProtection="All"<br />             createPersistentCookie="false"&gt;<br />&lt;/roleManager&gt;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="605873741" Content_Hash="-740726152">
+  <Metadata>
+    <Id>eca50d69-2e9b-48b8-991e-dabb39b86489</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アカウント管理をサポート</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>パスワードの複雑さについての規定、およびログイン失敗の回数制限を実施することを確認します。 </p>
+  <h1>理由</h1>
+  <p>ログイン失敗回数を制限することで、辞書攻撃の脅威の対策になります。 </p>
+  <h1>状況</h1>
+  <p>アプリケーションがWindows 認証を使用する場合、強力なパスワードの使用、ログイン試行回数の制限、アカウント管理ポリシーのその他ベスト プラクティスは、Windows セキュリティ ポリシーによって実施されます。 そうでない場合は、アプリケーション レイヤーがこれを行います。 </p>
+  <h1>対策</h1>
+  <h2>エンド ユーザー アカウントにアカウント ロックアウト ポリシーを使用します。</h2>
+  <p>ログイン試行の失敗が設定数に達した場合、エンド ユーザー アカウントを無効にするかログにイベントを記録します。 NTLM や Kerberos プロトコルなどのWindows 認証を使用している場合、これらのポリシーはオペレーティング システムにより自動的に適用されていることがあります。 Forms authentication については、これらのポリシーはアプリケーションの責任であり、アプリケーションの設計に組み込まれている必要があります。</p>
+  <p>アカウント ロックアウト ポリシーが、DoS攻撃で悪用されないように注意してください。 たとえば、IUSR_MACHINENAME などのよく知られたデフォルトのサービス アカウントは、IIS Webサーバ名を入手できる攻撃者がこの重要なアカウントをロックアウトするのを防止するため、カスタム名に置き換える必要があります。</p>
+  <h2>アカウントの無効化を可能にする</h2>
+  <p>システムが侵害を受けている場合、意図的に Credential 情報を無効化したりアカウントを無効にしたりできると、それ以上の攻撃を防止できます。</p>
+  <p>アプリケーションがWindows 認証を使用する場合、強力なパスワードの使用、ログイン試行回数の制限、アカウント管理ポリシーのその他ベスト プラクティスは、Windows セキュリティ ポリシーによって実施されます。 そうでない場合は、アプリケーション レイヤーがこれを行います。 アプリケーションのアカウント管理に関して次の事項を見直してください。</p>
+  <ul>
+    <li>
+      <b>アプリケーションは強力なパスワードを実施していますか?</b>
+      <p>たとえば、ASP.NET ウェブ ページはパスワードの複雑さの規定を検証するため正規表現を使用していますか？ </p>
+      <blockquote>
+        <b>注意</b>: &nbsp;&nbsp;ASP.NET 2.0のメンバーシップ機能を使用している場合、プロバイダーが強力なパスワードを強制するように設定できます。 詳細は、「<a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/paght000012.asp">ASP.NET 2.0 のForms Authenticationの保護方法</a>」をご覧ください。</blockquote>
+      <li>
+        <b>ログイン試行の失敗回数に制限を設けていますか?</b>
+        <p>これは、辞書攻撃の脅威への対策となります。 </p>
+        <li>
+          <b>失敗が起こったとき、情報を提供しすぎていませんか?</b>
+          <p>悪意のあるユーザーにユーザー名が正しいことを知らせることになるため、「パスワードが間違っています」などのメッセージを表示しないようにします。 この場合、彼らがパスワードの解読だけに集中するようになります。 </p>
+          <li>
+            <b>パスワードの定期的な変更を強制していますか?</b>
+            <p>ユーザーがずっとパスワードを変更しない可能性は高く、脆弱性が増すことから、このような強制が推奨されます。 </p>
+            <li>
+              <b>侵害があった場合、即座にアカウントを無効にできますか?</b>
+              <p>アカウントへの侵害があった場合、簡単にアカウントを無効化し、攻撃者がそのアカウントを継続して使用することを防ぎます。 </p>
+              <li>
+                <b>アプリケーションはログイン試行を記録していますか?</b>
+                <p>ログインの失敗を記録することは、侵入しようとしている攻撃者を検出する効果的な方法です。 </p>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>セキュアなウェブアプリケーションのための設計ガイドライン<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a><li>セキュリティのためのアーキテクチャおよび設計レビュー<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a><li>ASP.NETアプリケーションおよびウェブサービスをセキュアに保つ <a href="http://msdn2.microsoft.com/en-us/library/aa302435.aspx">http://msdn2.microsoft.com/en-us/library/aa302435.aspx</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

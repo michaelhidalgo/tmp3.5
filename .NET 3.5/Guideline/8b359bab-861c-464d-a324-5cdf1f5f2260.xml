@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1890369745" Content_Hash="-69773129">
+  <Metadata>
+    <Id>8b359bab-861c-464d-a324-5cdf1f5f2260</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>運用内では臨時の証明書を使用しない</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>一時的証明書はWCF サービスを開発しテストするときのみ使用します。 </p>
+  <h1>理由</h1>
+  <p>一時的証明書は、運用証明書よりも安価であり、より簡単に作成できます。 </p>
+  <h1>状況</h1>
+  <p>証明書を使用する際はこのガイドラインの使用を検討します。　</p>
+  <h1>対策</h1>
+  <p>展開する準備が整ったら、一時的証明書を CA (認証局) によって提供される運用証明書と置き換えます。 <br />一時的証明書は makecert ユーティリティを使用することにより作成できます。 現実世界のプロダクション環境で WCF サービスを展開している場合は、Microsoft Windows Server 2003 証明書サーバまたはサード パーティのような CA から提供された証明書を使用します。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>証明書の作成方法についての詳細は、<a href="http://msdn2.microsoft.com/en-us/library/bfsktky3(VS.80).aspx">http://msdn2.microsoft.com/en-us/library/bfsktky3(VS.80).aspx で “証明書作成ツール" を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

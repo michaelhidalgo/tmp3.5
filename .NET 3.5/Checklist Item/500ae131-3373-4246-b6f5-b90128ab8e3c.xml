@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-218927289" Content_Hash="-860612228">
+  <Metadata>
+    <Id>500ae131-3373-4246-b6f5-b90128ab8e3c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーのログイン Credential 情報を使用する前に有効にする</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>処理前にユーザーの資格情報が検証されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>ユーザー提供のログイン情報の検証により、システム アーキテクチャに応じて、クロスサイト スクリプティング攻撃、SQL インジェクション、およびその他の潜在的な問題を回避することができます。 すべての入力は使用前に必ず検証され、表示前にエンコードされなければなりませんが、ログイン情報は高価値のデータ ストアと相互処理するため特に重要です。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順に従って、アプリケーションでユーザーの資格情報が使用前に検証されていることを確認します。 </p>
+  <ol>
+    <li>
+      <p>
+        <strong>ユーザーの資格情報を処理するすべてのコードを特定します。 </strong>アプリケーションを調べて、コード ベース内でユーザーの資格情報の処理を行っているすべての場所を確認します。 一般的な箇所には以下が含まれます。</p>
+      <ul>
+        <li>新規ユーザーの作成 <li>既存のユーザーの編集 <li>既存のユーザーのCredential情報の変更 <li>既存のユーザーに関連する情報の取得 <li>既存のユーザーの削除 <li>ユーザーの認証</li></li></li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>検証が適切に処理されていることを確認します。 </strong>アプリケーションの開発ライフ サイクルの異なる段階すべてで、ユーザー名の検証に対する対応が行われていることを確認します。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>要件</strong>: アプリケーションのセキュリティ要件に、受け入れ可能なユーザー名に関するポリシーがあるかどうかをチェックしてください。 そのようなポリシーには、有効なユーザー名およびパスワードの要件として長さと入力セットが記述されていなければなりません｡ パスワード要件の詳細については、「<a href="/article/b7dde97a-d5e3-49a8-b98b-121213bdccf4">堅牢なパスワードが強制されている</a>」チェックリストを参照してください。</p>
+            <li>
+              <p>
+                <strong>設計</strong>: すべてのユーザー名検証ルーチンが、ユーザーの Credential 情報を処理するアプリケーションのすべてのルーチンの信頼境界で適切に区分けされているかをチェックしてください。 たとえば、アプリケーション内のコンポーネントによってユーザー名が処理される前に、すべての検証が行われなければなりません。</p>
+ <pre>&lt;asp:Login ID="Login1" runat="server" <strong>OnLoggingIn="ValidateUsername"</strong> ... /&gt;</pre>
+              <li>
+                <p>
+                  <strong>実装</strong>:</p>すべてのユーザー名検証ルーチンが、ユーザー名に関するアプリケーションのポリシーを実装しているかをチェックしてください。 実装には、ブラックリスト検証方法ではなく、ホワイトリスト検証方法が使用されていることを確認します。 例: <pre>public bool ValidateUsername(string username)<br />&amp;#123;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; Regex rx = new Regex("(\\w&amp;#124;\\d)&amp;#123;6,&amp;#125;");<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; return rx.IsMatch(username);<br />&amp;#125;</pre><p>エラーまたは例外のすべての条件が適切に処理されていることを確認します。&amp;nbsp;ユーザー名検証に失敗した際に、直ちにすべての認証プロシージャが正常に終了されることを確認します。 詳細については、「<a href="/article/98fb697a-6278-4f73-8937-291b2b83cdb4">エラー メッセージで重要な情報が漏えいされない</a>」および「<a href="/article/edb7f620-21a6-4599-aebd-2966c47ec2e3">例外の詳細がクライアントに漏えいされない</a>」チェックリストを参照してください。</p></li>
+            </li>
+          </li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコードは､Web アプリケーションのユーザーを認証します。 しかしながら、ユーザーのログイン情報の有効化に失敗する結果、&amp;nbsp;&amp;nbsp;攻撃者が認証メカニズムを破って認可されていないアクセスを取得することを許してしまいます。</p>
+ <pre>&lt;asp:Login ID="Login1" runat="server" MembershipProvider="MyAppMembershipProvider" /&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>正規表現に関するチュートリアルは、<a href="http://www.regular-expressions.info/">Regular-Expressions.info</a> で参照できます。 </li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

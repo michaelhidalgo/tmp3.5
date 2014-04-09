@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-643555541" Content_Hash="-985500837">
+  <Metadata>
+    <Id>ce899ba6-8ae2-4494-8706-ce863fae58e7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザー提供のファイル名およびパス入力をフィルターする</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ユーザーが提供したファイル名およびパスの使用を注意深く検証し、正しいフォーマット、およびアプリケーションのコンテキスト内の場所の有効性を確認します。</p>
+  <h1>理由</h1>
+  <p>パスおよびファイル名のフィルタリングは、アプリケーションにサーバ上の任意のファイルを読み取らせる、またはそれに書き込ませる可能性のある<a href="/article/f9f0a869-98fe-4ac5-9de3-3eaf33306c4b">正規化攻撃</a>の回避に役立ちます。</p>
+  <h1>状況</h1>
+  <p>サーバ上のファイルまたは類似するリソースのファイル名またはパス コンポーネントとして使用されるユーザー入力を受信した場合。</p>
+  <h1>対策</h1>
+  <p>可能な場合は常に、ユーザー提供の入力はいかなるファイル名またはパスのコンポーネントとしても使用しないことをお勧めします。 ユーザーにより提供されるファイルを格納する際は、ユーザー提供のファイル名をデータベースで維持し、ファイルを GUID の下のディスクに格納します。 同様に、絶対に必要な場合を除いて、ユーザーにどのファイルにアクセスするかという詳細を特定させないでください。 ファイル名またはパスの一部をユーザーが指定できるようにする必要がある場合、以下の 3 つのメソッドを使用して、ユーザーが提供したパスおよびファイル名の安全な取扱いを保証することをお勧めします。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ファイル パスおよび名前を検証する</strong>: 正規化のバグを回避するには、<a href="http://msdn2.microsoft.com/en-us/library/system.io.path.getfullpath(vs.80).aspx">System.IO.Path.GetFullPath</a> メソッドを使用してファイル名を正規化します。</p>
+      <li>
+        <p>
+          <strong>MapPath を使用してクロス アプリケーション マッピングを回避するには</strong>: <strong>MapPath</strong> を使用して、提供された仮想パスをサーバ上の物理パスにマップする場合、クロス アプリケーション マッピングを回避できるようにブールパラメーターを承認する <a href="http://msdn2.microsoft.com/en-us/library/3z2189ck(VS.80).aspx">Request.MapPath</a> のオーバーロードを使用します。 下記のサンプルでは、最後の <strong>false</strong> パラメーターがクロス アプリケーション マッピングを回避します。 つまり、ユーザーは “..” を含むパスを指定することでアプリケーションの仮想ディレクトリ階層外をスキャンすることはできません。 これを実行しようとする試みはすべて例外をもたらします。</p>
+        <li>
+          <p>
+            <strong>コード アクセス セキュリティを使用してファイル IO を制限する</strong>: Web アプリケーションによるすべてのファイル オペレーションを独自の仮想ディレクトリのみに制限するよう構成できます。 これは、アプリケーションが中程度の信頼で動作するよう設定することにより実行されます。これは、Web.config または Machine.config の <strong>&lt;trust&gt;</strong> エレメントを以下のように設定することで実行できます。</p>
+          <pre> &lt;trust level="Medium" /&gt;</pre>
+          <p>
+            <strong>中程度の信頼</strong> でアプリケーションを正常に実行するには、適切な設計および開発技術が必要です。 </p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードの例では、サーバはユーザーからファイル名を受信します。 サーバはユーザー提供のファイル名をハードコードされたパスに追加し、このファイルがサーバ上に存在するかどうかを調べるよう確認します。 ファイルが存在する場合、サーバはファイルを開き、それに操作を実行します。</p>
+  <blockquote>
+ <pre>&lt;&amp;#37;&amp;#64;Page Language="C#" ValidateRequest="false" &amp;#37;&gt;<br /> &lt;script runat="server"&gt;<br />   void submitBtn_Click(object sender, EventArgs e)<br />   &amp;#123;<br />       String fileName = "c:\\configfiles\\" &amp;#43; inputPath.Text;<br />       if (System.IO.File.Exists (fileName))<br />       &amp;#123;<br />            System.IO.FileStream fs = System.IO.File.Open(fileName, System.IO.FileMode.Open);<br />       &amp;#125;<br />   &amp;#125;<br /> &lt;/script&gt;<br /> &lt;html xmlns="<a href="http://www.w3.org/1999/xhtml/Overview.html">http://www.w3.org/1999/xhtml/Overview.html</a>"&gt;<br />   &lt;body&gt;<br />     &lt;form id="form1" runat="server"&gt;<br />       &lt;div&gt;<br />         &lt;asp:TextBox ID="inputPath" Runat="server"<br />               TextMode="MultiLine" Width="382px" Height="152px"&gt;<br />         &lt;/asp:TextBox&gt;<br />         &lt;asp:Button ID="submitBtn" Runat="server" Text="Submit"<br />                      OnClick="submitBtn_Click" /&gt;<br />       &lt;/div&gt;<br />     &lt;/form&gt;<br />   &lt;/body&gt;<br /> &lt;/html&gt;</pre>
+  </blockquote>
+  <p>ここでは、開発者の意図が<strong>C:\ConfigFiles</strong> フォルダにアクセスを制限することだと明確に分かります。 しかし、ユーザーが入力"..\windows\system32\critical.ini" を提供した場合、アプリケーションは直ちにユーザー提供の入力とハードコードされたパスを結び付け、攻撃者に重要なシステム ファイルへのアクセス権を付与します。</p>
+  <h1>ソリューションの例</h1>
+  <p>これで、このアプリケーションのサーバ側のコードは、GetFullPath メソッドを使用するように更新されます。</p>
+  <blockquote>
+ <pre> &lt;script runat="server"&gt;<br />   void submitBtn_Click(object sender, EventArgs e)<br />   &amp;#123;<br />       String fileName = "c:\\configfiles\\" &amp;#43; inputPath.Text;<br />       fileName = System.IO.Path.GetFullPath(fileName).ToLower();<br />       if (fileName.StartsWith("c:\\configfiles") &amp;&amp;<br />            System.IO.File.Exists (fileName))<br />       &amp;#123;<br />            System.IO.FileStream fs = System.IO.File.Open(fileName, System.IO.FileMode.Open);<br />       &amp;#125;<br />   &amp;#125;<br /> &lt;/script&gt;</pre>
+  </blockquote>
+  <p>そして、ウェブサイトが GetFullPath を呼び出したら、ファイル名が確かに C:\ConfigFiles\ folder 内のどこかを指し示していることを確認します。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>アプリケーションのインジェクションベースの攻撃からの保護に関する詳細については、<a href="http://channel9.msdn.com/wiki/default.aspx/Channel9.HowToProtectFromInjectionAttacks">「Channel9 Wiki: インジェクション攻撃から保護する方法」</a>を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/0c6693ed-e3c2-4640-a795-c7c9c2a63cbc">ガイドライン: セキュリティ ポリシーを定義する</a>
+      <li>
+        <a href="/article/bf203bfc-b726-4e42-8fb3-fe0cfe02616a">チェックリスト アイテム: ユーザー提供のファイル名およびパスが検証されている</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

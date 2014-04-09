@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1463786303" Content_Hash="-28811030">
+  <Metadata>
+    <Id>186eba2d-02b7-4bd8-a274-d84e56c03fe9</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>システム レベル リソースへのユーザー アクセスを制限する</Title>
+    <Category>認可</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>設計は、プロセス アイデンティティを含むアプリケーションが使用するすべてのアイデンティティ、および匿名のインターネット ユーザー アカウントやサービス アイデンティティを含むあらゆるなりすましアイデンティティを特定することをお勧めします。 また、設計がこれらのアイデンティティがアクセスを必要とするリソースを示すことをお勧めします。</p>
+  <h1>理由</h1>
+  <p>アプリケーション アイデンティティに対してシステム リソースをロック ダウンできない場合、攻撃者は制限されたシステム リソースにアプリケーションがアクセスするよう強制できます。</p>
+  <h1>状況</h1>
+  <p>アプリケーションを設計する際は、どのシステム レベル リソースにアクセス可能であるかという点でアプリケーションに設定される制限について考慮してください。</p>
+  <h1>対策</h1>
+  <p>システムレベルのリソースには、ファイル、フォルダー、レジストリ キー、Active Directoryオブジェクト、データベース オブジェクト、イベント ログなどがあります。 Windows アクセス制御リスト (ACL) を使用して、どのユーザーがどのリソースにアクセスできるか、またどの種類のオペレーションを実行できるかを制限します。 匿名 (anonymous) のインターネット ユーザー アカウントには特に注意します。 匿名ユーザーへのアクセスを明確に拒否するリソースについて、ACL を使用してこれらをロック ダウンしてください。</p>
+  <p>Windows ACL を使用した匿名インターネット ユーザー アカウントのロック ダウンの詳細については、第 16 章の「ウェブ サーバの保護」を参照してください。(<a href="http://msdn2.microsoft.com/en-us/library/aa302432.aspx">http://msdn2.microsoft.com/en-us/library/aa302432.aspx</a>&nbsp;)</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a>&nbsp; の「第 4 章 - 安全なウェブ アプリケーションのための設計ガイドライン」を参照してください。 </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

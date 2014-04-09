@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2017689105" Content_Hash="1212491673">
+  <Metadata>
+    <Id>f86ed5c8-2c53-41b9-b936-ec50ca8c0b0c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>外部の Web アプリケーションで使用するために Cookie を暗号化して署名する</Title>
+    <Category>Cookie</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、一般的なサーバー側セッション状態がない場合に、外部の信頼済みウェブ アプリケーションにセッション データを安全に配布する方法を示すことです。 HMAC を生成したり、タイムスタンプを含めたり、セッション データを暗号化したりする内容も含まれています。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>安全でない通信チャネル上でも、伝送中のアプリケーション Cookieの機密性を提供し、認可されていないユーザーに対して露出しないようにする。 <li>セッション再生を軽減するコントロールを提供する<li>情報漏えいから保護するコントロールを提供する<li>メッセージの完全性を有効にするコントロールを提供する<li>HMAC メッセージ署名により、ビジネス ロジック、認証または認可コンテキスト、あるいは全体的なデータの完全性に影響を与えうる、 Cookie パラメーターをタンパリングするユーザーの能力から保護する<li>データ保護 API (DPAPI) を使用して、共有秘密暗号鍵および HMAC 署名鍵の安全な格納場所を確保する</li></li></li></li></li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>Web アプリケーションは、セッション状態内の何らかの詳細情報を別のアプリケーションに分配する必要がある (シングル サインオン、分散型 Web サーバ アーキテクチャーなど)<li>ウェブ アプリケーションは、共通のサーバ側データ ストアを通してセッション状態を共有することができないインフラストラクチャ内に展開される。 <li>共有対称鍵と HMAC 署名鍵は、帯域外であっても、他のセキュア通信チャネルを介してであっても、事前に確立される。 <li>開発者は、ビジネス ロジック、認証または認可コンテキストあるいは全体的なデータの完全性に影響を与える可能性のある、ユーザーによる Cookie パラメーターのタンパリングを回避することを望む<li>セッション状態を外部のアプリケーションに安全に分配する<li>Cookie の暗号化により機密性を提供する<li>暗号ブロブに組み込まれる HMAC コードを使用してメッセージの完全性を提供する<li>セッション タイムアウト メカニズムを使用してセッション リプレイを軽減する<li>ユーザーは、複数のウェブ サーバにわたって配布されたデータを取得する必要がある。各サーバは、カスタマー ポータル、レポート サーバなど、異なる目的で稼働している。</li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+  <p>
+    <strong>鍵の取得と保存のための DPAPI ユーティリティ クラス</strong>
+  </p>
+ <pre>public class DPAPIUtil{<br />          private string registryKeyName = "ACMEWebApplication";<br />    private string registryEncValueName = "symmetrickey";<br />    private string registryHMACValueName = "hmackey";<br />    string fullRegistryKeyPath = "";<br />    public DPAPIUtil()<br />    {<br />           fullRegistryKeyPath = @"HKEY_CURRENT_USER\" + registryKeyName;<br />    }<br />    public void StoreHMACKey(byte[] val)<br />    {<br />        // Encrypt the HMAC signing key using the DPAPI ProtectedData class.<br />        // <br />        // We're using the CurrentUser scope instead of the MachineKey scope<br />        // so that other, potentially malicious applications cannot access<br />        // this key in the registry and decrypt.<br />        byte[] encryptedValBytes = ProtectedData.Protect(val, null,<br />            DataProtectionScope.CurrentUser);<br />        // Create a security context for a new key that we will use to store our encrypted connection string.<br />        // The security context will restrict access to only our user.<br />        string user = Environment.UserDomainName + "\\" + Environment.UserName;<br />        RegistrySecurity security = new RegistrySecurity();<br />        RegistryAccessRule rule = new RegistryAccessRule(user,<br />                        RegistryRights.FullControl,<br />                        InheritanceFlags.ContainerInherit,<br />                        PropagationFlags.None,<br />                        AccessControlType.Allow);<br />        security.AddAccessRule(rule);<br />        // Actually create the new registry key and apply the security context we just came up with.<br />        Registry.CurrentUser.CreateSubKey(registryKeyName,<br />                        RegistryKeyPermissionCheck.ReadWriteSubTree,<br />                        security);<br />        // Write the encrypted string into the registry<br />        Registry.SetValue(fullRegistryKeyPath, registryHMACValueName, encryptedValBytes);<br />    }<br />        public void StoreSymmKey(byte[] val)<br />        {<br />                 // Encrypt the shared secret key using the DPAPI ProtectedData class.<br />                 //<br />                 // We're using the CurrentUser scope instead of the MachineKey scope     <br />                 // so that other, potentially malicious applications cannot access       <br />                 // this key in the registry and decrypt.<br />	        byte[] encryptedValBytes = ProtectedData.Protect(val, null,<br />	        DataProtectionScope.CurrentUser);<br />	        // Create a security context for a new key that we will use to store our shared secret key.<br />	        // The security context will restrict access to only our user.<br />	        string user = Environment.UserDomainName + "\\" + Environment.UserName;<br />	        RegistrySecurity security = new RegistrySecurity();<br />	        RegistryAccessRule rule = new RegistryAccessRule(user,<br />	                        RegistryRights.FullControl,<br />	                        InheritanceFlags.ContainerInherit,<br />	                        PropagationFlags.None,<br />	                        AccessControlType.Allow);<br />	        security.AddAccessRule(rule);<br />	        // Actually create the new registry key and apply the security context we just came up with.<br />	        Registry.CurrentUser.CreateSubKey(registryKeyName,<br />                        RegistryKeyPermissionCheck.ReadWriteSubTree,<br />                        security);<br />        		// Write the encrypted string into the registry<br />       		Registry.SetValue(fullRegistryKeyPath, registryEncValueName, encryptedValBytes);<br />   	}<br />    	public byte[] RetrieveHMACKey()<br />    	{<br />        		// Read the encrypted hmac signing key value from the registry<br />	         byte[] encryptedValBytes = Registry.GetValue(fullRegistryKeyPath, registryHMACValueName, null) as byte[];<br />	        // Decrypt the encrypted bytes using DPAPI and return<br />       		 byte[] decryptedValBytes = ProtectedData.Unprotect(encryptedValBytes, null,<br />	            DataProtectionScope.CurrentUser);<br />        return decryptedValBytes;<br />    }<br />    public byte[] RetrieveSymmKey()<br />    {<br />        // Read the encrypted symmetric key value from the registry<br />         byte[] encryptedValBytes = Registry.GetValue(fullRegistryKeyPath, registryEncValueName, null) as byte[];<br />        // Decrypt the encrypted bytes using DPAPI and return<br />        byte[] decryptedValBytes = ProtectedData.Unprotect(encryptedValBytes,null,<br />                DataProtectionScope.CurrentUser);<br />        return decryptedValBytes;<br />     }<br />}</pre>
+  <p>
+    <strong> Cookie内の暗号化および署名された鍵の設定</strong>
+  </p>
+  <p>Cookie値を確立します。</p>
+ <pre>// Fetch some details to be passed to the remote web application<br />// e.g.:<br /> //<br />// string uid = UserInfo.GetUID(user);<br />string user = HttpContext.Current.User.Identity.Name;<br />bool adminRole = HttpContext.Current.User.IsInRole("admin");<br />// We create a concatenated cookie value containing all of the details/<br />/ that we would like to pass to the remote application.<br />// We also include a DateTime string, to help mitigate the risk of session replay<br />//cookieval = user + "|" + uid + "|" + adminRole.ToString() + "|" +<br />         DateTime.Now.ToBinary().ToString();<br />// Considerations to help protect against replay:<br />//<br />   //  - Minimize the interval during which cookies are accepted from the remote site<br />//  - Consider implementing a sequence ID, in which used sessions are marked accordingly<br />//    in the database<br />//  - Leverage a secure session transport (SSL)<br />//  - Use restrictive cookie settings (Path, HttpOnly, Secure mode, restrict the domain<br />//          + Consider implementing a sub domain to be used by applications in which<br />//            cookie sharing is necessary (e.g. .ourapps.microsoft.com)</pre>
+  <p>Cookie 値を暗号化、署名および設定する。</p>
+ <pre>// Instantiate our DPAPI helper functions<br />DPAPIUtil dputil = new DPAPIUtil();<br />// Retrieve the symmetric encryption key we wish to use<br />byte[] enckey = dputil.RetrieveSymmKey();<br />// Create the Crypto provider<br />Rijndael rij = Rijndael.Create();<br />// Load the DPAPI protected keyrij.Key = enckey;<br />// By default we have a random IV from when we made the call to Rijndael.<br />Create()<br />// We'll just prepend the IV to the encrypted value so the remote app can use our<br />// random IV. Alternatively it is possible to generate a new Random Initialization<br />// Vector manually by calling:<br />//   rij.GenerateIV();<br />MemoryStream ms = new MemoryStream();<br />CryptoStream ecs = new CryptoStream(ms, rij.CreateEncryptor(), CryptoStreamMode.Write);<br />// Create the HMAC for our plaintext value<br />// Now we need to validate the HMAC to ensure the message wasn't altered<br />// We use a distinctly seperate HMAC key to ensure that if the encryption key<br />// is compromised message integrity may still be guaranteed and protects us against<br />// parameter tampering.HMACSHA256 hmac = new HMACSHA256();<br />// Retrieve the HMAC key from the encrypted registry value using our DPAPI helperhmac.<br />Key = dputil.RetrieveHMACKey();<br />// Compute the HMAC on our plaintext cookie string<br />byte[] hmacValue = hmac.ComputeHash(UnicodeEncoding.ASCII.GetBytes(cookieval));<br />// Write the cookie contents to our cryptostreamecs.Write(UnicodeEncoding.ASCII.<br />GetBytes(cookieval), 0, cookieval.Length);<br />// Write the HMAC to our cryptostreamecs.Write(hmacValue, 0, hmacValue.Length);<br />ecs.Close();<br />// Create a byte array to store our encrypted value plus IV<br />byte[] encryptedValueWithIV = new byte[rij.IV.Length + ms.ToArray().Length];<br />// Prepend the IV to our encrypted value. The initialization vector need not be kept<br />// secret, in fact randomizing this value for each encryption<br />Array.Copy(rij.IV, encryptedValueWithIV, rij.IV.Length);<br />Array.Copy(ms.ToArray(), 0, encryptedValueWithIV, rij.IV.Length, ms.ToArray().Length);<br />string encryptedCookie = Convert.ToBase64String(encryptedValueWithIV);<br />HttpCookie chocolateChip = new HttpCookie("CookieJar", encryptedCookie);<br />// Ensure that proper secure cookie modes are set:<br />//<br />// Make cookies unavailable to client side scriptschocolateChip.<br />HttpOnly = true;<br />// Set the cookie transport mechanism to SSL only<br />chocolateChip.Secure = true;<br />// Ideally choose a more restrictive domain under which cookies are set<br />chocolateChip.Domain = ".ourapp.microsoft.com";<br />// Place some restrictions on which web paths can access our cookies<br />chocolateChip.Path = "/CookieExample/";<br />// Finally set the cookieResponse.Cookies.Add(chocolateChip);</pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、暗号化と鍵署名が使用されていない 2 つのウェブ アプリケーション間でメカニズムを共有する、レベルの低い設計のCookieを示しています。</p>
+  <p>Cookie値を設定します。</p>
+ <pre>cookieval = user + "|" + uid + "|" + adminRole.ToString();<br />HttpCookie chocolateChip = new HttpCookie("CookieJar", cookieval);<br />// Ensure that proper secure cookie modes are set:<br />//<br />// Make cookies unavailable to client side scripts<br />chocolateChip.HttpOnly = true;<br />// Set the cookie transport mechanism to SSL only<br />chocolateChip.Secure = true;<br />// Ideally choose a more restrictive domain under which cookies are set<br />chocolateChip.Domain = ".ourapp.microsoft.com";<br />// Place some restrictions on which web paths can access our cookies<br />chocolateChip.Path = "/CookieExample/";<br />// Finally set the cookieResponse.Cookies.Add(chocolateChip);</pre>
+  <p>この例には問題があります。</p>
+  <ul>
+    <li>ユーザーに絶対に公開されるべきではないデータを含む可能性のある、機微情報が Cookie 内で公開される<li>Cookie はユーザー (中間者攻撃のシナリオの場合は中間者) によるタンパリングに対して脆弱である<li>Cookie はリプレイに対して脆弱である<li>Cookie が送信中に改ざんされる場合は、かかる状況を検出する方法はない<li>.ourapp.microsoft.com ドメイン内のウェブ アプリケーションはCookieにアクセスできます。</li></li></li></li></li>
+  </ul>
+  <p>上記のコードには示されていない、その他の一般的なコーディングの誤りにも注意する必要があります。</p>
+  <ul>
+    <li>弱い暗号鍵を使用した暗号化 (一般的&lt;128ではあるが、暗号化アルゴリズムに依存する)<li>証明されていない暗号化アルゴリズムまたは独自の暗号化アルゴリズムの使用<li>不適切な暗号の種類 (ブロック暗号ではなくストリーム暗号など) の使用<li>不適切な暗号化モード (チェーン ブロックの欠如) の使用<ul><li>暗号化を使用したとしても Cookie のタンパリングをより容易にする (ブロックの交換または再整理)<li>送信される共通値の情報漏えいをもたらす</li></li></ul><li>無作為の初期化ベクトル (IV) を選択していない<ul><li>送信される共通値の情報漏えいをもたらす</li></ul><li>HMAC を含めていない<ul><li>暗号化された値がさらに改ざんされ検出されない場合がある</li></ul><li>HMAC キーと暗号鍵は同等である<ul><li>1 つの鍵の漏えいはシステム全体の漏えいに繋がる</li></ul><li>タイムスタンプまたはセッション ID を含めていない<ul><li>暗号値が再生される場合がある</li></ul></li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System;<br />using System.Collections.Generic;<br />using System.Security.Cryptography;<br />using System.Security.AccessControl;<br />using System.Text;<br />using Microsoft.Win32;</pre>
+  <p>ソリューション コードを含むウェブ アプリケーションを参照すると、暗号化および署名されたCookie値が生成されます。</p>
+  <p>以下のCookie値が、安全なCookie オプションでサーバによって設定されます。</p>
+ <pre>Set-Cookie: CookieJar=g2rzx1QZ94lAOyUxLGscUbQg1/yyG8Gy4NTCjaK5a<br />upWwSXoAdyuNBer0sFZQiK9dx4kZnY0h8hd9xqEe6d8hMvGoJiGhlOh88cx35Jt<br />9sQIQmjAgCmecj6VhHwKfbrZ; domain=.ourapp.microsoft.com; path=/CookieExample/; secure; HttpOnly属性</pre>
+  <p>次のプロパティを含む Cookie 値を監視する</p>
+  <ul>
+    <li>各暗号化オペレーションによる変化 (ランダム IVによる、タイムスタンプ値の追加)<li>「CookieJar」値イールドおよび暗号化された一連のバイトを Base64 デコーディングする </li></li>
+  </ul>
+  <h1>期待される結果</h1>
+  <p>HTTP レスポンス ヘッダ:</p>
+  <p>Set-Cookie: CookieJar=g2rzx1QZ94lAOyUxLGscUbQg1/yyG8Gy4NTCjaK5aupWwSXoAdyuNBer0sFZQiK9dx4kZnY0h8hd9xqEe6d8hMvGoJiGhlOh88cx35Jt9sQIQmjAgCmecj6VhHwKfbrZ; domain=.ourapp.microsoft.com; path=/CookieExample/; secure; HttpOnly属性</p>
+  <h1>詳細情報</h1>
+  <p>この実装は、マシン鍵ではなく、DPAPI ユーザー鍵を利用します。 これは、AES 共有秘密鍵および HMAC 署名鍵が、同じユーザー コンテキスト内で実行されているプログラムからのみアクセス可能で、異なるサービス アカウントの下で実行されている他のアプリケーションによってアクセスされないことを意味しています。 これにより、接続文字列データを不正に入手しようとする悪意のあるアプリケーション (ウイルスやトロイの木馬など) に対してさらなる保護が加えられますが、異なるアカウントで実行される複数のアプリケーション間での共有が必要な場所では問題になります。 他のプログラムが暗号化操作のために同じ鍵マテリアルにアクセスする必要がないときは、必ずこのアプローチを使用することをお勧めします。 メッセージ タンパリングを防ぐには、メッセージの暗号化のみでは不十分です。このため、HMAC (または共有秘密鍵に依存するメッセージ完全性チェック) を使用しています。 HMAC は別個の共有秘密鍵を使用して生成され、強力な一方向ハッシュ化アルゴリズムを使用して、与えられたメッセージのための一意のハッシュを生成します。 Cookie暗号化および署名を行っても、これらのCookieを傍受するユーザーは、メッセージのシーケンス番号を指定するメッセージ内に値が含まれていない場合を除いて、これらをサーバに対して再利用します。 対称共有鍵と HMAC 署名鍵は、これらの鍵を使用して暗号化されるデータの機密性を維持するために、安全に保存される必要があります。 この例では、暗号化された共有鍵ペアをレジストリ内に透過的に保存するために、DPAPI を使用しています。 AES と HMAC メッセージ署名の詳細は、この記事の対象範囲外です。 以下のトピックについては「追加のリソース」の記事で議論されています。</p>
+  <ul>
+    <li>ブロック暗号を通じて文字列を暗号化する (AES を使用)<li>メッセージ認証コードを生成する (HMAC)</li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>HTTP 要求 Cookie クラス: <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemwebhttprequestclasscookiestopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemwebhttprequestclasscookiestopic.asp</a><li>HTTP Cookie: <a href="http://msdn.microsoft.com/library/en-us/wininet/wininet/http_cookies.asp">http://msdn.microsoft.com/library/en-us/wininet/wininet/http_cookies.asp</a><li>Cookie メンバー: <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemnetcookiememberstopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemnetcookiememberstopic.asp</a><li>HMAC の定義: <a href="http://en.wikipedia.org/wiki/HMAC">http://en.wikipedia.org/wiki/HMAC</a><li>HMAC クラス: <a href="http://msdn2.microsoft.com/en-US/library/system.security.cryptography.hmac.aspx">http://msdn2.microsoft.com/en-US/library/system.security.cryptography.hmac.aspx</a></li></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

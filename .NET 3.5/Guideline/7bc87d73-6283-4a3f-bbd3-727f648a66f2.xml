@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-967474329" Content_Hash="237972656">
+  <Metadata>
+    <Id>7bc87d73-6283-4a3f-bbd3-727f648a66f2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>スキーマを使用して、メッセージをメッセージ インスペクターを使用して検証する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>オペレーションに渡されたパラメータ、メッセージ コントラクト、またはデータ コントラクトを検証する必要がある場合、メッセージ インスペクタ を使用してスキーマ検証を使用してください。 </p>
+  <h1>理由</h1>
+  <p>メッセージ インスペクターは、メッセージ交換中に検査のメッセージを許容する WCF の動作につなげられる拡張性ポイントです。&nbsp; </p>
+  <h1>対策</h1>
+  <p>スキーマ検証はクライアントおよびサービスで起こる可能性があります。 検証コードを書く必要なく、メッセージ インスペクタ付きのスキーマ検証を使用してメッセージを検証してください。 さらに、スキーマ検証は、複雑な型、メッセージ コントラクト、およびデータ コントラクトの検証を可能にし、複雑な検証ロジックを必要とせず、オペレーションへ渡すことができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>動作を使用したランタイムの構成と拡張についての追加情報については、<a href="http://msdn2.microsoft.com/en-us/library/ms730137.aspx">http://msdn2.microsoft.com/en-us/library/ms730137.aspx にある｢動作を使用したランタイムの構成と拡張｣を参照してください｡</a><li>IEndPointインターフェイスの動作についての追加情報は、次にある｢IEndPoint インターフェイスの動作｣を参照してください｡<br />&nbsp;<a href="http://msdn2.microsoft.com/en-us/library/system.servicemodel.description.iendpointbehavior.aspx">http://msdn2.microsoft.com/en-us/library/system.servicemodel.description.iendpointbehavior.aspx</a><li>IDispatchMessageInspector インターフェイスについての追加情報は、<a href="http://msdn2.microsoft.com/en-us/library/system.servicemodel.dispatcher.idispatchmessageinspector.aspx">http://msdn2.microsoft.com/en-us/library/system.servicemodel.dispatcher.idispatchmessageinspector.aspx にある IDispatchMessageInspector インターフェイスを&nbsp;参照してください｡</a><li>IClientMessageInspector インターフェイスについての追加情報は、<a href="http://msdn2.microsoft.com/en-us/library/system.servicemodel.dispatcher.iclientmessageinspector.aspx">http://msdn2.microsoft.com/en-us/library/system.servicemodel.dispatcher.iclientmessageinspector.aspx にある ｢IClientMessageInspector インターフェイス｣を参照してください｡</a><li>BehaviorExtensionElementクラスについての追加情報は、<a href="http://msdn2.microsoft.com/en-us/library/system.servicemodel.configuration.behaviorextensionelement.aspx">http://msdn2.microsoft.com/en-us/library/system.servicemodel.configuration.behaviorextensionelement.aspx にある ｢BehaviorExtensionElement クラス｣を参照してください｡</a><li>メッセージ インスペクタの詳細は、<a href="http://msdn2.microsoft.com/en-us/library/aa717047.aspx">http://msdn2.microsoft.com/en-us/library/aa717047.aspx にあるメッセージ インスペクタ を参照してください｡</a><li>メッセージ インスペクタの&nbsp;使用方法の詳細は､｢WCF でスキーマを使用してメッセージ検証を実施する方法｣のハウツーを参照してください｡</li></li></li></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

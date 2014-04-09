@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="77353223" Content_Hash="213923079">
+  <Metadata>
+    <Id>2e16a65a-25d2-4ea9-a513-e020d2408241</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>グローバル例外ハンドラーを使用して未処理の例外を捕獲してください</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>グローバル例外ハンドラーが、コード中で処理されていない例外を捕獲するようにアプリケーション用に定義されているか確認してください｡</p>
+  <h1>理由</h1>
+  <p>構造化例外処理が使用される場合でも、すべてのアプリケーション コードが <strong>Try</strong>/<strong>Catch</strong>/<strong>Finally</strong> ブロックにラップされることはありません。&nbsp;グローバル例外ハンドラーは、これらの非処理例外により、内部のアプリケーション詳細を公開するエラー メッセージをクライアントに送信する、という結果を引き起こさないことを保証します。</p>
+  <h1>チェック方法</h1>
+  <p>Global.asax をチェックして、アプリケーション レベルのグローバル エラー ハンドラーが定義されていることを確認します。 <strong>Application_Error</strong> が優先され、実装されていることを確認します。 例外ハンドラーは次のコードに似ています:</p>
+ <pre>&lt;%@ Application Language="C#" %&gt;<br />&lt;%@ Import Namespace="System.Diagnostics" %&gt;<br />&lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> {<br />    //get reference to the source of the exception chain<br />    Exception ex = Server.GetLastError().GetBaseException();<br />    // log the details of the exception and page state to the<br />    // event log.<br />    EventLog.WriteEntry("My Web Application",<br />      "MESSAGE: " + ex.Message +<br />       "\nSOURCE: " + ex.Source,<br />       EventLogEntryType.Error);<br />     // Optional e-mail or other notification here...<br /> }<br /> &lt;/script&gt;&nbsp;</pre>
+  <h1>修正方法</h1>
+  <p>Global.asax におけるアプリケーション レベルのグローバル エラー ハンドラーを定義し、コードで処理されない例外をキャッチします。 これは、詳しいエラー情報を誤ってクライアントに返さないために実行します。 例外はすべてイベント ログに保存し、トラッキングや後の分析のために記録します。 下記に類似するコードを使用してください｡</p>
+ <pre>&lt;%@ Application Language="C#" %&gt;<br />&lt;%@ Import Namespace="System.Diagnostics" %&gt;<br />&lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> {<br />    //get reference to the source of the exception chain<br />    Exception ex = Server.GetLastError().GetBaseException();<br />     // log the details of the exception and page state to the<br />    // event log.<br />    EventLog.WriteEntry("My Web Application",<br />      "MESSAGE: " + ex.Message +<br />       "\nSOURCE: " + ex.Source,<br />       EventLogEntryType.Error);<br />     // Optional e-mail or other notification here...<br /> }<br /> &lt;/script&gt;</pre>
+  <h1>問題の例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp;ただし、アプリケーションは汎用的なエラーハンドラーを指定しません。 結果として、接続が時間切れになると、例外においてアプリケーションの詳細がクライアントに公開されます。</p>
+  <p>
+    <strong>説明: </strong>現在の Web 要求の実行中に処理されない例外が発生しました。 エラーについての詳細とコードにおける発生源については、スタックトレースを確認してください｡ <strong><p /><p />例外詳細: System.Data.SqlClient.SqlException</strong>: サーバへの接続を確立中にエラーが発生しました。 &nbsp;SQL Server 2005 への接続時に、この障害は、デフォルト設定下では SQL Server がリモート接続を許可しないという事実により引き起こされる場合があります。 (プロバイダー:SQLネットワークインターフェイス､エラー:26、指定されたサーバ/インスタンスの特定エラー)</p>
+  <p>
+    <b>ソースエラー: </b>
+  </p>
+  <p />
+  <p />
+  <p>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <blockquote>
+ <pre>
+                <br />Line 216:<br />Line 217:            if (conn.State != ConnectionState.Open)<br />Line 218:                conn.Open();<br />Line 219:<br />Line 220:            cmd.Connection = conn;</pre>
+            </blockquote>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <p />
+  <h1>ソリューションの例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp;それは、&nbsp;アプリケーション レベルのグローバル エラー ハンドラーがすべての非処理例外をトラップおよび記録するよう定義しました。&nbsp;これにより、サーバにより詳しい情報をログ記録しながら、クライアントへ汎用的なエラーメッセージを提示することができます。</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <div>
+        <a href="/article/10118a37-669a-4973-9d86-98c65730b153">ガイドライン: グローバルエラーハンドラーを使用して非処理例外を見つけ出す</a>
+      </div>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

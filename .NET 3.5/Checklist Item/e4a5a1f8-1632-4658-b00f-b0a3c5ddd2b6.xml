@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1643594446" Content_Hash="1518625182">
+  <Metadata>
+    <Id>e4a5a1f8-1632-4658-b00f-b0a3c5ddd2b6</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>保護済みリソースはHttpForbiddenHandlerにマップされます。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>保護済みリソースがHttpForbiddenHandlerにマップされていることをチェックしてください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>HTTP ハンドラは下のMachine.configファイルに位置します。<b>&lt; httpHandlers&gt; </b>エレメント。 HTTPハンドラは特定のファイル&nbsp;拡張子向けのウェブ要求のプロセスを行います。 リモート処理はフロントエンドのウェブサーバでは有効にするべきではありません; リモート処理はインターネットから分離されたミドル階層アプリケーションサーバのみで有効化します。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;.NET 2.0 を使用している場合、&lt; httpHandlers&gt;設定は、Machine.configファイルと同じディレクトリ内のマシンレベルWeb.configファイルに位置します。</blockquote>
+  <p>次のファイル拡張子は、HTTPhandlersへMachine.configファイルでマッピングされます。<b></b></p>
+  <ul>
+    <li>.aspxはASP.NETページに使用されます
+<li>.remおよび.soapはリモート処理に使用されます。 
+<li>. asmxはウェブサービスに使用されます。 
+<li>.asax、.ascx、.config、.cs、.csproj、.vb、.vbproj、.webinfo、.asp、.licx、.resx、&nbsp;および&nbsp;.resourcesは保護され、<b>System.Web.HttpForbiddenHandler</b>にマッピングされます。</li></li></li></li>
+  </ul>
+  <p>.NET&nbsp;Frameworkリソースは、ファイル拡張子を使用しない場合、次の例の通り、拡張子をMachine.configファイル内の<b>System.Web.HttpForbiddenHandler</b>にマッピングします。</p>
+  <div>
+ <pre>&lt;add verb="*" path="*.vbproj" type="System.Web.HttpForbiddenHandler" /&gt;</pre>
+  </div>
+  <p>この場合、.vbproj ファイル拡張子は <b>System.Web.HttpForbiddenHandler</b>にマッピングします。クライアントが.vbprojの末尾を要求する場合、ASP.NETは「This type of page is not served.（このタイプのページは実行できません。）」を表示します。</p>
+  <ul>
+    <li>次のガイドラインが.NET&nbsp;Framework ファイル拡張子の使用に適用されます。
+<li><b>HttpForbiddenHandlerを使用しない拡張子をマッピングする</b>。ASP.NETページを扱わない場合、.aspxを <b>HttpForbiddenHandler</b>にマップします。ウェブサービスを使用しない場合は、.asmxを<b>HttpForbiddenHandler</b>にマップします。
+<li><b>インターネット接続するウェブサーバでリモート処理を無効化</b>。インターネット接続するウェブサーバのリモート処理の拡張子(.soapおよび.rem)を<b>HttpForbiddenHandler</b>にマップします。</li></li></li>
+  </ul>
+  <h3>.NET&nbsp;リモート処理を無効化</h3>
+  <p>.rem and .soapの拡張子について .NET&nbsp;リモート処理の無効化の無効要求は、<b> &lt;下のエレメントを使用します。httpHandlers&gt;</b>:</p>
+  <div>
+ <pre>&lt;add verb="*" path="*.rem" type="System.Web.HttpForbiddenHandler"/&gt;<br />&lt;add verb="*" path="*.soap" type="System.Web.HttpForbiddenHandler"/&gt;</pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;これはウェブ サーバ上のウェブアプリケーションが、リモート処理インフラを使用してダウンストリームオブジェクトに接続することを阻みません。 しかし、クライアントがウェブサーバ上のオブジェクトに接続することを阻みます。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

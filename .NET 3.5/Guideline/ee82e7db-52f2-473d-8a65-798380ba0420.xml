@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1061536634" Content_Hash="-1294485662">
+  <Metadata>
+    <Id>ee82e7db-52f2-473d-8a65-798380ba0420</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL認証を用いてネットワーク上で Credential 情報を保護する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>SQL認証を使用し、アプリケーションが物理的にセキュアなデータセンターに配置されていない場合、インターネット プロトコル セキュリティ(IPSec)またはSSLを使用して暗号化通信チャネルをWebサーバとデータベースサーバの間に確立する必要があります。 </p>
+  <h1>理由</h1>
+  <p>ネットワーク上で Credential 情報の保護を行わないと、Credential 情報はネットワークモニタで簡単に取得されます。 SQL Server にSQL認証を用いて接続すると、ネットワーク間で送信を行う前に Credential 情報が暗号化されません。 つまり、ネットワーク上でアクセスされるデータベースのアカウントログイン情報はプレーンテキストの形式で送られ、これら情報を入手した攻撃者はデータベースに正当なユーザーとしてログインし、そのコンテキストで実行できます。</p>
+  <h1>状況</h1>
+  <p>コンピュータで実行されるすべてのアプリケーションおよびサービスの代わりに、特定のアプリケーションに対してより細分化されたチャンネルの保護を必要とする場合は、SSL を使用します。 Web およびデータベース サーバ間のすべての IP トラフィックを保護したい場合は、IPSec を使用します。 IPSec を使用すれば、どのコンピュータが相互に通信できるのかを制限することもできます。 たとえば、アプリケーションまたは Web サーバのような信頼済みのクライアントからの要求のみを許可するポリシーを確立すすることで、データベース サーバを保護することができます。 特定の IP プロトコル や TCP/UDP ポートに通信を制限することもできます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET でのSQL認証を使用して SQL Server に接続する方法についての詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms998300.aspx">http://msdn2.microsoft.com/en-us/library/ms998300.aspxをご覧ください。</a><li>IPSecを使用して2つのサーバ間でセキュアな通信を実現するための方法は次をご覧ください: <a href="http://msdn2.microsoft.com/en-us/library/aa302413.aspx">http://msdn2.microsoft.com/en-us/library/aa302413.aspx</a><li><a href="http://msdn2.microsoft.com/en-us/library/ms998372.aspx#pagpractices0001_sechowtochoosebetweenipsecandssl">IPSec と SSLを選択する方法</a>&nbsp;</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/cf0acf4b-6085-4a5f-84e9-e0eb38d33bb3">SQL認証の使用時に構成ファイル内で Credential 情報を保護する</a>
+      <li>
+        <a href="/article/fab1733c-61d7-46a8-88c6-2617a643c0d9">データベース アクセスに最小特権アカウントを使用する</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1416557092" Content_Hash="-895121066">
+  <Metadata>
+    <Id>a6728fa5-9162-4ba1-98e8-088bb9c16549</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>整数オーバーフロー攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>限界を自動的にチェックしない言語で記述されたアプリケーション。</p>
+  <h1>説明</h1>
+  <p>整数オーバーフローは、整数が、そのデータ型が保持できる最大値を超えてインクリメントされるときに発生します。 結果的に生成される値は使用されるコンパイラに依存します。 ISO C99 では、整数オーバーフローの結果は、割り当てられた値を最大整数サイズより 1 大きい数で割ったときの余りとして定義されています。 これはゼロのラップアラウンドとも呼ばれています。</p>
+  <p>バッファ オーバーフローとは異なり、整数オーバーフローが発生するとき、整数により使われているメモリ以外のメモリは影響を受けません。 ただし、プログラマーにとって、整数の値を増やした結果、より大きな整数が生成されると想定することは簡単です。 その反対が予期せずに起こったとき、プログラムのロジックが変更されます。 注意するべき重要なことですが、チェックが追加されない限り、整数オーバーフローの発生をプログラムが知る方法はなく、そのため、プログラムは整数の値が正しいと想定して処理を続けます。 これは、プログラムが別の変数に割り当てるメモリの量を決定している場合には特に問題となります。 一般的な副作用として、ヒープの破壊によりプログラムがクラッシュしたり、バッファ オーバーフローにより任意のコード実行が可能になったりします。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>DoS攻撃: オーバーフローによる、間違った想定外の整数値がアプリケーションのクラッシュを引き起こします。 <li>データ破壊: 結果がファイルの読み込りまたは書き込み操作で利用される場合、アプリケーションはディスクまたはメモリの間違った場所から読込や書込を行い、その結果データが破壊されます。 <li>リモート コード実行: オーバーフローした整数がメモリ管理やバッファへのインデックスに使用される場合、しばしばリモート コードが実行されます。 </li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>不適切な計算<li>整数の入力を検証しなかったこと<li>バッファのサイズ決定に整数の計算や代入を使用すること<li>不適切な限界チェックと符号を考慮しなかったこと<li>整数の値について仮定をするプログラム ロジック</li></li></li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>算術的チェック:</strong> 2 つの正の整数を足し算した値がいずれの被演算子よりも大きくなることを常に確認してください。 データ型の最大に近い値で算術演算を行うときは特に注意してください。 <li><strong>整数チェックを行う言語またはフレームワークを利用する:</strong> .NET や java のようなフレームワークでは、整数のオーバーフローやアンダーフローを自動チェックするように設定できます。 (例：C# の CheckForOverflowUnderflow や VB.NET の RemoveIntegerChecks )<li><strong>入力検証:</strong> 信頼されていない入力に対して上限と下限を検証します。<li><strong>ロジックを検証する:</strong> 整数のすべてのロジックが、あらゆる場合に、受け入れられる限度に対して適切に動作するようにします。</li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>下のコード セグメントは、小さなインクリメントが整数オーバーフローを引き起こす仕組みを示したものです。</p>
+ <pre>unsigned int x = 0xFFFFFFFF;unsigned int y = x &amp;#43; 1; // now y == 0x = 0xFFFFFFFF;y = x&amp;#43;2;// now y == 1</pre>
+  <p>符号なし整数が保持できる最大値に 2 を加えると、 y が 1 にラップ アラウンドします。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://www.owasp.org/index.php/Buffer_Overflows#Integer_Overflow">http://www.owasp.org/index.php/Buffer_Overflows#Integer_Overflow</a>
+      <li>
+        <a href="http://www.eweek.com/article2/0,1759,1545382,00.asp">http://www.eweek.com/article2/0,1759,1545382,00.asp</a>
+        <li>
+          <a href="http://msdn2.microsoft.com/en-us/library/ms972819.aspx">http://msdn2.microsoft.com/en-us/library/ms972819.aspx</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1071940948" Content_Hash="-208119685">
+  <Metadata>
+    <Id>485a8261-d637-4a47-8643-de094828bf56</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パスワード更新の強制</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>一定時間が経過したらパスワードを更新することをユーザーに強制してください。</p>
+  <h1>理由</h1>
+  <p>ユーザーがパスワードを更新するように強制することは、有効な資格情報が暴露される危険性を低減させます。 この手法は攻撃者が<a href="/article/d72d0706-99df-4a65-a19d-6a83ec868a7b"> Credential 情報総当たり攻撃 (Brute Force Attack)</a>または <a href="/article/e8b05112-2416-436a-9679-07d9e5626bca">Credential 情報辞書攻撃</a>によって有効な Credential 情報を取得することを防ぐことができますが、検出 またはロックされた 有効なCredential 情報のインスタンスに関連するビジネス リスクを減らすこともできます。</p>
+  <h1>状況</h1>
+  <p>アプリケーションにより、ユーザーはパスワードを変更することが常に強制される必要があります。</p>
+  <h1>対策</h1>
+  <p>以下の手順を使用して、ユーザーがパスワードを変更するように強制します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>パスワード変更のポリシーを定義します。 </strong>アプリケーションのユーザーに対し、パスワードの最大寿命を定めます。 パスワードの最長有効期限は、アプリケーションに必要とされるセキュリティ レベルと攻撃の可能性によって決まります。 パスワード ポリシーを定義するときには、考慮すべきトレードオフがあることに注意してください。 ポリシーが厳しすぎると、ユーザーはパスワードをメモする傾向にあり、これによりアプリケーション全体のセキュリティが危険にさらされることになります。 パスワード更新の最適な周期は、90 日ごとです。</p>
+      <p>また、アプリケーション内のさまざまなユーザー グループに異なる周期を定義することも検討してください。 たとえば、システム管理者のパスワードの変更頻度を増やすことは有意義です。このクラスのユーザーは、通常、より多くの特権を持っており、攻撃の標的になりやすいためです。</p>
+      <li>
+        <p>
+          <strong>パスワード変更のメカニズムを設計します。</strong> パスワードの有効期限を追跡して、パスワードの有効期限が切れたときに、ユーザーにパスワードの変更を求めます。 アプリケーションが ASP.NET メンバーシップ プロバイダーを使用する場合は、MembershipUser.LastPasswordChangedDate プロパティを使用してユーザーのパスワードの最終更新日を追跡します。 例: </p>
+ <pre>MembershipUser user = membershipProvider.GetUser(username, true);<br />TimeSpan diff = DateTime.Now - user.LastPasswordChangedDate;</pre>
+        <li>
+          <p>
+            <strong>パスワード変更のポリシーを適用します。</strong> パスワードの変更メカニズムを認証ルーチンに組み込みます。 アプリケーションが ASP.NET メンバーシップ プロバイダーを使用する場合は、ASP.NET RoleManager を使用して、適切なパスワード変更間隔を識別して、必要に応じてユーザーにパスワードの変更を求めます。 認証プロシージャのすぐ後にこのような機能を設置することをお勧めします。 例: </p>
+ <pre>bool changePass = false;<br />string username = HttpContext.Current.User.Identity.Name;<br />MembershipProvider membershipProvider = Membership.Provider;<br />MembershipUser user = membershipProvider.GetUser(username, true); <br />TimeSpan diff = DateTime.Now - user.LastPasswordChangedDate;<br />if (Roles.IsUserInRole("Admin") &amp;&amp; diff.Days &gt;= 30)<br />&amp;#123;     <br />  changePass = true;<br />&amp;#125; <br />if (Roles.IsUserInRole("Users") &amp;&amp; diff.Days &gt;= 90)<br />&amp;#123;     <br />  changePass = true;<br />&amp;#125; <br />if (changePass)<br />&amp;#123;     <br />  HttpContext.Current.Response.Redirect("ChangePass.aspx", true);<br />&amp;#125;</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードは、アプリケーションの認証ルーチンの一部です。 このアプリケーションではパスワードの更新をユーザーに強制できていないため、攻撃者がユーザーのパスワードを推測できる時間が増えます。</p>
+  <blockquote>
+ <pre>&lt;&amp;#33;-- The application's login control --&gt;<br />&lt;asp:Login ID="Login1" runat="server" DestinationPageUrl="~/Protected.aspx" /&gt;<br /> // The Page_Load method of Protected.aspxprotected <br />void Page_Load(object sender, EventArgs e)&amp;#123;&amp;#125;</pre>
+  </blockquote>
+  <h1>ソリューションの例</h1>
+  <p>以下のコードは、アプリケーションの認証ルーチンの一部です。 アプリケーションは強制的にユーザーにパスワードを更新させるため、攻撃者がユーザーのパスワードを推測する時間が限られます。</p>
+  <blockquote>
+ <pre>&lt;&amp;#33;-- The application's login control --&gt;<br />&lt;asp:Login ID="Login1" runat="server" DestinationPageUrl="~/Protected.aspx" /&gt; <br />// The Page_Load method of Protected.aspxprotected <br />void Page_Load(object sender, EventArgs e)<br />&amp;#123;     <br />  CheckPasswordMaturity();<br />&amp;#125; </pre>
+ <pre>void CheckPasswordMaturity()<br />&amp;#123;     <br />  bool changePass = false;    <br />  string username = HttpContext.Current.User.Identity.Name;    <br />  MembershipProvider membershipProvider = Membership.Provider;    <br />  MembershipUser user = membershipProvider.GetUser(username, true);     <br />  TimeSpan diff = DateTime.Now - user.LastPasswordChangedDate;    <br />  if (Roles.IsUserInRole("Admin") &amp;&amp; diff.Days &gt;= 30)     <br />  &amp;#123;         <br />    changePass = true;    <br />  &amp;#125;      <br />  if (Roles.IsUserInRole("Users") &amp;&amp; diff.Days &gt;= 90)     <br />  &amp;#123;         <br />    changePass = true;    <br />  &amp;#125;      <br />  if (changePass)     <br />  &amp;#123;         <br />    HttpContext.Current.Response.Redirect("ChangePass.aspx", true);    <br />  &amp;#125;<br />&amp;#125;</pre>
+  </blockquote>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ActiveDirectoryMembershipProvider（有効ディレクトリのメンバーシッププロバイダー）のクラスについての更になる情報については、MSDN の<a href="http://msdn2.microsoft.com/en-us/library/system.web.security.activedirectorymembershipprovider(vs.80).aspx">ActiveDirectoryMembershipProvider Class</a>にある文書を参照してください。 <li>SqlMembershipProvider（SQL  メンバーシッププロバイダー）のクラスについての更なる情報については、MSDN の<a href="http://msdn2.microsoft.com/en-us/library/system.web.security.sqlmembershipprovider(vs.80).aspx">SqlMembershipProvider Class</a>にある文書を参照してください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+      <li>
+        <a href="/article/d72d0706-99df-4a65-a19d-6a83ec868a7b">攻撃：Credential 情報総当たり攻撃 (Brute Force Attack)</a>
+        <li>
+          <a href="/article/e8b05112-2416-436a-9679-07d9e5626bca">攻撃：Credential 情報辞書攻撃</a>
+          <li>
+            <a href="/article/b0ac82e3-fe0d-4581-85bd-48ff3fd9fb19">攻撃：弱いパスワード攻撃</a>
+            <li>
+              <a href="/article/c468e4b0-92cc-4558-8532-e0c77606efa5">チェックリストアイテム：パスワードの更新を強制します</a>
+              <hr />
+            </li>
+          </li>
+        </li>
+    </li>
+  </ul>
+  <p>出典: Microsoft Patterns & Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

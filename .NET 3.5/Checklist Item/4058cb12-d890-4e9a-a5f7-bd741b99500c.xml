@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1750713835" Content_Hash="1081189046">
+  <Metadata>
+    <Id>4058cb12-d890-4e9a-a5f7-bd741b99500c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>LogonUser API を使用して偽装トークンを作成しない</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが偽装トークンを作成するために LogonUser API を使用しないことを確認する。 </p>
+  <h1>修正方法</h1>
+  <p><b>LogonUser</b> API を呼び出して偽装トークンを作成するコードを記述しないでください。ユーザー名とパスワードが Web サーバ上に強制的に保存されるためです。 </p>
+  <p>ダウンストリームのリソースにアクセスするために特定の ID が必要な場合は、代わりに特定のプロセス ID を持つ固有のアプリケーション プールを使用してください。 ダウンストリームのいくつかのリソースおよびサービスにアクセスするために複数の ID が必要な場合は、Windows Server 2003 プロトコル遷移と新しい <b>WindowsIdentity</b> コンストラクタを使用してください。 これにより、アカウント固有のユーザー プリンシパル名 (UPN) を持つ Windows トークンを作成できます。 ネットワーク リソースにアクセスするには、デリゲート レベル トークンが必要です。 このトークン型を取得するには、サーバが Active Directory 内で委任に対して信頼済みとして構成されている必要があります。</p>
+  <p>以下のコードは、このコンストラクタを使用して、指定されたユーザーの Windows トークンを取得する方法を示しています。</p>
+  <p>
+ <pre>using System;<br />using System.Security.Principal;<br />public void ConstructToken(string upn, out WindowsPrincipal p){<br />  WindowsIdentity id = new WindowsIdentity(upn);<br />  p = new WindowsPrincipal(id);<br />}</pre>
+  </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;アカウントの UPN は、フォレスト内で一意であることが保証されます。 一般には、UPN はユーザーのメール アドレスですが、これ以外でもかまいません。 ユーザーは必ず UPN を持ち、デフォルトでは <i>userlogonname</i>@<i>fullyqualifieddomainname</i> です。ドメインにログオンしている場合は、コマンド ウィンドウから <b>whoami /upn</b> を実行することにより、UPN 名を確認できます。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1387467269" Content_Hash="1960154970">
+  <Metadata>
+    <Id>368e7680-88e2-433e-a50b-82a36050e10c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログ ファイルの情報を保護する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ログ ファイル内の情報を保護します。</p>
+  <h1>理由</h1>
+  <p>ログ ファイルを保護することで、アプリケーションの内部のメカニズムについての重要な洞察を得られる可能性があります。</p>
+  <h1>対策</h1>
+  <p>以下のヒントによって、ログ ファイルのコンテンツが誤って公開されるのを防ぐことができます:</p>
+  <ul>
+    <li>Web ホストとセルフ ホスト シナリオの両方においてログ ファイルがアクセス制御リスト（ACL）で保護されることを確認します。<li>Web 要求に容易に応えることがないファイル拡張子を選択します。 例えば .xml ファイル拡張子は安全な選択肢ではありません。 インターネット インフォメーション サービス（IIS）管理ガイドを参照して、安全ではないファイル拡張子のリストを確認することができます。<li>ログ ファイル場所の絶対パスを特定します。Webブラウザを使用した外部の者によるアクセスを防ぐために、それは Web ホスト vroot パブリック ディレクトリ以外である必要があります。</li></li></li>
+  </ul>
+  <p>デフォルトでは、メッセージ ログを使用する場合に、鍵や Personally Identifiable Information (PII) のユーザー名およびパスワード、そしてクエリ文字列などのアプリケーション固有のヘッダー、 またクレジット カード番号などボディの情報は、トレースおよびログ メッセージでログ記録されません。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ログにおける機微データを保護するための詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms730318.aspx">http://msdn2.microsoft.com/en-us/library/ms730318.aspx の「メッセージ ログのセキュリティの考慮事項」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

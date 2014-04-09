@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1022051802" Content_Hash="1857445079">
+  <Metadata>
+    <Id>cac0ac54-3d16-4d6c-9677-1b8b7d8a29dc</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>インターネット上でクライアントをサポートする必要がある場合は、wsHttpBinding の使用を検討する</Title>
+    <Category>バインディング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>クライアントがインターネットを通じてサービスを呼び出す場合は、wsHttpBinding の使用を検討してください。 </p>
+  <h1>理由</h1>
+  <p>wsHttpBinding には次のような特性があります。</p>
+  <ul>
+    <li>ws* スタックをサポートする wcf 以外のクライアントとの相互運用が実現します。 <li>信頼性のあるメッセージ、メッセージ セキュリティ、および安全なトランザクションを含む WS* スタックをサポートします。 <li>メッセージ セキュリティがデフォルトで有効になります。トランスポート セキュリティも使用できます。 <li>IIS 5 または IIS 6 でのサービスのホスティングを可能にします。 <li>トランスポート セキュリティを選択した場合は、証明書認証、Windows 認証、またはトークン認証を使用することができます。 <li>メッセージ セキュリティを選択した場合は、証明書認証、ユーザー名認証、Windows 認証、またはトークン発行認証 (Windows CardSpace) を使用することができます。</li></li></li></li></li></li>
+  </ul>
+  <h1>状況</h1>
+  <p>wsHttpBinding は、ASMX Web サービスを期待するレガシー クライアントに対応する必要のないインターネット シナリオに適しています。 レガシー クライアントに対応する必要がある場合、代わりに basicHttpBinding を使用することを検討してください。</p>
+  <h1>対策</h1>
+  <p>次の例に、wsHttpBinding の構成を行う方法を示します。</p>
+ <pre>&lt;system.serviceModel&gt;<br />....<br />    &lt;services&gt;<br />        &lt;service behaviorConfiguration="" name="WCFServicecHost.MyService"&gt;<br />            ...<br />            &lt;endpoint address="" binding="wsHttpBinding" bindingConfiguration=""<br />                name="wsBinding" contract="WCFServicecHost.IMyService" /&gt;<br />            ...<br />        &lt;/service&gt;<br />    &lt;/services&gt;<br />&lt;/system.serviceModel&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>バインドに関する更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms733027.aspx">http://msdn2.microsoft.com/en-us/library/ms733027.aspxにある　「Windows Communication Foundation Bindings」（WCF バインド）を参照してください。</a><li>バインド Q&A については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Homeにある「WCF 3.5 Questions and Answers」（WCF 3.5 の質疑応答）のバインドの項を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

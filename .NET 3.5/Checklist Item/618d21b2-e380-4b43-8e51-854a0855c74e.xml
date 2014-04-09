@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1607953896" Content_Hash="-1770240568">
+  <Metadata>
+    <Id>618d21b2-e380-4b43-8e51-854a0855c74e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>LogonUser API を使用しない</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ユーザーを擬装する際にアプリケーションがユーザーの Credential 情報を保存しないことを検証する。 ユーザーが Credential 情報を尋ねられた場合にのみ LogonUser API を呼び出すようにする。 あるいは、アプリケーションで web.config の &lt;<strong>identity</strong>&gt;  エレメントまたは Kerberos を使用してユーザーを擬装するようにする。</p>
+  <h1>理由</h1>
+  <p>LogonUser API を使用すると、アプリケーションが Windows 認証の Credential 情報を処理するように強制します。 LogonUser はユーザーを擬装する目的のために容認された方法ですが、Windows の Credential 情報を不適切に処理すると社内の IT インフラに対する侵害を引き起こす恐れがあります。</p>
+  <h1>チェック方法</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>ユーザーを擬装するすべてのコードを特定します。 </strong>アプリケーションのコード ベースを調べて､擬装を実行するすべての場所を特定します。 擬装を特定する一般的な方法には、次のようなものがあります。</p>
+      <ul>
+        <li>&lt;<strong> </strong>アプリケーションの web.config 内の identity&gt; エレメント<li><strong>WindowsIdentity.Impersonate</strong> メソッドの使用</li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>使用されている擬装方法を検証します。 </strong>個々の擬装インスタンスについて、使用されている擬装方法を分析します。 ユーザーを擬装する以下の方法を覚えておいてください。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>永続的</strong>: アプリケーションで永続的にユーザーを擬装する必要がある場合､&lt;identity&gt; エレメント内の <strong>impersonate</strong> 属性が <strong>true</strong> に設定されていることを確認します。</p>
+ <pre>&lt;identity impersonate="true" /&gt;</pre>
+            <p>たとえば､アプリケーションが Windows 認証を使用している場合は､次のように設定することで、アプリケーションのコード実行時に ASP.NET で IIS ユーザーが擬装されます。</p>
+ <pre>&lt;authentication mode="Windows" /&gt;<br />&lt;identity impersonate="true" /&gt;</pre>
+            <p>&lt;identity&gt; エレメントを使用して、特定のユーザーをアプリケーションで擬装することもできます。 例: </p>
+ <pre>&lt;identity impersonate="true"<br /> userName="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,userName"<br /> password="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,password" /&gt;</pre>
+            <li>
+              <p>
+                <strong>一時的</strong>: アプリケーションで一時的にユーザーを擬装する必要がある場合､WindowsIdentity.Impersonate メソッドをアプリケーションで使用していることを確認します。</p>
+              <blockquote>
+ <pre>WindowsImpersonationContext ctx = winIdentity.Impersonate();</pre>
+              </blockquote>
+              <p>アプリケーションは、次のいずれかの方法で WindowsIdentity オブジェクトを取得できます。</p>
+              <ul>
+                <li>
+                  <p>
+                    <strong>IIS</strong>: アプリケーションがWindows 認証を使用する場合､IIS によりWindowsIdentity オブジェクトが自動的に提供されます。 例: </p>
+ <pre>WindowsIdentity winId = (WindowsIdentity)HttpContext.Current.User.Identity;</pre>
+                  <li>
+                    <p>
+                      <strong>Kerberos</strong>: アプリケーションが Active Directory を使用する場合､有効な UPN に基づいて、コードで WindowsIdentity オブジェクトを作成できます。 例: </p>
+ <pre>WindowsIdentity winIdentity = new WindowsIdentity("username&amp;#64;domainName");</pre>
+                    <li>
+                      <p>
+                        <strong>LogonUser</strong>: アプリケーションがユーザーに Credential 情報を尋ねる場合､LogonUser が返すセキュリティ トークンに基づいて、コードで WindowsIdentity オブジェクトを作成できます。 この方法は、アプリケーションがユーザーに Credential 情報を尋ねる場合のみに使用するようにします。 例: </p>
+ <pre>IntPtr token;bool result;<br />result = LogonUser("user", "domain", "pass",<br /> LogonTypes.Batch, LogonProviders.Default, out token);<br />if (result)<br />&amp;#123;<br />    WindowsIdentity winIdentity = new WindowsIdentity(token);<br />    CloseHandle(token);<br />    ...<br />&amp;#125;</pre>
+                    </li>
+                  </li>
+                </li>
+              </ul>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>一般的なミスを確認します。</strong>
+          </p>
+          <ul>
+            <li>
+              <p>アプリケーションが、擬装を要求するコードにできる限り近くなるようにユーザーを擬装するようにします。</p>
+              <li>
+                <p>アプリケーションができるだけ少ないコードでユーザーを擬装していることを確認し､個々の擬装インスタンスに、擬装を常に終了させる finally ブロックが関連付けられていることを確認します。</p>
+ <pre>WindowsIdentity winIdentity = new WindowsIdentity(<a href="mailto:username&amp;#64;domainName">username&amp;#64;domainName</a>);<br />WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />try<br />&amp;#123;<br />  // Do work<br />&amp;#125;<br />catch(Exception ex)<br />&amp;#123;<br />  // Stop impersonating<br />  ctx.Undo();<br />&amp;#125;<br />finally<br />&amp;#123;<br />  // Stop impersonating<br />  ctx.Undo();<br />&amp;#125;</pre>
+                <li>
+                  <p>
+                    <a href="/article/f28f80e5-814a-4e3b-9475-9cbb1da901b4">Exceptions are Not Propagated while Impersonating</a> チェックリストを使用して、アプリケーションがユーザーを擬装している間に例外が増殖しないことを検証します。</p>
+                </li>
+              </li>
+            </li>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は、MyCorp の人事アプリケーションです。 MyCorp の IT ネットワークは Active Directory を使用して稼動しますが、MyApp は証明書ベースのシングル サインオンを実行します。 MyApp は ASP.NET のローカル システム アカウント下で稼動します。 しかしながら、ファイルのアップロードのような一部の操作は、ユーザーの Windows アカウントを使用して実行されます。 これを行うため､アプリケーションは独自のCredential 情報のリポジトリにユーザーの Credential 情報を保存し､LogonUser を使用してユーザーを擬装します。 MyApp の Credential 情報のリポジトリや MyCorp の Active Directory の有効なユーザーが攻撃者の標的になります。</p>
+ <pre>HttpClientCertificate cert = HttpContext.Current.Request.ClientCertificate;<br />if (cert.IsPresent)<br />&amp;#123;<br />    IntPtr token;<br />    bool result;<br />    string cn = cert.Get("SUBJECT CN");<br />    string username = MyApp.GetUsername(cn);<br />    string password = MyApp.GetPassword(username);<br />    string domain = "NTDOMAIN";<br />    result = LogonUser(username, domain, password, LogonTypes.Batch, LogonProviders.Default, out token);<br />    if (result)<br />    &amp;#123;<br />        WindowsIdentity winIdentity = new WindowsIdentity(token);<br />        CloseHandle(token);<br />        WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />        // Store the uploaded file<br />    &amp;#125;<br />&amp;#125;</pre>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

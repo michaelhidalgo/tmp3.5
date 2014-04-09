@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="26037445" Content_Hash="338443372">
+  <Metadata>
+    <Id>bb200ff1-9bfb-4d7a-a048-575051c8c798</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パスワードがメモリに残らない</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>パスワードは使用後必ずメモリから消去してください。</p>
+  <h1>理由</h1>
+  <p>パスワードは、信頼関係の確立に使用される機微データです。 使用後にメモリに残っていると、攻撃者に悪用されてしまう可能性があります。</p>
+  <h1>チェック方法</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>パスワードのすべての使用方法を確認します。 </strong>アプリケーションを調べて、コード ベース内でユーザー パスワードが処理されているすべての箇所を特定します。 一般的な箇所には以下が含まれます。</p>
+      <ul>
+        <li>新規ユーザーの作成 <li>既存のユーザーの編集 <li>既存のユーザーのCredential情報の変更 <li>ユーザーの認証</li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>パスワードが、可変オブジェクトに格納されていることを確認します。</strong> 識別した各パスワードは、可変オブジェクト (文字配列など) に格納します。 これにより、ガーベジ コレクタに依存せずに、メモリ内でパスワードが上書きされるようにできます。 メモリ領域が割り当てられた後に修正できないようにする .NET 文字列などの不変のオブジェクトに、パスワードが保存されていないことを確認してください。</p>
+        <p>パスワードを格納しているメモリが、使用後になるべく早く上書きされるようにします。 絶対に必要な場合を除いて、関数、クラスまたはオブジェクトのバウンダリー間でパスワードが伝達されないことを確認してください。 下記の例で、<strong>Byte</strong>と<strong>byte</strong>の違いに留意してください。.NETは<strong>Byte</strong>がすでに占有しているヒープで、同一のメモリ ロケーションを上書きする保証がありません。ただし、<strong>byte</strong> 変数または <strong>byte[]</strong> 内の要素を上書きする場合は、実際のデータが格納されている同じメモリ ロケーションが上書きされます。</p>
+        <p>変更可能なオブジェクトの例:</p>
+        <ul>
+          <li>char <li>char[] <li>byte <li>byte[]</li></li></li></li>
+        </ul>
+        <p>変更不可なオブジェクトの例:</p>
+        <ul>
+          <li>文字列<li>Byte <li>Byte[] <li>Char</li></li></li></li>
+        </ul>
+        <li>
+          <p>
+            <strong>すべてのパスワード インスタンスが消去されることを確認します。</strong> パスワードが保存されたすべてのメモリ ロケーションは、使用後消去または上書きされることを確認してください。 NULL ポインターを設定してもメモリは消去されたり上書きされたりしません。新しい値を割り当てる必要があります。 文字配列の場合、各 char にスペースやゼロなどの新しい値を設定することで、メモリに格納されている値が上書きされます。 </p>
+          <p />パスワードの不適切な削除例:<p /><pre>char[] pass = GetPassword();...//insufficient for removing a password from memorypass = null;</pre><p>パスワードの適切な削除例:</p><pre>char[] pass = GetPassword();...//proper clearing of character array to remove data from memoryfor(int i=0; i&lt;pass.Length; i++){      pass[i] = ' ';}pass = null;</pre></li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードでは、パスワードを使用しています。 文字列へのポインターが取り外されガーベジコレクションが呼ばれますが、.NETはデータが消去されることを保証しません。</p>
+  <p />
+ <pre>string pass = GetPassword();...pass = null;GC.Collect();</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>.NET データ型の詳細については、次を参照してください: <a href="http://msdn.microsoft.com/en-us/magazine/cc301569.aspx">.NET 型の基本</a>。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

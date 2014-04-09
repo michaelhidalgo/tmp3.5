@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1126386834" Content_Hash="1089545152">
+  <Metadata>
+    <Id>831964b8-77dd-4f42-8c14-e0ae763ab027</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログ情報を表示する方法</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p><strong>SvcTraceViewer.exe</strong> ユーティリティを使用して、メッセージ ログ ファイルとトレース ファイルの両方を閲覧することができます。 このツールは&lt;Drive Name&gt;:\Program Files\Microsoft SDKs\Windows\v6.0\Binにあります。</p>
+  <p>このツールは、 WCF サービスのステップ バイ ステップ プロセスを包括的に実装し、WCFランタイムとクライアントとの各相互作用を示します。 オブジェクトのアクティビティ、メッセージ、およびホストの稼働中に起こったすべてのエラーを表示します。 また、ログまたは トレース データのグラフィック表示も提供します。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>サービス トレース ビューアー ツールの使用に関する詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms732023.aspx">http://msdn.microsoft.com/en-us/library/ms732023.aspx</a> の「サービス トレース ビューアー ツール」と<br /> <a href="http://blogs.msdn.com/alikl/archive/2007/10/23/examining-wcf-diagnostic-traces-using-service-trace-viewer-tool-svctraceviewer-exe.aspx">http://blogs.msdn.com/alikl/archive/2007/10/23/examining-wcf-diagnostic-traces-using-service-trace-viewer-tool-svctraceviewer-exe.aspx の「サービス トレース ビューアー ツールを使用した WCF 診断トレースの調査 (SvcTraceViewer.exe)」を参照してください。</a><li>認証の詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733082.aspx">http://msdn2.microsoft.com/en-us/library/ms733082.aspx にある 「Authentication (認証)」を参照してください。</a><br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

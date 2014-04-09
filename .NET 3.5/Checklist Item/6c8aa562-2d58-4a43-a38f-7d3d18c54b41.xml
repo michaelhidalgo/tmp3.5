@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2056372918" Content_Hash="-188530992">
+  <Metadata>
+    <Id>6c8aa562-2d58-4a43-a38f-7d3d18c54b41</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>重要な事業活動がログ記録される</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>お使いのアプリケーションで重要な事業活動がログ記録されることを確認してください。&nbsp;たとえば、電子商取引アプリケーションではすべてのユーザー購入がログ記録されます。</p>
+  <h1>理由</h1>
+  <p>多くのビジネスルールを実施する上で、ビジネス ロジックへのアクセスを記録することは不可欠です。 ロギングは詐欺防止や論争ソリューションの重要な鍵となります。&nbsp;さらに、ログ記録は、侵入が発生しようとしているのか、すでに発生したのか、また、どのような損害を受けたかを判断する、フォレンシック解析の作業にとって極めて重要となります。 </p>
+  <h1>チェック方法</h1>
+  <p>以下の手順を実行してチェックを行ってください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ログを行う対象を定義します。 </strong>適正なログ記録が行われているかどうかをチェックする前に、お使いのアプリケーションに対する異常なアクティビティを定義したリストを作成します。 機微メソッドおよびすべてのビジネス ロジックを参照してリストを定義します。</p>
+      <li>
+        <p>
+          <strong>データがログ記録されていることを確認します。 </strong>お使いのアプリケーションのコードとログを確認して、リスト内のそれぞれの動作がログ記録されているかどうかを判定します。 コードを確認するときに、<b>System.Web.Management.WebSuccessAuditEvent</b> または <b>System.Web.Management.WebFailureAuditEvent の継承先のカスタム イベント クラスの定義および使用を探します。</b></p>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>ASP.NET ヘルス モニタリングを使用して重要な事業活動をトラックしてください。 たとえば、アプリケーションで特に機微なメソッドおよびビジネス ロジックへのアクセスが記録されるようにインストルメント化してください。 これを行うには、<b>System.Web.Management.WebSuccessAuditEvent </b> または <b> System.Web.Management.WebFailureAuditEvent</b> の継承先のカスタム イベント クラスを作成して、このイベントを適切なメソッド内で発生させてください。 </p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/3ed07c79-09ef-41c6-a443-3bcda17eb189">ガイドライン：重要なビジネス ロジックへのアクセスをインストルメント化する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

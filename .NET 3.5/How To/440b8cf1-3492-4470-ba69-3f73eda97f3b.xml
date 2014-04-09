@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="311734375" Content_Hash="1802624136">
+  <Metadata>
+    <Id>440b8cf1-3492-4470-ba69-3f73eda97f3b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WMI をインストルメント化に使用する方法</Title>
+    <Category>イベント ログ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p><b>System.Management</b> アセンブリは、Windows Management Instrumentation (WMI) を持つアプリケーションのインストルメント化に使用できるクラスを定義します。 .NET Framework アプリケーションの特定の局面をインストルメント化するには、Common Information Model Object Manager (CIMOM) に対し、その特定のイベントがアプリケーションで発生した時に必要とされる情報をキャプチャするWMI管理のクラスを定義し登録する必要があります。 WMI管理のイベント クラスの<b>Fire</b> メソッドを呼び出して、WMI のインフラおよび監視アプリケーションにそのイベントが発生したことを通知する必要があります。 </p>
+  <p>WMI を使用するには、<b>BaseEvent</b> クラスから引き出される WMI管理のクラスを作成し、CIMOM に対し登録してください。 <b>インストルメント化した</b> アセンブリ レベルの属性を、ここに示すようなWMI管理のクラス定義を含むアセンブリに追加してください。 </p>
+ <pre>using System;<br />using System.ComponentModel; <br />using System.Management.Instrumentation; <br />...<br />System.Management.Instrumentation;<br />[assembly:Instrumented(@"root\MyAppWMI")] <br />namespace MyApp.WMI{<br />    [ManagedName("MyApp_MyAppExceptionEvent")]<br />    public class MyAppExceptionEvent : BaseEvent<br />    ...<br />}  </pre>
+  <p>アプリケーションを監視する際にキャプチャしたい任意のイベント固有のプロパティを (クラスに対して) 追加してください。 </p>
+  <p>CIMOM に対して WMI管理のクラスのスキーマを登録するには、次のコード例に示すように、<b>DefaultManagementProjectInstaller </b> クラスから引き出される新規クラスを作成してください。 </p>
+ <pre>namespace MyApp.WMI{<br />    [RunInstaller(true)]<br />    public class MyAppWmiSchemaInstaller :<br />                     DefaultManagementProjectInstaller<br /> }  </pre>
+  <ul>
+    <li>クラスを登録するには、次のように InstallUtil.exe ツールを実行してください。</li>
+  </ul>
+ <pre>installutil MyApp.Wmi.dll </pre>
+  <p>ランタイムで、イベントをインストルメント化するには、ここに示すように特定のイベントがアプリケーションで発生した際にWMI管理クラスの <b>Fire</b> メソッドを呼び出してください。 </p>
+ <pre>try{}catch(MyAppException ex){<br />    new MyAppExceptionEvent().Fire();<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>.NET Framework の WMIについての詳細は、<a href="http://msdn.microsoft.com/library/en-us/cpguide/html/cpconManagingApplicationsUsingWMI.asp">http://msdn.microsoft.com/library/en-us/cpguide/html/cpconManagingApplicationsUsingWMI.asp にある「WMI を使用してアプリケーションを管理する」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

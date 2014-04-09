@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1126860724" Content_Hash="-1490470923">
+  <Metadata>
+    <Id>01aa845d-9256-42e8-8504-df338a47a01e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ポリシー設定を強制するため、構成設定をロックする</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>各 Web アプリケーションの構成設定が変更されないようにしてください。 </p>
+  <h1>理由</h1>
+  <ul>
+    <li>特定のアプリケーションが自分の　Web.config ファイルで構成設定を変更できないようにするため<li>Web サーバ上にある全 Web アプリケーションの構成設定をロックするため</li></li>
+  </ul>
+  <h1>対策</h1>
+  <p>個別のアプリケーションが構成設定を自分の Web.config ファイルで変更できないようにするには、%Windir%\Microsoft.NET\Framework\{version}\CONFIG ディレクトリ内にあるマシンレベルの Web.config ファイル内の構成設定を集中的に適用してください。 Web サーバ上にある全 Web アプリケーションの構成設定をロックするには、&lt;LOCATION&gt; エレメント内でネストされている &lt;SYSTEM.WEB&gt; エレメント内に構成設定を配置して、allowOverride 属性を false に設定してください。 詳細についてはソリューション例を参照してください。 </p>
+  <h1>ソリューションの例</h1>
+  <p>次の例では、サーバ上にある全 Web アプリケーションに Windows 認証の使用を強制しています。 </p>
+ <pre>&lt;location allowOverride="false"&gt;<br />&nbsp;&lt;system.web&gt;<br />&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&lt;/system.web&gt;<br />&lt;/location&gt;</pre>
+  <p>特定の Web アプリケーションに設定を適用してロックする必要がある場合は、パス属性を &lt;location&gt; エレメント上で使用して、以下のように Web アプリケーションを識別してください。</p>
+ <pre>&lt;location path="Default Web Site/VDirName"&gt;<br />&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;identity impersonate="false"/&gt;<br />&nbsp; &lt;/system.web&gt;<br />&lt;/location&gt;<br /></pre>
+  <p>パスを指定する場合、完全に正しく、Web サイト名および仮想ディレクトリ名を含む必要があります。<br /></p>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

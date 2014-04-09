@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1702080222" Content_Hash="53752097">
+  <Metadata>
+    <Id>b873579a-11ed-4427-b2ce-c26e87ca4847</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で Forms Authentication を保護する方法</Title>
+    <Category>Forms Authentication</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このハウツーではASP.NETアプリケーションを使用してForms Authenticationをセキュアに構成し使用する方法を示します。 検討すべき重要な要因には、認証チケットを適切にセキュアすることと、ユーザーIDストアとストアへのアクセスをセキュアすることとが含まれます 認証チケットを保護できないことは、不正なスプーフィングやなりすまし、セッション ハイジャック、および特権の昇格につながる可能性のある一般的な脆弱性です。 他の一般的な脆弱性には、ユーザーストアをセキュアできないことや強力なパスワードを強制できないことなどがあります。 このハウツーでは、ハッシュ化や暗号化にSHA1やAESの初期設定を使用する、セッション持続時間制限を適用する、またSSLで認証チケットを保護する、といった適切な対応策を適用する方法を説明します。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  &lt;forms protection="All" &gt;と構成してください。</div>
+            <li>
+              <div>手順 2:  HMAC生成用にSHA1を、暗号化用にAESを使用してください｡</div>
+              <li>
+                <div>手順 3:  SSLで認証チケットを保護してください｡</div>
+                <li>
+                  <div>追加考慮事項</div>
+                  <li>
+                    <div>その他のリソース</div>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>Forms Authenticationを保護するためにどの対応策を取るべきか知っておいてください。 <li>Forms Authenticationチケットを暗号化し署名してください｡ <li>ユーザーストアを保護してください｡ <li>単独のサーバおよびウェブファーム展開でForms Authenticationを保護してください｡ </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>Forms Authentication用に構成されたASP.NET&nbsp;ウェブアプリケーションは、CookieとURLクエリー文字列のいずれかとしてウェブサーバとブラウザ間を送信される認証チケットを使用します｡ 認証チケットはユーザーが最初にログオンした時に生成され、続いて認証されたユーザーを表すために使用されます。 これにはユーザーIDおよびユーザーが属する一連のロールが含まれる場合も多いです。 ブラウザは、同一セッションの一部であるすべての後続する要求についての認証チケットをウェブサーバへ渡します｡ ユーザーIDストアと共に認証メカニズムが危険にさらされるのを防止するために、このチケットを保護する必要があります。</p>
+  <p>Forms Authenticationを適切に保護できていないことは一般的な脆弱性で、以下のことにつながります。</p>
+  <ul>
+    <li>
+      <b>特権の昇格。 </b>攻撃者は､サーバへのポストに先立ち、ユーザー名またはチケットに含まれるロールリストを更新することによりアプリケーション内で特権を昇格させる可能性があります。 新規のASPXページなどで、アプリケーションに対し悪意のあるコードをアップロードできる攻撃者は､Forms Authenticationチケットも首尾良く作成また変更できます。 <li><b>セッション ハイジャック。</b> 攻撃者は別のユーザーの認証チケットを捕獲し、それを使用してアプリケーションにアクセスする場合があります。 このようなことは多くの形で起こりえます｡<ul><li>クロスサイト スクリプティングの脆弱性の結果として｡ <li>移送が、セキュア･ソケット･レイヤー( SSL)のようなセキュリティメカニズムを使用して保護されていない場合｡ <li>チケットがブラウザのキャッシュに保存されている場合｡ </li></li></li></ul><li><b>サインアウト後のセッションの使用｡</b> ユーザーがアプリケーションからログアウトして、開発者が<b>FormsAuthentication.SignOut</b>を呼び出した後でも、認証チケットは有効期間（TTL）が終了するまで有効のままとなりますので、攻撃者はそれを使って別のユーザーになりすますことができてしまいます。 <li><b>傍受。 </b>攻撃者は、Forms Authenticationの内部を見てそこに含まれる機微な情報を取得し、この情報を使用してアプリケーションを危険にさらす可能性があります。 <li><b>ユーザーIDストアを危険にさらすこと。 </b>ユーザーIDストアにアクセスできる攻撃者は、データ･ストアから直接、またはSQL　インジェクション攻撃を使用してユーザー名とパスワードへのアクセスを取得できます。 </li></li></li></li></li>
+  </ul>
+  <p>これら脅威への保護策を実現するため、ASP.NET Forms Authenticationは次のような対応策を提供します:</p>
+  <ul>
+    <li>
+      <b>ハッシュされたMAC(HMAC)。</b> これらはSHA1またはMD5のいずれかを使用して耐タンパリング策を提供します。 認証チケットへの変更はすべてサーバで間出され、変更されていた場合に例外がスローされます。 <li><b>暗号化 </b>暗号化は、Forms Authenticationチケットに含まれる平文データを識別不能な暗号テキストに変換します。 ASP.NETはAES対称暗号化を使用して誰もForms Authenticationチケットの内容を閲覧できないように防止します。 <li><b>セッション寿命の制限。</b> 寿命制限を使用すれば、他のユーザーから捕獲した認証チケットを使用して攻撃者がアイデンティティーをスプーフできる時間ウィンドウを軽減することができます。 <li><b>HTTPS経由の送信の強制｡</b> 認証チケットがHTTP接続経由で送信されることを防げます。 これにより、ネットワークを横断する間に攻撃者が認証チケットを閲覧または変更することを防止できます。 </li></li></li></li>
+  </ul>
+  <h1>手順の概要</h1>
+  <p>以下の手順を行って、アプリケーションのForms Authenticationチケットを保護してください:</p>
+  <ul>
+    <li>
+      <b>手順 1:  Configure </b>&lt;<b>forms protection（構成フォーム保護）="All" </b>&gt;（全て） <li><b>手順 2:  HMAC生成用にSHA1を、暗号化用にAESを使用してください｡</b><li><b>手順 3:  SSLで認証チケットを保護してください｡</b></li></li></li>
+  </ul>
+  <h1>手順 1:  &lt;forms protection="All" &gt;と構成してください。</h1>
+  <p>&lt;<b>フォーム</b>&gt;エレメントの<b>protection（保護）="All" </b>（全て）に設定することで、Forms Authentication チケットが暗号化され、完全性が確認されるようにしてください。<b></b> これはデフォルト設定であり、Machine.config.commentsファイルでも確認することができます。</p>
+  <div>
+ <pre>&lt;forms protection="All" ... /&gt;  </pre>
+  </div>
+  <p>特定アプリケーション用のWeb.configファイルがこのデフォルト設定を無効にしてしまわないようにしてください。 </p>
+  <h1>手順 2:  HMAC生成用にSHA1を、暗号化用にAESを使用してください｡</h1>
+  <p>&lt;<b>machineKey</b>&gt;（マシン鍵）の確認 設定を見直してください。 SHA1およびAESの初期設定を推奨します｡ SHA1がHMACSHA1アルゴリズムを使用するように構成してください。 MD5ハッシュ化よりSHA1が好まれます、その理由はより大きなハッシュサイズを作ることができるため、 より安全になると考えられるからです。 より大きな鍵サイズが可能なのでDESおよび3DESよりAESが好まれます。</p>
+  <p>ASP.NET 第 2.0 バージョンは SHA1 および AES を使ってデフォルトに戻ります。 次のデフォルトはMachine.config.commentsファイルに文書化されています。</p>
+  <div>
+ <pre>&lt;machineKey <br />&nbsp;&nbsp; validationKey="AutoGenerate,IsolateApps"<br />&nbsp;&nbsp; decryptionKey="AutoGenerate,IsolateApps"<br />&nbsp;&nbsp; decryption="Auto" <br />&nbsp;&nbsp; validation="SHA1" /&gt;   </pre>
+  </div>
+  <p><b>decryption</b>（復号）属性用のデフォルト値は<b>Auto</b>（自動）、そして<b> decryptionKey（復号鍵）</b>チケットの<b>AutoGenerateおよびIsolateApps</b>は AES 対称暗号化で暗号化されています。 可能な限り<b>validation</b>（認証）および<b>decryption</b>（復号）鍵はハードコードではなく<b>AutoGenerate</b>（自動生成）に設定してください。 </p>
+  <p>共有ホスティングシナリオにおいて悪意のあるウェブアプリケーションが他のアプリケーションの認証構造のセキュリティを侵害できないようにするため、<b>IsolateApp</b>（アプリケーションの分離）フラグは<b>true</b>（真）に設定します。 また、アプリケーション間のリダイレクトは同様の理由から無効にする必要があります。 これは&lt;<b>フォーム</b>&gt;エレメントの<b>EnableCrossAppRedirects</b>（クロスアプリケーションリダイレクト有効化）属性を <b>false</b>（偽）に設定することで実施できます。</p>
+  <p>上記&lt;<b>machineKey</b>&gt;（マシン鍵） 設定が推奨され、変更することは推奨しません。 </p>
+  <h2>ウェブファームについての検討</h2>
+  <p>ウェブファーム展開では、鍵値は手動で生成する必要があり、ウェブファームにあるサーバ全体で同一になっているか確認してください｡ </p>
+  <h1>手順 3:  SSLで認証チケットを保護してください｡</h1>
+  <p>フォーム認証 Cookie がネットワーク上で送信される際に傍受されて改ざんされないように、アクセスに認証が必要な全ページに SSL を適用し、Forms Authentication チケットは&lt;<b>forms</b>&gt;（フォーム）の<b>requireSSL（SSL 必要）を"true"</b> （真）に設定することで SSL チャネルに限定するようにしてください。 element.</p>
+  <p>
+    <b>SSLチャンネルへのForms Authentication Cookieを制限するには</b>
+  </p>
+  <ul>
+    <li>&lt;<b>forms</b>&gt; の <b>requireSSL="true"</b> を設定してください｡ を設定してください｡ <div><pre>&lt;forms loginUrl="Secure\Login.aspx"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="true" ... /&gt;  </pre></div><p><b>requireSSL="true"</b> を設定することにより、ブラウザがサーバへ Cookie を送り戻すべきかどうか決める Cookie の <b>secure</b> プロパティを設定します。  <b>secure</b> プロパティの設定により、 Cookie はブラウザによって HTTPS URL を使用する安全なページのみへ送信されます。 </p><blockquote><b>注意</b>: &nbsp;&nbsp;Cookieなしのセッションを使用している場合は､認証チケットが不安定なチャンネルを横断して送信されることは決してないことを確認する必要があります。<b></b></blockquote></li>
+  </ul>
+  <h1>追加考慮事項</h1>
+  <p>先行する指針に加えて､追加の保護を提供する以下の追加項目を検討してください｡</p>
+  <ul>
+    <li>ウェブサイトをパーティションすることを検討してください。 <li>Forms Authentication Cookieに固執しないでください。 <li>チケット寿命を短縮することを検討してください｡ <li>固定期限切れの使用を検討してください｡ <li>堅牢なユーザー管理方針を実施してください｡ <li>パスワード複雑化のルールを実施してください｡ <li>効率の良いデータ検証を行ってください。 <li>個別のCookie名とパスを使用してください｡ <li>認証Cookieとパーソナル化 Cookie を別個にしておいてください。 <li>ナビゲーションには絶対URLを使用してください｡ </li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h2>ウェブサイトのパーティションを検討してください</h2>
+  <p>サイト全体で SSL を使用しなければならない状態を避けるには、認証済みアクセスを必要とするセキュアなページが、匿名でアクセス可能なページから分離したサブディレクトリに配置されるようなウェブサイトの構造にしてください。 このアプローチを図 1 に示します。</p>
+  <p>
+    <img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998310.f01paght00001201(en-us,MSDN.10).gif" border="0" />
+  </p>
+  <p>
+    <b>図 1:  パーティションがかかったウェブサイトを表示している Visual Studio.NET Solution Explorer </b>
+  </p>
+  <p>図1では、アプリケーションのログインページを含むセキュア ページは、アプリケーションのバーチャルroot ディレクトリの下にある<b>Secure</b> フォルダに配置されています。 </p>
+  <h3>ページを別個のサブフォルダでセキュアにするには</h3>
+  <ol>
+    <li>Microsoft の Internet Information Services（IIS）で、SSL を必要とするセキュアなフォルダを設定します。 IISメタベース内のフォルダに <b>AccessSSL=true</b>属性を設定します。 保護されているフォルダ内のページへの要求は、要求 URL に HTTPS が使用されている場合にのみ許可されます。 <li>&lt;<b>認可</b>&gt;を使用します 認証済みユーザーのみがセキュアなページにアクセスできるようにしてください。 このエレメントは末尾&lt;<b>/system.web</b>&gt;の下に配置します。 tag, as shown here. <div><pre>&lt;!-- The secure folder is for authenticated and SSL access only. --&gt;<br />&lt;location path="Secure" &gt;<br />&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; &lt;authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;deny users="?" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/authorization&gt;<br />&nbsp; &lt;/system.web&gt;<br />&lt;/location&gt;   </pre></div><p>さらに、下記の構成では、未認証のユーザーにアプリケーションのroot ディレクトリ内のページへのアクセスが許可されます。 この構成をメイン &lt;<b>system.web</b>&gt;の下に配置します。 element. </p><div><pre>&lt;system.web&gt;<br />&nbsp; &lt;!-- The virtual directory root folder contains general pages.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unauthenticated users can view them and they do not need <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to be secured with SSL. --&gt;<br />&nbsp; &lt;authorization&gt;<br />&nbsp;&nbsp;&nbsp; &lt;allow users="*" /&gt;<br />&nbsp; &lt;/authorization&gt;<br />&lt;/system.web&gt;   </pre></div></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;このタイプのサイト構成を使用する場合、アプリケーションは非SSLページ上でユーザーのアイデンティティに依存するべきではありません。 前記の構成では、非 SSL ページへの要求にForms Authenticationチケットが送信されません。 その結果、ユーザーは匿名とみなされます。 これには、ユーザー名を必要とするパーソナライズのような、関連する機能に影響を与えます｡<b></b></blockquote>
+  <h2>Forms Authentication Cookieに固執しないでください</h2>
+  <p>Forms Authentication Cookieに固執しないでください。クライアントコンピューターのユーザープロファイルに保存されているため、攻撃者がユーザーのコンピュータに物理的にアクセスできる場合に盗まれる可能性があるからです。 </p>
+  <p>非持続 Cookie を確保するには、<b>Login</b> コントロールの <b>DisplayRememberMe</b> プロパティを <b>false</b> に設定します。ログイン制御を使用していない場合、持続性のない Cookie を指定するにはユーザー Credential 情報が検証されてから<b>FormsAuthentication</b>（フォーム認証）クラス<b>RedirectFromLoginPage</b>（ログインページからリダイレクト）または<b>SetAuthCookie</b>（ Cookie 認証設定）メソッドを呼び出します。 これは次のコード例（ユーザー名、パスワード、ログインボタン、およびエラーメッセージに別の制御を使用する場合）で示されています。</p>
+  <div>
+ <pre>Public Sub Login_Click(sender As Object, e As EventArgs e)<br />' Is the user valid?<br />&nbsp;If (Membership.ValidateUser(userName.Text, password.Text)) Then<br />&nbsp;&nbsp;&nbsp;&nbsp; ' Parameter two set to false indicates non-persistent cookie<br />&nbsp;&nbsp; FormsAuthentication.RedirectFromLoginPage(username.Text, false)<br />&nbsp;Else<br />&nbsp;&nbsp; Status.Text = "Invalid credentials. Please try again."<br />&nbsp;End If<br />End Sub   </pre>
+  </div>
+  <h2>チケット寿命の短縮を検討してください</h2>
+  <p>攻撃者が捕獲したCookieを使用してスプーフした(なりすました)身元でアプリケーションにアクセスすることができる時間ウィンドウを短くするため、Cookie寿命の短縮を検討してください｡ SSLを使用できない場合､これが特に重要です。 認証Cookieの初期設定タイムアウトは30分です。 ここに示すように、これを10分まで短縮することを検討してください｡</p>
+  <div>
+ <pre>&lt;forms <br />&nbsp;&nbsp;&nbsp; timeout="10" <br />&nbsp;&nbsp;&nbsp; slidingExpiration="true"... /&gt;  </pre>
+  </div>
+  <h2>固定期限切れの使用を検討してください</h2>
+  <p>SSLが使用できないシナリオでは、次の設定を検討してください｡ <b>slidingExpiration（スライド式有効期限）が"false"</b>（偽）この設定で、認証チケットがそれ以上無効になった後に、絶対的な有効期限が存在することを確実にできます。 <b>slidingExpiration（スライド式有効期限）が"true"</b>（真）の場合、有効期限がウェブ要求がある度にリセットされます。</p>
+  <h2>強固なユーザー管理方針を実施してください｡</h2>
+  <p>他人のパスワードを推測できないように、また辞書攻撃のリスクを軽減するためにも、すべてのユーザーアカウントで強力なパスワードの使用を強制してください｡ 強力なパスワード方針には、以下のようなパスワードの長さと複雑さの制限が含まれます:</p>
+  <ul>
+    <li>パスワードにはユーザーアカウントの名前の全部または一部も含めることができません。 <li>パスワードは最低6文字の長さを持つ必要があります。 <li>パスワードは以下の4つのうち3つのカテゴリーからの文字を含む必要があります。<ul><li>英語の大文字(AからZ)<li>英語の小文字（aからz）<li>10進法数字(0から9)<li>非英数字の文字(e.g., !, $, #, %)</li></li></li></li></ul></li></li></li>
+  </ul>
+  <p>パスワードが一定間隔で変更されているか確認するため、パスワードの経年劣化も設定する必要があります。 パスワードが変更された時に新規パスワードと以前のパスワードの間に十分な変化があるかを確認するためパスワード履歴を保守管理する必要があります。 これでユーザーが同一パスワードやその変形を再利用することを防止できます。</p>
+  <p>同様に、Credential 情報はWeb.configファイルのような簡単にアクセスできる位置に平文として保存することは避けなければなりません。 Credential 情報データストアは、すべてのアクセスが制御および監査されるように適切に保護する必要があります。 例えば､接続文字列はデータベースに接続するためのユーザー名とパスワードを提供してはならず、したがって必要に応じて暗号化する必要があります。 ユーザーのパスワードを平文として保存することは推奨しません; 代わりに、ソルトおよび一方通行のハッシュ関数を使用して保存することを推奨します。 データのストアは、通常のユーザーがその中に含まれるデータに直接アクセスできないように保護する必要があります｡ 例えば、Credential 情報データへのアクセス用と機微ではない情報へのアクセス用では異なるデータベースサーバーのロールを用いることで行えます。</p>
+  <h2>パスワード複雑化ルールを実施してください</h2>
+  <p>The membership provider that the <b>CreateUserWizard </b>and<b> Login</b> controls use determines password complexity requirements. 例えば､初期設定では、SQL Server のメンバーシッププロバイダーは、最低１つの非英数字文字を含む最低7文字の長さのパスワードを必要とします。</p>
+  <h3>プロバイダーが強制する強固なパスワードを構成するには</h3>
+  <p>プロバイダーが強制する正確なパスワード複雑性ルールを構成するには、以下の追加属性を設定します:</p>
+  <ul>
+    <li>
+      <b>passwordStrengthRegularExpression</b> 初期設定は<b>""</b>です。<li><b>minRequiredPasswordLength</b> 初期設定は<b>7</b>です。<li><b>minRequiredNonalphanumericCharacters</b> 初期設定は<b>1</b>です。</li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;これらの初期設定値は、SQL Server およびActive Directoryのメンバーシッププロバイダー用です。<b></b></blockquote>
+  <p>以下の構成は、メンバーシッププロバイダーが使用するパスワードを制限するためのカスタム正規表現を提供する、SQL Server のメンバーシッププロバイダーの構成例が提示されています。</p>
+  <div>
+ <pre>&lt;membership defaultProvider="MySqlMembershipProvider"&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="MySqlMembershipProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="MyLocalSQLServer" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyAppName"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; passwordStrengthRegularExpression=<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlMembershipProvider, System.Web, Version=2.0.0.0, <br />		Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/membership&gt;   </pre>
+  </div>
+  <p>先のコード例の正規表現は、パスワードを8から10文字に拘束しています。 これには特殊文字は含まず､大文字、小文字および数字の組み合わせを含む必要があります。  <b>(.*\d)</b>は数字を指し、(<b>.*[a-z]</b>)は小文字を指し、<b>*[A-Z|]</b>は大文字を、<b>{8,10}</b>は8から10の数字に範囲を拘束しています。 </p>
+  <p>正規表現式に関する更なる情報については、<a href="http://msdn2.microsoft.com/en-us/library/ms998267.aspx">方法: 正規表現式を使って ASP.NET でのインプットを制限するを参照してください</a>。</p>
+  <p>SQL Server および Active Directory プロバイダーは常にまず最初にパスワードを<b>minRequiredPasswordLength</b>（パスワード最低必要長）および<b>minRequiredNonalphanumericCharacters</b>（最低必要非アルファベットおよび非数字の文字）属性で評価します。 正規表現との合致に決定権を与える場合､他の2つの属性を弱い値、たとえば最小の長さが1、非英数字が0に設定する必要があります｡</p>
+  <p>次の構成では<b>minRequiredPasswordLength</b>（パスワード最低必要長）および<b>minRequiredNonalphanumericCharacters</b>（最低必要非アルファベットおよび非数字の文字）属性でパスワードを制限します。</p>
+  <div>
+ <pre>&lt;membership defaultProvider="MySqlMembershipProvider"&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="MySqlMembershipProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="MyLocalSQLServer" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyAppName"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minRequiredPasswordLength="8"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minRequiredNonalphanumericCharacters="2"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlMembershipProvider, System.Web, Version=2.0.0.0,<br />		 Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/membership&gt;   </pre>
+  </div>
+  <h3>強固なパスワードの検証</h3>
+  <p>正規表現は<b>CreateUserWizard</b>（ユーザーウィザード作成）制御で使用してパスワード複雑性ルールを強制することができます。 これを行うことで、Client-side ValidationとServer-side Validationの両方の利点を得られます｡ </p>
+  <p><b>CreateUserWizard</b>（ユーザーウィザード作成）制御を通して入力されたパスワードを検証するためには、<b>PasswordRegularExpression</b>（パスワード正規表現）プロパティをここに示されているような適切な正規表現に設定します。</p>
+  <div>
+ <pre>^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$   </pre>
+  </div>
+  <h2>効率的なデータ検証の実行</h2>
+  <p>クロスサイト スクリプティングおよびSQL　インジェクションを使用して、認証チケットまたは実際の Credential 情報を取得するかしてシステムの合法的なユーザーの身元になりすまします。 したがって、そのような脆弱性の可能性を最小限にとどめるため、厳格なデータ検証を行うことが重要です。 </p>
+  <p>必ず<b>ValidateRequest</b>（要求検証）属性が次のコード例で示されている通り、<b>true</b>（真）に設定されているようにしてクロスサイト スクリプティング攻撃を防ぎます。</p>
+  <div>
+ <pre>&lt;%@ Page language="c#" Codebehind="LoginForm.aspx.cs" <br />&nbsp;&nbsp;&nbsp; ValidateRequest="true"&nbsp; ... %&gt;  </pre>
+  </div>
+  <p>同様に、Forms Authentication Cookie が<b>HttpOnly</b> 属性となっているようにして、クライアント側のスクリプトではアクセスできないようにします。 これはデータ検証の代用ではないですが、効果的な多層防御戦略を実装する役にたつものです。 更に、TRACE および OPTIONS 動詞といったような未使用の HTTP コマンドは無効にします。</p>
+  <p>入力データの文字列連結で作成されるダイナミックなSQL クエリーの使用は避けてください。 代わりに､SQL インジェクションのリスクを軽減するためにストアド プロシージャおよびパラメータの代用を使用してください｡ </p>
+  <p>インジェクション攻撃の防御に関する更なる情報については、<a href="http://msdn2.microsoft.com/en-us/library/bb355989.aspx">方法: ASP.NET でのインジェクション攻撃からの保護を参照してください。</a></p>
+  <h2>個別のCookie名とパスの使用</h2>
+  <p>&lt;<b>forms</b>&gt; で一意の <b>name</b> と<b>path</b> 属性値を使用します element as follows.</p>
+  <div>
+ <pre>&lt;forms name="YourAppName"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path="/FormsAuth" ... /&gt;  </pre>
+  </div>
+  <p><b>name</b> および <b>path</b> 属性に一意の値を保証することによって、同じサーバ上で複数のアプリケーションをホストする場合に発生しうる問題を防ぐことができます。 例えば､個別の名前を使用しない場合､１つのアプリケーションで認証されたユーザーが、別のアプリケーションのログオンページへリダイレクトされることなく、そのアプリケーションに要求を出すことが可能になります。 パーティションと特定のパスを使用することで、認証チケットが不必要に送信されることを防止し、したがって攻撃ウィンドウを削減できます。</p>
+  <p>認証チケットは前述の <b>requireSSL</b> および <b>HttpOnly</b> 属性のようなメカニズムを使用してネイティブに保護することができないため、 Cookie なしのセッションは一般的にリスクが大きくなります。 従って認証チケットには常にクエリー字列ではなく Cookie を使用することを推奨します｡</p>
+  <h2>認証とパーソナライゼーション Cookie は分離して保管してください｡</h2>
+  <p>ユーザー指定の設定条件と非機微データを含むパーソナライゼーション Cookie は、認証 Cookie からは分離して保管してください｡ 盗まれたパーソナライゼーションCookieはセキュリティの脅威を意味しないかもしれませんが､一方で攻撃者は盗んだ認証Cookieを使うことでアプリケーションへのアクセスを取得できます｡</p>
+  <h2>ナビゲーションには絶対URLを使用してください</h2>
+  <p>サイトの公開領域と制限領域の間 (つまり、HTTP ページと HTTPS ページの間) のページ移動には注意が必要です。リダイレクトでは必ず、ターゲット ページではなく、現在のページのプロトコル (HTTPS または HTTP) が使用されるためです。</p>
+  <p>ユーザーがログオンして、SSL で保護されているページを閲覧し、その後 "..\publicpage.aspx"といったような相対リンクを使ったり、HTTP ページにリダイレクトすると、HTTPS プロトコルが使用され、不必要なパフォーマンスのオーバーヘッドが発生します。 これを防ぐためには HTTPS ページから HTTP ページにリダイレクトする場合には "http://servername/appname/publicpage.aspx" といったような絶対リンクを使用してください。</p>
+  <p>同様に、サイトの公共エリアから保護されたページ（例えばログオン ページ等）にリダイレクトする場合、 "restricted/login.aspx” といったような相対パスではなく、 "https://servername/appname/secure/login.aspx" といったような 絶対 HTTPS パスを使用しなければなりません。例えば、ウェブ ページでログオン ボタンが提供されている場合、次のコードを使用することによって保護されたログイン ページにリダイレクトすることができます。</p>
+  <div>
+ <pre>private void btnLogon_Click( object sender, System.EventArgs e )<br />{<br />&nbsp; // Form an absolute path using the server name and v-dir name<br />&nbsp; string serverName = <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HttpUtility.UrlEncode(Request.ServerVariables["SERVER_NAME"]);<br />&nbsp; string vdirName = Request.ApplicationPath;<br />&nbsp; Response.Redirect("https://" + serverName + vdirName + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "/Restricted/Login.aspx");<br />}  </pre>
+  </div>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

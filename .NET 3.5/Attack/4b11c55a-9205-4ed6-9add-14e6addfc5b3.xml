@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2075287915" Content_Hash="-122696765">
+  <Metadata>
+    <Id>4b11c55a-9205-4ed6-9add-14e6addfc5b3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コマンド インジェクション攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>すべてのアプリケーション。</p>
+  <h1>説明</h1>
+  <p>コマンド インジェクション問題はインジェクション問題の一部であり、データ ストリームに制御情報を注入することでプロセスを操り、コードの実行や攻撃者の選んだ外部プロセスの呼び出しが行われます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>特権の昇格:</strong> 攻撃者はコマンド インジェクションを利用し、任意のコマンドやコードを実行できます。 </li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>
+      <strong>ユーザー入力の検証をしなかったこと:</strong> 制御情報とデータが入り交じるような状況では、コマンド インジェクションの機会が生じます。</li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>ユーザー入力を検証してください</strong>。入力の型、長さ、範囲、書式を検証することで、コマンドがデータに含まれないようにします。 受け入れられる入力をホワイトリスト化し、それ以外を拒否します。 メタ文字をエスケープし、正規化による課題に注意します。 データはプログラムを通過する中で変更される場合があります。多くの場合、複数の段階で検証することが適切です。 <li><strong>コマンドで入力データを直接利用しないでください</strong>。クレバー フォーマッティング (賢い書式設定) を利用し、ユーザー入力をデータとしてではなく、それ自体の別個のコマンドとして扱うことができます。 そのため、入力がコマンドを含んでいたとしてもコマンドとして解釈されないように、入力を検証し、データとして明示的に入力します。 <li><strong>コマンド インタープリタの使用を避けてください</strong>。常に実用的なわけではありませんが、十分にメンテナンスされた API を利用することは、インタープリタや外部プロセスを介してコマンドを呼び出すより良い結果を生むでしょう。</li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>次のコードは、あるファイルの内容を標準出力する UNIX コマンド cat のラッパーです。 これはインジェクション可能でもあります。</p>
+  <pre>#include &lt;stdio.h&gt;#include &lt;unistd.h&gt;int main(int argc, char &amp;#42;&amp;#42;argv) &amp;#123;  char cat&amp;#91;&amp;#93; = "cat ";  char &amp;#42;command;  size_t commandLength;  commandLength = strlen(cat) &amp;#43; strlen(argv&amp;#91;1&amp;#93;) &amp;#43; 1;  command = (char &amp;#42;) malloc(commandLength);  strncpy(command, cat, commandLength);  strncat(command, argv&amp;#91;1&amp;#93;, (commandLength - strlen(cat)) ); system(command);  return (0);&amp;#125;</pre>
+  <p>普通に使用された場合、要求されたファイルのコンテンツだけが出力されます。</p>
+  <pre>&amp;#36; ./catWrapper Story.txtWhen last we left our heroes...</pre>
+  <p>ただし、この行の終わりにセミコロンと別のコマンドを追加すると、そのコマンドが catWrapper により問題なく実行されます。</p>
+  <pre>&amp;#36; ./catWrapper Story.txt; lsWhen last we left our heroes...Story.txt doubFree.c nullpointer.cunstosig.c www&amp;#42; a.out&amp;#42;format.c strlen.c useFree&amp;#42;catWrapper&amp;#42; misnull.c strlength.c useFree.c commandinjection.c nodefault.c trunc.c writeWhatWhere.c</pre>
+  <p>catWrapper が標準ユーザーよりも高い特権を持つように設定されている場合、あるいは匿名で実行できる場合、その高い特権で任意のコマンドが実行できます。 </p>
+  <p>この種の動作の例は、XML 用のスタイル シート言語である XSL でも見られます。 XSL の主要な目的は、簡単なモジュール式の方法で XML ドキュメントを HTML のようなその他の XML ドキュメントに変換することです。 特に、異なる XSL スタイルを同じ XML に添付することが可能であり、それをユーザーが提供することがあります。 Microsoft は XSL の機能を拡張して &lt;msxsl:script&gt; タグでスタイル シートにスクリプト コードを組み込めるようにしました。 攻撃者が使用されている XSL スタイル シートを変更または置換できる場合、攻撃者はコマンドをスタイル シートに含めるだけで、アプリケーションを実行しているシステムにそのコマンドを注入できます。</p>
+  <p>多くのプログラミング言語には eval() 関数があります。これはその名前が示唆するように文字列を式として評価します。 このような言語にはおなじみの JavaScript、ASP、Python、Perl、Ruby、PHP があります。  データとコードの区別をあいまいにすることは大きなセキュリティ リスクとなります。  このケースも例外ではありません。 ユーザー入力が eval() 式で利用され、任意のコードの実行を許すことがあります。 PHP アプリケーションで文字列の結合に eval() が利用される例を考えてください。</p>
+  <pre>&amp;#36;name; // ask the user for their name and store it here&amp;#36;str = '&amp;#36;user stole my coffee&amp;#33;';&amp;#36;str_after_eval = eval("&amp;#36;str;");echo &amp;#36;str. "\n";echo &amp;#36;str_after_eval. "\n";</pre>
+  <p>ユーザーが「Alice」という名前を入力すると、このコードは次を出力します。</p>
+  <pre>&amp;#36;user stole my coffee&amp;#33;Alice stole my coffee&amp;#33;</pre>
+  <p>ただし、ユーザーが「echo exec('whoami'); echo」という名前を入力すると、 アプリケーションは PHP/HTML アプリケーションを実行しているシステム ユーザーの名前を返します。 パスにシステム コマンドや外部プログラムがあれば、このような方法で実行できます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>コマンド インジェクションに関する詳細は、e-articles.info で<a href="http://www.e-articles.info/e/a/title/Command-Injection/">コマンド インジェクション</a>記事を参照してください。 <li>Javascript Eval 関数に関する詳細は、<a href="http://en.wikipedia.org/wiki/Eval">http://en.wikipedia.org/wiki/Eval</a> で Wikipedia の Eval 記事を参照してください。<li>XSL のスクリプト ブロックに関する詳細は、MSDN で <a href=" http://msdn2.microsoft.com/en-us/library/wxaw5z5e.aspx">msxsl:script を使用したスクリプト ブロック</a>を参照してください。 <li>XSL 変換に関する詳細は、Wikipedia の <a href="http://en.wikipedia.org/wiki/XSL_Transformations">XSL 変換</a>を参照してください。 </li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン: ユーザーが提供するファイル名とパスの入力をすべてフィルター処理する</a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

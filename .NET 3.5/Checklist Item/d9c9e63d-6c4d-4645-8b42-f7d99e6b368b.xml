@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-320192308" Content_Hash="510605600">
+  <Metadata>
+    <Id>d9c9e63d-6c4d-4645-8b42-f7d99e6b368b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>匿名アカウントはウェブ コンテンツ ディレクトリに対する書き込みアクセス権を持たず、コマンドライン ツールを実行できない。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>匿名アカウントはウェブ コンテンツ ディレクトリに対する書き込みアクセス権を持たず、コマンドライン ツールを実行できないことを確認してください。攻撃者がこのよく知られたアカウントを標的にして悪意のあるアクションを実行するためです。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>匿名アカウントを保護するには:</p>
+  <ul>
+    <li>
+      <b>ウェブ コンテンツ ディレクトリに対する書き込みアクセス権を拒否します</b>。
+<p>このアカウントがコンテンツ ディレクトリへの書き込み (たとえば、ウェブ サイトの書き換え) を行うことができないことを確認してください。 </p><li><b>システム ツールへのアクセスを制限します</b>。
+<p>特に、\WINNT\System32 にあるコマンドライン ツールへのアクセスを制限します。 </p><li><b>個々のアカウントの代わりにグループにアクセス許可を割り当てます</b>。
+<p>ユーザーをグループに割り当て、個々のアカウントではなく、グループにアクセス許可を適用するのが好ましい方法です。 匿名アカウントの場合、グループを作成して、匿名アカウントをそれに追加し、主要なディレクトリとファイルへのアクセスをグループに対して明示的に拒否します。 グループにアクセス許可を割り当てると、匿名アカウントをより簡単に変更できます。また、アクセス許可を再作成することなく、追加の匿名アカウントを作成できます。 </p><blockquote><b>注意</b>: &nbsp;&nbsp;IISLockdownは、ウェブ匿名ユーザーおよびウェブアプリケーション グループの deny write アクセス制御エントリ (ACE) を適用することによって、匿名アカウントのコンテンツディレクトリへの書き込みアクセスを拒否します。 それはまた、コマンドラインツールに deny execute ACL を追加します。</blockquote><li><b>個別のアプリケーションに個別のアカウントを使用します</b>。
+<p>ウェブ サーバが複数のアプリケーションをホストする場合、アプリケーションごとに個別の匿名アカウントを使用します。 匿名の ウェブ ユーザー グループ (たとえば、IISLockdown によって作成された <b>ウェブ 匿名ユーザー</b> グループ) にアカウントを追加して、このグループを使用して NTFS アクセス許可を設定します。 </p><p>複数の匿名アカウントの使用と複数のアプリケーションのホストの詳細については、第 20 章「<a href="http://msdn2.microsoft.com/en-us/library/aa302436.aspx">複数の ASP.NET アプリケーションのホスティング</a>」を参照してください。</p></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

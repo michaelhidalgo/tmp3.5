@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="409193061" Content_Hash="-309862132">
+  <Metadata>
+    <Id>17034ef0-8935-4fb2-bbae-d79982e710c7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>役割ベースのセキュリティ チェックを実行する</Title>
+    <Category>認可</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>異なるユーザー タイプを列挙し、それぞれに固有のロールを作成してください。 リソースへのアクセスを認可する際には、ユーザーごとではなくロールごとにセキュリティ チェックを作成してください。</p>
+  <h1>理由</h1>
+  <p>アプリケーション ロールは、同じレベルの特権を必要とするユーザーを管理者がカテゴリに分けることを可能にします。 このメカニズムにより、特定のタスクの実行に必要な最小限の特権を簡単かつ明確に見つけて管理する方法が提供されます。 アプリケーションのユーザーを管理するために堅牢性および柔軟性がより高い方法も提供されます。</p>
+  <h1>状況</h1>
+  <p>アプリケーションでアクセス制御が使用され、そのユーザーがアプリケーション リソースに対して認可される場合。</p>
+  <h1>対策</h1>
+  <p>この概念を適用するには、アクセス制御は実際のユーザーではなくユーザーのロールに基づかせることをお勧めします。</p>
+  <p>以下の手順を使用して、役割ベースのセキュリティを設計します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>異なるユーザーの種類を理解する</strong>:アプリケーションに必要なさまざまなタイプのユーザーを列挙してください。 アプリケーションをどう使用するか、どのリソースへのアクセスが必要かを理解します。 対応するシステム コンポーネントでの実行が認可されているそれぞれのロールをマップするマトリックスを作ります。 このマトリックスを使用して、必要な機能に従って、さまざまなユーザーの種類を特定します。 脅威のモデルを作成することは、このマトリックスの意味を正しく理解していることを確認するのに役立つ手順かもしれません。</p>
+      <li>
+        <p>
+          <strong>ロールを設定する</strong>:各々のロールがどのリソースをアクセスできるか定義してください。 ロールベース セキュリティを適用する際には、プログラマチックと宣言的の 2 つのアプローチがあります。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>プログラム</strong>: プログラムによる役割ベースのセキュリティ アプローチはコード内に記述され、ランタイム時の柔軟性が追加で提供されます。 それはアプリケーションの再起動を必要なく、ユーザー特権を付与および失効させることができるように、アプリケーションが動的にロールを作成して割当てることを可能にします。 ロールベース セキュリティにプログラマチック アプローチを使用する際は、アクセス制御チェックをアプリケーション内の適切な場所に置いてください。 たとえば、下記のコードでは、財務レポートを生成するためにはユーザーが株主であることが必須となっています。</p>
+ <pre>public void GenerateFinancialReport(DateTime startDate, DateTime endDate)<br />&amp;#123;<br />    if (HttpContext.Current.User.IsInRole("ShareHolders"))<br />    &amp;#123;<br />        // Generate the relevant financial report<br />    &amp;#125;<br />&amp;#125;</pre>
+            <p>さらに、アプリケーションでは、特定のユーザーがローカルの Windows グループのメンバーかどうかをプログラム上でチェックすることができます。</p>
+ <pre>public void RetrieveLogs(ref Hashtable logTable)<br />&amp;#123;<br />    WindowsPrincipal user = new WindowsPrincipal((WindowsIdentity)HttpContext.Current.User.Identity);<br />    if (user.IsInRole(WindowsBuiltInRole.Administrator))<br />    &amp;#123;<br />        // Add logic for retrieving logs<br />    &amp;#125;<br />&amp;#125;</pre>
+            <li>
+              <p>
+                <strong>宣言型</strong>:ロール ベース セキュリティに対する宣言型アプローチは構成ファイル経由で行われます。 再コンパイルせずに宣言は変更できるので、簡単な管理が可能になります。 宣言的アプローチを使用することで、ソース コードを変更せずに、アプリケーションの大部分のセキュリティ設定を簡単に管理できます。 宣言型のセキュリティを使用するASP.NETアプリケーションは適切なロールを<strong>web.config</strong>内で示します。次のエレメントはロールベースのセキュリティを<strong>web.config</strong>を介して実施します:</p>
+              <ul>
+                <li>
+                  <p>
+                    <strong>roleManager</strong>：ASP.NET ロール マネージャを構成します。 フォームベースの認証が使用されている場合にのみ適用されます。 例: </p>
+ <pre>&lt;connectionStrings&gt;<br />  &lt;add name="MyAppSqlConnection"<br />       connectionString="Server=serv02.example.com; Database=myapp; Integrated Security=SSPI;"<br />       providerName="System.Data.SqlClient"/&gt;<br /> ...<br /> &lt;system.web&gt;<br />   &lt;roleManager enabled="true" cacheRolesInCookie="false" defaultProvider ="ProjectRoleProvider"&gt;<br />    &lt;providers&gt;<br />      &lt;clear /&gt;<br />      &lt;add name="MyAppRoleProvider"<br />            type="System.Web.Security.SqlRoleProvider"<br />            connectionStringName="MyAppSqlConnection"<br />            applicationName="MyApp"/&gt;</pre>
+                  <li>
+                    <p>
+                      <strong>authorization （認可）</strong>：リソースの承認設定をカプセル化します。</p>
+                    <li>
+                      <p>
+                        <strong>allow</strong>：そのリソースへのアクセスが許可されたユーザーとロールを表します。</p>
+                      <li>
+                        <p>
+                          <strong>deny</strong>：そのリソースへのアクセスが拒否されたユーザーとロールを表します。</p>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </ul>
+              <p>たとえば、次のようになります。</p>
+ <pre>&lt;&amp;#33;-- web.config --&gt;<br />&lt;system.web&gt;<br />   &lt;authentication mode="Windows" /&gt;<br />   &lt;authorization&gt;<br />    &lt;allow roles="BUILTIN\Administrators"/&gt;<br />    &lt;deny users="&amp;#42;"/&gt;<br />  &lt;/authorization&gt;<br />&lt;/system.web&gt;</pre>
+              <p>さらに、アプリケーションがフォームベースの認証を使用する場合、<strong>ウェブサイト -&gt; ASP.NET Configulation</strong> メニューから入手できるVisual StudioのASP.NET Configurationを介してアプリケーションのアクセス制御を設定できます。</p>
+              <p>Windows 認証を使用する場合、アプリケーションのユーザーおよびユーザー ロールを Windows ユーザーとグループの管理を通じて管理する必要があることに留意してください。</p>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>ユーザーを管理します</strong>。ユーザーをそれぞれのユーザーの役割に割り当てます。 アプリケーションは実際のユーザーでなく、ユーザー ロールに従ってセキュリティ ポリシーを適用する必要があります。 ロールベースのアクセス制御を強制するアプリケーションのメカニズムに応じて、以下のいずれかの手法を使用してアプリケーションのユーザーを管理してください。</p>
+          <ul>
+            <li>
+              <p>
+                <strong>プログラム型</strong>:ASP.NET は、<strong>Roles</strong> クラスを通してアプリケーションのユーザーを管理できることを可能にします。</p>
+              <p>下記のメソッドを使用してユーザーをロールに割り当てます。</p>
+              <ul>
+                <li>
+                  <strong>AddUserToRole</strong>
+                  <li>
+                    <strong>AddUserToRoles</strong>
+                    <li>
+                      <strong>AddUsersToRole</strong>
+                      <li>
+                        <strong>AddUsersToRoles</strong>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </ul>
+              <p>例: </p>
+ <pre>Roles.AddUserToRole("eric", "ShareHolders");</pre>
+              <p>下記のメソッドを使用してユーザーをロールから削除します。</p>
+              <ul>
+                <li>
+                  <strong>RemoveUserFromRole</strong>
+                  <li>
+                    <strong>RemoveUserFromRoles</strong>
+                    <li>
+                      <strong>RemoveUsersFromRole</strong>
+                      <li>
+                        <strong>RemoveUsersFromRoles</strong>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </ul>
+              <p>例: </p>
+ <pre>Roles.RemoveUserFromRole("eric", "ShareHolders");</pre>
+              <li>
+                <p>
+                  <strong>宣言型</strong>:ASP.NET のロール マネージャを使用してアプリケーションのユーザーを管理してください。 アプリケーションがフォームベースの認証を使用する場合、 <strong>ウェブサイト -&gt; ASP.NET Configuration</strong> メニューから入手できるVisual Studioの ASP.NET Configurationを介してアプリケーションのアクセス制御を設定できます。</p>
+                <li>
+                  <p>
+                    <strong>Windows</strong>: アプリケーションがWindows 認証を使用する場合、Windows の <strong>Local Users and Groups</strong> サービスを使用してアプリケーションのユーザーを管理してください。 サーバが組織の NT Domain または Active Directory のフォレストに接続されている場合、ユーザーとロールの管理はその組織のネットワーク管理者が行います。</p>
+                </li>
+              </li>
+            </li>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>下記のセグメントは、あるアプリケーションのアクセス制御ポリシーを表したものです。 このアプリケーションでは役割ベースのセキュリティが強制されていないため、各ユーザー用のポリシー エントリが使用されます。 このため、アプリケーションのユーザー数が増えるとユーザーのアクセス権限の管理が極めて困難になります。</p>
+ <pre>&lt;authorization&gt;<br />  &lt;allow users="NTDomain\joe, NTDomain\sarah, NTDomain\bill, NTDomain\sue"/&gt;<br />  &lt;deny users="&amp;#42;"/&gt;<br />&lt;/authorization&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>下記のセグメントは、あるアプリケーションのアクセス制御ポリシーを表したものです。 このアプリケーションではロールベースのセキュリティが実行されるため、ユーザー グループごとにポリシー エントリがあります。 このため、アプリケーションのユーザー ストアが増えてもグループのアクセス許可だけを変更すればよいので、ユーザーのアクセス権限を管理する能力には何ら影響ありません。</p>
+ <pre>&lt;authorization&gt;<br />  &lt;allow roles="NTDomain\Employees"/&gt;<br />  &lt;deny users="&amp;#42;"/&gt;<br />&lt;/authorization&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Web.config での roleManager エレメントの詳細は、MSDN の <a href="http://msdn2.microsoft.com/en-us/library/ms164660(vs.80).aspx">roleManager エレメント</a> の資料を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/a5b7e377-103e-4805-a567-6092cbbaeba7">ガイドライン:アプリケーションを公開と私有ドメインの間でパーティションする</a>
+      <li>
+        <a href="/article/a5b7e377-103e-4805-a567-6092cbbaeba7">ガイドライン:アプリケーションを公開と私有ドメインの間でパーティションする</a>
+        <li>
+          <a href="/article/0c6693ed-e3c2-4640-a795-c7c9c2a63cbc">ガイドライン:セキュリティ ポリシーを定義する</a>
+          <li>
+            <a href="/article/fd97f26a-1730-46c1-84ca-10fc44206c81">チェックリスト項目:ロール ベースのセキュリティ チェックが実施される</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

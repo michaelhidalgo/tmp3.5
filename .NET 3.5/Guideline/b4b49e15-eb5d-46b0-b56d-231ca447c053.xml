@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1201291521" Content_Hash="1774918690">
+  <Metadata>
+    <Id>b4b49e15-eb5d-46b0-b56d-231ca447c053</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データを ViewState 内に保存しないようにする</Title>
+    <Category>パラメータ操作</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ViewStateに機微データを保存することを避ける｡&nbsp; 機微データを管理する必要がある場合､サーバ上で維持してください。 例えば､セッション状態で維持してください｡&nbsp; ViewState が機微データを含む場合､ViewState を暗号化することをお勧めします｡ </p>
+  <h1>理由</h1>
+  <p>デフォルトでは、タンパリング防止策が講じられていますが、ViewState は、情報漏えいに対する保護を提供しませんので、機微データに使用することはお勧めしません。&nbsp; 表示ステータスに暗号化を追加することはできますが、それには、暗号化のための CPU の使用と生成される表示ステータスのサイズいずれの点でも、多大なパフォーマンス オーバーヘッドがあります。 最良のオプションは､ViewState に機微データがまったくないことを保証することです。 </p>
+  <h1>状況</h1>
+  <p>機微データは、ViewState に保存しないことをお勧めします。&nbsp; 機微データがなんらかの理由で ViewState に保存される必要がある場合､暗号化することをお勧めします｡</p>
+  <h1>対策</h1>
+  <p>ViewState は、ASP.NET 制御により Hiddenフォームエレメントとして保存および送信される、base-64 エンコードされたデータの塊です。&nbsp; ページ ソースを読むか、または ASP.NET トレーシングを使用して表示させることができます。&nbsp; 機微データが表示ステータスに保存されていないことを確認するには､次のステップに従ってください:</p>
+  <ol>
+    <li>
+      <p>ViewState に置かれているすべてのデータを調査し、単独または他のデータとの組み合わせであるかのいずれであれ、機微データでないことを確認してください。</p>
+      <li>
+        <p>全ての機微データをサーバ側のセッション変数へ移動してください。</p>
+        <li>
+          <p>データをサーバ側のセッション変数へ移動できない場合､ ViewState を暗号化してください。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h2>ViewState をオフにするには</h2>
+  <p>ViewState を使用していない (または偶発的に機微データを持続して欲しくない) 場合､タグ､ページ、またはアプリケーション レベルで次のコードを使用してオフにできます:</p>
+  <table>
+    <tbody>
+      <tr>
+        <th>コントロール毎 (タグで)</th>
+        <td>
+ <pre>&lt;asp:datagrid EnableViewState="false" ... /&gt;</pre>
+        </td>
+      </tr>
+      <tr>
+        <th>ページ毎 (命令で)</th>
+        <td>
+ <pre>&lt;%@ Page EnableViewState="False" ... %&gt;</pre>
+        </td>
+      </tr>
+      <tr>
+        <th>アプリケーション毎 (Web.config で)</th>
+        <td>
+ <pre>&lt;Pages EnableViewState="false" ... /&gt;</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>サーバ側にセッション状態を保存するには</h2>
+  <p>サーバ側にセッション状態を保存するには、その <strong>Contents</strong> コレクションがセッション オブジェクトから簡単に追加され読み取られるようにする <strong>SessionStateModule</strong> クラスを使用できます。&nbsp; サーバ側のセッション状態は、プロセス内、別個の状態サーバ、または SQL Serverのいずれかに保存でき､多様な構成にわたり柔軟性を提供します。</p>
+  <h2>ViewState を暗号化するには:</h2>
+  <ol>
+    <li> <b>&lt;pages&gt;</b> エレメントの <b>viewStateEncryptionMode</b> 属性が次の例のように <b>Always</b> に設定されていることを確認します。 <pre>&lt;pages ... viewStateEncryptionMode="Always" ... /&gt;</pre><p>すべてのページで暗号化した表示ステータスを使用したくない場合は､<b>&lt; pages&gt;</b> エレメントの <b>viewStateEncryptionMode 属性が </b>次の例のように <b>Auto</b> に設定されていることを確認します。 </p><pre>&lt;pages ... viewStateEncryptionMode="Auto" ... /&gt;   </pre><p>次に､コード内から、次の例に表示されるように、<b>RegisterRequiresViewStateEncryption</b> メソッドを呼び出してください。 </p><pre>Page.RegisterRequiresViewStateEncryption();</pre><li>次の例のように、<b>validation</b> 属性で暗号化アルゴリズムを使用するように指定します。 <pre>&lt;machineKey ... validation="AES" ... /&gt;</pre><p><b>validation</b> 属性はオーバーロードされており、ハッシュ化アルゴリズムまたは暗号化アルゴリズムのいずれかを指定するために使用できます。&nbsp; <b>3DES</b> または <b>AES</b> を指定できます。<b>AES</b> は、<b>3DES</b> (56 ビット)よりも大きな鍵サイズ (128 ビット、192 ビット、または 256 ビット) を生成し､より安全であると考えられるため、AES の使用をお勧めします｡</p><li>以下の <b>&lt;machineKey&gt;</b> エレメントの <b>decryptionKey</b> 属性および <strong>validationKey</strong> 属性を確認してください：<pre>&lt;machineKey validationKey="AutoGenerate,IsolateApps"   decryptionKey="AutoGenerate,IsolateApps"   ... /&gt;</pre><p>アプリケーションが Webファームにインストールされていない限り､<b>decryptionKey</b> 属性および <strong>validationKey</strong> 属性は、例に表示されるようにデフォルト値のままにしておくことをお勧めします｡ Web ファームで ViewState を暗号化するには、<b>validationKey</b> および <strong>decryptionKey</strong> の値を手動で設定する必要があります。これらの値は、Web ファームのすべてのマシンで同一にすることをお勧めします。</p></li></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>電子商取引サイトは、ユーザーのブラウザを通じて、発注数量および (非公開の) 割引率のラウンドトリップを含む請求の明細を送信します。&nbsp; この情報のすべてはViewStateに保存されています。&nbsp; 攻撃者は、変更することはできませんが、ViewStateのすべての情報を抽出できます。&nbsp; したがって、競合相手はサーバ側マシンを危険にさらす必要なくそのサイトの割引構造を知ることができます。 </p>
+  <p />
+  <h1>ソリューションの例</h1>
+  <p>電子商取引サイトは、ユーザーに最初に送信した後にサーバ側のセッション状態にすべての請求明細を保管し､適切にセッション状態を保護します。&nbsp; 攻撃者は、請求明細を閲覧することも変更することもできません。</p>
+  <p />
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>サーバ側のセッション状態の使用についての詳細は､<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpconaspstatemanagement.asp"> セッション状態 </a> を参照してください｡</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

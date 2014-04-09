@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-436523660" Content_Hash="-2101066685">
+  <Metadata>
+    <Id>5e086fea-df5c-4958-9b8f-e6f175b458f7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データがキャッシュされていない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションがどのレベルにおいても機微データをキャッシュしないようにしてください。</p>
+  <h1>理由</h1>
+  <ul>
+    <li>クライアントにキャッシュされた機微データは、クライアントのブラウザのライフスパン &amp;#8212; またはそれ以上の期間にわたって永続化する 場合があります。 攻撃者は、特に共有されたコンピュータのような信頼されない環境内のブラウザのキャッシュから機微な情報を読み出します。 <li>攻撃があった場合、 サーバにキャッシュされた機微データを含むページが、不正なユーザーに取得されたり、そのようなユーザーに送信されたりする場合があります。 これは深刻な情報開示の問題につながります。 <li>中間層またはデータベース レベルに存在する&amp;nbsp;キャッシュも、攻撃者に頻繁に悪用される可能性があります。</li></li></li>
+  </ul>
+  <h1>チェック方法</h1>
+  <p>以下の手順を使用して、アプリケーションが機微データを扱っている場合にデータがキャッシュされないようにします。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機微データを識別します。 </strong>機微データとは、秘密に保たれており、認可されている当事者にのみ開示するべき情報のことです。 機微データの典型的な例として、以下に限定されませんが、顧客名、政府発行のID番号、クレジット カードまたその他の財務情報、パスワード、および私有鍵などが含まれます｡ ヘルス ケアや銀行など一部の業界では、機密情報を定義する規制基準を設けています。 アプリケーションに規制要件が適用される場合、規制要件に従って機微データを識別します。 機微データは次のように定義されます:</p>
+      <ul>
+        <li>Personally Identifiable Informationが含まれるか、またはPersonally Identifiable Informationの導出に使用できる、他者と共有すべきでない情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>キャッシングを防止するためにHTTP ヘッダーを使用します。</strong>アプリケーションでは、特定の HTTP ヘッダを使用して、特定のコンテンツがキャッシュされないようにすることができます。 以下の手法が使用するようにしてください。</p>
+        <ul>
+          <li>
+            <p>出力された HTML ドキュメント内で、機微なコンテンツに "Pragma: No-Cache" というヘッダーが含まれていることを確認します。 例: </p>
+            <pre>&lt;HTML&gt;<br />    &lt;HEAD&gt;<br />        &lt;HTTP-EQUIV="PRAGMA" CONTENT="NO-CACHE"&gt;<br />        ...<br />    &lt;/HEAD&gt;<br />    &lt;BODY&gt;<br />        ...<br />    &lt;/BODY&gt;<br />&lt;/HTML&gt;</pre>
+            <li>
+              <p>出力された HTTP 応答内で、アプリケーションに "Cache-Control: no-cache" というヘッダーが含まれていることを確認します。 例: </p>
+              <p />
+              <pre>Response.Cache.SetCacheability(HttpCacheability.NoCache);</pre>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>出力キャッシングが無効になっていることを確認してください。 </strong>機微な情報を含むアプリケーションのすべてのページで、次のように <strong>&amp;#64; OutputCache 命令 を追加して </strong>出力キャッシングをオフにします。</p>
+          <pre>&lt;&amp;#37;&amp;#64; OutputCache Location="None"&amp;#37;&gt;</pre>
+          <p>また、アプリケーションが独自の内部カスタム データ キャッシング レイヤーを使用している場合､&amp;nbsp;機微データがキャッシュされないようにそれらのレイヤーを設計する必要があります。</p>
+          <li>
+            <p>
+              <strong>隠しフィールドまたはスクリプト変数に機微データが格納されていないことを確認します。 </strong>アプリケーションのすべての隠しフィールドとクライアント側のスクリプトを確認します。 隠しフィールドまたはスクリプト変数に機微データが格納されていないことを確認します。 アプリケーションに返す必要があるすべての機微データがサーバー側セッション内に格納されていることを確認します。 機微データを隠しフィールドに格納する例:</p>
+            <pre>&lt;input type="hidden" name="ccNum" value="4111111111111111"&gt; </pre>
+            <li>
+              <p>
+                <strong>機微データが、安全に保存されている場合を除いてアプリケーションまたはデータベース内にキャッシュされないようにしてください。 </strong>機微データがシステム内を通るパスを追跡して、機微ではないデータと併用される場所に特に注意を払ってください。 混合されたデータであっても機微データのままですが、機微ではないデータとして扱われることがよくあります。 機微データが残されているそれぞれの場所では、一時的であっても、使用後にクリーンアップし、アクセスが適切に制御されるようにしてください。 データが即時に使用するために必要とされる期間を超えて残されている場合は、システムのリファクタリングを行い、機微でないデータのみをキャッシュするようにするか、キャッシュ内のデータを安全に保存 (暗号化するなど) してください。</p>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>入力フィールドの形式でキャッシュされたユーザー名とパスワードを含む次のような Web ページがあります。 この Web ページは､そのコピーが無期限に残されるクライアントのキャッシュへ到達する方法を潜在的に見つける可能性があります。</p>
+  <pre>&lt;HTML&gt;<br />  ...<br />  &lt;INPUT type="hidden" id="username" name="username" value="Kilroy" /&gt;<br />  &lt;INPUT type="hidden" id="password" name="password" value="Iwashere" /&gt;<br />  ...<br />&lt;/HTML&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>キャッシュ コントロール HTTP ヘッダーの詳細は、<a href="http://www.i18nguy.com/markup/metatags.html">Useful HTML Meta Tags</a> を参照してください。</li>
+  </ul>
+  <br/>
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

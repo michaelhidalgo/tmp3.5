@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1019846572" Content_Hash="-759914077">
+  <Metadata>
+    <Id>f634211c-a35c-434e-8c72-e3fd0f3264df</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でネットワーク サービス アカウントを使用してリソースにアクセスする方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft Windows Server 2003 以降のオペレーティング システム</li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、NT AUTHORITY\Network Service マシン アカウントを使用してローカルおよびネットワーク リソースにアクセスする方法について説明します。 Windows Server 2003 以降のデフォルトでは、ASP.NET アプリケーションはこのアカウントの ID を用いて動作します。 それはユーザー権利とアクセス許可が限定された最小限の特権のアカウントです。 それにはネットワーク Credential 情報があります。 このことは、ドメイン内のネットワーク リソースに対して認証するためにそれを使用できることを意味します。 本ガイドでは、Network Service アカウントを使用して、Windows イベント ログ、Windows レジストリ、ファイル システム、さらにローカルおよびリモート SQL Server データベースなどのサーバ リソースにアクセスする方法について説明します。 </p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>イベント ログ アクセス</div>
+          <li>
+            <div>レジストリ アクセス</div>
+            <li>
+              <div>ファイル アクセス</div>
+              <li>
+                <div>SQL Server</div>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>リソースにアクセスするためにネットワーク サービス アカウントを使用することによって課される制限事項を学びます。 <li>次のリソース タイプにアクセスするには、ネットワーク サービス アカウントを使用します。<ul><li>Windowsイベント ログ<li>Windowsレジストリ<li>ローカル ファイル システム<li>ローカル データベースとリモート データベース</li></li></li></li></ul></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>Windows Server 2003 以降の環境で動作する Microsoft Internet Information Services (IIS) のデフォルト設定では&nbsp;、NT AUTHORITY\Network Service アカウント ID を使用するアプリケーション プールで ASP.NET アプリケーションを実行します。 このアカウントは、制限された権限を持つ最小限の特権マシンアカウントです。 このアカウントを使用して実行されるアプリケーションは、イベント ログ、レジストリ、ファイルシステムへのアクセスが制限されています。 アカウントはネットワーク Credential 情報を持っています。これは、Windows 認証を使用してネットワーク リソースとリモート データベースにアクセスするためにこのアカウントを使用できることを意味します。 ネットワーク リソースは、ウェブサーバと同じドメインまたは信頼されたドメインにある必要があります。</p>
+  <p>状況的に、Network Service アカウントを使用するより、カスタム ドメイン サービス アカウントを使用した方がよい場合があります。 以下の場合は、カスタム ドメイン サービス アカウントを使用する必要があります。</p>
+  <ul>
+    <li>単一サーバ上で複数のアプリケーションを個々に分離したい。 <li>ローカル リソースおよびリモート リソース上のアプリケーションごとに異なる​​アクセス制御が必要です。 例えば、アクセスがアプリケーションのアカウントに制限されている場合、他のアプリケーションは、このアプリケーションのデータベースにアクセスすることはできません。 <li>アプリケーションごとのアクティビティを別個に追跡するため、Windows監査機能を使用したい。 <li>汎用ネットワーク サービス アカウントに関連付けられているすべての偶発的または意図的なアクセス制御や許可の変更が、アプリケーションに影響するのを防ぎたい。 </li></li></li></li>
+  </ul>
+  <p>このガイドでは、Network Service アカウントを使用して、イベント ログやレジストリ、ファイル システム、データベース等のさまざまなリソースにアクセスする方法について説明します。</p>
+  <h1>イベント ログ アクセス</h1>
+  <p>Network Service ID を用いて動作するアプリケーションは、既存のイベント ソースを使用することでイベント ログに書き込みすることができますが、レジストリ権限が十分ではないため、新規イベント ソースを作成することはできません。 <b>EventLog.Write</b> メソッドを使用した場合、指定のイベント ソースが存在していないと、メソッドはイベント ソースの作成を試み、セキュリティ例外が発生します。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;アプリケーションのイベントを他のアプリケーションのイベントから簡単に区別することができるように、アプリケーション固有のイベント ソースを使用すると便利です。<b></b></blockquote>
+  <p>すでに存在しないイベント ソースを使用して、ASP.NETアプリケーションがイベント ログへ書き込みできるようにするには、2つのオプションがあります。</p>
+  <ul>
+    <li>アプリケーションのインストール時に新しいイベント ソースを作成する<li>手動でレジストリに新しいイベント ソース エントリを作成します。 </li></li>
+  </ul>
+  <h2>インストール時に新しいイベント ソースを作成する</h2>
+  <p>このオプションで、管理者特権が利用可能であるインストール時に新しいイベント ソースを作成するインストール ユーティリティを使用して実行する、特殊なインストーラ クラスを作成します。 管理者アカウントを使用してインストール ユーティリティを実行し、管理者アカウントに新しいイベント ソースを作成する権限を与えます。</p>
+  <h3>イベント ソースを作成するインストーラ クラスを作成するには</h3>
+  <ol>
+    <li>Visual Studio を使用して、InstallerClass.dll という名前のクラス ライブラリー プロジェクトを作成します。 InstallerClass プロジェクトに System.Configuration.Install への参照を追加します。 <li><b>CustomEventLogInstaller</b> クラスを指定し、<b>System.Configuration.Install.Installer</b> から派生させます。<li>クラスの <b>RunInstaller </b> 属性に <b>true</b> を設定します。<li>アプリケーションに必要な新しいイベント ログごとに <b>System.Diagnostics.EventLogInstaller</b> インスタンスを生成し、<b>Installers.Add</b> を呼び出して生成したインスタンスをプロジェクトのインストーラ クラスに追加します。 次のサンプル クラスにより、アプリケーション イベント ログに CustomLog という名前の一つの新しいイベント ソースが追加されます。 <div><pre>using System;<br />using System.Configuration.Install;<br />using System.Diagnostics;<br />using System.ComponentModel;<br />&nbsp;<br />[RunInstaller(true)]<br />public class CustomEventLogInstaller: Installer<br />{<br />&nbsp;&nbsp; private EventLogInstaller customEventLogInstaller;<br />&nbsp;&nbsp; public CustomEventLogInstaller() <br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create an instance of 'EventLogInstaller'.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; customEventLogInstaller = new EventLogInstaller();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Set the 'Source' of the event log, to be created.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; customEventLogInstaller.Source = "customLog";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Set the 'Event Log' that the source is created in.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; customEventLogInstaller.Log = "Application";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Add myEventLogInstaller to 'InstallerCollection'.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Installers.Add(customEventLogInstaller);&nbsp;&nbsp; <br />&nbsp;&nbsp; }<br />&nbsp;&nbsp; public static void Main()<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp; }<br />}  </pre></div><li>コードをコンパイルして、InstallerClass.dll ライブラリーを生成します。 <li>管理者特権を持つアカウントを使用してInstallUtil.exe のユーティリティを実行し、コマンドライン上に DLL の名前を指定します。 たとえば、Visual Studio コマンド プロンプトを開き、次のコマンドを入力します。 <div><pre>InstallUtil.exe &lt;dll path&gt;\InstallerClass.dll   </pre></div></li></li></li></li></li></li>
+  </ol>
+  <p>インストール ユーティリティは、このインストーラ クラスを使用して呼び出されると、<b>RunInstallerAttribute</b> の値を見に行きます。値が <b>true</b> の場合、ユーティリティは <b>Installers</b> コレクション内のすべての項目をインストールします。 これにより、ASP.NET アプリケーションに指定されたイベント ソースが作成されます。</p>
+  <h2>レジストリに手動で新規イベント ソース エントリを作成する</h2>
+  <p>インストール時にイベント ソースを作成することができず、しかもデプロイメントである場合、管理者は手動で次のレジストリ キーの下に新規イベント ソース エントリを作成する必要があります。</p>
+  <div>
+ <pre>
+      <b>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\&lt;LogName&gt;</b>
+    </pre>
+  </div>
+  <h3>手動でこのレジストリ キーの下に新規イベント ソース エントリを作成するには</h3>
+  <ol>
+    <li>レジストリ エディタ ツールの Regedit.exe を起動します。 <li>アプリケーション イベント ログを使用して、左側パネルで概要リストを展開し、以下のレジストリ サブキーを見つけます。<p>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\Application </p><li><b>[Application]</b> サブキーを右クリックし、<b>[New]</b> を指して、<b>[Key]</b> をクリックします。<li>鍵の名前用の新しいイベント ソース名を入力し、<b>[Enter]</b> を押します。</li></li></li></li>
+  </ol>
+  <p>Network Service アカウントは、新しいイベント ソースを使用してイベントを書き込むことができます。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\ </b> レジストリ キー上で ASP.NET プロセス アカウント(またはアプリケーションが偽装を使用する場合は偽装されたアカウント)に書き込みの権限を付与することはお勧めできません。 この鍵への書き込みアクセスを許可すると、アカウントが侵害された場合、攻撃者がシステム上でログに対して、ログへのアクセス制御を含むログ関連のあらゆる設定を変更することができます。</blockquote>
+  <h2>Health Monitoring</h2>
+  <p>ASP.NET ヘルス モニタリングは、重要なライフタイム イベントおよびセキュリティ イベントを報告するように設定されている場合、Windows アプリケーション イベント ログに書き込みを行います。 ASP.NET ヘルス モニタリング機能を使用すると、イベント ログに書き込むために、コード内でカスタム イベントを発生させることができます。 この方法は <b>EventLog.WriteEntry</b> を使用しませんが、事前定義されたイベント ソースの使用は制限されています。 </p>
+  <h1>レジストリ アクセス</h1>
+  <p>ネットワーク サービス アカウントは、レジストリへの書き込みアクセス権を持っていません。 アプリケーションがレジストリに書き込む必要がある場合は、必要なレジストリ キーに必要なアクセス制御リスト（ACL）を設定しなければなりません。</p>
+  <h2>ネットワーク サービスへのレジストリ アクセス権の付与</h2>
+  <p>以下の例では、Windows が自動的に同期化されているインターネット タイム サーバの名前をアプリケーションで変更および表示する必要があります。 オペレーターは、コントロール パネルの日付と時刻の項目から <b>InternetTime</b><b></b> タブを使用してこの設定を変更できます。 </p>
+  <p>アプリケーションで、次のレジストリ キーを変更する必要があります。<b><br />HKLM\SOFTWARE\ Microsoft\Windows\CurrentVersion\DateTime\Servers</b></p>
+  <p>
+    <b>ネットワーク サービス アカウントに 上記レジストリ キーへの書き込みアクセス権を許可するには</b>
+  </p>
+  <p>次の手順を実行するには、レジストリのセキュリティを変更する権限を持つ管理者アカウントを使用する必要があります。</p>
+  <ol>
+    <li>タスクバー上で、<b>[Start]</b> をクリックし、続いて <b>[Run]</b> をクリックします。<b>[Open]</b> ボックスに <b>regedit</b> と入力して、<b>[OK]</b> をクリックします。<li>左側パネルの概要リストを展開し、上記レジストリ パスをたどって [DateTime] フォルダー アイコンを見つけます。 <li>[DateTime] フォルダー アイコンを右クリックし、<b>[Permissions]</b> をクリックします。<li><b>[Permission for Servers]</b> ダイアログ ボックスで、<b>[Add]</b> ボタンをクリックします。 <li><b>[Select Users, Computers, or Groups]</b> ダイアログ ボックス上のテキスト ボックスに <b>NETWORK SERVICE</b> と入力して、<b>[Check Names]</b> をクリックします。Network Service 名の下にアンダーラインが引かれます。 これは有効なセキュリティ プリンシパルであることを示します。  <b>OK</b> をクリックします。<li><b>[Permissions for Servers]</b> ダイアログ ボックスで、一覧から <b>[Network Service]</b> ユーザー名をクリックし、<b>[Permissions for NETWORK SERVICE]</b> セクションで、<b>[Advanced]</b> をクリックします。<li>[Advanced Security Settings for Servers] ダイアログ ボックスで、[Network Service] をクリックし、続いて [Edit] をクリックします。 <li><b>[Permission Entry for Servers]</b> ダイアログ ボックスで、<b>[Allow]</b> 欄の <b>[Set Value]</b><b></b> および <b>[CreateSubkey]</b> チェック ボックスをオンにして書き込みアクセスを許可します。 <b>[Permissions]</b> ダイアログ ボックスがクローズされるまで、<b>[OK]</b> を何度かクリックします。 </li></li></li></li></li></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;どのようなミスもシステムを不安定にさせる可能性があるため、レジストリを編集しているときは注意が必要です。</blockquote>
+  <p>ASP.NET アプリケーションはこれで、次のサンプルに類似するコードを使用して、インターネット タイム サーバの名前を変更および表示することができます。</p>
+  <div>
+ <pre>using Microsoft.Win32;<br />...<br />protected void Button1_Click(object sender, EventArgs e)<br />{<br />&nbsp; //change the time server<br />&nbsp; RegistryKey rk = Registry.LocalMachine.OpenSubKey(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @"SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers", <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; true); //writable - this will fail without proper access<br />&nbsp; string sDefault = (String)rk.GetValue("");<br />&nbsp; int iDefault = Convert.ToInt32(sDefault);<br />&nbsp; //this an array of all the server names<br />&nbsp; string[] sServers = rk.GetValueNames(); //requires enumerate sub keys<br />&nbsp; iDefault++;<br />&nbsp; if (iDefault &gt;= sServers.Length) <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iDefault=1;<br />&nbsp; rk.SetValue("", iDefault.ToString());<br />&nbsp; // update display<br />&nbsp; Response.write(rk.GetValue(sServers[iDefault]).ToString());<br />&nbsp;}   </pre>
+  </div>
+  <h1>ファイル アクセス</h1>
+  <p>Network Service アカウントは、IIS サーバ ルート フォルダー上にデフォルトで読み取りおよび実行権限を持ちます。 IIS サーバのルート フォルダー名は Wwwroot です。 つまり、この root フォルダー内に配置された ASP.NET アプリケーションは、最初から、自身のアプリケーション フォルダーへの読み取りおよび実行権限を持っていることになります。 しかし、ASP.NET アプリケーションが他の場所にあるファイルやフォルダを使用する必要がある場合は、特別にアクセスを有効にする必要があります。 </p>
+  <h2>ネットワーク サービスへファイル アクセス権を付与する</h2>
+  <p>Network Service として動作する ASP.NET アプリケーションへのアクセスを可能にするには、Network Service アカウントに対してアクセス権を付与しなければいけません。 </p>
+  <h3>特定のファイルへの読み取り、書き込み、および変更のアクセス許可を付与するには</h3>
+  <ol>
+    <li>Windows エクスプローラで、対象ファイルを選択します。 <li>ファイルで右クリックし、<b>[Properties]</b> をクリックします。<li><b>[Properties]</b> ダイアログ ボックスで、<b>[Security]</b> タブをクリックします。 <li><b>[Security]</b> タブで、ユーザーの一覧を確認します。 Network Service アカウントが一覧になければ、追加します。 <li><b>[Properties]</b> ダイアログ ボックスで <b>[Network Service]</b> ユーザー名をクリックし、<b>[Permissions for NETWORK SERVICE]</b> セクションで、<b>[Read]</b> および <b>[Write]</b>、<b>[Modify]</b> 権限を選択します。 <li><b>[Apply]</b> をクリックし、続いて <b>[OK]</b> をクリックします。</li></li></li></li></li></li>
+  </ol>
+  <p>ASP.NETアプリケーションはこれで、指定されたファイルに書き込むことができます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ASP.NET アプリケーションを実行するすべてのアカウント (Network Service またはカスタム サービス アカウント) に対して、同一レベルのファイル アクセスを許可する必要があるときは、個々の Network Service アカウントではなく、<b>IIS_WPG</b> グループにアクセス権を付与できます。 ASP.NET の実行に使用されるすべてのアカウントは、<b>IIS_WPG</b> グループのメンバーでなければいけません。</blockquote>
+  <h1>SQL Server</h1>
+  <p>データベースへの接続時に、ASP.NET アプリケーションは、Windows 認証を使用する必要があります。 Windows 認証を使用することにより、接続文字列にデータベース Credential 情報を格納しないようにし、また、データベース サーバにネットワーク経由でパスワードを渡すことを回避します。 </p>
+  <p>Windows 認証を使用すると、アプリケーションのプロセス アカウントが認証のためにデフォルトで使用されます。 データベースにアクセスするために、アカウントには以下が必要です。</p>
+  <ul>
+    <li>データベース サーバ上の SQL  Server ログイン。 <li>必要なデータベース内の必要なオブジェクト (たとえば、ストアド プロシージャ、ビュー、またはテーブル) へのアクセス許可。 </li></li>
+  </ul>
+  <h2>ローカル SQL Server へのアクセス権の付与</h2>
+  <p>SQL Server が Web サーバ上にある場合は、NT AUTHORITY\Network Service アカウントに対してデータベース ログインを作成する必要があります。 </p>
+  <h3>ネットワーク サービスを使用してローカル SQL Server データベースにアクセスするには </h3>
+  <ol>
+    <li>SQL Server Enterprise Manager を起動します。 <li>左側パネルでフォルダーを展開し、ローカル SQL Server の <b>[Security]</b> フォルダーを見つけます。 <li><b>[Security]</b> フォルダーで <b>[Logins]</b> を右クリックし、続いて <b>[New Login]</b> をクリックします。<li><b>[SQL Server Login Properties - New Login]</b> ダイアログ ボックスの <b>[Name]</b> ボックスに、<b>[NT AUTHORITY\NETWORK SERVICE]</b> と入力します。その他の設定はデフォルトのままで、<b>[OK]</b> をクリックします。<li>[Databases] フォルダーを展開し、続いて Pubs データベース (または Pubs に相当するデータベース) を展開します。 <li><b>[Users]</b> を右クリックし、続いて <b>[New Database User]</b> をクリックします。<li><b>[Database User Properties - New User]</b> ダイアログ ボックスで、NT&nbsp;AUTHORITY\NETWORK&nbsp;SERVICE アカウントを選択します。 <li><b>[Permit in Database Role]</b> リストで、<b>[db_datareader]</b> チェック ボックスをオンにします。 <li><b>[OK]</b> をクリックし、続いて SQL Server Enterprise Manager を終了します。 </li></li></li></li></li></li></li></li></li>
+  </ol>
+  <p>Network Service アカウントに、指定データベースのテーブル内のデータを読み取る権限が付与されました。 </p>
+  <p>実際には、アプリケーションの要件はより複雑である場合もあります。 たとえば、特定のテーブルへの読み取りアクセス権、および他のテーブルへの更新アクセス権を許可したい場合があります。 SQL インジェクションによるリスクを軽減するのに役立つ推奨アプローチは、Network Service アカウントに、選択したストアド プロシージャ セットに対する実行権限を付与し、直接的なテーブル アクセスを回避することです。</p>
+  <h2>リモート SQL Server へのアクセス権の付与</h2>
+  <p>同一ドメイン内 (または信頼済みドメイン内) の別のサーバ上にあるデータベースにアクセスする場合は、データベースへの認証に Network Service アカウントのネットワーク Credential 情報が使用されます。 Network Service アカウントの Credential 情報は <b><i>DomainName</i>\<i>AspNetServer</i>$</b> という書式で、 <b><i>DomainName</i></b> は ASP.NET サーバのドメイン、 <b><i>AspNetServer</i></b> は Web サーバ名を表します。</p>
+  <p>たとえば、ASP.NET アプリケーションが、CONTOSO ドメイン内にある SVR1 という名前のサーバ上で動作する場合、SQL Server は CONTOSO\SVR1$ からデータベース アクセス要求を受け取ります。</p>
+  <h3>ネットワーク サービスを使用してリモート SQL Server にアクセスするには</h3>
+  <p>同一ドメインまたは信頼済みドメイン内にあるリモート データベース サーバへのアクセス権を付与する手順は、手順 4 を除き、前述のローカル データベース サーバの場合と同じです。手順 4 で、データベース ログインの作成に <b>DomainName\AspNetServer$</b> アカウントを使用してください。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;プロダクション環境では、ネットワーク サービス アカウントを Windows グループ内に配置し、Windows グループ用の SQL Server ログインを作成する必要があります。<b></b></blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

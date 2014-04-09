@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1278768887" Content_Hash="-1259101691">
+  <Metadata>
+    <Id>bf87eee6-0a0d-46b0-a48e-d8e25d101804</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>命令型の認可を行う方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>命令ロール ベースの認可はコードに書込まれ、実行時に処理されます。 アクセスするリソースまたは実行するアクションが、ランタイムまで不明である、またはコード メソッドのレベルを超えた粒度別のアクセス制御が必要である場合、強制セキュリティが有用です。 </p>
+  <p>principal.InInRole を使って Windows グループを認可します。下記のコード抜粋は認可確認を例示するものです: </p>
+ <pre>string RequiredGroup = "Administrators";<br />  IPrincipal principal=System.Threading.Thread.CurrentPrincipal;<br />        if (principal.IsInRole(RequiredGroup))<br />            return string.Format("You entered: {0}", value);<br />        else<br />            return "not authorized";  </pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認可の詳細情報については、「認可」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx) を参照してください。</a><li>Roles.IsUserInRole メソッドに関する情報については、 <a href="http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx">http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx をご覧ください。</a><li>認可のガイドラインは、次の URL で「WCF 3.5 ガイドライン」の「認可」セクションを参照してください: <a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home</a><br /></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

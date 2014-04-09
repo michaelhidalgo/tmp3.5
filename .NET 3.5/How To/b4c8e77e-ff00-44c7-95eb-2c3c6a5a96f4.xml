@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1685306245" Content_Hash="-1810356650">
+  <Metadata>
+    <Id>b4c8e77e-ff00-44c7-95eb-2c3c6a5a96f4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>XML 署名を使用する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>XML ドキュメントの発信元の完全性ならびに信憑性を確保するために XML デジタル署名を使用することができます。 <b>System.Security.Cryptography.Xml</b>（システム セキュリティ暗号化）ネームスペースのクラスを使って XML  ドキュメントまたは XML ドキュメントの一部をデジタル署名で署名することができます。 </p>
+  <p>次のコード例は XML ドキュメントを RSA 鍵で署名する方法を示しています。 </p>
+ <pre>using System.Security.Cryptography;<br />using System.Security.Cryptography.Xml;<br />using System.Xml;<br />// Create a new RSA key container and save it in a key container.<br />CspParameters cspParams = new CspParameters();<br />cspParams.KeyContainerName = "MyRSASigningKey";<br />// Create a new RSA signing key and save it in the container. <br />RSACryptoServiceProvider rsaKey = new<br />                               RSACryptoServiceProvider(cspParams);<br />//   Create a <b>SignedXml</b> object and add the key to it.<br />SignedXml signedXml = new SignedXml(doc);<br />signedXml.SigningKey = Key;<br />// Create a <b>Reference</b> object that describes what to sign.<br />Reference reference = new Reference();<br />reference.Uri = ""; <br />// "" means sign the whole document<br />// Add an enveloped transformation to the reference, add the reference <br />// to the signed XML document, and then compute the signature.<br />XmlDsigEnvelopedSignatureTransform env = new <br />                             XmlDsigEnvelopedSignatureTransform();<br />reference.AddTransform(env);<br />// Add the reference to the SignedXml object.<br />signedXml.AddReference(reference);<br />// Compute the signature.<br />signedXml.ComputeSignature();<br />//   Get the XML representation of the signature and save </pre>
+ <pre>// it in an <b>XmlElement</b> object. Append the element to the original XML document.<br />XmlElement xmlDigitalSignature = signedXml.GetXml();<br />// Append the element to the XML document.<br />Doc.DocumentElement.AppendChild(doc.ImportNode(xmlDigitalSignature, true));</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

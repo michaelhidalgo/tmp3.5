@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1970013892" Content_Hash="2077163461">
+  <Metadata>
+    <Id>a7a2e79e-be5a-4616-8860-5fe257189a72</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能な場合はプラットフォーム機能を使用して鍵を管理する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>可能である限りプラットフォーム機能を使用して鍵管理を自身で行うことを避けてください。</p>
+  <h1>対策</h1>
+  <p>たとえば、DPAPI を使用することで、暗号鍵はアカウントのパスワードから派生するので、Windows がユーザーに代わってこの処理を行ってくれます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>DPAPI の使用方法の詳細は､<a href="http://msdn2.microsoft.com/en-us/library/ms998280.aspx">http://msdn2.microsoft.com/en-us/library/ms998280.aspx にある｢DPAPI を使用して ASP.NET 2.0 の構成セクションを暗号化する方法｣を参照してください｡</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

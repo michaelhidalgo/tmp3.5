@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="554488977" Content_Hash="2127026018">
+  <Metadata>
+    <Id>9f83e0ea-6192-4830-9178-cc2ee704f167</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で MachineKey を構成する方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このハウツーは、Web.config ファイルの &lt;machineKey&gt; エレメントを説明し、改ざんプルーフィングと ViewState の暗号化、Forms Authentication チケット<b> </b>、 およびロール Cookie を制御する &lt;machineKey&gt; エレメントの構成方法を示すものです。 ViewState は、デフォルトでは署名済みで改ざん防止対策が施されています。 <b>ViewStateEncryptionMode </b> 属性を使用して ViewState 内に機微な項目を納めたページの暗号化を要求することができます。 Forms Authenticationとロール Cookie は既定で署名済みで暗号化されています。 アプリケーションがウェブ ファーム内にある場合や、アプリケーション相互間で認証チケットを共有する必要がある場合を除き、既定の設定を変更する必要はありません。 こうした場合は、暗号化とハッシュ化鍵を手動で生成する必要があります。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>マシン鍵の説明<li><div>ViewState</div><li><div>Forms Authenticationチケット</div><li><div>メンバーシップ</div><li><div>匿名 ID</div><li><div>ロール クッキー</div><li><div>ウェブ ファームへの展開に関する考慮事項</div><li><div>アプリケーション相互間での認証チケットの共有</div><li><div>ASP.NET のバージョンのアップグレード</div><li><div>その他のリソース</div></li></li></li></li></li></li></li></li></li></li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>ViewState が改ざん防止対策用に構成されているか検証してください。 <li>&lt;<b>machineKey</b>&gt; を構成して、ViewState を暗号化してください。 to encrypt ViewState. <li>Forms Authenticationチケットが耐タンパー性を備えた構成になっていることを確認します。 <li>&lt;<b>machineKey</b>&gt; を構成してください。 Forms Authenticationチケットを暗号化します。 <li><b>machineKey</b> を使用することによりハッシュされたパスワードではなく、暗号化されたパスワードを使用するようにメンバーシップ機能を構成する方法を学習してください。<li><b>machineKey</b> を使用することにより匿名 ID Cookie を保護する方法を学習してください。<li><b>machineKey</b> を使用することによりロール Cookie を保護する方法を学習してください。<li>ウェブ ファームで使用するランダム鍵値を生成します。 </li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>デフォルトの ASP.NET 設定では、Forms Authentication チケットの改ざん防止策と暗号化、および ViewState の改ざん防止策が必ず講じられています。 それによって、クライアントのコンピュータ上またはネットワーク上で ViewState または認証チケットが変更された場合、サーバがデータを処理するときに必ずその変更が検出されます。</p>
+  <p>ViewState の改ざん防止策として、ViewState の内容からハッシュ メッセージ認証コード (HMAC) が生成されて、その後の要求においてそのハッシュが比較されます。 &lt;<b>machineKey </b>&gt; の <b>validation</b> 属性によって、 使用するハッシュ化アルゴリズムが表示され、属性の既定値は HMACSHA1 アルゴリズムが使用される SHA1 に設定されています。 ハッシュ化の選択肢として有効なのは SHA1 または MD5 です。ただし、大きなハッシュを作り出し、MD5 と比べて暗号方式がより強力であるとされているため 、SHA1 が望ましいです。 &lt;<b>machineKey</b>&gt; の <b>validationKey</b> 属性は、  ViewState の内容と一緒に使用されて、HMAC を作成します。  アプリケーションが Web ファーム内にインストールされている場合、<b>validationKey </b> を <b>AutoGenerate,IsolateApps</b> から、手動で生成した特定のキーに変更する必要があります。</p>
+  <p>潜在的に機微なデータにラウンド トリップを使用する必要がある場合は、特定のページに対して ViewState の暗号化を強制することができます。 そのためには、該当ページに対して、<b>@Page</b> ディレクティブ上に <b>ViewStateEncryptionMode="Always"</b> を設定します。  または、コントロールを使用して、<b>Page.RegisterRequiresViewStateEncryption</b> メソッドを呼び出すことで、そのページの ViewState の暗号化を要求することもできます。  <b>ViewStateEncryptionMode="Auto" </b> のデフォルト設定と一緒にこのメソッドを使用すれば、それを必要とする該当ページの ViewState のみを暗号化することができます。</p>
+  <p>Web ファームで ViewState を暗号化するには、<b>validationKey</b> 値を手動で設定する必要があります。 暗号化アルゴリズムは、&lt;<b>machineKey</b>&gt; の <b>validation</b> 属性で指定します。  <b>validation</b> 属性のデフォルト値は <b>SHA1</b> です。これは改ざん防止対策に対応しますが、暗号化には対応しません。  ViewState の暗号化をサポートするには、<b>validation</b> 属性を、推奨される対称暗号化アルゴリズムである <b>AES</b> に設定する必要があります。</p>
+  <p>Forms Authenticationチケットは既定で耐タンパー性を備え、暗号化されています。  <b>decryption</b> 属性と <b>decryptionKey</b> 属性が暗号化を制御し、  <b>validationKey</b> がハッシュ化を制御します。 アプリケーションが Web ファーム内にある場合、<b>validationKey</b> および <b>decryptionKey</b> を手動で設定する必要があります。また、別々の仮想ディレクトリ内の Forms Authentication チケットを複数のアプリケーションで共有する必要がある場合、どのアプリケーションの Web.config ファイルでもチケットが一致するように、鍵を手動で設定する必要があります。</p>
+  <p>ロール管理機能を使用して、ロールをキャッシュに入れるように選択すると、ロール Cookie が作成されます。 ロール Cookieも既定で署名済みで暗号化されており、Forms Authenticationチケットと同じメカニズムを使用しています。</p>
+  <h1>マシン鍵の説明</h1>
+  <p>&lt;pages&gt; エレメントと &lt;<b>machineKey</b>&gt; エレメントのデフォルト設定は、 マシンレベルの&lt;<b>web..config.comments</b>&gt;  ファイルに定義されています。 関連する既定の設定を参考のため下記に示します。</p>
+  <div>
+ <pre>&lt;pages enableViewStateMac="true" viewStateEncryptionMode="Auto" ... /&gt;</pre>
+ <pre>&lt;machineKey validationKey="AutoGenerate,IsolateApps"&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; decryptionKey="AutoGenerate,IsolateApps" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; validation="SHA1" decryption="Auto" /&gt;</pre>
+  </div>
+  <p>ViewState を構成する時は、&lt;<b>pages</b>&gt;  エレメントが&lt;<b>machineKey</b>&gt; と一緒に使用されます。 element.</p>
+  <p>web.config の中の  &lt;<b>machineKey</b>&gt; エレメントは、 の属性は以下の通りです。</p>
+  <ul>
+    <li>
+      <b>validationKey 。</b> これは、ViewState の改ざん防止化のために HMAC アルゴリズムで使用される鍵を指定します。  ViewState MAC がサーバでチェックされるのは、&lt;<b>pages</b>&gt; エレメントの <b>enableViewStateMAC</b> 属性または  <b>@Page</b> ディレクティブの <b>EnableViewStateMac</b> 属性が <b>true</b> に設定されている場合です。<div><pre>&lt;pages enableViewStateMAC="true" ... /&gt;<br />または <br />&lt;<a href="mailto:%@Page">%@Page</a> EnableViewStateMac="true" ... %&gt;</pre></div><p>Forms Authenticationでも認証チケットの署名にこの鍵が使用されます。 ロール マネージャおよび匿名識別番号が有効になっていれば、これらも Cookie の署名にこの鍵を使用します。 Cookie 不使用モードで匿名識別番号を使用する場合、URL 上のデータもこの値を使用して署名されます。</p><li><b>decryptionKey。</b> これによってデータの暗号化と解読に使用される鍵が指定されます。 Forms Authentication、ロール マネージャ、匿名 ID の各機能では、この鍵を使用して認証チケット、ロール Cookie、匿名 ID クッキーの暗号化と解読を行います。 ASP.NET は、この鍵を使用して ViewState の暗号化と暗号化解除を行いますが、それは <b>validation</b> 属性が AES または 3DES に設定されている場合のみです。 <li><b>decryptionKey。</b> これによってForms Authenticationチケットの暗号化と解読に使用される対称暗号化アルゴリズムが指定されます。 <li><b>validation。</b> これは、ViewState と Forms Authentication チケットに改ざん防止対策を施すために HMAC を作成するのに使用されるハッシュ化 アルゴリズムを指定します。 この属性は、ViewState の暗号化で使用される暗号化アルゴリズムを指定するのにも使用します。 この属性は以下の各オプションをサポートしています。<ul><li><b>SHA1</b> - SHA1 は、ViewState の改ざん防止のために使用されますが、構成によっては Forms Authentication チケットの改ざん防止にも使用されます。  <b>validation</b> 属性に対して SHA1 を選択した場合に使用されるアルゴリズムは HMACSHA1 です。 <li><b>MD5</b> - MD5 は、ViewState の改ざん防止のために使用されますが、構成によっては Forms Authentication チケットの改ざん防止にも使用されます。 <li><b>AES</b> - AES は、<b>decryptionKey</b> 属性に指定されたキーを使用して ViewState を暗号化するのに使用します。 <li><b>3SDE</b> - 3DES は、<b>decryptionKey</b> 属性に指定されたキーを使用して ViewState を暗号化するのに使用します。 これは、ASP.NET 1.1 において ViewState を暗号化する唯一の方法です。Forms Authentication チケットと ViewState のどちらの場合も、SHA-1 と、<b>validationKey</b> 属性に指定されたキーを使用して改ざん防止策を講じます。  <b>validation</b> 属性は、 ASP.NET 1.1 ではオーバーロードされているので、ASP.NET 2.0 では新たに <b>decryption</b> 属性が導入されています。 </li></li></li></li></ul></li></li></li></li>
+  </ul>
+  <p />
+  <p>SHA1 は MD5 よりも大きなハッシュを作り出し、暗号方式がより強力であるとされているため、一般には MD5 よりも SHA1 を選択してください。</p>
+  <p>Forms Authentication での改ざん防止対策のデフォルト値は SHA1 です (&lt;<b>forms protection="validation"</b> または "<b>All</b>" の場合)。  &lt;<b>forms protection="All"</b>&gt;  または &lt;<b>forms protection = "Encryption"</b>&gt; の場合、Forms Authentication は、MD5 または HMACSHA1 (検証が AES または 3DES に設定されている場合でも HMACSHA1 が使用されます) を使用してForms Authentication チケットをハッシュします。   次に、Forms Authentication は、<b>decryption </b> 属性に指定されたアルゴリズムを使用して、チケットを暗号化します。 (<b>decryption</b> 属性は、ASP.NET 2.0 で導入された属性です。)</p>
+  <h1>ViewState</h1>
+  <p>次のような方法で ViewState を保護することができます。</p>
+  <ul>
+    <li>HMAC を使用して ViewState の改ざん防止策を講じる。 <li>暗号化を使用して、ViewState を判読不能な暗号文に変える。 それによって、ViewState 内のどの機微データも表示不能になります。 </li></li>
+  </ul>
+  <p>ViewState のハッシュ化を可能にするには、以下の構成のうちの 1 つを使用する必要があります。</p>
+  <div>
+ <pre>&lt;pages enableViewStateMAC="true" ... /&gt;</pre>
+  </div>
+  <p>または </p>
+  <div>
+ <pre>&lt;%@Page EnableViewStateMac="true" ... %&gt;</pre>
+  </div>
+  <p>ViewState を暗号化可能にするには、以下の構成のうちの 1 つを使用する必要があります。</p>
+  <div>
+ <pre>&lt;pages viewStateEncryptionMode="Auto" ... /&gt;<br />&lt;pages viewStateEncryptionMode="Always" ... /&gt;</pre>
+  </div>
+  <p>または </p>
+  <div>
+ <pre>&lt;%@Page ViewStateEncryptionMode="Auto" ... %&gt;<br />&lt;%@Page ViewStateEncryptionMode="Always" ... %&gt;</pre>
+  </div>
+  <p><b>viewStateEncryptionMode</b> を <b>Auto</b> に設定すると、暗号化を要求する <b>Page.RegisterRequiresViewStateEncryption</b> メソッドの呼び出しによって、コントロールが具体的に暗号化を要求した場合のみ、そのページが暗号化されます。  これを <b>Always</b> に設定すると、コントロールが要求しなくても、暗号化が強制的に行われます。 </p>
+  <blockquote>
+    <b>注記: </b> 機微データを収容していないかぎり、ViewState を暗号化しないでください。 暗号化でパフォーマンスのオーバーヘッドが起きないように、機微データは ViewState ではなくサーバに保管するよう配慮してください。</blockquote>
+  <h2>ViewState が耐タンパー性を備えていることを確認する</h2>
+  <p>ViewState には、デフォルトによって改ざん防止策が施されています。  &lt;<b>pages</b>&gt; エレメントの <b>enableViewStateMac</b> 属性、 &lt;<b>machineKey</b>&gt; エレメントの <b>validationKey</b> 属性および <b>validation</b> 属性によって、ViewState の改ざん防止対策が有効になります。 element.</p>
+  <blockquote>
+    <b>注記: </b> デフォルトの &lt;<b>machineKey</b>&gt; 設定は、 Machine.config.comments ファイルで見ることができます。</blockquote>
+  <p>
+    <b>ViewState の改ざん防止対策が有効になっていることの検証</b>
+  </p>
+  <ol>
+    <li>以下の例に示されているとおり、&lt;<b>pages</b>&gt; エレメントの <b>enableViewStateMac</b> 属性が   <b>true</b> に設定されていることを確認します。 <div><pre>&lt;pages enableViewStateMac="true" ... /&gt;</pre></div><blockquote><b>注記: </b> マシンの <b></b><b>enableViewStateMac</b>設定をアプリケーションまたはページ レベルでオーバーライドすることができます。</blockquote><li>&lt;<b>machineKey</b>&gt; エレメントの <b>validation</b> 属性が (SHA1 に)設定されていることを確認します。 次の例に示すように SHA1 に設定されていることを確認します。 <div><pre>&lt;machineKey ...  validation="SHA1" ... /&gt;</pre></div><p><b>validation</b> 属性は、ViewState の改ざんを防止するのに使用するハッシュ化 アルゴリズムを指定します。 デフォルト値は <b>"SHA1" </b> であり、MD5 よりも大きいハッシュを作成し、暗号化の機能がより強力なので、MD5 ではなくこちらを使用する必要があります。 </p><li>&lt;<b>machineKey</b>&gt; エレメントの <b>validationKey </b>設定を確認します。 element. <div><pre>&lt;machineKey validationKey="AutoGenerate,IsolateApps" ... /&gt;</pre></div><p>上記のデフォルト設定では、<b>AutoGenerate </b> 設定がランダム鍵の生成を ASP.NET に指示します。 <b>IsolateApps </b> 修飾子が原因となって、各アプリケーションのアプリケーション ID を使用してサーバ上の各アプリケーションごとに固有鍵が ASP.NET によって生成されます。 </p><p>単一のサーバでの展開では既定値が適正値です。 アプリケーションがウェブ ファーム内に展開されている場合を除き、既定の設定を変更する必要はありません。 Web ファームでは、<b>validationKey </b> 値を手動で生成し、それがファーム内のすべてのサーバで同じであることを確認する必要があります。 詳細情報は、本文書の「<a href="http://msdn2.microsoft.com/en-us/library/ms998288.aspx#paght000007_webfarmdeploymentconsiderations">ウェブ ファームへの展開に関する考慮事項</a>」を参照してください。 </p></li></li></li>
+  </ol>
+  <h2>&lt;machineKey&gt; を構成して ViewState を暗号化する</h2>
+  <p>デフォルトでは、ViewState 内の情報はエンコードされますが、暗号化はされません。  ユーザーは、ViewState データをデコーディングして表示することができます。</p>
+  <p>ViewState を暗号化するには、ページ上のコントロールが明示的に ViewState の暗号化を要求する必要があるか、または &lt;<b>pages </b>&gt; エレメントの <b>viewStateEncryptionMode</b> 属性を  <b>Always</b> に設定する必要があります。暗号化を要求するには、コントロールが <b>Page</b> クラスの <b>RegisterRequiresViewStateEncryption</b> メソッドを呼び出す必要があります。</p>
+  <p><b>viewStateEncryptionMode</b> 属性は、次の 3 つの属性のうちの 1 つを採ることができます:</p>
+  <ul>
+    <li>
+      <b>Auto (自動)。</b> これはデフォルトの設定値です、つまり、ページ上の ViewState が暗号化されるのは、コントロールが具体的に暗号化を要求した場合のみということを意味します。 <blockquote><b>注記: </b> ページ上のコントロールが暗号化を要求した場合、ViewState 全体 (そのコントロールの ViewState だけでなく) が暗号化されます。</blockquote><li><b>Always (常時)。</b> 制御が暗号化を要求していない場合でも、暗号化が強制的に実行されます。 <li><b>Never (なし)。</b> 制御が暗号化を要求しても、暗号化が無効になります。 </li></li></li>
+  </ul>
+  <p>理想的には機微データを ViewState に保管しないようにし、それにより暗号化する必要性を回避してください。 ViewState をどうしても暗号化する必要がある場合、使用する暗号化アルゴリズムを <b>validation</b> 属性に指定する必要があります。</p>
+  <p>
+    <b>ViewState を暗号化するには</b>
+  </p>
+  <ol>
+    <li>以下の例に示されているとおり、&lt;<b>pages</b>&gt; エレメントの <b>viewStateEncryptionMode </b>&属性が  <b>Always</b> に設定されているかどうかを調べてください。 <div><pre>&lt;pages ... viewStateEncryptionMode="Always" ... /&gt;</pre></div><p>暗号化された ViewState をすべてのページでは使用したくない場合、以下の例に示されているとおり、&lt;<b>pages</b>&gt; エレメントの <b>viewStateEncryptionMode</b> 属性が Auto に 設定されているかどうかを調べてください<b> </b>。 </p><div><pre>&lt;pages ... viewStateEncryptionMode="Auto" ... /&gt;   </pre></div><p>次に､コード内から、次の例に表示されるように、<b>RegisterRequiresViewStateEncryption</b> メソッドを呼び出してください。 </p><div><pre>Page.RegisterRequiresViewStateEncryption();</pre></div><li>以下の例に示されているとおり、使用する暗号化アルゴリズムを <b>validation</b> 属性に指定します。 <div><pre>&lt;machineKey ... validation="AES" ... /&gt;</pre></div><p><b>validation</b> 属性はオーバーロードされており、ハッシュ化アルゴリズムまたは暗号化アルゴリズムのいずれかを指定するために使用できます。 <b>3DES</b> または <b>AES</b> を指定できます。(ASP.NET 2.0 では、<b>AES</b> のサポートが導入されています。) <b>AES</b> (128 ビット、192 ビット、または 256 ビット) のほうが、<b>3DES</b> (56 ビット) よりも大きい鍵サイズに対応するのでより安全であり、こちらを使用したほうがよいと考えられています。 </p><li>&lt;<b>machineKey</b>&gt; エレメントの <b>decryptionKey</b> 属性を確認してください。 確認します。<div><pre>&lt;machineKey decryptionKey="AutoGenerate,IsolateApps" ... /&gt;</pre></div><p>アプリケーションが Web ファームにインストールされていなければ､<b>decryptionKey</b> 属性には例のようにデフォルト値を使用します。 Web ファームでは、<b>decryptionKey </b> 値を手動で生成し、それがファーム内のすべてのサーバで同じであることを確認する必要があります。 詳細情報は、本文書の「<a href="http://msdn2.microsoft.com/en-us/library/ms998288.aspx#paght000007_webfarmdeploymentconsiderations">ウェブ ファームへの展開に関する考慮事項</a>」のセクションを参照してください。 </p></li></li></li>
+  </ol>
+  <p>ViewState の暗号化の場合、&lt;<b>machineKey</b>&gt; の構成は (次のようなものになるはずです。)  の構成を次の例と同じ内容にしてください。</p>
+  <div>
+ <pre>&lt;machineKey <br />&nbsp;&nbsp;&nbsp; validationKey="AutoGenerate,IsolateApps"&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; decryptionKey="AutoGenerate,IsolateApps" <br />&nbsp;&nbsp;&nbsp; validation="AES" <br />&nbsp;&nbsp;&nbsp; decryption="Auto" /&gt;</pre>
+  </div>
+  <blockquote>
+    <b>注記:</b> デフォルトでは、ViewState は Base64 エンコード ストリングとして伝送されます。 Base64 によるエンコーディングは一見すると解読不能に見えますが、簡単にデコードできるためセキュリティがありません。 ViewState のコンテンツの機密性を保ちたい場合、暗号化を使用する必要があります。</blockquote>
+  <h1>Forms Authenticationチケット</h1>
+  <p>Forms Authenticationチケットは、次の2 つの方法で保護することができます。</p>
+  <ul>
+    <li>HMAC を使用してチケットを耐タンパー性を備えたものにする。 <li>暗号化を使用してチケットのコンテンツを解読不能な暗号テキストに変える。 これで、チケットに保存されているユーザー名などのデータは、クライアント上で、およびチケットがCookieとして送信される場合はまたはブラウザとサーバ間で表示できません。 </li></li>
+  </ul>
+  <p>Forms Authentication チケットを暗号化してタンパリングに対して確実に保護するには、以下の例に示されているとおり、&lt;<b>forms</b>&gt; エレメントの <b>protection</b> 属性を  <b>All</b> に設定します。</p>
+  <div>
+ <pre>&lt;system.web&gt;<br />&nbsp; &lt;authentication mode="Forms"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;forms name=".AuthCookie" loginUrl="login.aspx" protection="All"/&gt;<br />&nbsp; &lt;/authentication&gt;<br />&lt;/system.web&gt;</pre>
+  </div>
+  <h2>Forms Authenticationチケットが耐タンパー性を備えていることを確認する</h2>
+  <p>デフォルトでは、&lt;<b>machineKey</b>&gt; エレメントの <b>validationKey</b> 属性と <b>validation</b> 属性を使用した改ざん防止策を講じて、Forms Authentication チケットが構成されます。 element.</p>
+  <p>
+    <b>耐タンパー化に対応したForms Authenticationチケットの構成を確認するには</b>
+  </p>
+  <ol>
+    <li>&lt;<b>forms</b>&gt; エレメントの <b>protection</b> 属性(が All に設定されているかどうか)を調べます。  <b>All</b> に設定します。 <div><pre>&lt;forms ... protection="All" ... /&gt;</pre></div><p>マシンレベルの Web.config ファイルを使用することで、サーバ上のすべての Web アプリケーションの <b></b><b>protection</b> 属性の設定をオーバーライドすることができます。ただし、特定のアプリケーションの場合は、それぞれに該当する Web.config ファイルを使用します。 </p><li>&lt;<b>machineKey</b>&gt; エレメントの <b>validation</b> 属性を確認してください。 確認します。 <div><pre>&lt;machineKey ... validation="SHA1" ... /&gt;</pre></div><p><b>validation</b> 属性は、Forms Authentication チケットの改ざんを防止するのに使用される HMAC アルゴリズムが使用するハッシュ化アルゴリズムを指定します。 SHA1 は MD5 よりも大きなハッシュを作り出し、暗号方式がより強力であるため、既定の SHA1 の設定を使用してください。 </p><p>アプリケーションがウェブ ファーム内に展開されている場合を除き、既定の設定を変更する必要はありません。 Web ファームでは、<b>validationKey </b> 値を手動で生成し、ファーム内のすべてのサーバで必ず同じ値が使用されるようにする必要があります。 詳細は、このドキュメントの <a href="http://msdn2.microsoft.com/en-us/library/ms998288.aspx#paght000007_webfarmdeploymentconsiderations">Web ファームの展開に関する考慮事項</a> の項を参照してください。 </p><li>&lt;<b>machineKey</b>&gt; エレメントの validationKey 属性を確認してください<b> </b>。 確認します。 <div><pre>&lt;machineKey validationKey="AutoGenerate,IsolateApps" ... /&gt;</pre></div><p>構成例は既定の設定を示したものです。 <b>AutoGenerate</b> 設定は、ランダム鍵の生成を ASP.NET に指示します。 <b>IsolateApps </b> 修飾子が原因となって、各アプリケーションのアプリケーション ID を使用してサーバ上の各アプリケーションごとに固有鍵が ASP.NET によって生成されます。 </p></li></li></li>
+  </ol>
+  <h2>&lt;machineKey&gt; を構成してForms Authenticationチケットを暗号化する</h2>
+  <p>Forms Authentication チケットを暗号化するときに ASP.NET は、&lt;<b>machineKey</b>&gt; エレメントの <b>decryptionKey</b> 属性と新規の <b>decryption</b> 属性を使用します。 element. <b>decryption</b> 属性を使い、使用する暗号化アルゴリズムを指定することができます。 ASP.NET 1.1 と 1.0 は、構成不能な 3DES 暗号化を使用します。</p>
+  <p>
+    <b>フォーム認証チケットを暗号化するには</b>
+  </p>
+  <ol>
+    <li>&lt;<b>forms</b>&gt; エレメントの <b>protection</b> 属性(が All に設定されているかどうか)を調べます。 以下の例に示されているとおり、 <b>All</b> に設定されているかどうかを調べます。 <div><pre>&lt;forms protection="All" ... /&gt;</pre></div><li>&lt;<b>machineKey</b>&gt; エレメントの <b>decryption</b> 属性を使用して、 次の例に示すように暗号化アルゴリズムを指定します。 <div><div><div></div><div><a class="copyCode" href="javascript:CopyCode('ctl00_LibFrame_ctl24');"></a>&nbsp;</div></div><pre>&lt;machineKey decryption="Auto" ... /&gt;</pre></div><p>デフォルトの <b>Auto</b> 設定値に関しては、<b>decryptionKey</b> 属性の値が 8 バイトの長さ (16 文字) であれば、<b>Auto</b> のデフォルト値は DES になります。  8 バイト以外の場合、<b>Auto</b> のデフォルト値は AES になります。 ASP.NET はAES、3DES、DES の各アルゴリズムをサポートしています。 3DES (56 ビット) よりも大きい鍵サイズに対応するので(128 ビット、192 ビット、または 256 ビット)、AES を使用してください。 </p><li>&lt;<b>machineKey</b>&gt; エレメントの <b>decryptionKey</b> 属性を確認してください。 element. <div><pre>&lt;machineKey decryptionKey="AutoGenerate,IsolateApps" ... /&gt;</pre></div><p>Web ファーム内にインストールされたアプリケーションでないかぎり、あるいは複数のアプリケーションで認証チケットを共有する必要がないかぎり、例に示されているとおり、<b>decryptionKey</b> 属性をデフォルト値のままにする必要があります。 Web ファーム内の場合や、複数のアプリケーションで認証チケットを共有する必要がある場合、<b>decryptionKey</b> 値を手動で生成し、ファーム内のすべてのサーバで必ず同じ値が使用されるようにする必要があります。 詳細は、このドキュメントの中の <a href="http://msdn2.microsoft.com/en-us/library/ms998288.aspx#paght000007_webfarmdeploymentconsiderations">Web ファームの展開に関する考慮事項</a> および <a href="http://msdn2.microsoft.com/en-us/library/ms998288.aspx#paght000007_sharingauthenticationtickets">複数のアプリケーションでの認証チケットの共有の項</a>を参照してください。 </p></li></li></li>
+  </ol>
+  <p>Forms Authentication チケットの暗号化の場合、&lt;<b>machineKey</b>&gt; の(設定は次のようになるはずです。) の設定を次の例と同じ内容にしてください。</p>
+  <div>
+ <pre>&lt;machineKey <br />&nbsp; validationKey="AutoGenerate,IsolateApps" <br />&nbsp; decryptionKey="AutoGenerate,IsolateApps" <br />&nbsp; validation="AES" <br />&nbsp; decryption="Auto" /&gt;</pre>
+  </div>
+  <h1>メンバーシップ</h1>
+  <p>メンバーシップ機能を使用している場合、パスワードのハッシュは既定でメンバーシップ データベースに保存されます。 メンバーシップ システムでは、暗号化されたパスワードもサポートされます。 暗号化されたパスワード フォーマットを選択すると、&lt;<b>machineKey</b>&gt; 設定(が使用されます。) の設定が使用されます。 暗号化されたパスワードを保存する場合は、下記の構成をWeb.config ファイルで使用してください。 <b>passwordFormat</b> が <b>"Encrypted"</b> に設定されていることに注意してください。</p>
+  <div>
+ <pre>&lt;membership defaultProvider="AspNetSqlMembershipProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; userIsOnlineTimeWindow="15" hashAlgorithmType=""&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;clear /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add connectionStringName="LocalSqlServer" enablePasswordRetrieval="false" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enablePasswordReset="true" requiresUniqueEmail="false"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; passwordFormat="Encrypted" .../&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  </div>
+  <blockquote>
+    <b>注記:</b> <b>passwordFormat</b> 属性のデフォルトの設定値は <b>"Hashed" </b>です。</blockquote>
+  <h1>匿名 ID</h1>
+  <p>ASP.NET では匿名 ID がサポートされており、匿名 ID のCookieを暗号化することができます。 Cookie の暗号化では、&lt;<b>machineKey</b>&gt; ( 構成が使用されます。) の構成が使用されます。 匿名識別番号を有効にするには、Web.config ファイル内で、&lt;<b>anonymousIdentification</b>&gt; エレメントを <b>enabled="true"</b> に設定してください。<b></b> Cookie の暗号化を有効にするには、ここに示されているとおり、<b>cookieProtection="Encrypted"</b> を設定してください。</p>
+  <div>
+ <pre>&lt;anonymousIdentification enabled="true" cookieName=".ASPXANONYMOUS"<br />cookieTimeout="100000" cookiePath="/" cookieRequireSSL="false"<br />cookieSlidingExpiration="true" cookieProtection="Encrypted"<br />cookieless="UseCookies" domain="" /&gt;</pre>
+  </div>
+  <p><b>cookieProtection</b> 属性は、次に示す値のどれでもとることができます: </p>
+  <ul>
+    <li>
+      <b>(検証と暗号化の両方を実行する) "All"</b> <li>"<b>Encryption (暗号化)</b>"<li>"<b>Validation"</b>(デフォルト)<li>"<b>None (なし)</b>"</li></li></li></li>
+  </ul>
+  <h1>ロール クッキー</h1>
+  <p>ASP.NET でも、&lt;<b>machineKey</b>&gt; 設定が使用されます。 の設定を使用してロール Cookieを保護します。 ロール マネージャは、ロール Cookie を使用して特定のユーザーのロール名をキャッシュすることができます。 ロール マネージャ機能を有効にして、ロール名をロール Cookie でキャッシュに入れるように選択を行うと、Machine.config.comments ファイル内のデフォルト構成によって、ロール Cookie が改ざん防止のため暗号化されます。  &lt;<b>roleManager</b>&gt; エレメントの <b>cookieProtection</b> 属性は、All に設定します。 element is set to <b>All</b>.</p>
+  <p>ロール マネージャを有効にしてロール名をキャッシュに入れる場合、以下のコード例に示されているとおり、<b>cookieProtection</b>="<b>All"</b> と設定することで、 Cookie が保護されるようなります。</p>
+  <div>
+ <pre>&lt;roleManager enabled="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cacheRolesInCookie="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieProtection="All" ... /&gt;</pre>
+  </div>
+  <h1>ウェブ ファームへの展開に関する考慮事項</h1>
+  <p>アプリケーションを Web ファーム内で展開する場合、各サーバ上の構成ファイルが必ず同じ値の <b>validationKey</b> と <b>decryptionKey</b> を共有するようにしなければなりません。これらの値は、各々ハッシュ化と暗号化解除で使用されます。 どのサーバで連続要求が処理されるか保証できないため、この手順が必須となります。</p>
+  <p>マニュアル生成された鍵の値で、&lt;<b>machineKey</b>&gt; の設定を次の例と同じ内容にしてください。</p>
+  <div>
+ <pre>&lt;machineKey&nbsp; <br />validationKey="21F090935F6E49C2C797F69BBAAD8402ABD2EE0B667A8B44EA7DD4374267A75D7<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AD972A119482D15A4127461DB1DC347C1A63AE5F1CCFAACFF1B72A7F0A281B"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />decryptionKey="ABAA84D7EC4BB56D75D217CECFFB9628809BDB8BF91CFCD64568A145BE59719F"<br />validation="SHA1"<br />decryption="AES"<br />/&gt;</pre>
+  </div>
+  <p>同一サーバ上の他のアプリケーションからあるアプリケーションを分離したい場合、ファーム内の各サーバ上の各アプリケーションごとに<b> </b>、 Web.config ファイル内に &lt;machineKey&gt; を入れてください。 アプリケーションごとに別々の鍵値を使用し、ファーム内の全サーバでは各アプリケーションの鍵を重複させてください。</p>
+  <h2>暗号方式がランダムな鍵を生成する</h2>
+  <p>暗号方式がランダムな鍵を生成するには、以下の操作を実行します。</p>
+  <ul>
+    <li><b>RNGCryptoServiceProvider</b> クラスを使用して、強力な暗号となる乱数を生成します。 <li>適切な鍵サイズを選択します。 推奨される鍵の長さは以下の通りです。<ul><li>SHA1 の場合、<b>validationKey</b> を 64 バイト (128 文字の 16 進文字) に設定してください。 <li>AES の場合、<b>decryptionKey</b> を 32 バイト (64 文字の 16 進文字) に設定してください。 <li>3DES の場合、<b>decryptionKey</b> を 24 バイト (48 文字の 16 進文字) に設定してください。 </li></li></li></ul></li></li>
+  </ul>
+  <p>下記のコードにランダムな鍵値を生成する方法を示します。 コードをコンパイルしてコンソール アプリケーションを作成し、必要とされる鍵サイズを、必要な十六進文字数として表現されたコマンド ラインの引数として渡します。 各バイトは 2 個の十六進文字で表されます。 このため、32 バイトの鍵を要求するには 64 をコマンド ラインの引数として渡します。 引数を指定しない場合、コードから 128 十六進文字（64 バイト）の鍵が返されます。</p>
+  <h3>C# の例</h3>
+  <div>
+ <pre>using System.Text;<br />using System.Security;<br />using System.Security.Cryptography;</pre>
+ <pre>class App {<br />&nbsp; static void Main(string[] argv) {<br />&nbsp;&nbsp;&nbsp; int len = 128;<br />&nbsp;&nbsp;&nbsp; if (argv.Length &gt; 0)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; len = int.Parse(argv[0]);<br />&nbsp;&nbsp;&nbsp; byte[] buff = new byte[len/2];<br />&nbsp;&nbsp;&nbsp; RNGCryptoServiceProvider rng = new <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RNGCryptoServiceProvider();<br />&nbsp;&nbsp;&nbsp; rng.GetBytes(buff);<br />&nbsp;&nbsp;&nbsp; StringBuilder sb = new StringBuilder(len);<br />&nbsp;&nbsp;&nbsp; for (int i=0; i&lt;buff.Length; i++)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sb.Append(string.Format("{0:X2}", buff[i]));<br />&nbsp;&nbsp;&nbsp; Console.WriteLine(sb);<br />&nbsp; }<br />}</pre>
+  </div>
+  <h3>Visual Basic 実例</h3>
+  <div>
+ <pre>Imports System<br />Imports System.Text<br />Imports System.Security<br />Imports System.Security.Cryptography</pre>
+  </div>
+ <pre>Module App<br />&nbsp;&nbsp;&nbsp; Sub Main(ByVal argv() As String)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dim len As Integer = 128<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; If argv.Length &gt; 0 Then<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; len = Integer.Parse(argv(0))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; End If<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dim buff(len / 2) As Byte<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dim rng As New RNGCryptoServiceProvider()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rng.GetBytes(buff)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dim sb As New StringBuilder(len)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dim i As Integer<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; For i = 0 To buff.Length - 1<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sb.Append(String.Format("{0:X2}", buff(i)))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Next i<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine(sb)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.ReadLine()</pre>
+ <pre>&nbsp;&nbsp;&nbsp; End Sub 'Main<br />End Module</pre>
+  <p>アプリケーションを2 度実行し、次に結果出てくる鍵を&lt;<b>machineKey</b>&gt;へコピーアンドペーストしてください。 エレメント、1 回は <b>validationKey</b> のために、そしてもう1 回は <b>decryptionKey. のためです。</b></p>
+  <h1>アプリケーション相互間での認証チケットの共有</h1>
+  <p>別々の仮想ディレクトリに存在する複数のアプリケーションを横断して作業するための単一のログオンが必要な場合は、共通の認証チケットを共有する必要があります。 通常の認証チケットを構成するには、<b>validationKey</b>および <b>decryptionKey</b> の値を手動で生成し、各アプリケーションがこれらの値を共有することを確認してください。</p>
+  <p>サーバ上のすべてのアプリケーション全体でチケットを共有したい場合、これらの手動値を &lt;<b>machineKey</b>&gt; に設定できます。 マシン レベルのWeb.config ファイルのエレメント。 特定のアプリケーションでチケットを共有するには、関連アプリケーションの Web.config ファイル<b> </b>に  <b>validationKey</b> および <b>decryptionKey</b> を共有する&lt;machineKey&gt; エレメントを使用できます。</p>
+  <p>手動の鍵値を生成する方法については、本文書の「ウェブ ファームへの展開に関する考慮事項」を参照してください。</p>
+  <h1>ASP.NET のバージョンのアップグレード</h1>
+  <p>明示的に &lt;<b>machineKey</b>&gt; を設定するにはもう一つ重要な理由があります。 ASP.NET の新しいバージョンにアップグレードするたびに、鍵を自動的に生成するために使用される鍵の素材が変更されます。 したがって、アプリケーションが単一の Web サーバで実行されている場合でも、時間が経過しても鍵の安定を保つ必要があるなら、<b>validation</b> および <b>decryption</b> の両方の値を明示的に設定することをお勧めします。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

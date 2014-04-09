@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="757988945" Content_Hash="-525697545">
+  <Metadata>
+    <Id>ec15e372-bf2e-47b1-90ee-1669f97e5f0c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メッセージ認証コード MAC を生成する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>MAC のメッセージ認証コードは、メッセージが伝送中に変更されなかったことを検証するために送信側と受信側で使用されます。 鍵を所有するノードのみが、MAC を計算して、入力テキストに対して MAC を検証できます。 このコード サンプルは、HMAC の使用について示しています。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>メッセージの変更とタンパリングを検出するためのメソッドを提供する。このメソッドは、MAC の伝送中に攻撃者が簡単に生成して変更することを許可しない。 <li>HMAC 署名鍵として使用するために無作為に作成される、暗号的に強力な鍵を生成する</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>2 つのエンティティがソケット インターフェイス (平文または暗号化された通信) を通じて通信し、通信中のデータのメッセージ修正の検出を希望する<li>2 つのエンティティがソケット インターフェイス (平文または暗号化された通信) を通じた通信中のデータのメッセージ修正の防止を希望する</li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>public static string GenerateHMAC(string input, string secret){<br />    // Instantiate the HMAC class<br />    HMACSHA256 hmac = new HMACSHA256();<br />    try<br />    {<br />        // We pass in a user supplied password to generate a strong key to be used in our HMAC<br />        // since people tend to use weak and potentially dictionary values for keys.<br />          // Using the PasswordDerivedBytes helps to mitigate the risk of dictionary attacks<br />        // on our HMAC key<br />        // In the current implementation, regardless of the salt passed to the PasswordDeriveBytes<br />        // constructor the same derived password will be generated.<br />        PasswordDeriveBytes pdb = new PasswordDeriveBytes(secret, null);<br />        byte[] pbytes = pdb.CryptDeriveKey("TripleDES", "SHA1", 192, new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 });<br />        hmac.Key = pbytes;<br />    }<br />    catch (Exception e)<br />    {<br />        Console.Error.WriteLine(e.ToString());<br />    }<br />    return ASCIIEncoding.ASCII.GetString(hmac.ComputeHash(ASCIIEncoding.ASCII.GetBytes(input)));<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下のコード サンプルは、共有秘密鍵を持たない公的に既知のハッシュ化メカニズムを使用しているためにタンパリングされやすいメッセージ認証コードの使用について示しています。</p>
+ <pre>public static string GenerateDigest(string input){<br />    // Instantiate the SHA1 Digest<br />    SHA1 sha = new SHA1CryptoServiceProvider();<br />    return ASCIIEncoding.ASCII.GetString(sha.ComputeHash(ASCIIEncoding.ASCII.GetBytes(input)));<br />}</pre>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Security.Cryptography;</pre>
+  <p>テスト暗号化、およびプレーンテキストの 2 つのイタレーションの比較 (1 つは変更されていないもの、もう 1 つは伝送中の変更をエミュレートしたもの) を実行してください。</p>
+ <pre>static void Main(string[] args){<br />    string secret = "thisisaweaksecretkeywhichweuseinourhmac";<br />    CodeSample cs = new CodeSample();<br />    string text = "the quick brown fox jumped over the lazy dog";<br />    // Generate the SHA256 HMAC for the given value based on the keys setup in our constructor<br />    string strHmac = GenerateHMAC(text, secret);<br />    // Append the HMAC to the original text to be sent on the wire. The HMAC serves the purpose<br />    // of validating the integrity of the original message<br />    string msg1 = text + strHmac;<br />    bool isValid = ValidateHMAC(msg1, secret);<br />    Console.Out.WriteLine("Validating MSG1 (Unaltered in transit): " + isValid.ToString());<br />    // Test a variation of the original message with the original HMAC to test validation of the<br />    // HMAC and message.<br />    string msg2 = "the quick brown dog jumped over the lazy fox" + strHmac;<br />    isValid = ValidateHMAC(msg2, secret);<br />    Console.Out.WriteLine("Validating MSG2 (Altered in transit / text rearranged): " + isValid.ToString());<br />    // Show our problem example<br />    //Console.Out.WriteLine("Digest of '{0}': {1}", msg2, GenerateDigest(msg1));<br />}</pre>
+  <p>下記に、HMAC の有効化を目的とした ValidateHMAC メソッドが示されています。</p>
+ <pre>public static bool ValidateHMAC(string input, string secret){<br />    bool isValid = false;<br />    try<br />    {<br />        // Instantiate the HMAC class<br />        HMACSHA256 hmac = new HMACSHA256();<br />        // Since we're using SHA256, we'll take the last 32 bytes from the message,<br />        // recompute the hmac on the first half and compare the two HMACs<br />        string strOrigHMAC = input.Remove(0, input.Length - 32);<br />        string strMsg = input.Substring(0, input.Length - 32);<br />        if (strOrigHMAC == GenerateHMAC(strMsg, secret))<br />        {<br />            isValid = true;<br />        }<br />        else<br />        {<br />            isValid = false;<br />        }<br />    }<br />    catch<br />    {<br />        isValid = false;<br />    }<br />    return isValid;<br />}</pre>
+  <h1>期待される結果</h1>
+ <pre>Validating MSG1 (Unaltered in transit): True<br />Validating MSG2 (Altered in transit / text rearranged): False</pre>
+  <h1>詳細情報</h1>
+  <ul>
+    <li>HMAC は、通信を望んでいるエンティティにのみ知られている秘密鍵を受け入れ、この値を、送信されるメッセージの先頭に結合します。 次に、この値はセキュア ハッシュ関数でダイジェスト処理され、秘密鍵が結果のダイジェストの先頭に追加され、セキュア ハッシュ関数を使用して 2 回目のダイジェストを実行します。 <li>.NET Frameworkは、いくつかの HMAC プロバイダーを提供します。 この例では、SHA256 ハッシュ関数を使用した HMAC の作成と検証を使用します。 <li>HMAC プロセスの鍵の選択におけるもう 1 つの目標は、強力な鍵を生成することです。 送信側と受信側が弱いパスワードを共有すると、強力でランダムな鍵に似ている派生鍵が傍受者に対して生成される可能性があります。 </li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>HMAC 定義: <a href="http://en.wikipedia.org/wiki/HMAC">http://en.wikipedia.org/wiki/HMAC</a><li>HMAC クラス: <a href="http://msdn2.microsoft.com/en-US/library/system.security.cryptography.hmac.aspx">http://msdn2.microsoft.com/en-US/library/system.security.cryptography.hmac.aspx</a><li>パスワードからの鍵の生成: <a href="http://blogs.msdn.com/shawnfa/archive/2004/04/14/113514.aspx">http://blogs.msdn.com/shawnfa/archive/2004/04/14/113514.aspx</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

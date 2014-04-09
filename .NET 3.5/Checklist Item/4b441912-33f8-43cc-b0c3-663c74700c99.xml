@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="215258184" Content_Hash="-236915670">
+  <Metadata>
+    <Id>4b441912-33f8-43cc-b0c3-663c74700c99</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>重要な機能の実行時に再認証が強制されている</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>パスワードの変更、アカウントの修正、および重要なトランザクションを含むがこれらに限定されない、セキュリティ クリティカルな機能を実行する際は、アプリケーションがユーザーに再認証を実行させることを確認してください。</p>
+  <h1>理由</h1>
+  <p>ユーザーが再認証するように強制することは、特定機能を実行するというユーザーの決定を確認し、セッション ハイジャックを介してユーザーのアカウントが危険にさらされた場合に、アプリケーションの完全性を保護します。 </p>
+  <h1>チェック方法</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーション内のすべての重要な機能を特定します。</strong> アプリケーションのコード ベース内のすべての重要な機能を探します。 調査対象となる共通の場所には以下が含まれています。</p>
+      <ul>
+        <li>新しいアカウントの作成 <li>既存ユーザーのパスワードの変更 <li>本質的に機微なユーザー トランザクション <li>アプリケーションのグローバル構成の変更 <li>スタートアップとシャットダウンなどのアプリケーションの全体的な健全性に影響を与える操作 </li></li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>アプリケーションが再認証のメカニズムを導入していることを確認してください。</strong> アプリケーションの設計と要件が再認証メカニズムを要求することを確認してください。 一般的な再認証メカニズムには、以下が含まれます。</p>
+        <ul>
+          <li>
+            <strong>現在のパスワード。</strong> ユーザーは身元を確認するために、現在のパスワードを使用します。 このテクニックは、そのユーザーが実行するアクション、およびそれを実行する責任を持つことを認識するように保証します。 <li><strong>CAPTCHA。</strong> CAPTCHA は、英数字コードが表示される画像に埋め込まれるメカニズムです。 ユーザーが埋め込みコードを確かめるように強制することは、アプリケーションが人間と対話していることを確認します。 アプリケーションが CAPTCHA を使用する場合、CAPTCHA のバージョンがセキュリティ更新で最新のものになっていることを確認してください。</li></li>
+        </ul>
+        <li>
+          <p>
+            <strong>再認証が強制されていることを確認します。</strong> 再認証手順がアプリケーションの重要機能全体にわたって適切に設置されていることを確認します。 重要なコンポーネントに突入したらすぐに、すぐに再認証が実行されることを確認してください。 例: </p>
+ <pre>public void ProcessPayment(PaymentInfo paymentInfo, string username, string password)<br />&amp;#123;<br />    MembershipProvider membershipProvider = Membership.Provider;<br />    if (membershipProvider.ValidateUser(username, password))<br />    &amp;#123;<br />        // Prepare and execute the transaction<br />    &amp;#125;<br />&amp;#125;</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコードは支払いトランザクションを処理します。 残念ながら、ユーザーがトランザクションを認識していることを確認せずにコードが支払いを実行します。</p>
+ <pre>public void ProcessPayment(PaymentInfo paymentInfo)<br />&amp;#123;<br />    // Prepare and execute the transaction<br />&amp;#125;</pre>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/740a1606-d091-4a93-bfd8-f0d4226adbf1">ガイドライン: クリティカルな機能性を実行する際の再認証の強制</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

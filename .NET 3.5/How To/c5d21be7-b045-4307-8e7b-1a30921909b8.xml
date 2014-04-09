@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-605426471" Content_Hash="-358480927">
+  <Metadata>
+    <Id>c5d21be7-b045-4307-8e7b-1a30921909b8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で Medium 信頼を使用する方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>この方法説明では、中程度の信頼性で稼動する ASP.NET ウェブ アプリケーションの構成方法を示しています。 同じサーバで複数のアプリケーションがホスティングされている場合、コード アクセス セキュリティおよび中程度の信頼性でアプリケーションを分離することができます。 マシン レベルの Web.config ファイルで信頼性レベルを設定し、固定することによってサーバ上の全てのウェブ アプリケーションに適用するセキュリティ ポリシーを確立することができます。&nbsp;中程度の信頼性でもそれぞれのアプリケーションを分離してサーバのリソースを共有することができる制約された環境を提供することができます。 中程度の信頼性のアプリケーションにはレジストリへのアクセスがなく、イベント ログへのアクセスもなく、リフレクションを使用する能力もありません。 ウェブ アクセスは&lt;&lt;<b>trust/&gt;</b>&gt;（信頼性）エレメントで定義するネットワーク アドレスに制限され ファイル システム アクセスはアプリケーションの仮想ディレクトリ階層に制限されます。 中程度の信頼性ポリシーが制約し過ぎる場合はカスタム ポリシー ファイルを作成して使用することもできます。 </p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>中程度信頼性概要<li><div>手順の概要</div><li><div>手順 1:  中程度信頼性構成</div><li><div>手順 2:  信頼レベルをロックする</div><li><div>手順 3:  中程度の信頼性をベースとしたカスタム ポリシーをオプションで作成</div><li><div>OleDbPermission（OLE データベースのアクセス許可）、EventLogPermission（イベント ログのアクセス許可）および FileIOPermission（ファイル IO のアクセス許可）</div><li><div>中程度信頼性用開発</div><li><div>その他のリソース</div></li></li></li></li></li></li></li></li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>中程度の信頼性でウェブ アプリケーションを開発する方法を学びましょう。 <li>中程度の信頼性レベルを使用する際の制約について学びましょう。 <li>ウェブ アプリケーションで中程度の信頼性レベルで構成しましょう。 <li>信頼性レベルを修正することでカスタム信頼性レベルを作成しましょう。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET ウェブ アプリケーションとウェブ サービスはデフォルトでは完全な信頼性で稼動するものであり、アプリケーションは権限付きの演算を実行したり、オペレーティング システム セキュリティおよび Windows アクセス制御リスト（ACL）のみで対象となるリソースにアクセスすることができます。</p>
+  <p>ASP.NET アプリケーションを固定して、アプリケーションを分離したホスティング環境における更なるレベルを提供したい場合、コード アクセス セキュリティを使ってアプリケーションがアクセスできるリソースや実行できる権限つき演算を制限することができます。 これはここで示されているように&lt;<b>trust</b>&gt;（信頼性）エレメントを構成することで実施します。<b></b></p>
+  <div>
+ <pre>&lt;trust level="Full|High|Medium|Low|Minimal" /&gt;   </pre>
+  </div>
+  <p>&lt;<b>trust</b>&gt;（信頼性） エレメントはいくつかのデフォルト信頼性レベルをサポートします。 それぞれのレベルはアプリケーションを実行する上で順々に制約の多い環境（コード アクセス セキュリティ権限が少ない）を提供します。</p>
+  <p>様々な会社が運営する複数のアプリケーションをホスティングするインターネット サービス プロバイダー（ISP）は頻繁に中程度の信頼性レベルを採用することによって、アプリケーションがお互いのデータを読み取ったり、何らかの形で干渉し合うことを防いでいます。 更に、中程度の信頼性はアプリケーションがアクセスできる共有システム リソースの種類も制限します。</p>
+  <h1>中程度信頼性概要</h1>
+  <p>中程度の信頼性のウェブ アプリケーションに適用される主な制限は: </p>
+  <ul>
+    <li>
+      <b>OleDbPermission</b> （OLE データベースのアクセス許可）が提供されません。 これにより、ADO.NET が管理する OLE データベース データ プロバイダーでデータベースへアクセスできないということです。 しかし、管理 SQL Server プロバイダーを使うことによって SQL Server データベースへのアクセスが提供されます。 <li><b>EventLogPermission</b>（イベント ログのアクセス許可）が提供されません。 これにより、Windows イベント ログにはアクセスできないということです。 <li><b>ReflectionPermission</b> （リフレクションのアクセス許可）が提供されません。 これにより、リフレクションを使用できないということです。 <li><b>RegistryPermission</b> （レジストリのアクセス許可）が提供されません。 これにより、レジストリにはアクセスできないということです。 <li><b>WebPermission</b> が制約されている。 これにより、アプリケーションは特定のアドレスや、&lt;<b>trust</b>&gt;（信頼性）で定義されている一定範囲のアドレスとしか通信できないということです。 element. <li><b>FileIOPermission</b> が制約されている。 これにより、アプリケーションの仮想ディレクトリ階層にあるファイルにしかアクセスできないということです。 アプリケーションにはアプリケーションの仮想ディレクトリ階層において読み取り、書き込み、変更、および PathDiscovery （パス発見）アクセス許可が与えられています。 </li></li></li></li></li></li>
+  </ul>
+  <p>アンマネージ コードの呼び出しやエンタープライズ サービスの使用も防止されてしまいます。</p>
+  <h1>手順の概要</h1>
+  <p>ASP.NET アプリケーションでの中程度の信頼性の使用方法: </p>
+  <ul>
+    <li>手順 1:  中程度の信頼性を構成します。 <li>手順 2:  信頼性レベルを固定します。 <li>手順 3:  オプションで中程度の信頼性をベースとしたカスタム ポリシーを作成します。<strong></strong></li></li></li>
+  </ul>
+  <h1>手順 1:  中程度信頼性構成</h1>
+  <p>中程度の信頼性で稼動するアプリケーションを構成するには、アプリケーションの仮想 root ディレクトリにある次のエレメントを特定アプリケーション用の Web.config ファイルかマシン レベルの Web.config ファイルに追加します。</p>
+  <div>
+ <pre>&lt;trust level="Medium" originUrl="" /&gt;   </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>originUrl</b> （起点 URL）属性が存在する場合、 <b>WebPermission</b> （ウェブのアクセス許可）といったようないくつかの許可でそれを使用することで定義されたアドレスへの接続を制限することができます。<b></b></blockquote>
+  <p>サーバ上の全てのウェブ アプリケーションを中程度の信頼性で稼動するように構成するには、次のフォルダにある Web.config ファイルにこのエレメントを追加します: %windir%\Microsoft.NET\Framework\{version}\CONFIG。</p>
+  <p>次のマシン レベルでの Web.config ファイルにおけるデフォルト構成でも示されているように、ウェブ アプリケーションはデフォルトでは完全な信頼性で実行されるように構成されます: </p>
+  <div>
+ <pre>&lt;location allowOverride="true"&gt;<br />&nbsp;&lt;system.web&gt;<br />&nbsp;&nbsp; &lt;securityPolicy&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Full" policyFile="internal" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="High" policyFile="web_hightrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Medium" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_mediumtrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Low"&nbsp; policyFile="web_lowtrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Minimal" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_minimaltrust.config" /&gt;&nbsp; <br />&nbsp;&nbsp; &lt;/securityPolicy&gt;<br />&nbsp;&nbsp; &lt;trust level="Full" originUrl="" /&gt;<br />&nbsp;&lt;/system.web&gt;<br />&lt;/location&gt;   </pre>
+  </div>
+  <p>中程度の信頼性のアプリケーションに提供されているアクセス許可の一式すべてを確認するためには、Web_mediumtrust.config ファイルを見てください。</p>
+  <h1>手順 2:  信頼レベルをロックする</h1>
+  <p>アプリケーション サービス プロバイダーまたは同じサーバ上で複数のウェブ アプリケーションを実行する責任がある人であれば誰でも、マシン レベルの Web.config ファイルに中程度の信頼性ポリシー設定を適用して、その信頼性レベルを全てのウェブ アプリケーションに適用するように固定するべきでしょう。</p>
+  <p>これを実施するためには次のコード例でも示されているように、マシン レベルの Web.config ファイルで<b>allowOverride</b> （無効にすることを許す）属性を <b>false</b> （偽）に設定します。</p>
+  <div>
+ <pre>&lt;location allowOverride="false"&gt;<br />&nbsp;&lt;system.web&gt;<br />&nbsp;&nbsp; &lt;securityPolicy&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Full" policyFile="internal" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="High" policyFile="web_hightrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Medium"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_mediumtrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Low"&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_lowtrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Minimal" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_minimaltrust.config" /&gt;&nbsp; <br />&nbsp;&nbsp; &lt;/securityPolicy&gt;<br />&nbsp;&nbsp; &lt;trust level="Medium" originUrl="" /&gt;<br />&nbsp;&lt;/system.web&gt;<br />&lt;/location&gt;   </pre>
+  </div>
+  <p><b>allowOverride（無効にすることを許す）を"false"</b>（偽）に設定すると、それぞれの開発者はアプリケーションの Web.config ファイルの中程度の信頼性ポリシー設定を無効にすることができなくなります。</p>
+  <h1>手順 3:  中程度の信頼性をベースとしたカスタム ポリシーをオプションで作成</h1>
+  <p>中程度の信頼性による制限が多すぎる場合は、中程度の信頼性ポリシーをベースにカスタム ポリシー ファイルを作成することができます。 例えば、アプリケーションが次のことをできるようにしたいとしましょう: Oracle データベースに接続する、Windows イベント ログにイベントを書込む、またはアプリケーションの仮想ディレクトリ階層外の特定ディレクトリのファイルを読み取る。</p>
+  <h2>中程度の信頼性をベースしたカスタム ポリシーの作成方法</h2>
+  <ol>
+    <li>同じディレクトリ内に新しいポリシー ファイルを作成するには、次のディレクトリにあるweb_MediumTrust.config 中程度の信頼性ポリシー ファイルをコピーします: %windir%\Microsoft.NET\Framework\{Version}\CONFIG。 <p>それに中程度の信頼性を変化させたものであることを示す名前をつけます。 例えば customWeb_MediumTrust.config という名前にすることができます。 </p><li>付与したいアクセス許可を追加します。 次の例では、<b>FileIOPermission</b>（ファイル IO のアクセス許可）がアプリケーションの仮想階層外の特定ディレクトリに読み取りアクセスができるように変更されています。 <div><pre>&lt;PermissionSet<br />&nbsp;&nbsp;&nbsp; class="NamedPermissionSet"<br />&nbsp;&nbsp;&nbsp; version="1"<br />&nbsp;&nbsp;&nbsp; Name="ASP.Net"&gt;<br />&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;IPermission<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="FileIOPermission"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; version="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Read="C:\SomeDir;$AppDir$"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Write="$AppDir$"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Append="$AppDir$"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PathDiscovery="$AppDir$"<br />/&gt;<br />&nbsp; ...<br />&lt;/PermissionSet&gt;   </pre></div><li>マシン レベル Web.config ファイルで新しいポリシー レベルを作成します。 ポリシー ファイルは第１ステップで作成したポリシー ファイルの名前となります。 <div><pre>&lt;securityPolicy&gt;<br />&nbsp; &lt;trustLevel name="CustomMedium" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="customWeb_mediumtrust.config" /&gt;<br />&nbsp; ...<br />&lt;/securityPolicy&gt;   </pre></div><li>新しいカスタム ポリシー レベルでアプリケーションが実行されるように、信頼性レベルを<b>"CustomMedium"</b>（カスタム中程度）に構成します。セキュリティ ポリシーは次の例に似たものとなります。 <div><pre>&lt;system.web&gt;<br />&nbsp; &lt;securityPolicy&gt;<br />&nbsp;&nbsp; &lt;trustLevel name="CustomMedium"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="customWeb_mediumtrust.config" /&gt;<br />&nbsp;&nbsp; &lt;trustLevel name="Full" policyFile="internal" /&gt;<br />&nbsp;&nbsp; &lt;trustLevel name="High" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_hightrust.config" /&gt;<br />&nbsp;&nbsp; &lt;trustLevel name="Medium" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_mediumtrust.config" /&gt;<br />&nbsp;&nbsp; &lt;trustLevel name="Low"&nbsp; policyFile="web_lowtrust.config" /&gt;<br />&nbsp;&nbsp; &lt;trustLevel name="Minimal"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; policyFile="web_minimaltrust.config" /&gt;<br />&nbsp;&lt;/securityPolicy&gt;<br />&nbsp;&lt;trust level="CustomMedium" originUrl="" /&gt;<br />&lt;/system.web&gt;   </pre></div></li></li></li></li>
+  </ol>
+  <h1>OleDbPermission（OLE データベースのアクセス許可）、EventLogPermission（イベント ログのアクセス許可）および FileIOPermission（ファイル IO のアクセス許可）</h1>
+  <p>一般的に追加する必要があるアクセス許可には次のものが含まれます: </p>
+  <ul>
+    <li>
+      <b>OleDbPermission（OLE 許可）</b>
+      <li>
+        <b>EventLogPermision（イベント ログ許可）</b>
+        <li>
+          <b>FileIOPermission（ファイル IO のアクセス許可）</b>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h2>OleDbPermission（OLE データベースのアクセス許可）</h2>
+  <p>複数のデータベース サーバの種類をサポートする場合、中程度の信頼性ポリシーにより既に付与されている<b>SqlClientPermission</b>（SQL クライアントのアクセス許可）のほかに<b>OleDbPermission</b>（OLE データベースのアクセス許可）をウェブ アプリケーションに追加する日宇町があります。</p>
+  <h3>中程度の信頼性ポリシーを拡張してOleDbPermission（OLE データベースのアクセス許可）を付与します。</h3>
+  <ol>
+    <li>本書の「Modifying Medium Trust Policy」（中程度の信頼性ポリシーの変更）の節で既に説明されているように、カスタム ポリシー ファイルを作成してアプリケーションがカスタム信頼性レベルを使用するように構成します。 <li>&lt;<b>SecurityClasses</b>&gt;（セキュリティ クラス）に次のアクセス許可クラスを追加します セクションが備わっていることを確認します。 <div><pre>&lt;SecurityClass Name="OleDbPermission" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Description="System.Data.OleDb.OleDbPermission, System.Data, Version=3.5.0.0, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Culture=neutral, PublicKeyToken=b77a5c561934e089"/&gt;   </pre></div><li>次の例で示されているように、「ASP.Net」で指名されているアクセス許可セットに無制限の<b>OleDbPermission</b> （OLE データベース許可）を追加します。 <div><pre>&lt;PermissionSet<br />&nbsp;&nbsp;&nbsp; class="NamedPermissionSet"<br />&nbsp;&nbsp;&nbsp; version="1"<br />&nbsp;&nbsp;&nbsp; Name="ASP.Net"&gt;<br />&nbsp; ...<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;IPermission class="OleDbPermission" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; version="1" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unrestricted="true"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp; &lt;/PermissionSet&gt;   </pre></div></li></li></li>
+  </ol>
+  <h3>接続文字列のロック ダウン</h3>
+  <p>ポリシー ファイルに無制限の<b>OleDbPermission</b> （OLE データベースのアクセス許可）を追加するということは、アプリケーションがサーバ上のどの OLE データベース プロバイダーにもアクセスできるということです。 ホスティング環境においては特定データベースのみへのアクセスが許可されるように管理者が高度な<b>OleDbPermission</b> （OLE データベースのアクセス許可）構文を使って <b>OleDbPermission</b> （OLEデータベースのアクセス許可）で使用される接続文字列を固定する必要がある場合もあります。 次の例では特定 OLE データ ソースへのアクセスを制限する方法を示しています。</p>
+  <div>
+ <pre>&lt;IPermission class="OleDbPermission"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; version="1"&gt;<br />&nbsp; &lt;add ConnectionString=<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\data\w4w.mdb"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; KeyRestrictions=""<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; KeyRestrictionBehavior="AllowOnly"/&gt;<br />&lt;/IPermission&gt;   </pre>
+  </div>
+  <p> &lt;<b>add</b>&gt; エレメントは次の属性サポートします: </p>
+  <ul>
+    <li>
+      <b>ConnectionString（接続文字列）</b> このエレメントは許可されている接続文字列を指定します。 <li><b>KeyRestrictions。 </b>このエレメントは<b>KeyRestrictionBehavior</b>（主要制限動作）の値によっては追加できる、またはできない接続文字列の追加接続文字列パラメータを指定します。<i>parameterName</i>= 構文を使って接続文字列パラメータを指定します。各パレメータをセミコロン（;）で仕切ることによって複数のパラメータを指定することができます。 <li><b>KeyRestrictionBehavior.（主要制限動作）。</b> これは<b>AllowOnly</b> （許可のみ）または<b>PreventUsage</b>（使用を防ぐ）に設定することができます。<ul><li><b>AllowOnly</b>（許可のみ）を使用する場合、<b>KeyRestrictions</b> （主要制限）属性で指定されている追加接続文字列パラメータのみ<b>ConnectionString</b>（接続文字列）で指定されている接続文字列に追加することができます。<li><b>PreventUsage</b>（使用を防ぐ）を使用する場合、 <b>KeyRestrictions</b> （主要制限）属性で指定されている接続文字列パラメータを<b>ConnectionString</b>（接続文字列）で指定されている接続文字列に他の接続文字列パラメータを追加できる場合においても追加することができない場合もあります。 </li></li></ul></li></li></li>
+  </ul>
+  <p>もし主要制限が指定されていない場合は、<b>KeyRestrictionBehavior</b> （主要制限動作）属性は<b>AllowOnly</b>（許可のみ）に設定されて、接続文字列パラメータの追加は許されません。</p>
+  <p>主要制限が指定されていないで、かつ<b>KeyRestrictionBehavior</b> （主要制限動作）プロパティが<b>PreventUsage</b>（使用を防ぐ）に設定されている場合、接続文字列パラメータの追加が許されます。 </p>
+  <h3>EventLogPermission（イベント ログのアクセス許可）</h3>
+  <p>中程度の信頼性ポリシーでは Windows アクセス ログへのアクセスが許されていません。 </p>
+  <p>
+    <b>イベント ログへのアクセスを有効にする方法</b>
+  </p>
+  <ol>
+    <li>本書の「Modifying Medium Trust Policy」（中程度の信頼性ポリシーの変更）の節で既に説明されているように、カスタム ポリシー ファイルを作成してアプリケーションがカスタム信頼性レベルを使用するように構成します。 <li>&lt;<b>SecurityClasses</b>&gt;（セキュリティ クラス）に次のアクセス許可クラスを追加します セクションをカスタム ポリシー ファイルへ。 <div><pre>&lt;SecurityClasses&gt;<br />&nbsp; ...<br />&nbsp; &lt;SecurityClass Name="EventLogPermission"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Description="System.Diagnostics.EventLogPermission, System, Version=3.5.0.0, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Culture=neutral, PublicKeyToken=b77a5c561934e089" /&gt;<br />&nbsp; ...<br />&lt;/SecurityClasses&gt;                           </pre></div><li>次の<b>EventLogPermission</b> （イベント ログのアクセス許可）を「ASP.Net」で指名されているアクセス許可セットに追加します。 <div><pre>&lt;PermissionSet<br />&nbsp;&nbsp;&nbsp; class="NamedPermissionSet"<br />&nbsp;&nbsp;&nbsp; version="1"<br />&nbsp;&nbsp;&nbsp; Name="ASP.Net"&gt;<br />&nbsp; ...<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;IPermission<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="EventLogPermission"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; version="1"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Machine name="."<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; access="Write"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;/IPermission&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp; &lt;/PermissionSet&gt;   </pre></div></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;書込み時には、<b>access （アクセス）を「administer」</b>（管理者）に設定して、部分的な信頼性のアプリケーションからイベント ログに書込めるようにします。<b></b></blockquote>
+  <h3>Creating Event Sources（イベント ソールの作成）</h3>
+  <p>アプリケーションが特定アプリケーション用のイベント ソースを使用する必要がある場合、それらは管理者の特権が提供されるインストールの際に作成します。 良いアプローチは、Windows インストーラでインスタンス化することができる .NET インストーラ クラスを使用する（.msi 展開を使用している場合）か、 InstallUtil.exe システム ユーティリティを使用するというものです。</p>
+  <p>インストール時にイベント ソースを作成することができない場合で、展開をしようとしている場合、管理者は次のレジストリ鍵の下に手動で新しいイベント ソースを入力することができるはずです</p>
+  <div>
+ <pre>
+      <b>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\&lt;LogName&gt;</b>
+    </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\ </b> レジストリ キー上で ASP.NET プロセス アカウント(またはアプリケーションが偽装を使用する場合は偽装されたアカウント)に書き込みの権限を付与することはお勧めできません。 この鍵への書き込みアクセスを許可すると、アカウントが侵害された場合、攻撃者がシステム上でログに対して、ログへのアクセス制御を含むログ関連のあらゆる設定を変更することができます。</blockquote>
+  <h2>FileIOPermission（ファイル IO のアクセス許可）</h2>
+  <p>アプリケーションによる仮想ディレクトリ階層外にあるファイルへのアクセスを許す必要がある場合は、中程度の信頼性ファイルをベースに作成されたカスタム ポリシー ファイルを作成してから、<b>FileIOPermission</b>（ファイル IO のアクセス許可）を変更する必要があります。</p>
+  <p>例えば、次の定義はアプリケーションが「C:\SomeDir」ディレクトリにあるファイルを読み取ることができるようにします。</p>
+  <div>
+ <pre>&lt;IPermission<br />&nbsp; class="FileIOPermission"<br />&nbsp; version="1"<br />&nbsp; Read="C:\SomeDir;$AppDir$"<br />&nbsp; Write="$AppDir$"<br />&nbsp; Append="$AppDir$"<br />&nbsp; PathDiscovery="$AppDir$"<br />/&gt;  </pre>
+  </div>
+  <p>アプリケーションがアプリケーションの仮想ディレクトリ階層外にあるファイルにアクセスできるようにすることによって、コード アクセス セキュリティによるアプリケーションを分離する能力を弱めてしまいます。 一つのサーバ上に複数のアプリケーションがある場合、ACL 付きのファイルといったようなリソースを保護する必要がある場合は各アプリケーションに個別の ID を使用します。</p>
+  <h1>中程度信頼性用開発</h1>
+  <p>アプリケーションを中程度の信頼性に設計および開発する場合は、次を検討してください: </p>
+  <ul>
+    <li>
+      <b>アプリケーションがアクセスする必要のあるリソースの種類や実行しなければならない特権つき演算を特定します</b>。<p>アプリケーションがどのコード アクセス セキュリティ権限を必要とするかを把握する必要があります。&nbsp; </p><li><b>アクセス許可は中程度の信頼性で提供されることを把握します</b>。<p>どのアクセス許可が提供されているかを把握する最も良い手段は、次のフォルダにある web_MdeiumTrust.config ファイルを開いて調査することです: %windir%\Microsoft.NET\Framework\{Version}\CONFIG。 </p><li><b>開発環境およびアプリケーションの Web.config ファイルを中程度の信頼性に構成します</b>。<p>これを開発開始時に実施することによって、どのアクセス許可要求が失敗して、どのような問題に対処する必要があるかがすぐに分かります。 </p><li><b>既存のアプリケーションについては、Permcalc ツールの使用を検討してください</b>。<p>中程度の信頼性で実行したい既存のアプリケーションがある場合、Permcalc ツールを使ってアプリケーションが必要とするアクセス許可を正確に判断することを検討してください。 また、必ず広い範囲において試験が実施されるようにして、アプリケーションが実施される際の全てのコード パスを確認してください。 それを怠ると、実行中に予期されないセキュリティ例外が発生してしまうことがあります。 </p></li></li></li></li>
+  </ul>
+  <p>最も良いアプローチは、設計および開発作業を開始する前に信頼性レベルの目標をたてて、その信頼性レベルのために設計および開発するようにします。 セキュリティ例外の一般的な原因は既存のアプリケーションを中程度の信頼性に切替える際に発生し、それには次のものが含まれます: </p>
+  <ul>
+    <li>アンマネージ コードの呼び出し。 <li>レジストリのアクセス。 <li>イベント ログへの書込み。 <li>SQL Server 以外のデータベースへの接続。 <li>遠隔サーバにあるウェブ リソースへのアクセス。 <li>アプリケーションの仮想ディレクトリ階層外にあるファイル システムへのアクセス。</li></li></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

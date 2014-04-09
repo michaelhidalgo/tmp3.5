@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="587011624" Content_Hash="-1221406383">
+  <Metadata>
+    <Id>ac058cd0-c5ee-4e53-b18a-99c9b3928ba9</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>プロパティを使用してフィールドを公開する</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>プロパティを使用して非プライベートのフィールドを開示する。</p>
+  <h1>理由</h1>
+  <p>プロパティを使用して、入力検証または権限要求のような付加的な制約を追加することができます。</p>
+  <h1>状況</h1>
+  <p>これは重要なガイドラインであり、常に従うようにしてください。</p>
+  <h1>対策</h1>
+  <p>呼び出しコードに対してフィールドを直接公開するべきではありません。 フィールドを非公開に設定し、フィールドへのアクセスには、読み取り/書き込みまたは読み取り専用のプロパティを作成します。</p>
+  <blockquote>
+    <p>
+      <b>注意</b>: &nbsp;&nbsp;非公開のフィールドはコンパイル時のみに実施されます。 悪意のあるコードが完全に信頼できる環境で実行すると、これらの可視性の制限を回避するためにリフレクションまたはアンマネージポインターが使用されることがあります。</p>
+  </blockquote>
+  <p>入力検証を追加するためにプロパティを使用する方法の例がここにあります。&nbsp;</p>
+ <pre>public class Employee<br />{<br />&nbsp;&nbsp;&nbsp; private String employeeName;<br />&nbsp;&nbsp;&nbsp; public String Name<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.employeeName; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!Regex.IsMatch(value,@"^[a-zA-Z'.\s]{1,40}$"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new ArgumentException("Employee Name is not well formed");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.employeeName = value;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li><a href="http://msdn.microsoft.com/en-us/library/w86s7x04.aspx">http://msdn.microsoft.com/en-us/library/w86s7x04.aspx でプロパティを使用すること</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

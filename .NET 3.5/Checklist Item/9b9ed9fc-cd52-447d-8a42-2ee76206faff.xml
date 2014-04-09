@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1554690602" Content_Hash="-977971645">
+  <Metadata>
+    <Id>9b9ed9fc-cd52-447d-8a42-2ee76206faff</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>信頼されていないデータを含む出力を、HtmlEncode または UrlEncode を使用してエンコードする</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p />出力ストリームで使用されるすべての信頼されていない入力を、予め <strong>HtmlEncode</strong> または <strong>UrlEncode</strong> を使用してエンコードするようにする。<span><p /></span><h1>理由</h1><p /><span>入力をユーザーに直接エコーバックすることは、アプリケーションをクロスサイト スクリプティング攻撃に対して脆弱なものにします。 <p /></span><h1>チェック方法</h1><p>以下の手順で、この問題がないかチェックしてください。</p><ol><li><p><strong>ユーザーが供給した入力を HTML タグ内で探してください。 </strong>アプリケーションが生成する html タグ内にユーザーが供給した入力が存在しないかチェックしてください。 例: <a href="somelink">USERINPUT</a> <br /></p><li><p /><strong>ユーザーが供給した入力をアプリケーション出力の他の場所で探してください。 </strong>下記の場所に既存のユーザーが供給した入力がないかチェックしてください。<ul><li>HTML タグそのものの内部。 例: <a href="USERINPUT"><li>後でページ コンテンツとして使用されるデータベース テーブル内。 たとえば、データベースに保存されているユーザー プロファイル内に、エンコードされていないユーザー入力が見つかることがあります。 <li>後でページ コンテンツとして使用されるファイル内。 たとえば、ローカルの構成ファイル内にエンコードされていないユーザー入力が見つかることがあります。</li></li></a></li></ul><li><p><strong>すべてのユーザー入力がエンコードされていることを確認してください。 </strong>信頼されていないデータは<strong>HtmlEncode</strong> または <strong>UrlEncode</strong> を使用してエンコードする必要があります。データのエンコードは必ず、データがクライアントに返される前の最後の段階で行ってください。 それよりも前にエンコードを行った場合、データが使用される正確なコンテキスト、すなわちエンコード先のフォーマットが不明になることがあります。 また、一部のデータでは、早い段階でエンコーディングを行うと二重エンコーディングの問題が生じることがあります。 </p></li></li></li></ol><h1>修正方法</h1><p>信頼されていないデータをエンコードすると、データは必ずスクリプトではなく文字通りのテキストとして処理されます。  <b>Microsoft.Security.ApplicationAntiXSSLibrary.HtmlEncode</b> メソッドを使用することで、信頼されていないデータをエンコードできます。  入力データまたは共有データベースのデータから構築されたために安全でない文字を含む可能性のある URL を記述する場合は、<b>Microsoft.Security.ApplicationAntiXSSLibrary.UrlEncode</b> を使用して安全を確保します。 </p><p><strong>注意</strong>    データのエンコードは必ず、データがクライアントに返される前の最後の段階で行ってください。  それよりも前にエンコードを行った場合、データが使用される正確なコンテキスト、すなわちエンコード先のフォーマットが不明になることがあります。  また、一部のデータでは、早い段階でエンコーディングを行うと二重エンコーディングの問題が生じることがあります。 </p><h1>その他のリソース</h1><ul><li><div><a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGHT000003.asp">How To: ASP.NET でインジェクション攻撃から保護する方法</a></div><li><div><a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGHT000001.asp">How To: ASP.NET への入力を制約するために正規表現を使用する方法</a></div><li><div><a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGHT000004.asp">How To: ASP.NET でクロスサイト スクリプティングを防止する方法</a></div></li></li></li></ul><h1>関連する項目</h1><ul><li><div><a href="/article/8a220644-4285-423d-9ebc-7f9069a038a5">ガイドライン: すべてのソースの入力で型、長さ、書式、および範囲を検証する</a></div><li><div><a href="/article/4dfedb8e-17d3-495d-843e-476c5e470f27">ガイドライン: コンテキストにより信頼されていないデータを含むすべての出力をエンコードする</a></div></li></li></ul><hr /><p>出典: Microsoft patterns &amp; practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

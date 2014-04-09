@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="832831310" Content_Hash="-2054647843">
+  <Metadata>
+    <Id>6ed224f2-d15b-48ec-a3d3-adb18ee2c7fb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>完全信頼シナリオでは、アセンブリを呼び出すことができるコードを限定するために StrongNameIdentityPermission は利用されない。</Title>
+    <Category>強力な命名および署名</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>完全信頼シナリオでは、アセンブリを呼び出すことができるコードを限定するために StrongNameIdentityPermission に依存していないことを確認してください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>お使いのコードを呼び出すことができるコードを限定するために、<b>StrongNameIdentityPermission</b> へのリンク要求を用いてコードを保護する場合は、この保護は部分信頼呼び出し元に対してのみ有効になりますので注意してください。 完全信頼呼び出し元に対しては、呼び出しコードの厳密名にかかわらず、リンク要求は常に成功します。</p>
+  <p>.Net Framework では、完全に信頼されているアセンブリであれば、そのアセンブリによって満たされない ID アクセス許可へのリンク要求を含めてあらゆる要求が満たされます。 完全に信頼されているコードに対する保護としては、コードを別個のプロセス内に置き、制限付きトークンを用いてこのプロセスを実行することで、オペレーティング システムによってトークンの制限が強制されるという保護だけが行われます。 コードによってインターフェイスが内部またはプライベートのいずれとしてマークされるか、およびコードで <b>StrongNameIdentityPermission</b> へのリンク要求がインターフェイスに対して行われるか否かは関係ありません。</p>
+  <p>次のコード サンプルに、特定の <b>StrongNameIdentityPermission</b> へのリンク要求でデコレートされたメソッドを示します。</p>
+  <div>
+ <pre>public sealed class Utility{<br />  // Although SomeOperation() is a public method, the following<br />   // permission demand means that it can only be called by partial trust<br />   // assemblies with the specified public key OR by any fully trusted code.<br />   [StrongNameIdentityPermission(SecurityAction.LinkDemand,<br />                                 PublicKey="00240000048...97e85d098615")]<br />  public static void SomeOperation()<br /> {}<br />}</pre>
+  </div>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

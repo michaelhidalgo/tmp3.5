@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-697004517" Content_Hash="-1830309377">
+  <Metadata>
+    <Id>f28f80e5-814a-4e3b-9475-9cbb1da901b4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>偽装の間は例外が伝播されない</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>偽装の間、アプリケーションが例外を適切に取り扱うことを確認してください。 すべての偽装ブロックが、アプリケーションの他部分へ例外が伝播することを防止するために <strong>System.Exception</strong> 型のグローバル例外ハンドラーを含んでいることを検証してください。 </p>
+  <h1>理由</h1>
+  <p>偽装中に例外が発生すると、コール スタック内の上位にある悪意のあるコードが、偽装された ID を使用して実行される可能性がある。 これは、特に高度な特権を持つアカウントを偽装している場合に、セキュリティ上の問題を招くことがあります。 </p>
+  <h1>チェック方法</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>ユーザーを擬装するすべてのコードを特定します。 </strong>アプリケーションのコード ベースを見直し、ユーザー偽装が起こるすべてのコード ブロックを識別してください。 そのようなコードは、<strong> WindowsIdentity.Impersonate </strong> メソッドの使用により識別できます。</p>
+      <li>
+        <p>
+          <strong>構造化例外処理の使用を確認してください。 </strong>
+          <a href="/article/bc10306c-f37c-4780-a096-847070ae67da">構造化例外処理が使用される</a> チェックリストを見直し、偽装の間、例外処理が適切に使用されることを確認してください。</p>
+        <li>
+          <p>
+            <strong>グローバル 例外処理の使用を確認してください。 </strong>すべての偽装ブロックが、<strong>System.Exception</strong> 型のグローバル例外ハンドラーを使用することを確認してください。これにより、捕らえられなかった例外がコール スタックの他の例外ハンドラーに伝播していくのを防止できます。 さらに、(<strong>Exception</strong> クラスに由来する) CLR準拠の例外のみが偽装コードにより生成されることを確認してください。 これは 2 つのメソッドで実現できます:</p>
+ <pre>catch (Exception e)<br /> &amp;#123;<br />    ctx.Undo();<br />    throw;<br /> &amp;#125;</pre>
+          <p>または </p>
+ <pre>catch<br /> &amp;#123;<br />    ctx.Undo();<br />    throw;<br /> &amp;#125;</pre>
+          <li>
+            <p>
+              <strong>偽装が、例外に遭遇したときに取り消されることを検証してください。&amp;nbsp;</strong> 例外が発生した時、<strong>WindowsImpersonationContext.Undo</strong> が呼び出されることを確認してください。 アプリケーションが例外の詳細をコール スタックの別の例外ハンドラーに伝播する必要がある場合、アプリケーションが例外の詳細を渡す前に偽装を終了することを検証してください。</p>
+ <pre>WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />try<br /> &amp;#123;<br />    ...<br />&amp;#125;<br />catch (Exception e)<br /> &amp;#123;<br />    ctx.Undo();<br />    throw;<br />&amp;#125;</pre>
+            <li>
+              <p>
+                <strong>「finally」 が使用されることを検証してください。 </strong>すべての偽装インスタンスが、<strong>WindowsImpersonationContext.Undo</strong> を呼び出す <strong>finally</strong> のブロックで終わることを検証してください。</p>
+ <pre>WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />try<br />&amp;#123;<br />    ...<br />&amp;#125;<br />catch (Exception e)<br />&amp;#123;<br />    ...<br />&amp;#125;<br />finally<br />&amp;#123;<br />    ctx.Undo();<br />&amp;#125;</pre>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は、MyCorp の人事アプリケーションです。 セキュリティ要件の一部として、アプリケーションは認証ニーズを満たすため会社の Active Directory を使用します。 MyApp は、ASP.NET ローカル システム アカウントのもとで稼動しますが、ファイル アップロードのような一部の操作はユーザーの　Windows アカウントを使用して行われます。 不運なことに、アプリケーションは偽装されたコンテキスト内で生成される例外を適切に取り扱っていません。</p>
+ <pre>// This code assumes the following is true:<br />// - fileInfo represents a valid filename<br />// - fileBuff represents valid contents that will be stored<br />// into the file represented by fileInfo<br />// - username represents a valid user in the company's Active Directory<br />WindowsIdentity winIdentity = new WindowsIdentity(username &amp;#43; "&amp;#64;MyCorp");<br />try <br />&amp;#123;<br />    CallStoreFile(fileInfo, fileBuff, winIdentity);<br />&amp;#125;<br />catch (IOException ioe) <br />&amp;#123;<br />    // Add the appropriate logging and exception handling mechanisms<br />    // This code will execute within the context of the impersonated user&amp;#33;<br />&amp;#125;<br /><br />...<br /><br />public void CallStoreFile(FileInfo fileInfo, byte&amp;#91;&amp;#93; fileBuff, WindowsIdentity winIdentity) <br />&amp;#123;<br />    WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />    StoreFile(fileInfo, fileBuff);<br />    ctx.Undo();<br />&amp;#125;</pre>
+  <p>特権のあるユーザーがその機能を使用する間、例外がスローされます。 不適切な例外処理が原因で、偽装を呼び出すコードは偽装されたユーザーのコンテキスト内で実行されます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>.Net Framework での例外処理の詳細は、<a href="http://msdn2.microsoft.com/en-us/library/s7fekhdy(VS.80).aspx">例外処理文(C# レファレンス)</a> を参照してください&amp;nbsp;on MSDN.</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

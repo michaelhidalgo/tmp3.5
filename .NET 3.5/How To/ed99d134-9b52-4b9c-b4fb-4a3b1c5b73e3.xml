@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1372204239" Content_Hash="-1501241460">
+  <Metadata>
+    <Id>ed99d134-9b52-4b9c-b4fb-4a3b1c5b73e3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>厳密名でアセンブリに署名するために Snk ファイルと Pfx ファイルのどちらかを選択する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>遅延署名を使用しない場合、パスワード保護された.pfxファイルを使用して私有鍵の保護を助けます。 Visual Studio&nbsp;は、.pfxファイルに対応しているため非常に便利です。 この方法は小規模または中規模プロジェクト用としてより適切です。 以前に私有鍵を含む.snkファイルを共有したり、またはアクセスを有していた場合、代わりに.pfx ファイルを使用する必要があります（遅延署名を使う場合を除く）。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Visual Studioでは<b>AssemblyKeyFileAttribute</b> は非推奨です。 代わりにプロジェクトプロパティまたは<b>/keyfile</b> を使用してください。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

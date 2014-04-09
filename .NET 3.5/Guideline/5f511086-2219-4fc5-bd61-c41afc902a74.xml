@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="176908730" Content_Hash="-1843226793">
+  <Metadata>
+    <Id>5f511086-2219-4fc5-bd61-c41afc902a74</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>長さ、範囲、フォーマット、型についてオペレーションパラメータを有効化する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>コードがいかなる入力も信用しないようにしてください。 </p>
+  <h1>理由</h1>
+  <p>悪意のある入力を渡す攻撃者は、アプリケーションの脆弱性を悪用する目的で、SQL インジェクション、クロスサイト スクリプティング、およびその他のインジェクション攻撃を行うおそれがあります。&nbsp; 入力の検証は、受信した入力と期待フォーマットとの一致を保証することによって、これらのリスクを軽減します。&nbsp;入力検証だけでは十分ではありません。 出力エンコーディングは、これらの攻撃を防ぐために必要ですが、セキュリティと信頼性のためにも重要な手順です。&nbsp; </p>
+  <h1>状況</h1>
+  <p>すべての入力は、そのソースに関わらず、検証される必要があります。&nbsp; 静的であるはずのデータベースにあるデータでも、データがローカル コードベースの対象範囲内で静的でない限り、悪意のあるユーザーにより編集可能です。&nbsp;</p>
+  <h1>対策</h1>
+  <p>既知の有効なデータをチェックして、型、長さ、形式、および範囲を検証することによって入力を制限します。 入力は一切信用しないでください。 悪意のある入力を渡す攻撃者は、アプリケーションの脆弱性を悪用する目的で、SQL インジェクション、クロスサイト スクリプティング、およびその他のインジェクション攻撃を行うおそれがあります。</p>
+  <p>WCF サービスを実行するクライアント アプリケーションがウェブ ベースのアプリケーションでわる場合は、入力を検証して制限するために RegularExpression（正規表現検証）、RangeValidator, （範囲検証）、および CustomValidator（カスタム検証）などの ASP.NET の認証制御を使用してください。 すべての数値フィールドで型と範囲をチェックします。 サーバ制御を使用していない場合は、正規表現および Regex クラスを使用することができます。 数値範囲は入力値を整数に変換するか、倍にしてから範囲確認を実施します。<br /></p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

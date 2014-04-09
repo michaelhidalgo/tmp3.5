@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1281432296" Content_Hash="1301542516">
+  <Metadata>
+    <Id>c843b2b5-9829-46a7-a405-6920bcb8ff12</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログオン試行の失敗は監査されています。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>不審な動作を検出および追跡するために、ログオン試行の失敗が監査されていることをチェックしてください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>不審な動作を検出および追跡できるように、ログオン試行の失敗を記録する必要があります。</p>
+  <p>
+    <b>ログオン試行の失敗を監査するには</b>
+  </p>
+  <ol>
+    <li>管理ツール プログラム グループから、ローカル セキュリティ ポリシー ツールを起動してください。 
+<li>[<b>ローカル ポリシー</b>] を展開して [<b>監査ポリシー] を選択してください。</b><li>[<b>アカウント ログオン イベントを監査する</b>] をダブルクリックしてください。
+<li>[<b>失敗</b>] をクリックして [<b>OK</b>] をクリックしてください。</li></li></li></li>
+  </ol>
+  <p>ログオンの失敗は、Windows セキュリティ イベント ログにイベントとして記録されます。 次のイベント ID に疑いがあります:</p>
+  <ul>
+    <li>
+      <b>531</b>. これは、無効なアカウントを使用してログオンが試行されたことを意味します。 
+<li><b>529</b>. これは、不明なユーザー アカウントを使用して、または有効なユーザー アカウントであるが無効なパスワードを使用してログオンが試行されたことを意味します。 これらの監査イベント数の予想外の増加は、パスワードを推測しようとしていることを意味する場合があります。 </li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1008101757" Content_Hash="-1617870402">
+  <Metadata>
+    <Id>8a46eb50-14d0-4013-b906-8c0199b3ef68</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアント証明書認証を使用している場合､証明書を証明書ストア内に制限する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>クライアント証明書認証を使用している場合､証明書を証明書ストア内に制限することを検討してください｡</p>
+  <h1>対策</h1>
+  <p>クライアント証明書認証を使用している場合､証明書を証明書ストア内に制限することで、Attack Surface (攻撃対象領域)を減らすことを検討してください｡ </p>
+  <ul>
+    <li>クライアントを認証するために求められていないすべてのroot証明書を、信頼された root 証明機関から削除することを検討してください｡ <li>クライアント ベースが大規模な場合､管理する証明書の数が少なくて済むように、ピア トラストではなくチェーン トラスト検証の使用を検討してください｡<li>クライアント ベースが小規模な場合、ピア トラスト検証認証の使用を検討してください。&nbsp; ユーザー毎ベースで証明書を管理することが求められます｡ 信頼された人達のストアにインストールされていないすべてのユーザーは、サービスへのアクセスを拒否されます｡</li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

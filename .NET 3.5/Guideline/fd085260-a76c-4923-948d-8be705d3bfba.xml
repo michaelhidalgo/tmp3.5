@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1152095356" Content_Hash="-1656302622">
+  <Metadata>
+    <Id>fd085260-a76c-4923-948d-8be705d3bfba</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能な場合はトランスポート セキュリティを使用する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>可能な場合には、トランスポート セキュリティを使用することを検討します。</p>
+  <h1>理由</h1>
+  <p>トランスポート セキュリティを使用することで、&nbsp;メッセージ セキュリティよりもパフォーマンスを向上させることができます。 </p>
+  <h1>状況</h1>
+  <p>ポイント ツー ポイントの通信をサポートしたいが、中継を使用したシナリオまたはプロトコル トランジションをサポートしたくない場合。</p>
+  <h1>対策</h1>
+  <p>トランスポート セキュリティは Http 上の SSL と TCP 上のトランスポート層セキュリティ（TLS）を使用して、クライアント- サーバ間の通信チャネルをセキュアにします。 トランスポート セキュリティは転送に依存していて、通信する当事者たちが XML レベルのセキュリティ概念を理解している必要はありません。 これは相互運用性を向上することができます。</p>
+  <p>例えば、トランスポート セキュリティを使用していて、サービス Credential 情報ネゴシエーション、またはユーザー名もしくは発行済みトークン（CardSpace）のような認証の種類を用いることができないとします。</p>
+  <p>以下の基準を用いて、トランスポート セキュリティを使用するか否かを決定します:</p>
+  <ul>
+    <li>ポイント ツー ポイント。 トランスポート セキュリティはポイント ツー ポイント通信をサポートしていて、中継を使用したシナリオおよびプロトコル トランジションをサポートしていません。
+<li>ストリーミング。 トランスポート セキュリティはデータ シナリオのストリーミングをサポートすることができます。
+<li>バインディング制限。 トランスポート セキュリティはwsDualHttpBinding では動作しません。
+<li>認証の制限。 トランスポート セキュリティはネゴシエーション、ユーザー名、発行済みトークン（CardSpace）&nbsp;または Kerberos 直接認証では動作しません。<br /></li></li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>トランスポートの選択に関する更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms733769.aspx">http://msdn2.microsoft.com/en-us/library/ms733769.aspxの&nbsp;「Choosing a Transport」（トランスポートの選択）を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

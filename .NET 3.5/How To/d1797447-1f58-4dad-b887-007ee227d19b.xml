@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1792838906" Content_Hash="1415238421">
+  <Metadata>
+    <Id>d1797447-1f58-4dad-b887-007ee227d19b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアントにサービスを参照させないようにする方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>クライアントによるサービスの WSDL へのアクセスをブロックしたい場合、すべてのメタデータ交換エンドポイントをすべて取り除き、httpGetEnabled および httpsGetEnabled 属性をFalseに設定します。 メタデータが公開された場合、望ましくないクライアントがプロキシ ファイル(例えば、SvcUtil.exe を使用して)を生成し、潜在的に機微なメソッドおよびサービスが提供するパラメータを検査することができます。&nbsp;&nbsp; </p>
+  <p>クライアントによるサービスの参照を阻止するには、サービスがメタデータの発行を行わないようにします。 このためには、Mexエンドポイントをすべてサービス構成から取り除き、次のようにServiceBehavior セクション内のHttpGetEnabled およびHttpsgetEnabledをFalseに設定します。</p>
+ <pre>&nbsp;&lt;serviceMetadata httpGetEnabled="False" httpsGetEnabled="False"/&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メタデータ エンドポイント発行についての詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms788760.aspx">http://msdn.microsoft.com/en-us/library/ms788760.aspxから「メタデータエンドポイントの発行」をご参照ください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

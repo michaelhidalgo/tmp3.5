@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1077400389" Content_Hash="819173512">
+  <Metadata>
+    <Id>babff866-74ff-4d65-be06-7a884bbebc3e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>永続的な Cookie に機微データを格納しない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>機微データを Cookie に格納することは避けてください。 どうしても必要とされる場合は、Cookie が暗号化され、クライアント コンピュータで永続的ではないことを確認してください。 </p>
+  <h1>理由</h1>
+  <p>プレーンテキスト データを格納した場合、エンド ユーザーはデータを表示して変更することが可能です。 データを暗号化すると、鍵管理が問題になることがあります。 そのため、永続的な Cookie に機微データを格納しないことが推奨されます。&nbsp;</p>
+  <h1>状況</h1>
+  <p>これは重要なガイドラインであり、常に従う必要があります。 </p>
+  <h1>対策</h1>
+  <p>永続的な Cookie に機微データを格納することは避けてください。 プレーンテキスト データを格納した場合、エンド ユーザーはデータを表示して変更することが可能です。 データを暗号化すると、鍵管理が問題になることがあります。 たとえば、データを暗号化するために Cookie で使用した鍵が期限切れになって再生された場合、新しい鍵では、クライアントからブラウザによって渡された永続的な Cookie を暗号化解除できません。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」(<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a>) を参照してください。 </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

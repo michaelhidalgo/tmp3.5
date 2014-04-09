@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-701643096" Content_Hash="1233215931">
+  <Metadata>
+    <Id>e047107a-bf02-404f-9958-606a12346876</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>最小限の特権付きのアカウントでサービスをホストするための構成を行う方法</Title>
+    <Category>ホスティング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>アプリケーションのAttack Surface (攻撃対象領域)の可能性を減らし、サービスの潜在的なセキュリティ脆弱性を軽減するために、サービスのホストには最小特権のアカウントを使用します。 最小特権のアカウントを使用することで、サービスを個別に監査・認証でき、デフォルト　アカウント内の権限やアクセス許可の変更からサービスを保護します。</p>
+  <p>次の手順に従って、最小限の特権アカウントを作成しサービスをホストします。</p>
+  <ol>
+    <li>Windows アカウントを作成<li>次の aspnet_regiis.exe コマンドを実行して、関連する ASP.NET アクセス許可をアカウントに割り当てます。<ol><pre>aspnet_regiis.exe -ga machineName\userName</pre></ol><strong>注意</strong>:この手順は、アプリケーションが ASP.NET 互換モードでの動作を必要とする場合のみ必要であり、それ以外は無視してください。 <li>[ローカル セキュリティ ポリシー] ツールを使用して、Windows アカウントに「ローカルでログオンを拒否する」というユーザー権限を付与します。 こうすることで、アカウントの特権が減少し、すべてのユーザーがこのアカウントを用いてローカルで Windows にログオンすることができなくなります。 &nbsp; <li>最小限の特権アカウントを使用して、WCFサービスを実行してください。<ul><li>お使いのサービスが IIS 6.0 でホストされている場合は、IIS マネージャを使用して、アカウント ID として実行されるアプリケーション プールを作成してください。 IIS マネージャを使用して、お使いの WCF サービスをそのアプリケーション プールに割り当ててください。<li>お使いのサービスが Windows サービスでホストされている場合は、Windows サービスでアカウント ID を用いて実行するための構成を行ってください。WCF サービスは Windows サービスのセキュリティ コンテキストのもとで実行されます。</li></li></ul></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>aspnet_regiis.exe ツールに関する詳細な情報は、<a href="http://msdn.microsoft.com/en-us/library/k6h9cz8h(VS.80).aspx">http://msdn.microsoft.com/en-us/library/k6h9cz8h(VS.80).aspxから「ASP.NET IIS 登録ツール (Aspnet_regiis.exe)」をご覧ください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

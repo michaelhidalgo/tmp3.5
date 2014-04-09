@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1807806282" Content_Hash="-73127922">
+  <Metadata>
+    <Id>d6c1c1f9-8fff-4909-adad-7e8e27613465</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切な暗号化アルゴリズムを選択する方法</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>シナリオおよび要件に基づいてアルゴリズムを選択します。 たとえば、データの機密性が必要であれば、アルゴリズムの暗号化を用います。 データの完全性が必要である場合、Hash-Based Message Authentication Codeまたはデジタル署名を使用します。 パスワードの保存を避けてハッシュ化を行います。代わりにハッシュ値をユーザー供給のパスワードから得た計算済みのハッシュと比較します。&nbsp; </p>
+  <p>対称または非対称暗号化はしばしば共に使用されます。 対称の暗号鍵がセッション鍵としてメッセージデータの暗号化に使用され、非対称暗号化は、2つのパーティ間でこれら値の交換を行う前に対称鍵および初期化ベクトルの暗号化に使用されます。 </p>
+  <p><b>System.Security.Cryptography</b> 名前空間のクラスは対称暗号化、非対称暗号化、ハッシュ化、乱数生成、デジタル署名作成をサポートします。 暗号アルゴリズムを選択する際は、次のガイドラインを使用します。</p>
+  <ul>
+    <li>
+      <p>
+        <b>対称暗号化</b>大きなデータストリームを暗号化するにはこれらを使用します。 Rijndael (現在は高度暗号化標準 [AES] として知られる) またはトリプルDESデータ暗号化標準 (3DES) を使用します。 </p>
+      <li>
+        <p>
+          <b>非対称またはパブリック/私有鍵の暗号化</b>.Net Framework は、Rivest、Shamir、 Adleman (RSA)、デジタル署名アルゴリズム (DSA) 非対称暗号化に管理クラスを提供します。 DSAはデジタル署名のみに使用できます。 相互運用性が問題である時は、相互運用する相手が何に対応しているかを確かめ、それを使用します。 署名および暗号化の両方を求めている場合は、RSAを選択します。 パフォーマンスを懸念している場合、鍵生成においてはDSAがより早く、署名生成においてはRSAがより早いことに気づくはずです。 シナリオに合わせて両方のアプローチでパフォーマンスを測定します。 </p>
+        <li>
+          <p>
+            <b>ハッシュ化</b>共有の秘密を知っていることを証明するためにプリンシパルが必要な時、SHA256のようなハッシュ化<b> アルゴリズム</b>を使用します。 パスワードにハッシュを使用した主なドローバックは、必要に応じて、パスワードを後で取得することを許可しません。 クライアントとの鍵の共有が必要となるメッセージ認証コード (MAC) とHMACSHA256を使用します。 これにより完全性の確認および認証の度合いを提供できます。</p>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

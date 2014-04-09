@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1230748674" Content_Hash="601206276">
+  <Metadata>
+    <Id>378677d4-9d29-4c87-8897-e8b34ff505a5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>IIS で WCF をホストする方法</Title>
+    <Category>ホスティング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>IISがサポートしないトランスポートを使用する必要がない限り、IIS を使用してWCF サービスをホストしてください。&nbsp; IIS は、効率的なサービス管理と拡張性のため多数の機能を提供しています。&nbsp; IIS を WCF サービスのホストとして使用することで、プロセス リサイクリング、アイドル シャットダウン、プロセス ヘルス モニタリング、メッセージベース アクティベーション等の IIS 機能を十分に活用することができます。</p>
+  <p>HTTP バインディングは、IIS 6.0 と IIS 7.0 ではホストできません。TCP および MSMQ バインディングは IIS 7.0 または Windows Service でホストできます。 IIS 6.0 でもホストできますが、サービスを使用する前にホストW3wp プロセスをまずアクティブ化する必要があります。</p>
+  <p>次のステップを使用して、IISで WCF サービスをホストしてください。</p>
+  <ol>
+    <li>IIS で仮想ディレクトリを作成してください。<li>WCF サービスで .svc ファイルを作成してください。<li>WCF サービスの実装を IIS 仮想ディレクトリに展開してください。<li>WF サービスを構成してください。</li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms734710.aspx">http://msdn.microsoft.com/en-us/library/ms734710.aspx にある「Internet Information Services でのホスティング」を参照してください。</a><li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/aa751792.aspx">http://msdn.microsoft.com/en-us/library/aa751792.aspx にある「Internet Information ServicesホストのWCF サービスを展開する」を参照してください。</a><li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms733766.aspx">http://msdn.microsoft.com/en-us/library/ms733766.aspx にある「IIS で WCF サービスをホストする方法」を参照してください。</a><br /><a href="http://msdn2.microsoft.com/en-us/library/ms733082.aspx"></a><br /></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

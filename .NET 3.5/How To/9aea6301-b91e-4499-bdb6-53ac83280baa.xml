@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1383085059" Content_Hash="1098242330">
+  <Metadata>
+    <Id>9aea6301-b91e-4499-bdb6-53ac83280baa</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でヘルス モニタリングを使用する方法</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>SQL Server</li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、ヘルス モニタリング機能を使用して、アプリケーションにカスタム イベントを実装する方法について説明します。 カスタムヘルス モニタリングイベントを作成するには、<b>System.Web.Management.WebBaseEvent</b> から派生したクラスを作成し、アプリケーションのWeb.config ファイルにある&lt;<b>healthMonitoring</b>&gt; エレメントを構成し、コードを実装してイベントが発行されるようにします。<b></b> カスタム イベントは、ASP.NET ヘルス モニタリング機能が自動的に記録する以外の、セキュリティ関連のイベントの記録に便利です。 たとえば、細心の注意が必要な機密ビジネス ロジックへのアクセスの成否をトラックするイベントを追加する、といったことが可能になります。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>イベント プロバイダー</div>
+          <li>
+            <div>手順の概要</div>
+            <li>
+              <div>手順 1:  カスタム ウェブ イベントを作成する</div>
+              <li>
+                <div>手順 2:  モニタリングのための ASP.NET アプリケーションを作成する</div>
+                <li>
+                  <div>手順 3:  Health Monitoring を設定する</div>
+                  <li>
+                    <div>手順 4:  アプリケーションを装備する</div>
+                    <li>
+                      <div>手順 5。 Health Monitoring をテストする</div>
+                      <li>
+                        <div>詳細情報</div>
+                        <li>
+                          <div>その他のリソース</div>
+                        </li>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>カスタム ヘルス モニタリング イベントを作成する。 <li>ヘルス モニタリングを設定する。 <li>カスタム イベントを発生させるアプリケーションを実装する。 </li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET ヘルス モニタリングは、アプリケーションの健全性を監視するために使用可能な多数の標準イベントに対応しています。 自動生成されるセキュリティ関連イベントの例には、ASP.NET メンバーシップ システム使用時のログオンの失敗および成功、Forms Authenticationチケットの改変または再利用の試行、ディスク アクセスの失敗などのインフラストラクチャー イベントなどがあります。 このガイドでは、同じ基本インフラストラクチャを使用するカスタム イベントを作成し、コード内でそれらのイベントを発生させて、システム定義のイベントを補完する方法について説明します。 </p>
+  <h1>イベント プロバイダー</h1>
+  <p>ASP.NET ヘルス モニタリング機能では、イベント プロバイダー モデルをサポートしています。 イベント プロバイダーは、基本イベント ストアをカプセル化し、一貫した API を提供します。 イベント プロバイダーを設定することで、イベントを複数のイベント シンクに振り分けてログ記録することが可能です。 以下のプロバイダーがサポートされています。</p>
+  <ul>
+    <li>
+      <b>SimpleMailWebEventProvider.</b> このプロバイダーは、イベントを通知するための電子メールを送信します。 <li><b>TemplatedMailWebEventProvider.</b> このプロバイダーは、テンプレートを使用して、イベント通知の電子メール メッセージの定義および書式設定を行います。 <li><b>SqlWebEventProvider. </b>このプロバイダーは、イベントの詳細を SQL Server データベースにログ記録します。 このプロバイダーを使用する場合、 Aspnet_regiis.exe ツールを使用して Web.config ファイル中の接続文字列を暗号化する必要があります。 <li><b>EventLogWebEventProvider.</b> このプロバイダーは、イベントを Windows のアプリケーション イベント ログにログ記録します。 <li><b>TraceWebEventProvider.</b> このプロバイダーは、イベントを ASP.NET のトレース メッセージとしてログ記録します。 <li><b>WmiWebEventProvider.</b> このプロバイダーは、ASP.NET ヘルス モニタリング イベントを Windows Management Instrumentation (WMI) イベントにマップします。 </li></li></li></li></li></li>
+  </ul>
+  <p><b>System.Web.Management.WebEventProvider</b> 引き継ぐクラスを作成することによりカスタム ストアへイベントを書き込むイベント プロバイダーを作成することもできます。</p>
+  <h1>手順の概要</h1>
+  <p>カスタム ウェブ イベントを作成し、作成したイベントを ASP.NET アプリケーションで使用できるようヘルス モニタリング機能の設定を行うには、次のステップを実行します。</p>
+  <ul>
+    <li>手順 1:  カスタム ウェブ イベントを作成する。 <li>手順 2:  モニタリングのための ASP.NET アプリケーションを作成する。 <li>手順 3:  ヘルス モニタリングを設定する。 <li>手順 4:  アプリケーションを装備する。 <li>手順 5。 ヘルス モニタリングをテストする。 </li></li></li></li></li>
+  </ul>
+  <h1>手順 1:  カスタム ウェブ イベントを作成する</h1>
+  <p>このステップでは、<b>System.Web.Management.WebAuditEvent</b> から引き継ぐクラスを作成することにより、カスタムWeb イベントを作成します。</p>
+  <h2>カスタム ウェブ イベントを作成するには</h2>
+  <ol>
+    <li>Visual Studio .NET を使用して <b>MyWebEvents</b> という名の新規クラス ライブラリを作成してください。<li>Class1.cs を MyCriticalEvent.cs にリネームしてください。 <li><b>System.Web</b> に参照を追加し、MyCriticalEvent.cs の最上部に次の <b>using</b> ステートメントを追加してください。 <div><pre>using System.Web;<br /> // For the reference to HttpContextusing System.Web.Management;  </pre></div><li><b>WebAuditEvent</b> から <b>MyCriticalEvent</b> を派生し、次のコードに表示されるように 親 <b>WebAuditEvent</b> クラスにある保護された同等物を呼び出す適切なパブリック コンストラクタを作成してください。 どのようにこのコードがイベント コンストラクタ内部の<b>HttpContext</b> から一部のカスタム詳細も取得するか、その処理方法に注目してください。 <div><pre>public class MyCriticalEvent : WebAuditEvent<br />{<br />&nbsp;&nbsp;&nbsp; private string userID;<br />&nbsp;&nbsp;&nbsp; private string authType;<br />&nbsp;&nbsp;&nbsp; private bool isAuthenticated;<br />&nbsp;&nbsp;&nbsp; public MyCriticalEvent(string msg, object eventSource, int eventCode)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : base(msg, eventSource, eventCode)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Obtain the HTTP Context and store authentication details<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; userID = HttpContext.Current.User.Identity.Name;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authType = HttpContext.Current.User.Identity.AuthenticationType;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; isAuthenticated = HttpContext.Current.User.Identity.IsAuthenticated;<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; public MyCriticalEvent(string msg, object eventSource, int eventCode, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int eventDetailCode)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : base(msg, eventSource, eventCode, eventDetailCode)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Obtain the HTTP Context and store authentication details<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; userID = HttpContext.Current.User.Identity.Name;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; authType = HttpContext.Current.User.Identity.AuthenticationType;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; isAuthenticated = HttpContext.Current.User.Identity.IsAuthenticated;<br />&nbsp;&nbsp;&nbsp; }<br />}   </pre></div><li>この例にある認証詳細のようなカスタム詳細をログ記録したい場合、<b>FormatCustomEventDetails</b> メソッドをオーバーライドして、次のコード例に表示されるようにカスタム データで標準イベント アウトプットを拡張してください。 <div><pre>// Formats Web request event information.<br />// This method is invoked indirectly by the provider using one of the<br />// overloaded ToString methods. If buffering is enabled, this method is<br />// called asynchronously on a non-Web request thread, where the <br />// HttpContext is not available.<br />public override void FormatCustomEventDetails(WebEventFormatter formatter)<br />{<br />&nbsp;&nbsp;&nbsp; base.FormatCustomEventDetails(formatter);<br />&nbsp;&nbsp;&nbsp; formatter.AppendLine("User ID: " + userID);<br />&nbsp;&nbsp;&nbsp; formatter.AppendLine("Authentication Type: " + authType);<br />&nbsp;&nbsp;&nbsp; formatter.AppendLine("User Authenticated: " + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; isAuthenticated.ToString());<br />&nbsp;&nbsp;&nbsp; formatter.AppendLine("Activity Description: Critical Operation");<br />}  </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;プロバイダー用にバッファリングが有効になっていると、<b>HttpContext</b> が利用できない独立した非Web 要求 スレッド上で <b>FormatCustomEventDetails</b> メソッドが呼び出されます。 <b>HttpContext</b> からの情報にアクセスする必要がある場合、そのクラスのコンストラクタのコンテキストにアクセスし、必要とされる情報を抽出し (<b>HttpContext</b> オブジェクトに向けたポインターを保持しないで)、情報をイベントのプライベートなインスタンス状態にセーブしてください。</blockquote><li>アセンブリをコンパイルします。 アセンブリを複数のアプリケーションで使用したい場合は、アセンブリを厳密名で署名した上で、グローバル アセンブリ キャッシュにインストールすることをお勧めします。 </li></li></li></li></li></li>
+  </ol>
+  <h1>手順 2:  モニタリングのための ASP.NET アプリケーションを作成する</h1>
+  <p>このステップでは、カスタム イベントを装備し、モニタリングを行う ASP.NET アプリケーションを作成します。</p>
+  <h2>ASP.NET アプリケーションを作成するには</h2>
+  <ol>
+    <li>Visual Studio .NET 2008 を使用して、新規 ASP.NET ウェブ アプリケーションを作成します。 <li>作成したカスタム ウェブ イベントを含むアセンブリへの参照を追加します。 <li>ヘルス モニタリングを構成できるようにWeb.config ファイルをアプリケーションに追加してください。 </li></li></li>
+  </ol>
+  <h1>手順 3:  Health Monitoring を設定する</h1>
+  <p>ASP.NET アプリケーションでは、ヘルス モニタリング機能はデフォルトで有効になっています。 既定の構成は、<b>%windir%\Microsoft .NET\Framework\{version}\CONFIG </b> 構成ファイル ディレクトリにあるマシン レベルの Web.config.comments ファイルで見ることができます。</p>
+  <p>&lt;<b>healthMonitoring</b>&gt; エレメントには、次のサブエレメントがあります。</p>
+  <div>
+ <pre>
+      <br />&lt;healthMonitoring heartbeatInterval="0" enabled="true"&gt;<br />&nbsp; &lt;bufferModes/&gt;<br />&nbsp; &lt;providers/&gt;<br />&nbsp; &lt;profiles/&gt;<br />&nbsp; &lt;rules/&gt;<br />&nbsp; &lt;eventMappings/&gt;<br />&lt;/healthMonitoring&gt;   </pre>
+  </div>
+  <p>ヘルス モニタリングの構成に追加変更を行うため、サーバ上のすべてのWeb アプリケーションを構成したい場合は、アプリケーションの特定のWeb.config ファイルまたはマシン レベルのWeb.config ファイルにコンフィグレーション設定を適用できます。 </p>
+  <p>ヘルス モニタリングの設定を行うには、次のエレメントを設定します。</p>
+  <ul>
+    <li>&lt;<b>bufferModes</b>&gt;。 <li>&lt;<b>providers</b>&gt; <li>&lt;<b>profiles</b>&gt; <li>&lt;<b>rules</b>&gt; <li>&lt;<b>eventMappings</b>&gt; </li></li></li></li></li>
+  </ul>
+  <h2>&lt;bufferModes&gt;</h2>
+  <p>バッファ モードは<b>System.Web.Management.BufferedWebEventProvider</b>から引き継いだプロバイダーのバッファ プロパティを定義するために使用します。これには現在<b>MailWebEventProvider</b> および<b>SqlWebEventProvider</b>が含まれます。ベース クラスからカスタムウェブイベント プロバイダーを導き出して、バッファ モードを使用することも可能です。</p>
+  <p>イベントの記録によるパフォーマンス上のインパクトやオーバーヘッドを最小限に抑えるようにバッファリングを設定します。 &lt;<b>bufferModes</b>&gt;構成を使ってログ イベントがプロバイダーに書き込まれるまでバッファされる時間を定義し、緊急または重大なイベントと一般的なイベントとを識別することができます。<b></b></p>
+  <p>機会レベルのWeb.config.defaultファイルに構成されたデフォルトのバッファ モード（Critical Notification（重大通知）、Notification（通知）、Analysis （分析）または Logging（ログ）のいずれかを使用するか、カスタマイズされたバッファ モードを構成することもできます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;バッファを有効にするにはプロバイダーの構成の<b>buffer="true"</b> を設定する必要があります。 特定のバッファ構成を引用するためには、以下のコードの例で示されているようなプロバイダーの定義にある<b>bufferMode</b>属性</blockquote>
+  <div>
+ <pre>&lt;providers&gt;<br />&nbsp; &lt;add name="providerName" buffer="true" bufferMode="bufferModeName" ... /&gt;<br />&lt;/providers&gt;   </pre>
+  </div>
+  <h3>カスタム バッファ モードを設定するには</h3>
+  <ul>
+    <li>次のコンフィグレーションをアプリケーションのWeb.config ファイルに追加してください。 <div><pre>&lt;healthMonitoring&gt;<br />&nbsp; &lt;bufferModes&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="Extra Critical Notification"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxBufferSize="10"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxFlushSize="5"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; urgentFlushThreshold="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; regularFlushInterval="Infinite"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; urgentFlushInterval="00:01:00"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxBufferThreads="1"<br />&nbsp;&nbsp;&nbsp; /&gt;<br />&nbsp; &lt;/bufferModes&gt;<br />&lt;/healthMonitoring&gt;   </pre></div></li>
+  </ul>
+  <p>属性は以下の通りです。</p>
+  <ul>
+    <li>
+      <b>name. </b>バッファ モードの名前です。他のエレメントが参照するときに使用します。 例えば、&lt;provider&gt; エレメントは、<b>bufferMode</b> 属性にある名前を参照することにより特定のバッファ モード コンフィグレーションを参照します。 <li><b>maxBufferSize.</b> 1 つのプロバイダーが、バッファをフラッシュしてストアに書き込みするまでにバッファに取り込むことのできる最大イベント数です。 <li><b>maxFlushSize.</b> 1 度にフラッシュできるイベントの最大数です。 その値は、1 から <b>maxBufferSize</b> の間に設定してください。<li><b>urgentFlushThreshold.</b> イベントの最低数です。この値を超えると、イベントをフラッシュしなければいけません。 その値は、<b>maxBufferSize</b> と同じまたはそれより小さい値を設定してください。<li><b>regularFlushInterval. </b>次のフラッシュまでの時間間隔です。 ゼロの値はありません。 <li><b>urgentFlushInterval. </b>次のフラッシュが発生するまでの最短時間です。 その値は、0 から <b>regularFlushInterval</b> の間の値を設定しなければいけません<li><b>maxBufferThreads. </b>フラッシュを行うために使用するThreadの最大数です。 </li></li></li></li></li></li></li>
+  </ul>
+  <h2>&lt;providers&gt;</h2>
+  <p>&lt;<b>providers</b>&gt; を使用します。 エレメントは、記録されたイベントの格納先として利用可能なロギング シンクを示すために使用します。 ただし、イベント プロバイダーを設定しても、設定済みプロバイダーを指定するイベント ルールの設定を行わない限り、イベントの通知にそのイベント プロバイダーが使用されないのでご注意ください。 詳細は、この資料の後半にある"&lt;rules&gt;" を参照してください。</p>
+  <p>マシン レベルのWeb.config ファイルのデフォルトのコンフィグレーションは、次のプロバイダーを定義します:</p>
+  <ul>
+    <li>
+      <b>EventLogWebEventProvider. </b>プロバイダーは、<b>EventLogWebEventProvider</b> クラスを使用してWindows アプリケーション のイベント ログにログ記録します。 <li><b>SqlWebEventProvider.</b> このプロバイダーは、SQL Server または SQL Server Express インスタンスへのログに <b>SqlWebEventProvider</b> クラスを使用します。 <li><b>WmiWebEventProvider.</b> このプロバイダーは、WMI へのログ記録に <b>WmiWebEventProvider</b> クラスを使用します。 </li></li></li>
+  </ul>
+  <p>独自に作成したヘルス モニタリング コンフィグレーションでは、上記のデフォルト イベントを使用することができます。また、標準 ウェブ イベント プロバイダー クラスを使用して、新しいプロバイダーを設定することもできます。 <b>WebEventProvider</b> ベース クラスから派生した任意のカスタム Web イベント プロバイダーのクラスを使用することもできます。 </p>
+  <h3>SQL Server プロバイダーを設定するには</h3>
+  <p>SQL Server インスタンスへ書き込むイベント プロバイダーを構成する場合、 <b>SqlWebEventProvider</b> が使用するデータベースを作成し、接続文字列を構成し、プロバイダーの定義を設定する必要があります。 </p>
+  <ol>
+    <li>Visual Studio コマンド プロンプトから次のコマンドを実行し、ウェブ イベント データベースをインストールします。<p><b>aspnet_regsql.exe -E -S </b>&lt;<b>ServerName</b>&gt;<b> -A w</b></p><p>このコマンドは次のスイッチを使用します。</p><ul><li><b>-E.</b> このスイッチを指定すると、データベースへの接続に Windows 認証を使用します。 <li><b>-S</b> &lt;<b>ServerName</b>&gt;<b>.</b> このスイッチは、データベースのインストール先となる、あるいはすでにインストールされているサーバ名を示します。 <li><b>-A w. </b>このスイッチを指定すると、ウェブ イベント サポートを追加します。 これは<b>SqlWebEventProvider</b> によって求められている、関連するテーブルとストアド プロシージャを作成します。</li></li></li></ul><li>ウェブ アプリケーションを識別するための SQL Server ログオンを作成します。 例えば、ネットワーク サービスを作成してから、Aspnetdb データベースにこのログオン用のデータベース ユーザーを作成します。 <li>データベース ユーザーに<b>aspnet_WebEvent_LogEvent</b> ストアド プロシージャの <b> execute </b> アクセス許可を付与します。 <li>アプリケーションの Web.config ファイルに次の接続文字列を追加します。 <div><pre>&lt;connectionStrings&gt; <br />&nbsp;&nbsp; &lt;add name="MySqlConnection" connectionString=<br />&nbsp; "Data Source=localhost;Initial Catalog=aspnetdb;Integrated Security=SSPI;" <br />&nbsp;&nbsp; /&gt;<br />&lt;/connectionStrings&gt;   </pre></div><li>Web.config<b> </b>の &lt;<b>healthMonitoring</b>&gt; セクション内で以下の Web.configファイルの&lt;<b>healthMonitoring</b>&gt; セクション内に以下の&lt;<b> providers </b>&gt;構成を追加します。 <div><pre>&lt;providers&gt;<br />&nbsp; &lt;add connectionStringName="MySqlConnection" <br />&nbsp;&nbsp;&nbsp;&nbsp; maxEventDetailsLength="1073741823" <br />&nbsp;&nbsp;&nbsp;&nbsp; buffer="true" <br />&nbsp;&nbsp;&nbsp;&nbsp; bufferMode="Extra Critical Notification"&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp; name="MySqlWebEventProvider"&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Management.SqlWebEventProvider,System.Web,Version=3.5.0.0,<br />		Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a" /&gt; <br />&lt;/providers&gt;    </pre></div></li></li></li></li></li>
+  </ol>
+  <p>次のリストは、イベント プロバイダーの設定時に設定可能な属性の中でも最も重要な属性を説明しています。</p>
+  <ul>
+    <li>
+      <b>name. </b>バッファ モードの名前です。他のエレメントが参照するときに使用します。 <li><b>type.</b> プロバイダー クラスへの完全アセンブリ参照です。 このクラスは<b>System.Configuration.Provider.ProviderBase</b> クラスを実装するはずです。 <li><b>buffer.</b> <b>SqlWebEventProvider</b> を使用している場合、イベント バッファリングを有効にするためにこの属性を使用します。 この属性が <b>true</b>である場合には、<b>bufferMode</b> 属性を構成する必要があります。 既定値は <b>false</b>です。<li><b>bufferMode.</b> <b>SqlWebEventProvider</b> を使用している場合、イベントをバッファリングするのに使用されるバッファ モードのフレンドリ名を指定するには、この属性を使用します。  <li><b>connectionStringName.</b> <b>SqlWebEventProvider</b> を使用している場合、SQL Server データベースへの接続に使用する接続文字列のフレンドリ名を指定するには、この属性を使用します。 <li><b>maxEventDetailsLength.</b> イベント詳細の最大長です。 </li></li></li></li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ローカルまたはリモートの SQL Server インスタンスに書き込むのに<b>SqlWebEventProvider</b> を使用する場合、"ステップ3 "に記載されているように必要なデータベース テーブルとロールを構成するには Aspnet_regsql ツールを使用します。 ヘルス モニタリングを構成する<b></b></blockquote>
+  <h2>&lt;profiles&gt;</h2>
+  <p>&lt;<b>profiles</b>&gt; を使用します。 イベントを構成する際に使用するパラメータのセットを指定してください。 これらパラメータは、その後イベントがログ記録されなければならない最小数のインスタンス、インスタンスの最大数､2つの類似イベントをログ記録する最小間隔を示します｡ しきい値を設定することで、いつ監視が開始し、いつ終了するかを指定できるので、このエレメントは生成される情報量を制御するために不可欠なものです。 </p>
+  <p>このエレメントを使用してイベントの発生を調整できます。 イベントシステムそれ自体、およびSQL Server やイベントログのようなイベント･シンクに対する攻撃を防止するのに役立ちます。 マシンレベルの Web.configファイルの初期設定を見直すことができます。 次のコードの例は、マシンレベルの Web.config.default ファイルのデフォルト設定を示しています。</p>
+  <div>
+ <pre>&lt;profiles&gt;<br />&nbsp; &lt;add name="Default" minInstances="1" maxLimit="Infinite" minInterval="00:01:00"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; custom="" /&gt;<br />&nbsp; &lt;add name="Critical" minInstances="1" maxLimit="Infinite" minInterval="00:00:00"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; custom="" /&gt;<br />&lt;/profiles&gt;   </pre>
+  </div>
+  <p>初期設定のプロファイルを独自のヘルスモニタリングの構成に使用できますし、新たに作成したプロファイルも使用できます。 </p>
+  <h3>新しいプロファイルを作成するには</h3>
+  <p>既存の &lt;<b>healthMonitoring</b>&gt; 内部の アプリケーションのWeb.config ファイルに次のコンフィグレーションを追加してください。 追加します。</p>
+  <div>
+ <pre>&lt;profiles&gt;<br />&nbsp; &lt;add name="Throttle"<br />&nbsp;&nbsp;&nbsp; minInstances="1"<br />&nbsp;&nbsp;&nbsp; maxLimit="1000"<br />&nbsp;&nbsp;&nbsp; minInterval="00:00:01"/&gt;<br />&lt;/profiles   </pre>
+  </div>
+  <p> &lt;<b>add</b>&gt; &lt;<b>profiles</b>&gt; の子エレメント 次の属性を取ります。</p>
+  <ul>
+    <li>
+      <b>name. </b>バッファ モードの名前です。他のエレメントが参照するときに使用します。 <li><b>minInstances.</b> イベントの発生・ログ記録までの最低許容発生回数です。 <li><b>maxLimit.</b> 特定のイベントに対して発生およびログ記録を停止する最大限度を設定したい場合は、この属性を使用してください。 デフォルト設定は、<b>Infinite</b> です。<li><b>minInterval.</b> 同じイベントが次にログ記録されるまでの最小時間間隔を設定したい場合は、この属性を使用してください。 書式は、 "hh:mm:ss" で、デフォルトは、<b>00:00:00</b> です。</li></li></li></li>
+  </ul>
+  <h2>&lt;eventMappings&gt; </h2>
+  <p>イベント マッピングとは、モニター対象となるイベントの名前付きグループです。 1 つのイベントを複数の名前付きグループに指定することができます。 デフォルトのイベント マッピングは、最も一般に必要とされるイベントのグルーピングに名前を付けます。 デフォルトのイベント マッピングには、すべてのイベントおよびすべての監査をそれぞれ含む2 つのハイレベルのグループ分け、<b>すべてのイベント</b> および <b>すべての監査</b> が含まれています。 各グルーピングには、サブセットも存在します。 例えば、<b>All Errors</b> には、すべてのエラー イベントが、<b>Failure Audits</b> にはすべての監査失敗イベントが含まれています。 デフォルト設定は、マシンレベルの Web.config.default ファイルで確認できます。<b></b></p>
+  <p>独自に作成したヘルス モニタリング コンフィグレーションでは、デフォルトのイベント マッピングを使用することができます。または、新しいイベント マッピングを作成することもできます。 カスタム ウェブ イベントを作成する場合は、イベント マッピングを作成する必要があります。 </p>
+  <h3>カスタム ウェブ イベントにイベント マッピングを作成するには</h3>
+  <p>アプリケーションのWeb.config<b> </b>ファイルの &lt;<b>healthMonitoring</b>&gt; セクションの下にある 次の &lt;eventMappings&gt; エレメントを追加してください。 この設定は、前のステップで作成したカスタム イベントを参照します。</p>
+  <div>
+ <pre>&lt;eventMappings&gt; <br />&nbsp;&nbsp;&nbsp; &lt;add name="My Critical Event" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="MyWebEvents.MyCriticalEvent,MyWebEvents"/&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&lt;/eventMappings&gt;       </pre>
+  </div>
+  <p> &lt;<b>add</b>&gt; &lt;<b>eventMappings</b>&gt; の子エレメント 次の属性を取ります。</p>
+  <ul>
+    <li>
+      <b>name.</b> イベント名です。ルールから参照するときに使用します。 <li><b>type. </b>イベント クラスへの完全アセンブリ参照です。 <li><b>startEventCode.</b> タイプの同じ複数のイベントを、イベント コードの特定範囲内にマップしたい場合、この属性を使用して、そのイベント コード範囲の開始イベント コードを設定してください。 デフォルト設定は、<b>0</b> です。<li><b>endEventCode.</b> タイプの同じ複数のイベントを、イベント コードの特定範囲内にマップしたい場合、この属性を使用して、そのイベント コード範囲の末端を設定してください。 デフォルト設定は、<b>Infinite</b> です。</li></li></li></li>
+  </ul>
+  <h1>手順 4:  アプリケーションを装備する</h1>
+  <p>ASP.NET ランタイムは、標準イベントを適切なタイミングで発行するように装備されています。 カスタム イベントを発行するためには、アプリケーションを装備する必要があります。</p>
+  <h2>MyCriticalEvent カスタム イベント用のテスト アプリケーションを作成するには</h2>
+  <ol>
+    <li>次の <b>using</b> ステートメントを Default.aspx.cs ファイルへ追加してください。 <div><pre>using System.Web.Management;using MyWebEvents;    </pre></div><li>アプリケーションのDefault.aspx ページにボタンを追加し、次のコードをボタン クリック イベント ハンドラーに追加してください。 コードは、<b>MyCriticalEvent</b> 型の新規カスタム イベント オブジェクトを作成し、 <b>Raise</b> メソッドを呼び出してイベントを発行します。 <div><pre>protected void Button1_Click(object sender, EventArgs e)<br />{<br />&nbsp; MyCriticalEvent testEvent = new MyCriticalEvent(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Critical Operation Performed", <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WebEventCodes.WebExtendedBase + 1);<br />&nbsp; testEvent.Raise();<br />}  </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;カスタム Web イベントを発生するとき、<b>System.Web.Management.WebEventCodes.WebExtendedBase</b> より大きなイベント コードを指定する必要があります。この値よりも小さいコードは、システムが生成するイベント用に留保されます。</blockquote></li></li>
+  </ol>
+  <h3>&lt;rules&gt; </h3>
+  <p>&lt;<b>rules</b>&gt; を使用してください。 エレメントは、ログ記録するイベント、それに使用するイベント プロバイダーを指定するために使用します。 オプションとして、 &lt;<b>profiles</b>&gt; エントリ名を指定することによりプロフィールをイベント ログ ルールに適用できるか、 または &lt;<b>profiles</b>&gt; 定義で使用される同一の属性を 直接 &lt;<b>rule</b>&gt; へ適用することもできます。 直接適用することもできます。 </p>
+  <p>デフォルトのルールはマシン レベルのWeb.config.default ファイルで定義されています。 デフォルトのルールでは、<b>All Errors</b> および <b>Failure Audits</b> のイベント マッピングが Windows イベントログにログ記録されるようにします。 </p>
+  <div>
+ <pre>&lt;rules&gt; <br />&nbsp;&lt;add name="All Errors Default" eventName="All Errors" provider="EventLogProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; profile="Default" minInstances="1" maxLimit="Infinite" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minInterval="00:01:00" custom="" /&gt;<br />&nbsp;&lt;add name="Failure Audits Default" eventName="Failure Audits"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; provider="EventLogProvider" profile="Default" minInstances="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxLimit="Infinite" minInterval="00:01:00" custom="" /&gt;<br />&lt;/rules&gt;   </pre>
+  </div>
+  <p>&lt;rules&gt; エレメント内の&lt;<b>clear</b>&gt; 子エレメントを使用して、 デフォルトのルール マッピングを無効にできます<b> </b>。 無効にすることができます。<b></b></p>
+  <h2>カスタム イベントに新しいイベント ルールを作成するには</h2>
+  <p>以前作成したカスタム イベント用の新規イベント ルールを作成するには、次のコード例に表示されるように、アプリケーションのWeb.config 中の&lt;<b>healthMonitoring</b>&gt; セクション内にある、次の&lt;<b></b><b>rules</b>&gt; エレメントを追加してください。</p>
+  <div>
+ <pre>&lt;rules&gt; <br />&nbsp; &lt;add name="Critical event" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eventName="My Critical Event" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; provider="MySqlWebEventProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; profile="Throttle"/&gt;<br />&lt;/rules&gt;   </pre>
+  </div>
+  <p>ルールを定義するときは次の属性を設定することができます。</p>
+  <ul>
+    <li>
+      <b>name. </b>バッファ モードの名前です。他のエレメントが参照するときに使用します。 <li><b>eventName.</b> ルールが設定されている、モニター対象のイベント名です。 <li><b>provider.</b> この属性を使用して、このイベントのログ記録に使用するプロバイダーのフレンドリー名を指定します。 <li><b>profile. </b>あらかじめ設定されたプロファイルを使用した場合は、この属性を使用してプロファイルのフレンドリー名を指定してください。 プロフィールを指定する場合、プロフィールは <b>minInstances</b>、 <b>maxLimit</b> および <b>minInterval</b> のルール属性用の値を提供します。 <li><b>minInstances. </b>イベントの発生・ログ記録までの最低許容発生回数を指定したい場合は、この属性を使用してください。 プロフィール属性を指定する場合、この属性はプロフィールの <b>minInstances</b> 値をオーバーライドします。 <li><b>maxLimit.</b> 特定のイベントに対して発生およびログ記録を停止する最大限度を設定したい場合は、この属性を使用してください。 デフォルト設定は、<b>Infinite</b> です。プロフィール属性を指定する場合、この属性は、プロフィールの <b>maxLimit</b> 値をオーバーライドします。 <li><b>minInterval.</b> 同じイベントが次にログ記録されるまでの最小時間間隔を設定したい場合は、この属性を使用してください。 書式は、 "hh:mm:ss" で、デフォルトは、<b>00:00:00</b> です。プロフィール属性を指定する場合、この属性は、プロフィールの <b>minInterval</b> 値をオーバーライドします。 </li></li></li></li></li></li></li>
+  </ul>
+  <h1>手順 5。 Health Monitoring をテストする</h1>
+  <p>このステップでは、ヘルス モニタリングをテストして、カスタム イベントが期待通りに動作するかどうかを検証します。</p>
+  <p>
+    <b>ヘルス モニタリングをテストするには</b>
+  </p>
+  <ol>
+    <li>Web アプリケーションを構築し、Default.aspx ページをブラウズしてください。 <li>ボタンをクリックして、カスタム イベントを発行します。 <li>SQL Server 上の Aspnetdb データベースの aspnet_WebEvent_Events テーブルを開いてください。 Details コラムには、カスタム イベント情報を含む、次のコード例に示されているような情報が格納されています。 <div><pre>Event code: 100001Event code: 100001<br />Event message: Critical Operation Performed<br />Event time: 7/11/2009 5:27:12 PM<br />Event time (UTC): 7/12/2009 12:27:12 AM<br />Event ID: 369ca7f9e5744234be2831aced671191<br />Event sequence: 8<br />Event occurrence: 1<br />Event detail code: 0<br />Application information:<br />&nbsp;&nbsp;&nbsp; Application domain: /LM/w3svc/1/ROOT/HealthMonitoring-7-127656015969887178<br />&nbsp;&nbsp;&nbsp; Trust level: Full<br />&nbsp;&nbsp;&nbsp; Application Virtual Path: /HealthMonitoring<br />&nbsp;&nbsp;&nbsp; Application Path: c:\inetpub\wwwroot\HealthMonitoring\<br />&nbsp;&nbsp;&nbsp; Machine name: MACHINENAME<br />Custom event details: <br />&nbsp;&nbsp;&nbsp; User ID: DomainName\UserName<br />&nbsp;&nbsp;&nbsp; Authentication Type: Negotiate<br />&nbsp;&nbsp;&nbsp; User Authenticated: True<br />&nbsp;&nbsp;&nbsp; Activity Description: Critical Operation   </pre></div></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ここに表示されるように provider="MySqlWebEventProvider" の代わりに provider="EventLogProvider" と設定することにより、ログ記録されたアウトプットをイベント ログへリダイレクトできます。</blockquote>
+  <div>
+ <pre>&lt;rules&gt; <br />&nbsp; &lt;add name="Critical event" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; eventName="My Critical Event" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; provider="EventLogProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; profile="Throttle"/&gt;<br />&lt;/rules&gt;     </pre>
+  </div>
+  <h1>詳細情報</h1>
+  <p>以下のリストは、さまざまなイベント ロギング プロバイダーの設定時に使用可能な任意属性をプロバイダー別に説明しています。いずれも、使用することでプロバイダーの動作をカスタマイズすることができます。</p>
+  <h2>SimpleMailWebEventProvider および TemplatedMailWebEventProvider</h2>
+  <p><b>SimpleMailWebEventProvider</b> または <b>TemplatedMailWebEventProvider</b> は、イベントの発生時にメール メッセージを送信するときに使用します。 これらのクラスを使用してプロバイダーを設定する場合は、次の属性を設定してプロバイダーの動作を制御します。 </p>
+  <ul>
+    <li>
+      <b>from</b>、<b>to</b>、<b>bcc</b> および <b>cc.</b> イベント通知メールの送信者および受信者を指定します。 <li><b>maxEventLengthForSimpleMessage.</b> この属性を使用して、送信するイベント詳細の文字数を制限します。 メッセージ サイズが制限されない場合、この設定は危険性を含みます。 既定値は 5,000 文字です。 <li><b>maxSizeForSimpleMessage.</b> この属性を使用して、送信する通知メッセージのサイズを制限します。 既定値は 1,024 KB です。 <li><b>maxEventCountForTemplateMessage.</b> この属性を使用して、各通知メッセージに含まれるイベント数を制限します。 <li><b>maxMessagesPerNotification.</b> この属性を使用して、1 つのイベントあたりのメッセージ数を制限します。 <li><b>priority.</b> この属性を使用して、メール メッセージのプライオリティを設定します。 </li></li></li></li></li></li>
+  </ul>
+  <p><b>SimpleMailWebEventProvider</b> を使用している場合は、次の属性により、メール通知の書式設定を行います。</p>
+  <ul>
+    <li>
+      <b>bodyFooter. </b>この属性を使用して、通知電子メール メッセージの本文最後に記述するメッセージを指定します。 <li><b>bodyHeader.</b> この属性を使用して、通知電子メールの本文頭に記述するメッセージを指定します。 <li><b>separator.</b> この属性を使用して、各イベント間および各セクション ヘッダの後に、特定のテキストを単純メール フォーマットで記述します。 <li><b>subjectPrefix.</b> この属性を使用して、メールの件名の先頭にカスタム テキストを付加します。 この設定は、イベント関連の電子メールを区別するのに役立ちます。 </li></li></li></li>
+  </ul>
+  <p><b>TemplatedMailWebEventProvider,</b> を使用している場合は、次の属性により、メール通知の書式設定を行います。</p>
+  <ul>
+    <li>
+      <b>template.</b> この属性を使用して、通知メッセージの本文の作成に使用する .aspx ページを指定します。 この属性は、<b>bodyHeader</b>, <b>bodyFooter</b> または <b>separator</b> 設定と同時には指定できません。 </li>
+  </ul>
+  <h2>SQLEventProvider</h2>
+  <p>次の属性を使用して、イベント サイズを制限します。</p>
+  <ul>
+    <li>
+      <b>maxEventDetailsLength.</b> この属性を使用して、イベント詳細の最大サイズを指定します。 この属性には、データベースに書き込むことができるデータの最大の長さを制限する、適切な値を設定します。 <li><b>commandTimeout.</b> この属性を使用して、ADO.NET コマンドのデフォルト タイムアウト値 (30 秒) をオーバーライドします。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

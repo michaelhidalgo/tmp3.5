@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-607657962" Content_Hash="72869276">
+  <Metadata>
+    <Id>532020a6-d364-4275-b691-2837124e7233</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で SQL 認証を使用して SQL Server に接続する方法</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft SQL Server <li>Microsoft Windows Server 2003 以降の&nbsp;オペレーティング システム</li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このハウツーは､ASP.NETアプリケーションからWindowsサービスアカウントを使用してSQL Server に接続する方法を示します｡ できる限りSQL認証ではなくWindows 認証の使用をお勧めします。Credential 情報を接続文字列に保存することを避け､ネットワーク経由でデータベースサーバへパスワードを渡すことを避けられるからです。 データベースサーバと名前のようなサーバの接続詳細を保護するには、接続文字列を暗号化することを検討してください。 初期設定では､ASP.NETは呼び出し元をデータベースに対しなりすましさせません。 Windows Server 2003 以降では、ネットワーク Credential 情報を保持するネットワーク サービス アカウントを使用するか、アプリケーション プール ID を構成することができます。 元の呼び出し元を使用するためになりすましを構成する場合は､ユーザー毎の接続プールのスケーラビリティを査定する必要があります。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>目的<li>概要<li>なりすまし/委託および信任サブシステムのモデル<li>手順の概要<li>手順 1:  接続文字列を構成してください<li>手順 2:  接続文字列を暗号化してください<li>手順 3:  SQL Server のセキュリティを構成してください<li>手順 4:  セキュリティアクセスをテストしてください<li>展開の考慮事項<li>ウェブファームについての検討<li>ミラーアカウント<li>なりすまし/委託 対 信任サブシステム<li>その他のリソース</li></li></li></li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>信任サブシステムとなりすまし/委託モデルのいずれかを選択してください｡ <li>Windows 認証を使用してSQL Server に接続してください。 <li>SQL Server でウェブアプリケーションのIDを承認してください｡ <li>データベース接続文字列を保護してください｡ <li>ウェブファームでデータベース接続文字列を保護してください｡ <li>必要に応じてミラーアカウントを使用することを覚えてください。</li></li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>SQL Server に接続するためWindows 認証を使用する時､アプリケーションのプロセスIDまたはThread IDを(アプリケーションがなりすましを使用している場合)接続のため使用します。 以下の理由から、SQL Serverに接続するためにはできるだけWindows 認証を使用するようお勧めします。</p>
+  <p>認証の間ネットワーク経由でCredential 情報が渡されず､データベース接続文字列にユーザー名とパスワードを埋め込む必要がありません。 これは、ネットワークを監視するか、または構成ファイルの中の接続文字列を見ることで、悪意のあるユーザーおよび攻撃者がCredential 情報を取得することができないことを意味します｡ <br />アカウント管理の集中化の利点が得られます｡ ユーザーアカウントは、パスワード有効期限､最小長、複数回の無効なログオン要求後のアカウント凍結のような、通常のアカウント管理セキュリティ ポリシーに従います。 <br />SQL Server の接続にWindows 認証を使用する時､サーバとドメインの構成に応じてKerberosとNTLM認証のいずれかを使用します。 次の場合､Kerberos認証は使用できない場合があります:</p>
+  <p>データベースクライアントおよびデータベースサーバがKerberos認証を防止するファイアウォールにより分離されている場合｡ <br />アプリケーションサーバおよびデータベースサーバが、信任されてない別個のドメインに置かれている場合｡ <br />これらの状況では､ミラーしたローカルアカウントまたはSQL認証のいずれかが使用できます。 ミラーしたローカルアカウントがあれば、同一のユーザー名とパスワードで各サーバに２つのアカウントを構成します。 パスワードが同一のままであることを確認する必要があります。</p>
+  <p>SQL認証を使用する場合､次のことが必要です:</p>
+  <ul>
+    <li>自身でCredential 情報の管理をしてください｡ <li>接続文字列内のCredential 情報を保護してください｡ <li>(潜在的に)ウェブサーバからデータベースにネットワーク経由で渡されるCredential 情報を保護してください｡</li></li></li>
+  </ul>
+  <h1>なりすまし/委託および信任サブシステムのモデル</h1>
+  <p>ASP.NETアプリケーションは初期設定ではなりすまししません。 結果として､SQL Server に接続するためにWindows 認証を使用する時､ウェブアプリケーションのプロセスIDを使用します。 このアプローチを使って､フロントエンドのウェブアプリケーションはユーザーを認証し承認し､次に信頼済みIDを使用してデータベースにアクセスします。 データベースはアプリケーションのIDを信頼し、アプリケーションを信頼して呼び出し元を認証および承認します。 このアプローチは、信任サブシステムモデルと呼ばれています｡</p>
+  <p>なりすまし/委託モデルと呼ばれる別のモデルは、元の呼び出し元のWindowsIDを使用してデータベースにアクセスします。 このアプローチには、ASP.NETアプリケーションがなりすましを使用するように構成されている必要があります。 本資料の｢なりすまし/委託 対 信任サブシステム｣のセクションを参照してください｡</p>
+  <h1>手順の概要</h1>
+  <p>Windows 認証を使用して SQL Server に接続するには、以下の手順を実行してください。</p>
+  <ul>
+    <li>手順 1:  接続文字列を設定します。 <li>手順 2:  接続文字列を暗号化します。 <li>手順 3:  SQL Server のセキュリティを設定してください。 <li>手順 4:  セキュリティアクセスをテストしてください</li></li></li></li>
+  </ul>
+  <h1>手順 1:  接続文字列を構成してください</h1>
+  <p>ASP.NET アプリケーションの場合、接続文字列はアプリケーションの Web.config ファイルの&lt;connectionStrings&gt;部分に収納します。 Windows 認証に使用する接続文字列には、以下に示されるように、Trusted_Connection=Yes 属性、または同等の属性である Integrated Security=SSPI が含まれている必要があります。</p>
+ <pre>&nbsp;&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="MyDbConn1" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="Server=MyServer;Database=MyDb;Trusted_Connection=Yes;"/&gt;<br />&nbsp; &lt;add name="MyDbConn2" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="Initial Catalog=MyDb;Data Source=MyServer;Integrated Security=SSPI;"/&gt;<br />&nbsp;&lt;/connectionStrings&gt; </pre>
+  <p>上記2つの文字列は等価で、両方ともデータベースにWindows 認証を行います。</p>
+  <p>Web ページでデータ バインディング表現を使用している場合、以下に示されるように、アプリケーションの Web.config ファイルに格納される接続文字列を使用するには、ASP.NET 表現の ConnectionStrings: クオリファイアを使用します。</p>
+ <pre>&nbsp;&lt;asp:SqlDataSource ID="SqlDataSource1" Runat="server" <br />&nbsp;&nbsp; ConnectionString="&lt;%$ ConnectionStrings:MyDbConn1%&gt;"&gt;<br />&nbsp;&nbsp; ...<br />&nbsp;&lt;/asp:SqlDataSource&gt;</pre>
+  <p>コードの接続文字列にアクセスするには、以下に示されるように ConnectionStrings を使用します。</p>
+ <pre>&nbsp;string connStr = ConfigurationManager.ConnectionStrings["MyDbConn1"].ToString();<br />&nbsp;SqlConnection conn = new SqlConnection(connStr);</pre>
+  <h1>手順 2:  接続文字列を暗号化してください</h1>
+  <p>Windows 認証用のデータベース接続文字列にはユーザー名およびパスワードは含まれていませんが、それらを Web.confg において暗号化し、サーバ名およびデータベース名が公開される可能性を軽減することをお勧めします。 このためには、Windows データ保護 API (DPAPI) または RSA 保護構成プロバイダーのいずれかを備えた Aspnet<b>_</b>regiis ユーティリティを使用します。 データベース接続文字列の暗号化には、パフォーマンスと展開のトレードオフが含まれることを認識することが重要です。決定を下す際に、これらの影響を考慮する必要があります。</p>
+  <p><b>DataProtectionConfigurationProvider </b> は DPAPI を使用し、<b>RSAProtectedConfigurationProvider</b> は RSA 公開鍵暗号化を使用します。 RSA 鍵をエクスポートしやすくするためにアプリケーションが Web ファームに展開される場合、<b>RSAProtectedConfigurationProvider</b> を使用します。</p>
+  <p>以下のコマンドは、<b>DataProtectionConfigurationProvider</b> を使用して Web.config の &lt;connectionStrings&gt; セクションを暗号化する方法を示しています<b> </b>。</p>
+  <p>
+    <b>aspnet_regiis -pe "connectionStrings" -app "/<i>MyWebsite</i>" -prov "DataProtectionConfigurationProvider"</b>
+  </p>
+  <p>ここで、/<i>MyWebsite</i>は、ASP.NETアプリケーションの仮想パスです。</p>
+  <p><b>RSAProtectedConfigurationProvider</b> を使用するには、<b>prov</b> スイッチを以下のように変更します。</p>
+  <p>
+    <b>aspnet_regiis -pe "connectionStrings" -app "/<i>MyWebsite</i>" -prov "RSAProtectedConfigurationProvider"</b>
+  </p>
+  <p>RSA保護構成プロバイダーは作動するためにまず鍵コンテナを必要とします。 <b>NetFrameWorkConfigurationKey</b> は、プロバイダーが使用するデフォルトのキー コンテナです。 RSA 鍵コンテナを生成したい場合は、<b>-pc</b> スイッチを備えた aspnet_regiis.exe tool を使用できます。 RSA鍵コンテナをエクスポートしたい場合は、それに <b>-exp</b> オプションを追加します。</p>
+  <p>
+    <b>aspnet_regiis -pc "NetFrameworkConfigurationKey" -exp</b>
+  </p>
+  <p>アプリケーションに暗号化された接続文字列を使用する場合､ここに示すように、単に文字列値にランタイムにアクセスしてください｡</p>
+  <div>
+ <pre>string connStr = ConfigurationManager.ConnectionString["MyDbConn1"].ToString(); </pre>
+  </div>
+  <p>ASP.NETは暗号化されたセクションをランタイムに自動的に暗号解読します。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>System.Configuration.SectionInformation</b> クラスおよびメソッド <b>ProtectSection</b> および <b>UnProtectSection</b> を使用することにより、構成ファイルの接続文字列およびその他のセクションをプログラム的に暗号化および解読できます。</blockquote>
+  <h1>
+    <br />手順 3:  SQL Server のセキュリティを構成してください</h1>
+  <p>アプリケーションのサービス アカウント用にSQL Server のログインを作成して、データベースにアクセスする制限付き許可を与える必要があります。 ストアド プロシージャなどの特定のデータベース オブジェクトへのアクセスを制限する必要があります。 以下のパターンを使用してデータベースアクセス権を与えるかまたデータベースでのアクセス許可を制限してください｡</p>
+  <ol>
+    <li>アプリケーションのアカウント用のSQL Server ログインを作成してください｡ <li>必要なデータベースでのデータベースユーザーへのログインをマップしてください｡ <li>データベースロールにデータベースユーザーを置いてください｡ <li>データベースロールに対する限定されたアクセス許可を、アプリケーションがアクセスする必要のあるストアド プロシージャまたはテーブルにのみ与えてください。 </li></li></li></li>
+  </ol>
+  <p>理想的には､直接テーブルへのアクセスを提供することはお勧めできず、アクセスを選択されたストアド プロシージャにのみ制限することをお勧めします。 テーブル アクセスを与える必要がある場合は、アプリケーションが必要とする最小限のアクセスを与えてください。 たとえば、読み取りアクセスで十分な場合、更新アクセスを与えないでください。</p>
+  <p>アプリケーションのサービス アカウントは、通常、Windows Server 上で ASP.NET アプリケーション プールを起動するために使用されるデフォルト アカウントである Network Service アカウントです。あるいは、カスタム サービス アカウントを使用できます。</p>
+  <h2>ネットワークサービスアカウントの使用</h2>
+  <h3>ネットワークサービスアカウントへのデータベースアクセスを与えるには</h3>
+  <ol>
+    <li>Network Service アカウント用の SQL Server ログインを作成します。 データベースが別のサーバ上にある場合、<b><i>domainName</i>\<i>WebServerMachineName</i>$ </b> ID 用のログインを作成します。 Enterprise Manager を使用して、または <b>osql</b> コマンド ライン ツールにおいて以下の SQL ステートメントを実行して SQL ログインを作成できます。 <p><b>exec sp_grantlogin '<i>domainName</i>\<i>WebServerMachineName</i>$'</b></p><li>必要なデータベースでデータベースユーザーを作成し､ログインをデータベースユーザーにマップしてください｡ 代わりに、<b>osql</b> で以下の SQL ステートメントを実行できます。<p><b>use targetDatabase</b></p><p><b>go</b></p><p><b>exec sp_grantdbaccess '<i>domainName</i>\<i>WebServerMachineName</i>$'</b></p><p><b>go</b></p><li>データベースロールにデータベースユーザーを置いてください｡ <li>ロールにアクセス許可を与えてください。 理想的には､選択したストアド プロシージャにアクセス実行許可を与えて、直接テーブルアクセスを与えないことをお勧めします｡ </li></li></li></li>
+  </ol>
+  <h2>カスタム･サービスアカウントの使用</h2>
+  <p>同一のウェブサーバで複数のウェブアプリケーションを実行する状況では、別個のカスタムサービスアカウントを使用して、各アプリケーションをそれぞれのアプリケーションプールで実行することで、さらにアプリケーションを分離できます。 複数のアプリケーション用に共有されたIDの使用を避けることで、アプリケーションのアカウントのみにデータベースアクセスを制限し、他のアプリケーションがデータベースにアクセスできないことを確実にできます。 またこれは、Network Service アカウントがデータベースで承認される方法、またはアカウントに付与される特権が偶発的に変更されても、すべての Web アプリケーションに影響を与えるわけではないということを意味します。</p>
+  <h3>カスタム･サービスアカウントを作成するには</h3>
+  <ol>
+    <li>Windowsドメインのアカウントを作成してください｡ <li>次の Aspnet_regiis.exe コマンドを実行して、関連する ASP.NET アクセス許可をアカウントに割り当てます:<p><b>aspnet_regiis.exe -ga machineName\userName</b></p><p><b>Aspnet_regiis.exe -ga</b> コマンドを実行することにより、アカウントを IIS_WPG グループに追加します。 IIS_WPG グループにおけるメンバーシップは、アカウントに<b>バッチ ジョブとしてのログオン</b>権限を与え、必須のファイル システムおよび IIS メタベースのアクセス許可が認可されていることを確認します。 </p><li>[ローカル セキュリティ ポリシー] ツールを使用して、Windows アカウントに「<b>ローカルのログオンを拒否する</b>」というユーザー権限を与えます。 <li>IIS Manager を使用して、新しいアカウントの ID で起動するアプリケーション プールを作成し、そのプールに ASP.NET アプリケーションを割り当てます。 </li></li></li></li>
+  </ol>
+  <p>
+    <b>カスタム･サービスアカウントにデータベースアクセスを与えるには</b>
+  </p>
+  <p>「Network Service アカウントの使用」セクションで前に要点を説明した以下のステップに従いますが、ログインを作成して、Network Service アカウントではなくカスタム サービス アカウントへのアクセスを認可します。</p>
+  <h1>手順 4:  セキュリティアクセスをテストしてください</h1>
+  <p>データベースセスアクセスをテストするには、テスト用ASP.NETウェブアプリケーションを作成し以下の .aspxページを追加してください｡</p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" %&gt;<br />&lt;%@ Import Namespace="System.Data" %&gt;<br />&lt;%@ Import Namespace="System.Data.SqlClient" %&gt;<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "<a href="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</a>"&gt;<br />&lt;script runat="server"&gt;<br />&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; using (SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["MyDbConn1"].ToString()))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM authors", cn);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cn.Open();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlDataReader rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rdr.Read();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write(rdr[0].ToString()); //read a value<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp; }<br />&lt;/script&gt;<br />&lt;html&nbsp; &gt;<br />&lt;head runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;title&gt;SQL Authentication&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body/&gt;<br />&lt;/html&gt;   </pre>
+  </div>
+  <li>
+    <p />ステップ 1 で説明されているように、Web.config ファイルを追加して接続文字列エントリーを追加します。 アプリケーションをビルドし実行してください｡ オーサー テーブルへの SELECTaccess を特に認可していない場合、以下のようなエラー メッセージが表示されます。<b></b><p /><div><pre>SELECT permission denied on object 'authors', database 'pubs', owner 'dbo'.  </pre></div><h1>展開の考慮事項</h1><p>生産環境でSQL Server への接続にWindows 認証を使用している時は､以下を検討してください:</p><ul><li><b>カスタム サービス アカウントを使用します</b>。<b></b><li><b>Windows グループ用の SQL Server ログインを作成します</b>。<li><b>データベース ロールにデータベースへのアクセス許可を割り当てます</b>。<b></b></li></li></li></ul><h2>カスタム･サービスアカウントを使用してください</h2><p>デフォルトで、ASP.NET アプリケーションは Network Service ID を持つアプリケーション プールで起動します。 生産アプリケーションでは、カスタム･サービスアカウントおよび専用のアプリケーションプールを使用すること推奨します｡ これには多くの利点があります:</p><ul><li>アプリケーションはサーバ上の他のアプリケーションから分離され、データベース中および他のWindowsリソースにおけるアクセス制御リスト(ACL)が特定のアプリケーション用に構成できます。 <li>Network Service ID で起動するその他のアプリケーションは、アプリケーションのデータベースや他の Windows リソースにアクセスできません。 <li>Windows監査を使用して個別のアプリケーションアクティビティを追跡できます。 <li>アプリケーションは、アプリケーション用のネットワークサービスに対して偶然かまたは故意に他の管理者が適用する、アクセス許可または特権の変更から防御されています。 </li></li></li></li></ul><h2>Windowsグループ用のSQL Server ログインを作成してください</h2><p>ネットワークサービスアカウントまたはカスタム･サービスアカウントへのSQL Server ログインを直接作成するのではなく、このアカウントをデータベースサーバ上のWindowsグループに追加し、次にWindowsグループ用のSQL Server ログインを作成してください｡ これは管理の観点から望ましいですし、アプリケーションのアカウントIDへの潜在的な変更から防御できます。</p><h2>データベース アクセス許可をデータベースロールに割り当ててください</h2><p>開発中は、アプリケーションアカウントのSQL Server 用ログインに基づいてデータベースユーザーに直接アクセス許可を与えることは、迅速で簡単です。 生産環境では、データベースユーザーをデータベースロールに追加し、次にロールにアクセス許可を割り当てることをお勧めします｡ これによりデータベースユーザー名が変更されないように構成を保護できます。</p><h1>ウェブファームについての検討</h1><p>アプリケーションがウェブファームに展開される場合は、RSAプロバイダーを使用して接続文字列を保護してください｡ RSA鍵はエキスポートできるので、ウェブファームでRSA暗号化を使用できます。 データを Web ファームにおける他のサーバに展開する前に Web.config ファイルで暗号化する場合、これを行う必要があります。 その場合､データを暗号解読するのに必要な私有鍵は、エキスポートして他のサーバへ配置する必要があります。</p><h1>ミラーアカウント</h1><p>ミラーアカウントは推奨しませんが､Windows 認証を使用する必要があり、ウェブサーバとデータベースサーバが同一のまたは信頼済みのドメインにない場合、もしくはWindows 認証がファイアウォールに阻止されている場合はこれが次善策です。 ミラーアカウントを使用するには、各サーバに同一のユーザー名とパスワードを持つローカルアカウントを作成し、次にデータベースサーバにローカルアカウント用のSQL Server ログインを作成してください｡</p><h2>ローカルアカウントを作成するには</h2><ol><li>ローカルのWindowsアカウントを作成してください｡ <li>次の Aspnet_regiis.exe コマンドを実行して、関連する ASP.NET アクセス許可をアカウントに割り当てます:<p><b>aspnet_regiis.exe -ga machineName\userName</b></p><p><b>Aspnet_regiis.exe -ga</b> コマンドを実行することにより、アカウントを IIS_WPG グループに追加します。 IIS_WPGグループでは、「<b>バッチ ジョブとしてログオンする</b>」というユーザー権限が提供され、必要なファイル システムのアクセス許可が与えられます。 </p><li>[ローカル セキュリティ ポリシー] ツールを使用して、Windows アカウントに「ローカルでログオンを拒否する」というユーザー権限を付与します。 <li>IIS Manager を使用して、新しいアカウントの ID で起動するアプリケーション プールを作成し、そのプールに ASP.NET アプリケーションを割り当てます。 </li></li></li></li></ol><h2>データベースサーバにミラーアカウントを作成するには</h2><p>ウェブサーバに作成したアカウントと同一のユーザー名とパスワードを使用して、データベースサーバ上にローカルアカウントを作成してください。</p><h2>ミラーアカウントにデータベースアクセスを与えるには</h2><p>「Network Service アカウントの使用」セクションで上述された以下のステップに従いますが、ログインを作成して、Network Service アカウントではなくローカル アカウントへのアクセスを認可します。 </p><h1>なりすまし/委託 対 信任サブシステム</h1><h2>信任サブシステム</h2><p>信任サブシステムのモデルでは、データベースサーバがウェブアプリケーションのIDを信頼します。 ウェブアプリケーションのIDは信頼されているため、元の呼び出し元の代理で呼び出しを行います｡ (図1を参照)</p><p><img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998292.f01paght00000801(en-us,MSDN.10).gif" border="0" /></p><p><b>図 1:  信頼サブシステム モデル</b></p><h3>信任サブシステムの長所と短所</h3><p>信任サブシステムモデルの利点には次のことがあります:</p><ul><li><b>スケーラビリティ。</b> 信任サブシステムのモデルは効率の良いコネクションプーリングをサポートします。 コネクションプーリングは、複数のクライアントがプール済みの利用可能な接続を再利用できるようにします。 アクセスされたすべてのバックエンドリソースは、呼び出し元の ID に関わらず、アプリケーションのサービスアカウントのセキュリティコンテキストを使用するので、このモデルではうまくいきます。 <li><b>バックエンドのACL管理を最小化します。 </b>サービスアカウントのみがバックエンドリソース(例えばデータベース)にアクセスします。 ACLはこの単独ID用に構成されます。 <li><b>ユーザーはデータに直接アクセスできません。</b> 信任サブシステムモデルでは、サービスアカウントのみがバックエンドリソースへのアクセスを与えられます。 結果として、ユーザーはアプリケーションを経由せずに直接バックエンドのリソースにはアクセスできません。その上、アプリケーションの認可が必要です。 </li></li></li></ul><p>信任サブシステムモデルはこれらの不利を被ります:</p><ul><li><b>監査。</b> バックエンドで監査を実施する場合、バックエンドに対して最初の呼び出し元を明示的に渡し（アプリケーション レベルにおいて）、監査はそこで実行されます。 中間階層を信用する必要があり、潜在的な否認リスクも存在します。 中間階層において監査証跡を生成してそれをバックエンドの監査証跡と関係付けすることもできます（その場合、サーバのクロックが確実に同期化していなければなりません）。 <li><b>サーバの漏洩リスクの増大。 </b>信頼されているサブシステム モデルの場合、中間階層サービスによるバックエンド リソースへの広汎なアクセスが与えられています。 そのため、中間階層サービスが漏洩された場合には攻撃者に対してバックエンド リソースへの容易なアクセスを提供する可能性があります。 </li></li></ul><h2>なりすまし/デレゲーション</h2><p>ASP.NET で元の呼び出し元を偽装するのに最も簡単なアプローチは、Windows 認証を使用して呼び出し元を認証し、以下に示されるように Web.config の &lt;<b>identity</b>&gt; で <b>impersonate="true"</b>  を設定することです。 </p><div><pre>&lt;configuration&gt;<br />&nbsp;&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;identity impersonate="true"/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;/system.web&gt;<br />&lt;/configuration&gt;  </pre></div><p>データベースが遠隔サーバに搭載されている場合、デレゲーションの Active Directory にも関連するアカウントを構成する必要があります。 たとえば、アプリケーションのサービス アカウントがデリゲーションについて信頼とマークされていて、エンド ユーザー アカウントが機微とマークされていないことを確認する必要があります。それ以外はデリゲートできないという意味になります。</p><h3>なりすまし/デレゲーションの賛否両論</h3><p>なりすまし/デレゲーション モデルのメリットには次のものが含まれます。</p><ul><li><b>オペレーティング システム監査の恩恵を受けることができます。</b> これにより管理者はどのユーザーが特定のリソースにアクセスしようとしたかを追跡することができます。 <li><b>階層を横断した監査 </b>ユーザーのセキュリティ内容はアプリケーションの物理階層全般において維持されるため、管理者は階層を横断した監査を実施することができます。 リソースへのアクセスが発生したその時、そしてリソースをアクセスしたルーチンと同じルーチンでもって監査が生成された場合、その監査は一般的に最も権威のあるものであるとされます。 <li><b>データベースにはきめ細かいアクセス制御を構成することができます。</b> データベースでは個々のユーザー アカウントをそれぞれ個別に制限することができます。 </li></li></li></ul><p>なりすまし/デレゲーション モデルのデメリットには次のものが含まれます。</p><ul><li><b>スケーラビリティ。 </b>なりすまし/デレゲーション モデルではデータベースへのアクセスが最初の呼び出し元の個別のセキュリティ コンテキストと関係付けされた接続を使って実行されるため、データベースの接続プーリングを活用することができません。 これにより多数のユーザーに対応するためのアプリケーションのスケーラビリティーが著しく制約されています。 <li><b>管理努力の増大。 </b>バックエンド リソースへのアクセス制御リスト（ ACL） は各ユーザーに対して適切なレベルのアクセスが与えられるように管理されなければなりません。 バックエンド リソースの数が増加した場合（そしてユーザー数が増加した場合）、ACLの管理には大量の努力が必要となります。</li></li></ul><hr /><p>出典: Microsoft patterns & practices guidance</p></li>]]></Data>
+  </Content>
+</TeamMentor_Article>

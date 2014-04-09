@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-567836087" Content_Hash="-1751377799">
+  <Metadata>
+    <Id>55785593-0503-4b15-98f1-63d9da38d630</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構成ファイルの機微データを暗号化する方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>SQL 接続文字列などの機微データが含まれている構成セクションを暗号化します。 WCFサーバ マシン上の構成ファイルにある機微データを暗号化するには DPAPI を使用します。 構成ファイルにおいて機微データを暗号化するには、-<strong>pe</strong> (プロバイダー暗号化) オプションで <strong>aspnet_regiis</strong>.<strong>exe</strong> ツールを使用します。</p>
+  <p>たとえば、マシン鍵ストアを備えた DPAPI プロバイダー (デフォルトの構成) を使用して、<strong>connectionStrings</strong> セクションを暗号化するには、コマンド プロンプトから以下のコマンドを実行します。</p>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</pre>
+  <p>aspnet_regiis 設定は:</p>
+  <ul>
+    <li>-<strong>pe</strong> は、暗号化する構成セクションを指定します。<li>-<strong>app</strong> は、Web アプリケーションの仮想パスを指定します。 アプリケーションがネストされている場合、root ディレクトリからネストされたパスを特定する必要があります。"/test/aspnet/MachineDPAPI"が例として挙げられます。<li>-<strong>prov</strong> は、プロバイダー名を指定します。</li></li></li>
+  </ul>
+  <p>.NET Framework は、<strong>RSAProtectedConfigurationProvider</strong> および <strong>DPAPIProtectedConfigurationProvider</strong> 保護構成プロバイダーに対応します。</p>
+  <ul>
+    <li>
+      <strong>RSAProtectedConfigurationProvider</strong>。これは規定のプロバイダーであり、RSA公開鍵暗号化を使用してデータの暗号化および復号を行います。 このプロバイダーを使用して、Web ファームにおいて複数の WCF サービスで使用するために構成ファイルを暗号化します。<li><strong>DPAPIProtectedConfigurationProvider</strong>。このプロバイダーは、Windows データ保護 API (DPAPI) を使用してデータを暗号化および解読します。 このプロバイダーを使用して、単一のWindowsサーバで使用する構成ファイルの暗号化を行います。</li></li>
+  </ul>
+  <p>復号のために特別なステップを実行する必要はありません。.NET ランタイムがこれに対処します。 <br /></p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>構成セクションの暗号化に関する詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms998280.aspx">http://msdn2.microsoft.com/en-us/library/ms998280.aspx</a> の「DPAPI を使用して構成セクションを暗号化する方法」、および <a href="http://msdn2.microsoft.com/en-us/library/ms998283.aspx">http://msdn2.microsoft.com/en-us/library/ms998283.aspx の「RSA を使用して構成セクションを暗号化する方法」を参照してください。</a><li>aspnet_regiis ツールに関する詳細については、<a href="http://msdn.microsoft.com/en-us/library/k6h9cz8h(VS.80).aspx">http://msdn.microsoft.com/en-us/library/k6h9cz8h(VS.80).aspx の「ASP.NET IIS 登録ツール (Aspnet_regiis.exe)」を参照してください。</a><br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

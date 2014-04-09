@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-222417803" Content_Hash="1548754797">
+  <Metadata>
+    <Id>04dc294a-d60d-4836-85f4-a72e405b9ebd</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>サービスを Windows サービスでホストする場合は、メタデータ交換 (mex) バインディングを公開する</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>Windows サービスでサービスをホストする場合は、メタデータ交換 (mex) バインディングを公開する</p>
+  <h1>対策</h1>
+  <p>サービスを Windows サービスとしてホストし、netTcpBinding を使用してサービスを公開している場合は、クライアントがサービスをディスカバーして使用できるように、mexTcpBinding エンドポイントを作成することでサービス メタデータを公開してください。 クライアントは、ServiceModel Metadata Utility Tool (Svcutil.exe) を使用してプロキシ ファイルを生成することができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メタデータ エンドポイントの公開の詳細については、「メタデータの公開」 (<a href="http://msdn2.microsoft.com/en-us/library/aa751951.aspx">http://msdn2.microsoft.com/en-us/library/aa751951.aspx) を参照してください。</a><li>構成管理に関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home) の構成管理のセクションを参照してください。</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home"></a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

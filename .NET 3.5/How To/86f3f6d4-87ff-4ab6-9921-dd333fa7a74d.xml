@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1786864804" Content_Hash="-897826833">
+  <Metadata>
+    <Id>86f3f6d4-87ff-4ab6-9921-dd333fa7a74d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows アカウントを証明書でマップする方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>証明書の認証を使用している場合には、証明書を Windows アカウントにマップして、 Windows アカウントに基づいて認証と認可を有効にすることができます。</p>
+  <p><strong>mapClientCertificateToWindowsAccount</strong> プロパティをTrue に設定することで、X509 証明書を Windows アカウントにマップできます。 バインドにおいて証明書クライアントの Credential 情報の種類を使用する際に、既定では、証明書は Windows アカウントにはマップされていません。 </p>
+  <p>証明書を Windows アカウントにマップするには、以下のステップを使用します:</p>
+  <ol>
+    <li> ISS またはActive Directory マッピングを選択します。<ol><li>IIS マッピングは限られた数のマッピングだけが必要な場合や、各 WCF サービスに対して異なるマッピングが必要の場合に便利です。<li>Active Directory マッピングはすべての IIS サーバ上でアカウントのマッピングが同一の場合に使用します。 Active Directory マッピングは一つの場所でのみマッピングを作成すればよいため、IIS マッピングよりも簡単です。</li></li></ol><li>証明書をマッピングするために IIS / Active Directory を構成します。<li>クライアント証明書のマッピング機能を有効にしたら、<strong>mapClientCertificateToWindowsAccount</strong> プロパティを True に設定します。 <pre>&lt;serviceBehaviors&gt;<br />  &lt;behavior name="MyServiceBehaviorForWebHttp"&gt;</pre><pre>     &lt;serviceCredentials&gt;<br />      &lt;clientCertificate&gt;<br />       &lt;authentication mapClientCertificateToWindowsAccount="true" /&gt;<br />      &lt;/clientCertificate&gt;<br />     &lt;/serviceCredentials&gt;</pre><pre>&lt;/behavior&gt;<br />&lt;/serviceBehaviors&gt;</pre></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>証明書についての詳細は<a href="http://msdn.microsoft.com/en-us/library/ms731899.aspx">http://msdn.microsoft.com/en-us/library/ms731899.aspxの「証明書の使用」を参照してください。</a><li>Windows アカウントに証明書をマッピングする方法についての詳細は、<a href="http://technet2.microsoft.com/WindowsServer/f/?en/library/0539dcf5-82c5-48e6-be8a-57bca16c7e171033.mspx">http://technet2.microsoft.com/WindowsServer/f/?en/library/0539dcf5-82c5-48e6-be8a-57bca16c7e171033.mspxの「ユーザー アカウントに証明書をマップする」を参照してください。</a><li>Active Directory に証明書をマップする方法についての詳細は、<a href="http://technet2.microsoft.com/windowsserver/en/library/7cce4299-28f2-45fa-8730-4e0cbe3be8561033.mspx?mfr=true">http://technet2.microsoft.com/windowsserver/en/library/7cce4299-28f2-45fa-8730-4e0cbe3be8561033.mspx?mfr=trueの「ディレクトリ サービス マッピングによってクライアント証明書をマッピングする」を参照してください。</a><li>証明書のマッピング戦略についての詳細は、<a href="http://technet2.microsoft.com/windowsserver/en/library/aa61c564-1599-4414-a12d-2f64786f6ec31033.mspx?mfr=true">http://technet2.microsoft.com/windowsserver/en/library/aa61c564-1599-4414-a12d-2f64786f6ec31033.mspx?mfr=trueの「マッピング戦略」を参照してください。</a></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

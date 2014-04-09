@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="683221764" Content_Hash="590401697">
+  <Metadata>
+    <Id>1f4bbbde-0ded-4b2b-95f7-212c6ab18cab</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL 認証を使用して SQL Server データベースに接続する方法</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>Windows 認証を使用して SQL Server データベースに接続することができない場合、SQL 認証を使用する必要があります。 SQL 認証を使用する場合、最低特権のユーザー ID を使用して SQL Server データベースに接続し、かつ <b>sa</b> アカウントのような高い特権のアカウントは使用しないことを確認してください。 Credential 情報は暗号化されないフォーマットで渡されて来るので、SQL ユーザー アカウントでは強力なパスワードを使用して、アプリケーションとデータベース サーバ間のチャンネルを保護してください。 例えば、SSL または IPSec を使用してください。 最後に、プレーンテキストの Credential 情報が含まれるので、SQL 接続文字列を暗号化してください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

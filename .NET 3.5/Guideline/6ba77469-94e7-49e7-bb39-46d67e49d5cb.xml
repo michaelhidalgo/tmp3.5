@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-850158993" Content_Hash="1127965205">
+  <Metadata>
+    <Id>6ba77469-94e7-49e7-bb39-46d67e49d5cb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>プログラムを使って偽装する場合は元のコンテキストに戻します</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>プログラム的な偽装を利用する場合、可能な限り早急に元のセキュリティ コンテキストに戻ります。</p>
+  <h1>理由</h1>
+  <p>戻り忘れると、必要以上に高い特権の下で起動し続けるため、アプリケーションの Attack Surface (攻撃対象領域) が増大します。 using 文を使用して、偽装を自動的に戻します。</p>
+  <h1>対策</h1>
+  <p>以下のコード スニペットは、プログラム的に偽装する方法を示しています。</p>
+ <pre>public string GetData(int value)<br />{<br /> using (ServiceSecurityContext.Current.WindowsIdentity.Impersonate())<br /> {<br />     // return the impersonated user (original users identity)<br />     return string.Format("Hi, {0}, you have entered: {1}",<br />          WindowsIdentity.GetCurrent().Name, value);<br /> }<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>偽装および委任 Q&A については、<a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home">http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home で、「WCF 3.5 質問と回答」の「偽装/委任」セクションを参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

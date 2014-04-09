@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-575615201" Content_Hash="1491856309">
+  <Metadata>
+    <Id>abbeedc4-e1bb-4fc8-bb61-c1ca98d04621</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ロールを証明書にマップする方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>証明書認証を使用している場合、証明書を Windows アカウントにマップし、このアアカウントに基づいて認可を行うことができます。</p>
+  <p>以下のステップを実行して、ロールを証明書に関連付けます。</p>
+  <ol>
+    <li>IIS でクライアント証明書マッピングを有効にするための構成を行います。<ol><li>IIS サービス アプレットを開きます。<li>サービスに使用するウェブ サイトを右クリックして、[プロパティ] を選択します。<li>[ディレクトリ セキュリティ] タブを選択し、[セキュリティで保護された通信] セクション内の [編集] ボタンをクリックします。<li>[クライアント証明書マッピングを有効にする] チェックボックスをオンにします。 マッピング編集ボタンをクリックして、構成に応じて 1 対 1 または多対 1 を入力します。</li></li></li></li></ol><li>サービスを構成して、ClientCredentialType = “Certificate” を必須にします。 これにより、クライアントは証明書認証を使用して接続を行うことが必要になります。<ol><pre>      &lt;message clientCredentialType="Certificate" /&gt;</pre></ol><li>Web.config または app.config ファイルでサービスを構成して、証明書をユーザー アカウントにマップします。 mapClientCertificateToWindowsAccount を"true" に設定します。<ol><pre>&lt;serviceBehaviors&gt;<br /> &lt;behavior name="MappingBehavior"&gt;<br />  &lt;serviceCredentials&gt;<br />   &lt;clientCertificate&gt;<br />    &lt;authentication certificateValidationMode="None" mapClientCertificateToWindowsAccount="true" /&gt;<br />   &lt;/clientCertificate&gt;<br />  &lt;/serviceCredentials&gt;<br /> &lt;/behavior&gt;<br />&lt;/serviceBehaviors&gt;</pre></ol><li>クライアントを構成して、証明書を提供します。 着信クライアント要求には、証明書名および指紋 ID が含まれます。 IIS によって、クライアント証明書が Windows ユーザー アカウントにマップされます。<ol><pre>      &lt;message clientCredentialType="Certificate" /&gt;</pre></ol><li>認可を必要とする各サービス メソッドの上に PrincipalPermission 属性を追加することで、必要とされる Windows グループを認可します。 [Role] フィールドでメソッドにアクセスするために必要な Windows ユーザー グループを指定します。<ol><pre>[PrincipalPermission(SecurityAction.Demand, Role = "accounting")]<br />public double Add(double a, double b)<br />{<br />    return a + b;<br />}<br /></pre></ol></li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認可の詳細情報については、「認可」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx) を参照してください。</a><li>認可に関するガイドラインについては、「WCF 3.5 に関するガイドライン」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home) の認可のセクションを参照してください。</a><br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

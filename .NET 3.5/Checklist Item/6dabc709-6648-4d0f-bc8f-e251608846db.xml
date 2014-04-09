@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1216034750" Content_Hash="1441982827">
+  <Metadata>
+    <Id>6dabc709-6648-4d0f-bc8f-e251608846db</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>制御フロー解析を実行する</Title>
+    <Category>セキュリティ工学</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>プロジェクト文書には、制御フロー解析の結を記載する必要があります。</p>
+  <h1>理由</h1>
+  <p>制御フロー解析は、論理エラーによって引き起こされる脆弱性の発見に役に立ちます。</p>
+  <h1>チェック方法</h1>
+  <p>プロジェクト文書を調べて、制御フロー解析の結果が記載されていることを確認します。</p>
+  <h1>修正方法</h1>
+  <p>次の手順に従って、制御フロー解析を実行します。</p>
+  <ol>
+    <li>
+      <p>1 つの関数に注目して、各分岐条件を確認します。&amp;nbsp;分岐条件には、ループ、if 文、try/catch ブロックがあります。 </p>
+      <li>
+        <p>各ブロックが実行される条件を確認します。 </p>
+        <li>
+          <p>次の関数に進んで、この作業を繰り返します。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1859605391" Content_Hash="-117944096">
+  <Metadata>
+    <Id>8c18e0f3-425d-49a0-8c91-bd55ee2ad3d2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>相互運用性をサポートする必要がある場合は、NegotiateServiceCredentials を False に設定することを検討する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>相互運用性をサポートする必要がある場合は negotiateServiceCredentials を False に設定することを検討する</p>
+  <h1>状況</h1>
+  <p>WS-Trust と WS-SecureConversation を理解していないクライアントをサポートする必要があるとき。</p>
+  <h1>対策</h1>
+  <p>WS-Trust と WS-SecureConversation を理解していないクライアントをサポートする必要がある場合、negotiateServiceCredentials 属性を false に設定します。 </p>
+  <p>クライアント Credential 情報の種類が匿名、ユーザー名、または証明書である場合、このプロパティを false に設定することは、帯域外のクライアントではサービス証明書が利用可能でなければならないことと、使用するサービスの証明書をクライアントが指定する必要があることを意味します。 Windows Credential 情報の場合、このプロパティを false に設定すると、KerberosToken に基づく認証を引き起こします。 これは、クライアントとサービスが Kerberos ドメインの一部であることを必要とします。</p>
+  <p>以下に構成例を示します：</p>
+ <pre>&lt;wsHttpBinding&gt;<br />  &lt;binding name="MessageAndUserName"&gt;<br />    &lt;security mode="Message"&gt;<br />      &lt;message clientCredentialType="UserName" negotiateCredentials=”false” algorithmSuite="Default" /&gt;<br />    &lt;/security&gt;<br />  &lt;/binding&gt;<br />&lt;/wsHttpBinding&gt;<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メッセージ保護の詳細については、「メッセージ セキュリティ」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733137.aspx">http://msdn2.microsoft.com/en-us/library/ms733137.aspx) を参照してください。</a><li>メッセージ セキュリティに関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home) のメッセージ保護のセクションを参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

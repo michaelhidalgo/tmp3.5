@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="862543064" Content_Hash="-126801099">
+  <Metadata>
+    <Id>160c94cd-efc0-4885-9b0d-cd3ad60365e1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>信頼されていないデータをユーザーにエコーバックしない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>最初にデータを検証またはエンコーディングせずに、ユーザーへ入力をエコー バックしないこと。&nbsp; ユーザーが変更できるデータは、ユーザーが通常のアプリケーション使用中に変更すると予測されているか否かに関わらず、信頼されていないデータとして扱う必要があります。 </p>
+  <h1>理由</h1>
+  <p>入力をユーザーに直接エコーバックすると、アプリケーションがクロスサイト スクリプティングのような悪意のある入力攻撃を受けやすくなります。&nbsp; 悪意のあるユーザーが他人を騙して、危険な入力が犠牲者に返るように送信させる、もしくはサイトが悪意のある入力を保存し他のユーザーへ戻るようにした、このクラスの脆弱性をエクスプロイトできます。&nbsp; 悪意のある入力を構成するものは、問題となるシステムに大きく依存します。&nbsp; ウェブでは、一般的に何らかの JavaScript を意味します。 </p>
+  <h1>状況</h1>
+  <p>アプリケーションは、適切なエンコーディングを行うことなく、信頼できないデータまたはユーザーが修正可能なデータをユーザーにエコーバックすべきではありません。 </p>
+  <h1>対策</h1>
+  <p>ユーザー入力または共有データベースまたは信頼できないローカルファイルからのデータを含む出力を書き出す場合、それをエンコードします。&nbsp; ユーザーへ入力を直接エコー バックすることは、他の問題よりとりわけ、アプリケーションにクロスサイト スクリプティングに対する脆弱性をもたらします。&nbsp; データをエンコーディングすることで、スクリプトではなくリテラルテキストとして扱われます。&nbsp; ASP.NETのServer.HtmlEncode機能はしばしばクロスサイト スクリプティング攻撃からの保護に使用されます。 しかし、この機能は&lt;&gt;"および文字のみをエンコードします。 これはあらゆる潜在的攻撃からの保護に十分ではありません。 例えば、次の ASP.NET コードは脆弱性があります。 </p>
+ <pre>&lt;img id='img&lt;%=Server.HtmlEncode(Request.QueryString["userId"]) %&gt;'&nbsp;&nbsp; src='/image.gif' /&gt;</pre>
+  <p>攻撃者は、<strong>userId </strong>をここで設定することにより、クライアント側のスクリプトにインジェクトする可能性があります。</p>
+ <pre>' onload=alert('xss') alt='</pre>
+  <p>最も安全なソリューションはすべての非英数字をエンコードすることです。 この種のホワイトリスト ソリューションのみが、コンテキストに関わらずすべての潜在的なXSS攻撃を捕えます。&nbsp; これは、HTMLのサイズおよびプロセス時間に関してより多くのオーバーヘッドを必要としますが、すべてのHTMLコンテキストにとって最も安全なエンコーディング メカニズムです。</p>
+ <pre>public static string HtmlEncode(string x)<br />{<br />   if (x == null)<br />   {<br />   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;return x;<br />   }<br />&nbsp;&nbsp;&nbsp;return Regex.Replace(x, "[^a-zA-Z0-9]+", new MatchEvaluator(WebUtility.EncodeMatch));<br />}</pre>
+  <p>これはまた、<a href="http://www.microsoft.com/downloads/details.aspx?familyid=9a2b9c92-7ad9-496c-9a89-af08de2e5982&displaylang=en">Microsoft Anti-Cross Site Scripting Library</a> が取るアプローチでもあります&nbsp;&nbsp; Anti-Cross Site Scripting Library を使用している場合、<b>Microsoft.Security.ApplicationAntiXSSLibrary.HtmlEncode</b> メソッドを使用できます。&nbsp; 同様に、入力データまたは共有データベースのデータから構築されるため、安全でない文字を含む可能性のある URL を書く場合、それを安全にするためには <b>Microsoft.Security.ApplicationAntiXSSLibrary.UrlEncode</b> を使用してください。&nbsp; </p>
+  <p>
+    <b>注意</b>&nbsp; &nbsp; データのエンコードは必ず、データがクライアントに返される前の最後の段階で行ってください。&nbsp; それよりも前にエンコードを行った場合、データが使用される正確なコンテキスト、すなわちエンコード先のフォーマットが不明になることがあります。&nbsp; また、一部のデータでは、早い段階でエンコーディングを行うと二重エンコーディングの問題が生じることがあります。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1740838253" Content_Hash="581355024">
+  <Metadata>
+    <Id>a96eaddb-5fb2-458e-b5ca-fde05a9a3a06</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データをパラメーターに配置しない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>機微データを保護されてないクエリ文字列パラメータに置かないこと。 機微データは、セッションに保存するか、またはサーバへ送られる前に暗号化されることをお勧めします｡</p>
+  <h1>理由</h1>
+  <p>保護されていないパラメータに保存される機微データは、プレーンテキストでネットワーク上を送信され、ネットワーク スニッフィングによる攻撃者、またはウェブ プロキシのオペレーターにより簡単に盗まれる可能性があります。</p>
+  <h1>状況</h1>
+  <p>アプリケーションで、機微データを入力として受け取ったり、機微データを使用してセッション情報を追跡したりする場合は、保護されていないパラメーターにそのデータを配置するのを避けます。 </p>
+  <h1>対策</h1>
+  <p>パラメーターを使用して機微データを処理する場合は、以下の手順に従ってください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>パラメーターを判断します。</strong> パラメーターはエントリ ポイントおよび格納場所の両方として使用できます。 アプリケーションのパラメーターを特定することで、考えられる入力ソースを判断できます。 パラメーターはクライアントによって簡単にアクセス可能であるため、信頼できないものとして見なします。 以下のような異なるタイプのパラメーターが存在します。</p>
+      <ul>
+        <li>URL ベースのパラメーター <li>フォームベースのパラメーター <li>ViewState<li>隠しフィールド <li>Cookie</li></li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>使用目的を判断します。</strong> パラメーターは複数の目的で使用できます。 機微データを送信するためにパラメータを使用している場合､下のステップを使用して回避策を見つけてください:</p>
+        <ul>
+          <li>
+            <p>
+              <strong>入力を送信します</strong>。パラメーターを使用して機微データを送信する場合は、常に暗号化されているチャネルを介して POST リクエストを使用して行う必要があります。 暗号化されているかどうかは、SSL を使用して確認します。 ユーザーから情報を収集する場合は、隠しフィールドの使用は避けます。 アカウントに関するすべての情報をユーザーが入力することで、送信されるすべてのデータをユーザーが認識していることを確認できます。 ユーザーのクライアント環境に関する情報は、HTTP ヘッダを介して収集できます。 データは最終的に(構成および環境に応じて)ブラウザ履歴、ウェブ サーバ ログおよびプロキシ サーバ ログに残るので、機微データを含むパラメータに GET を使用することは避けてください。</p>
+            <p>さらに、アプリケーションが ASP.NET トレース機能を使用する場合､機微データを受け入れるすべての ASP.NET ページにトレースが無効になっていることを確認してください｡ 例: </p>
+ <pre>&lt;&amp;#37;&amp;#64;Page Language="C#" AutoEventWireup="true" CodeFile="Login.aspx.cs" Inherits="Login" <strong>Trace="false"</strong> &amp;#37;&gt;</pre>
+            <li>
+              <p>
+                <strong>ユーザーを追跡します</strong>。ユーザーの追跡は、セッションを使用して常にサーバー側で行う必要があります。 隠しフィールドやCookieで、機微なデータを格納することは避けます。 パラメーターを使用して機微データを格納する必要がある場合は、アプリケーションのみで認識される鍵を使用してデータを暗号化します。 暗号化されている機微データがクッキー内に格納されている場合、Cookieを持続型として設定することは避けます。</p>
+            </li>
+          </li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のページでは、GET リクエストを使用して資格情報が送信されています。 ページが送信されると、URL で資格情報が入手可能な状態となります。 要求は暗号化されていない状態で送信されるため、悪意のあるユーザーは HTTP トラフィックをスニッフィングすることで Credential 情報を入手することができます。 また、Credential 情報はサーバ ログおよびクライアントのブラウザ履歴のどちらにも表示され、パブリックな端末上では深刻な問題となります。</p>
+ <pre>&lt;html&gt;<br />  &lt;head&gt;<br />    &lt;title&gt;login form&lt;/title&gt;<br />  &lt;/head&gt;<br />  &lt;body&gt;<br />    &lt;form method="GET" action="http://login.example.com/myapp/login"&gt;<br />    &lt;input type="text" name="user" size=25&gt;&lt;br&gt;<br />    &lt;input type="password" name="pass" size=25&gt;&lt;br&gt;<br />    &lt;input type="submit" name="submit" value="log in"&gt;<br />    &lt;/form&gt;<br />  &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>以下のページでは、SSL を介した POST リクエストを使用して資格情報が送信されています。 ページが送信されても、URL には資格情報は表示されません。 悪意のあるユーザーがネットワーク スニッフィングを使用して Credential 情報を取得できないように、要求は暗号化されます。また、Credential 情報は URL にないので、サーバまたはクライアントのログには表示されません。</p>
+ <pre>&lt;html&gt;<br />  &lt;head&gt;<br />    &lt;title&gt;login form&lt;/title&gt;<br />  &lt;/head&gt;<br />  &lt;body&gt;<br />    &lt;form method="POST" action="https://login.example.com/myapp/login"&gt; <br />    &lt;input type="text" name="user" size=25&gt;&lt;br&gt;<br />    &lt;input type="password" name="pass" size=25&gt;&lt;br&gt;<br />    &lt;input type="submit" name="submit" value="log in"&gt;<br />    &lt;/form&gt;<br />  &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>パラメーターの操作とパラメーターを保護する方法の詳細については、「<a href="http://www.cgisecurity.com/owasp/html/ch11s04.html">Parameter Manipulation</a>」を参照してください。 <li>セッション管理の詳細については、「<a href="http://www.securityfocus.com/infocus/1774">Basic Web Session Impersonation</a>」を参照してください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/79cb6dbb-6c58-4c15-9c96-4a7b3f450d3c">チェックリスト項目:機微データがパラメータに置かれていないこと</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

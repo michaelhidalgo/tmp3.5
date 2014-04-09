@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="621163494" Content_Hash="1754164537">
+  <Metadata>
+    <Id>8a8449c8-36c7-468f-b595-a33dbf7215d7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SSL を使用して認証ページのセッション Cookie を保護する</Title>
+    <Category>セッション管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>SSL を使用して、認証されたページのセッション Cookie を保護してください。 </p>
+  <h1>理由</h1>
+  <p>認証チケットを保護できないことは、不正なスプーフィングやなりすまし、セッション ハイジャック、および特権の昇格につながる可能性のある一般的な脆弱性です。</p>
+  <h1>状況</h1>
+  <p>認証用の Cookie を使用しているすべてのシステムは､認証を必要とするすべてのページでは SSL 経由でそのような Cookie を保護すべきです。また、認証を必要せず、SSL を使用しないページでは、 Cookie が使用されず、送信されないことを確かめてください。 </p>
+  <h1>対策</h1>
+  <p>次のコード例に示すように、&lt;<b>forms</b>&gt; に <b>requireSSL="true"</b> を設定してください｡ </p>
+  <p>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />       requireSSL="true" ... /&gt;  </pre>
+  </p>
+  <p><b>requireSSL="true"</b> を設定することにより、ブラウザがサーバへ Cookie を送り戻すべきかどうか決める Cookie の <b>secure</b> プロパティを設定します。  <b>secure</b> プロパティの設定により、 Cookie はブラウザによって HTTPS URL を使用する安全なページのみへ送信されます。 </p>
+  <h1>追加のリソース</h1>
+  <ul>
+    <li>
+      <div>
+        <a href="http://msdn2.microsoft.com/en-us/library/ms998317.aspx">ASP.NET の SQL Server を使用してForms Authentication を使用する方法</a>
+      </div>
+      <li>
+        <div>
+          <a href="http://msdn2.microsoft.com/en-us/library/ms998288.aspx">ASP.NET でマシン鍵を構成する方法</a>
+        </div>
+        <li>
+          <div>
+            <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;813829">情報:セキュア ソケット レイヤー(SSL) を使用して Forms Authentication のセキュアに役立てる</a>
+          </div>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

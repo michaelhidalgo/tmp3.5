@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="738690796" Content_Hash="285362272">
+  <Metadata>
+    <Id>74be8616-ad22-4d1d-a7fc-8ff3d145fc61</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>例外の詳細をクライアントに公開しない</Title>
+    <Category>エラー ハンドリング</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーション内部の詳細をクライアントに送信することを許可しないでください。</p>
+  <h1>理由</h1>
+  <p>例外にはアプリケーションに関する機微情報 (コール スタック、コードの断片等) が含まれています。こうした情報を攻撃者に開示すると、システムへの攻撃の際に攻撃者を支援することになります。</p>
+  <h1>状況</h1>
+  <p>開発時には便利かもしれませんが、アプリケーションの配置後は、例外に含まれるデータをクライアントに公開することは避けてください。</p>
+  <h1>対策</h1>
+  <p>例外処理は、予期しないエラーの発生後に、リカバリーするためにアプリケーションによって使用される機構です。 開発者を十分に支援するため、例外にはコール スタックやコードの行等の重要情報が含まれています。 しかし、こうした情報をクライアントに開示することは避けるべきです。</p>
+  <p>例外内のデータは、アプリケーションのログ機構を使用して渡される必要があります (詳細については、「<a href="/article/a053c4e4-2aad-41b9-b60b-e0fdeffd39f4">重要なセキュリティ操作のログを作成する</a>」ガイドラインを参照してください)。 クライアント側のユーザーには、エラーが発生したことのみを通報し、アプリケーション内部の詳細を知らせるべきではありません。 例外は、エラー メッセージを動的に生成することでユーザーから隠すことができます。</p>
+  <p>
+    <strong>動的に生成されたエラー メッセージ</strong>
+  </p>
+  <p>例外が取得されると、特定のエラー メッセージが動的に生成されます。 エラー メッセージの使用は、データベース サーバへの接続の失敗等の予期しないエラーによってトリガーされます。 動的に生成されたエラー メッセージには、ユーザーによって入力されたデータが含まれる場合があるため、クライアントに表示する前に、ユーザーの入力をエンコードすることをお勧めします。 詳細については、「<a href="/article/d6ae90bf-1b44-4a89-b22e-55ea97e52ba5">すべての出力データをエンコードする</a> 」のガイドラインを参照してください。</p>
+ <pre>&lt;&amp;#37;&amp;#64;Application Language="C#" &amp;#37;&gt;<br /> &lt;&amp;#37;&amp;#64;Import Namespace="System.Diagnostics" &amp;#37;&gt;<br />  &lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> &amp;#123;<br />    //get reference to the source of the exception chain<br />    Exception ex = Server.GetLastError().GetBaseException();<br />    // log the details of the exception and page state to the<br />    // event log.<br />    EventLog.WriteEntry("My Web Application",<br />      "MESSAGE: " &amp;#43; ex.Message &amp;#43;<br />       "\nSOURCE: " &amp;#43; ex.Source,<br />       EventLogEntryType.Error);<br />     // Optional e-mail or other notification here... &amp;#125;<br /> &lt;/script&gt;</pre>
+  <p>
+    <strong>エラー ページ</strong>
+  </p>
+  <p>エラー ページは、何か異常が発生したことをユーザーに知らせる有効な方法となります。 エラー メッセージは事前に設計され、詳細情報をほとんど開示しないため、お使いのアプリケーションでグローバル例外ハンドラーが必要な場合や、失敗が発生する可能性があることが予想される場合はエラー ページが使用されます。 お使いのアプリケーションの <strong>web.config</strong> 内にある <strong>customErrors</strong> エレメントを使用して、カスタム HTTP エラー ページの構成を行ってください。 <strong>mode</strong> 属性を On または RemoteOnly に設定してください。 例: </p>
+ <pre>&lt;customErrors mode="On" defaultRedirect="ErrDefault.aspx"&gt;<br />    &lt;error statusCode="401" redirect="ErrUnauthorized.aspx" /&gt;<br />    &lt;error statusCode="404" redirect="ErrPageNotFound.aspx" /&gt;<br />    &lt;error statusCode="500" redirect="ErrServer.htm" /&gt;<br />&lt;/customErrors&gt; </pre>
+  <p>さらに、未処理例外がクライアントに知られるのを防ぐには、グローバル例外ハンドラーを使用するとよいでしょう。 詳細については、「<a href="/article/33a894ce-2061-4741-be92-1d063c9cf057">グローバル例外ハンドラーを未処理例外に使用する</a>」のガイドラインを参照してください。</p>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションの開発者はデバッグ目的のため、<strong> </strong>ローカル マシンおよびリモート クライアントの両方で詳細なエラー<strong> </strong>メッセージを表示するために、 &lt;<strong>CustomErrors</strong>&gt;  エレメントの mode 属性を Off に変更します。 アプリケーションが運用に移行すると、この設定がそのまま残り、詳細なエラー メッセージが全ユーザーに表示されます。 サイトを調べている攻撃者は、このエラー メッセージを見て、アプリケーションをエクスプロイトするための十分な情報を見つけ出します。</p>
+  <p>
+    <strong>'c:\myapp\docs\resource.txt' パスへのアクセスが拒否されます。</strong>
+  </p>
+  <p>
+    <strong>説明:</strong>現在のウェブ要求を実行中に発生した未処理の例外。 エラーについての詳細とコードにおける発生源については、スタックトレースを確認してください｡</p>
+  <p>
+    <strong>例外詳細：</strong> System.UnauthorizedAccessException：'c:\myapp\docs\resource.txt' のパスへのアクセスが拒否されます。</p>
+  <p>ASP.NET による要求されたリソースへのアクセスを認可していません。 ASP.NET の要求 IDに対するリソースへのアクセス権の付与を検討してください。 ASP.NET は、アプリケーションが偽装していない場合に使用されるベース プロセス ID を有します(通常は、IIS 5上の &amp;#123; MACHINE&amp;#125;\ASPNET または IIS 6 上のネットワーク サービス)。 アプリケーションが &lt;identity impersonate="true"/&gt; 経由で偽装している場合、ID は、匿名ユーザー(通常は IUSR_MACHINENAME) または 認証済みの要求 ユーザーになります。</p>
+  <p>ASP.NET にファイルアクセスを付与するには、Explorer でファイルを右クリックし、"Properties (プロパティ)" を選び、セキュリティ タブを選択してください。 "Add(追加)" をクリックして適切なユーザーまたはグループを追加してください。 ASP.NET アカウントを反転表示し、目的のアクセス用のボックスをチェックしてください。</p>
+  <p>
+    <strong>ソースエラー: </strong>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>&lt;CODE&gt; 未処理の例が現在の Web 要求の実行中に生成されました。 例外の発生源とロケーションに関する情報は、以下の例外スタック トレースを使用して識別できます。&lt;/CODE&gt; </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <strong>スタック トレース:　</strong>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+ <pre>&amp;#91;UnauthorizedAccessException: Access to the path 'c:\myapp\docs\resource.txt' is denied.&amp;#93;<br />   System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath) &amp;#43;2014403<br />   System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share,<br />                              Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy) &amp;#43;998<br />   System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share) &amp;#43;114<br />   System.IO.File.Open(String path, FileMode mode) &amp;#43;42<br />   Crypto.TestDPAPI(FileInfo reportFile, Literal&amp; textField) &amp;#43;310<br />   _Default.Page_Load(Object sender, EventArgs e) &amp;#43;201<br />   System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e) &amp;#43;15<br />   System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e) &amp;#43;34<br />   System.Web.UI.Control.OnLoad(EventArgs e) &amp;#43;99   System.Web.UI.Control.LoadRecursive() &amp;#43;47<br />   System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint) &amp;#43;1061</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h1>ソリューションの例</h1>
+  <p>開発中に、ASP.NET アプリケーションは、<strong> </strong>エラー メッセージをローカル マシン上に表示することでデバッグを支援するため、 &lt;<strong>CustomErrors</strong>&gt; &lt;CUSTOMERRORS&gt; エレメントの mode 属性を <strong>RemoteOnly </strong> に設定します。 アプリケーションが展開されると、詳細なエラー メッセージがどのクライアントにも送信されないようにするため、<strong>mode</strong> 属性が <strong>On </strong> に設定されます。 一般的なエラー<strong> </strong>ページの指定には <strong>defaultRedirect</strong> エレメントが使用され、 より具体的なエラー ページの指定には &lt;error&gt; エレメントが使用されます。</p>
+ <pre>&lt;customErrors mode="On" defaultRedirect="error.html"&gt;<br />    &lt;error statusCode="500" redirect="error.html"/&gt;<br />&lt;/customErrors&gt;<br />&lt;&amp;#33;-- error.html --&gt;<br />&lt;&amp;#33;DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"<br /> "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;<br />&lt;html xmlns="http://www.w3.org/1999/xhtml" &gt;<br />&lt;head&gt;<br />    &lt;title&gt;Unexpected Error&lt;/title&gt;&lt;/head&gt;<br />&lt;body&gt;<br />    &lt;span style="font-size: 10pt; font-family: Verdana"&gt;We are sorry, but we cannot complete<br />        your request. Please try again later&amp;#33;&lt;/span&gt;&lt;/body&gt;&lt;/html&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET での customErrors エレメントの詳細については、&amp;nbsp;MSDN の <a href="http://msdn2.microsoft.com/en-us/library/h0hfz6fc.aspx">customErrors エレメント</a> に関する文書を参照してください。 <li>ASP.NET でのカスタム エラーの作成の詳細については、「<a href="http://support.microsoft.com/kb/306355"> ASP.NET でカスタム エラー 報告ページを作成する方法</a>」を参照してください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/a053c4e4-2aad-41b9-b60b-e0fdeffd39f4">ガイドライン: 重要なセキュリティ操作のログを記録する</a>
+      <li>
+        <a href="/article/d6ae90bf-1b44-4a89-b22e-55ea97e52ba5">ガイドライン：全出力データをエンコードする</a>
+        <li>
+          <a href="/article/33a894ce-2061-4741-be92-1d063c9cf057">ガイドライン：グローバル例外ハンドラーを未処理例外に使用する</a>
+          <li>
+            <a href="/article/e706145e-6465-4261-96af-a66d6a19a637">ガイドライン：デバッグ データを出力に含めない</a>
+            <li>
+              <a href="/article/08f2f28f-d09a-4b82-843e-8d971fc50553">ガイドライン：有益情報をエラー メッセージ内で開示しない</a>
+              <li>
+                <a href="/article/edb7f620-21a6-4599-aebd-2966c47ec2e3">チェックリスト項目：例外詳細がクライアントに開示されていない</a>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

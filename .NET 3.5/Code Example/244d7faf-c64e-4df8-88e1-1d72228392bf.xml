@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-152877022" Content_Hash="2113973527">
+  <Metadata>
+    <Id>244d7faf-c64e-4df8-88e1-1d72228392bf</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>AES を使用するブロック暗号を介した文字列の復号</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコードの目的は、対称ブロック暗号を適切に使用してアプリケーション内のテキストの文字列を復号化することです。 このテスト ケースは、現在の NIST 暗号化標準という位置付けの AES (Rijndael) を利用します。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>安全でない、または信頼されない通信チャネルを介して伝送されるデータの機密性を提供する。 <li>ユーザーまたはアプリケーションによって必要とされるまでストレージ内のデータの機密性を提供するために</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーション開発者は、ストレージ内または伝送中のデータの機密性を必要としている。</li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>public static string DecryptString(string ciphertext, byte[] sKey, byte[] sIV){<br />    // The default AES key size under the .NET framework is 256.  The following<br />    // call will create an AES crypto provider and create a random initialization<br />    // vector and key. The crypto mode defaults to CBC ensuring the proper chaining<br />     // of data to mitigate repetition of cipher text blocks.<br />    Rijndael rijndaelAlg = Rijndael.Create();<br />    //Set secret key For AES algorithm.<br />    rijndaelAlg.Key = sKey;<br />    //Set initialization vector.<br />    rijndaelAlg.IV = sIV;<br />    //Create a memorystream to which we'll decrypt our input string<br />    MemoryStream ms = new MemoryStream();<br />    CryptoStream ecs = new CryptoStream(ms, rijndaelAlg.CreateDecryptor(), CryptoStreamMode.Write);<br />    //Because the input string is passed in as a Base64 encoded value we decode prior writing to<br />     //the decryptor stream.<br />    ecs.Write(Convert.FromBase64String(ciphertext), 0, Convert.FromBase64String(ciphertext).Length);<br />    ecs.Close();<br />    return ASCIIEncoding.ASCII.GetString(ms.ToArray());<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、いくつかの一般的なセキュア コーディング問題を含む復号ルーチンの実装を示しています。</p>
+ <pre>public static string ProblematicDecryptString(string ciphertext)<br />{<br />    Rijndael rijndaelAlg = Rijndael.Create();<br />    //Set secret key for the AES algorithm.<br />    rijndaelAlg.Key = ASCIIEncoding.ASCII.GetBytes("_A_SAMPLE_KEY_WE_USE_TO_ENCRYPT_");<br />    //We don't use an IV because the book doesn't show us an example using a<br />     //more secure, chained mode! If the book told us to jump off a bridge we probably would.<br />    // rijndaelAlg.IV = ASCIIEncoding.ASCII.GetBytes("SAMPLEIV");<br />    //Set encryption mode to an unchained value (because the book says so!)<br />    rijndaelAlg.Mode = CipherMode.ECB;<br />    //Create a memorystream to which we'll decrypt our input string<br />    MemoryStream ms = new MemoryStream();<br />    CryptoStream ecs = new CryptoStream(ms, rijndaelAlg.CreateDecryptor(), CryptoStreamMode.Write);<br />    //Because the input string is passed in as a Base64 encoded value we decode prior writing to<br />     //the decryptor stream.<br />    ecs.Write(Convert.FromBase64String(ciphertext), 0, Convert.FromBase64String(ciphertext).Length);<br />    ecs.Close();<br />    return ASCIIEncoding.ASCII.GetString(ms.ToArray());<br />}</pre>
+  <ul>
+    <li>平文の暗号鍵は、ソースコードやコンパイルされたコードへのアクセス権を持つすべてのユーザーが抽出することが可能<li>弱い暗号化（非ランダム）鍵の使用は、辞書攻撃を使ってブルートフォース（総当たり）されかねない<li>安全でない暗号モード (ECB) は、CBC およびその他のチェーン モードが行うように、各ブロックの暗号化を、後続のブロックにフィードバックを送らずに、128 ビットで個別に行います。 攻撃者は、ブロックを再配置するか、観察していた前のブロックに置き換えることができます <li>ECB モードが初期化ベクトルを利用せず、各プレーンテキスト値に同一の暗号化された値を生成します。 したがって攻撃者は、暗号化されたブロック内のパターンを観察して、既知のプレーンテキスト攻撃を行うことができます (注記: 初期化ベクトルは非公開のままにしておく必要はありませんが、プレーンテキストの暗号化されたそれぞれの値に対してランダムでなければなりません)。</li></li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System;<br />using System.Text;<br />using System.IO;<br />using System.Security.Cryptography;</pre>
+  <p>以下のテスト ケースは、DecryptString 関数の使用を示しています。</p>
+ <pre>static void Main(string[] args)<br />{<br />    string enc, p2, probenc, probp2 = null;<br />    Rijndael aes = Rijndael.Create();<br />    // Test case for string encryption routines<br />    string p1 = "the quick brown fox jumped over the lazy dog";<br />    // Run our test case multiple times to demonstrate different IV <br />    // encrypted text for each<br />    // iteration in when using proper crypto modes.<br />    Console.Out.WriteLine("Solution test cases - notice varied output for static input");<br />    Console.Out.WriteLine("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");<br />    for (int i = 0; i &lt; 5; i++)<br />    {<br />        aes.GenerateIV();<br />        enc = EncryptString(p1, aes.Key, aes.IV);<br />        Console.WriteLine("Encrypted text #{0}: " + enc, i);<br />        p2 = DecryptString(enc, aes.Key, aes.IV);<br />        Console.WriteLine("Plaintext #{0}: " + p2, i);<br />        if (!p1.Equals(p2))<br />        {<br />            Console.Error.WriteLine("Decryption failed");<br />        }<br />    }<br />    // Now run out problem test cases<br />    Console.Out.WriteLine("Problem test cases - notice repetitive encrypted value");<br />    Console.Out.WriteLine("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-");<br />    for (int i = 0; i &lt; 5; i++)<br />    {<br />        probenc = ProblematicEncryptString(p1);<br />        probp2 = ProblematicDecryptString(probenc);<br />        Console.WriteLine("Encrypted text #{0}: " + probenc, i);<br />        Console.WriteLine("Plaintext #{0}: " + probp2, i);<br />    }<br />}</pre>
+  <ul>
+    <li>このテスト ケースでは、AES 暗号鍵と初期化ベクトルは、Rijndael.Create() の呼び出し時にランダムに選択されます。 <li>現実の実装では、sKey と sIV は、アプリケーション コード内のデータ保護 API から取得される必要があります。データ保護 API の使用を示すコード サンプルを参照してください。</li></li>
+  </ul>
+  <h1>期待される結果</h1>
+  <p>ソリューションのテスト ケース – 静的な入力に対する出力に変化があることに注目してください。</p>
+ <pre>Encrypted text #0: PSQ7SRIFtv3W1GzSdsMCWR6ANZVZ78xjMG2ssQpsfyiWDMY3Wf+15Icd4XDEKhe8<br />Plaintext #0: the quick brown fox jumped over the lazy dog<br />Encrypted text #1: feBRJPILiia74FQnOpXlpIICYmieLbujF11yTkQyNitUPl35qf0aVd+VjYxyXVCL<br />Plaintext #1: the quick brown fox jumped over the lazy dog<br />Encrypted text #2: DfnDt3dO6eq3tdp3OC/5/zs6GN8jm2SUSqy50d1cwsHmQ4R+XsEttzT/7wlXXwuc<br />Plaintext #2: the quick brown fox jumped over the lazy dog<br />Encrypted text #3: lbU6t2jc5eVNBZEr6jQDEpj4/vfrjcqke/94X6pY8mEBlYJ4qyzUJEtFQf96Cm5W<br />Plaintext #3: the quick brown fox jumped over the lazy dog<br />Encrypted text #4: /by8DZLmxBpkP5fEbGw8UKXz6bmNa2IPedCgpcSdO65uNAf+ujJ2FV2EsZaTg19A<br />Plaintext #4: the quick brown fox jumped over the lazy dog</pre>
+  <p>問題のテスト ケース - 反復暗号化された値を確認：</p>
+ <pre>Encrypted text #0: S/PCsy2/87IRuRzAjeHxXw3XUEfhwZ9Ol1Bai1Hy7RqFq9+V6ZIEHlo1IwRQjCVT<br />Plaintext #0: the quick brown fox jumped over the lazy dog<br />Encrypted text #1: S/PCsy2/87IRuRzAjeHxXw3XUEfhwZ9Ol1Bai1Hy7RqFq9+V6ZIEHlo1IwRQjCVT<br />Plaintext #1: the quick brown fox jumped over the lazy dog<br />Encrypted text #2: S/PCsy2/87IRuRzAjeHxXw3XUEfhwZ9Ol1Bai1Hy7RqFq9+V6ZIEHlo1IwRQjCVT<br />Plaintext #2: the quick brown fox jumped over the lazy dog<br />Encrypted text #3: S/PCsy2/87IRuRzAjeHxXw3XUEfhwZ9Ol1Bai1Hy7RqFq9+V6ZIEHlo1IwRQjCVT<br />Plaintext #3: the quick brown fox jumped over the lazy dog<br />Encrypted text #4: S/PCsy2/87IRuRzAjeHxXw3XUEfhwZ9Ol1Bai1Hy7RqFq9+V6ZIEHlo1IwRQjCVT<br />Plaintext #4: the quick brown fox jumped over the lazy dog</pre>
+  <h1>詳細情報</h1>
+  <ul>
+    <li>.NET Framework では AES のデフォルトは 256 ビット鍵サイズですが、現在の暗号方式標準でも、多くの暗号実装が使用するデフォルトの 128 ビット鍵サイズがまだ安全であると考えられています。 <li>テスト ケースは、ユーザー コード内に実装されているデータ保護 API を使用して暗号鍵を安全に保存して取得することを想定しています。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

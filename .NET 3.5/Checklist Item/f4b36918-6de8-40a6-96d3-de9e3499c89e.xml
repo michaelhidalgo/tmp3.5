@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="316168680" Content_Hash="-1464776343">
+  <Metadata>
+    <Id>f4b36918-6de8-40a6-96d3-de9e3499c89e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザー Credential 情報および認証 Cookie を保護するために SSL が使用される</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ブラウザとサーバ間で渡される認証 Credential 情報および認証 Cookie を保護するために、 SSL が使用されることを確認してください。</p>
+  <h1>理由</h1>
+  <p>SSL を使用することにより、攻撃者がネットワーク接続を監視し、認証 Credential 情報と認証 Cookie をキャプチャすることでアプリケーションにスプーフィングしたアクセスを行うことが、はるかに難しくなります。 </p>
+  <p>SSL は、クライアントがサーバを認証することで通信のエンドポイントを提供するので、アプリケーションにおけるユーザーの信頼を改善することもできます。</p>
+  <h1>チェック方法</h1>
+  <p>Forms Authentication Credential 情報および Forms Authentication Cookie がブラウザからサーバへ SSL を使用して渡されることを確認するには、次のステップを使用してください:</p>
+  <ol>
+    <li>認証 Cookie は、HTTPS 接続経由でのみ渡されることを確認してください。 <li><strong>SSLOnly</strong> 属性がすべての認証および認可 Cookie 上に設定されていることを確認してください。&nbsp; <li>すべてのログイン フォーム、パスワード変更フォーム、ロール/認可要求、編集フォームまたは他の認証を要求するページが、SSL 経由でのみ利用でき、SSL 経由でのみ送信を受け入れることを確認してください。 &nbsp; </li></li></li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>次のタスクを行い、SSL がユーザー Credential 情報および認証 Cookie を保護するために使用されることを確かめてください:</p>
+  <p>
+    <b>認証Cookieを HTTPS 接続に制限する。 </b>Cookie は、ブラウザが Cookie をサーバへ送り返すべきかどうかを決定する「セキュアな」プロパティをサポートします。 セキュアなプロパティが設定されていれば、 Cookie は HTTPS URL を使用して、要求される安全なページにのみ送られます。</p>
+  <p> <b>&lt;</b> 上の <b>requireSSL="true" を使用してセキュアなプロパティを設定してください。forms&gt;</b> element as follows:</p>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />       requireSSL="true" . . . /&gt;</pre>
+  <p>
+    <b>Cookie を暗号化し完全性をチェックしてください。 </b>SSL を使用している場合でも、 Cookie を暗号化し完全性をチェックしてください。 これにより、攻撃者がXSS のエクスプロイトを通じて盗もうとする場合、 Cookie を閲覧または変更することを防止します。そうでなければ、攻撃者は Cookie を使用して、さらにアプリケーションへのアクセスを取得することができます。 このリスクを軽減する最善策は、XSS 攻撃を防止する適切な対抗策を実装し(この章で以前「クロスサイト スクリプティング」で説明しました)、次の推奨条件で記載されているように Cookie の寿命を制限することです。</p>
+  <p>Cookie に秘密性および完全性を実現するには、以下で<b>protection</b> 属性を設定します: <b>&lt;forms&gt;</b> element as follows:</p>
+ <pre>&lt;forms protection="All"    Privacy and integrity</pre>
+  <p>安全な &lt;<b> forms </b>&gt; エレメントの構成がここに表示されています: </p>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />       protection="All"<br />       requireSSL="true"<br />       timeout="00:30:00"<br />       slidingExpiration="true"<br />       name="YourAppName"<br />       path="/Secure" /&gt;</pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/09f08059-6ebb-4317-9ed5-016cc1abd2a7">ガイドライン: ユーザー Credential 情報および認証 Cookie を保護するために SSL を使用する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

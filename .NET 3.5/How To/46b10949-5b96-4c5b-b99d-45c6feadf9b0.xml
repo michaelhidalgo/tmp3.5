@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1064349657" Content_Hash="356697402">
+  <Metadata>
+    <Id>46b10949-5b96-4c5b-b99d-45c6feadf9b0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>証明書を用いてユーザーを認証する方法</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>クライアント証明書では、クライアント サービス アカウントまたは複数のユーザーを WCF サービスに対して認証することができます。 クライアント証明書を各ユーザーに使用する場合は、各証明書を Windows アカウントに割り当てることができます。 </p>
+  <p>次のステップで、クライアント側の証明書を使用してユーザーを認証します。</p>
+  <ol>
+    <li>WCF サービス マシンにサービス証明書をインストールしてください。<ul><li>メッセージ セキュリティを使用している場合、サービス Credential 情報を構成してサービス証明書の名前と場所を設定してください。 <li>wsHttpBinding を持つトランスポート セキュリティを使用している場合、IIS にサービス証明書をインストールし、SSL および クライアント証明書を要求する仮想ディレクトリを構成してください。</li></li></ul><li>サービスを構成して、次の例に示すようにクライアントの Credential 情報の種類の証明書を使用するようにしてください。<ol><pre>      &lt;wsHttpBinding&gt;<br />        &lt;binding name="WSHttpBinding_ICalculator"&gt;<br />          &lt;security mode="Message"&gt;<br />            &lt;message clientCredentialType="Certificate" /&gt;<br />          &lt;/security&gt;<br />        &lt;/binding&gt;<br />      &lt;/wsHttpBinding&gt;</pre></ol><li>クライアントのマシンにサービス証明書をインストールしてください。<li>エンドポイントの動作を構成して、クライアント証明書の名前と場所を設定してください。</li></li></li></li>
+  </ol>
+  <p>
+    <strong>注記</strong>: root CA 証明書が、サーバとクライアント マシンの両方において、Trusted Root Certification Authoritiesのロケーションにあることを確認してください。 <br /></p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>WCF との対応と証明書についての詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms731899.aspx">http://msdn.microsoft.com/en-us/library/ms731899.aspx にある「証明書の発行について」を参照してください。</a><li>WCF の証明書についての詳細は、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Use%20Certificate%20Authentication%20and%20Message%20Security%20in%20WCF%20calling%20from%20Windows%20Forms&referringTitle=How%20Tos">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Use%20Certificate%20Authentication%20and%20Message%20Security%20in%20WCF%20calling%20from%20Windows%20Forms&referringTitle=How%20Tos</a> にある 「Windows Forms からの呼び出しに対する証明書認証とメッセージ セキュリティの使用法」を参照してください。&nbsp;<br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

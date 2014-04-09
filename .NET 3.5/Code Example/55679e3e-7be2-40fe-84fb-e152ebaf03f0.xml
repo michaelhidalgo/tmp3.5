@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="418387725" Content_Hash="-1366669729">
+  <Metadata>
+    <Id>55679e3e-7be2-40fe-84fb-e152ebaf03f0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ランダム ソルトを使用してパスワードをハッシュする</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、ランダムに生成された “ソルト” (または “nonce”) 値を使用した暗号ハッシュ化アルゴリズムで、安全なパスワード永続化を実装する方法を示すことです。 暗号ハッシュ化アルゴリズムは、機微データを読み取り可能以外の形式で保存するために使用される一方向の暗号化アルゴリズムです。 ソルトは、追加のエントロピーを暗号化された値に追加し、侵害されたハッシュ値に対する辞書攻撃または事前計算済みハッシュを防ぐために、暗号ハッシュ化と組み合わせて使用することができます。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>ユーザーの Credential 情報を保護する<li>ユーザー パスワードの格納を避ける<li>セキュリティが侵害されたハッシュ値への特定のブルートフォース（総当たり）攻撃から守る<li>予測できないソルトに対して暗号的にランダムな値を生成する<li>クラッキング試行を飛躍的に難しくするために、パスワードのハッシュに十分なエントロピーを追加する</li></li></li></li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーションは、専用のユーザー アカウント管理システムを利用し、パスワードを格納する<li>アプリケーションは、パスワードのリセット操作用に「秘密の質問/答え」 Credential 情報を格納する<li>アプリケーションは、非常に機微データ (社会保障番号、クレジット カード番号など) を保存する必要があるが、そのデータを取得する必要はない。</li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>using System.Security.Cryptography;</pre>
+ <pre>...</pre>
+ <pre>public static byte[] CreatePasswordHash(string password){<br />    // Convert the string password value to a byte array<br />    byte[] passwordData = UnicodeEncoding.ASCII.GetBytes(password);<br />    // Create a 4-byte salt using a cryptographically secure random number generator<br />    byte[] saltData = new byte[4];<br />    RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();<br />    rng.GetNonZeroBytes(saltData);<br />     // Append the salt to the end of the password<br />    byte[] saltedPasswordData = new byte[passwordData.Length + saltData.Length];<br />    Array.Copy(passwordData, 0, saltedPasswordData, 0, passwordData.Length);<br />    Array.Copy(saltData, 0, saltedPasswordData, passwordData.Length, saltData.Length);<br />    // Create a new SHA-1 instance and compute the hash <br />    SHA1Managed sha = new SHA1Managed();<br />    byte[] hashData = sha.ComputeHash(saltedPasswordData);<br />    // Optional - add salt bytes onto end of the password hash for storage<br />    bool APPEND_SALT_TO_HASH = true;    if (APPEND_SALT_TO_HASH)<br />    {<br />     	byte[] hashSaltData = new byte[hashData.Length + saltData.Length];<br />        Array.Copy(hashData, 0, hashSaltData, 0, hashData.Length);<br />        Array.Copy(saltData, 0, hashSaltData, hashData.Length, saltData.Length);<br />        return hashSaltData;<br />    }<br />    else<br />    {<br />        return hashData;<br />    }<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下のコード スニペットは、ソルトを使用せずに、弱いハッシュ化アルゴリズムを使用したパスワードハッシュ化を示しています。</p>
+ <pre>// password is obtained from the user as a C# string<br />string password = Request.Form["password"];<br />// Convert the string password value to a byte<br /> arraybyte[] passwordData = UnicodeEncoding.ASCII.GetBytes(password);<br />// Create a new MD5 instance and compute the hash<br /> MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();<br />byte[] hashData = md5.ComputeHash(passwordData);</pre>
+  <ul>
+    <li>ハッシュ値は事前に計算されたハッシュ攻撃に対して脆弱<li>パスワード値に応じて、パスワード ハッシュも辞書攻撃に対して脆弱である可能性がある<li>MD5 の暗号化強度は SHA-1 よりも低く、最近、暗号研究者によって "破壊" された</li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Security.Cryptography;</pre>
+  <p>テスト暗号化を実行して、以下のテスト ケース メソッドを使用して、ソルティングされたパスワード ハッシュを比較してください。</p>
+ <pre>static void Main(string[] args)<br />{<br />    // Create a Hash and compare to two subsequent hashes<br />    byte[] hash = CreatePasswordHash("foobar");<br />    Console.WriteLine("\nCreated new salted hash for 'foobar'");<br />    Console.WriteLine("foobar produces same hash:\t" + <br />		ComparePasswordToHash("foobar", hash).ToString());<br />    Console.WriteLine("fo0bar produces same hash:\t" + <br />		ComparePasswordToHash("f0obar", hash).ToString());<br />}<br />public static bool ComparePasswordToHash(string password, byte[] hashData)<br />{<br />    // First, pluck the four-byte salt off of the end of the hash<br />    byte[] saltData = new byte[4];<br />    Array.Copy(hashData, hashData.Length - saltData.Length, saltData, 0, saltData.Length);<br />    // Convert Password to bytes<br />    byte[] passwordData = UnicodeEncoding.ASCII.GetBytes(password);<br />    // Append the salt to the end of the password<br />    byte[] saltedPasswordData = new byte[passwordData.Length + saltData.Length];<br />    Array.Copy(passwordData, 0, saltedPasswordData, 0, passwordData.Length);<br />    Array.Copy(saltData, 0, saltedPasswordData, passwordData.Length, saltData.Length);<br />    // Create a new SHA-1 instance and compute the hash<br />     SHA1Managed sha = new SHA1Managed();<br />    byte[] newHashData = sha.ComputeHash(saltedPasswordData);<br />    // Add salt bytes onto end of the password hash for storage<br />    byte[] newHashSaltData = new byte[newHashData.Length + saltData.Length];<br />    Array.Copy(newHashData, 0, newHashSaltData, 0, newHashData.Length);<br />    Array.Copy(saltData, 0, newHashSaltData, newHashData.Length, saltData.Length);<br />    // Compare and return<br />    return (Convert.ToBase64String(hashData).Equals(Convert.ToBase64String(newHashSaltData)));<br />}</pre>
+  <h1>期待される結果</h1>
+ <pre>Created new salted hash for 'foobar'foobar produces same hash:      True<br />fo0bar produces same hash:      False</pre>
+  <h1>詳細情報</h1>
+  <p>パスワード ハッシュとソルトの値は、常に安全にストレージに保存されなければなりません。 データベースから特定のハッシュおよびソルト値を不正入手できる攻撃者は、侵害されたハッシュに対して、その他の種類のブルート フォース攻撃を使用できる可能性があります。 ここに示した例のソルトは 4 バイトで、攻撃者は、与えられるすべてのプレーンテキスト値に対して、4.3 兆の値を維持しなければならなくなります。 被害者は 4 文字の英数字のパスワードを必要としていて、それ以上の複雑度の要件がない (標準では非常に弱いパスワード ポリシー) と仮定すると、4 バイトのソルトを打ち破るには、攻撃者は 2 x 10^15 個の事前計算済みハッシュのデータベースを用意しておかなければならなくなります。 これらのハッシュのそれぞれを保存するのに 1 バイト必要だとすると、2 ペタバイトのストレージが必要になります。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

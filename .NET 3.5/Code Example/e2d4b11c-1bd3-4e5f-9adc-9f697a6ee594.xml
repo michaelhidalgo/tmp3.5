@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="790356221" Content_Hash="858687821">
+  <Metadata>
+    <Id>e2d4b11c-1bd3-4e5f-9adc-9f697a6ee594</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ViewState を暗号化する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード例の目的は、クライアント側のセッション状態 (ViewState) を暗号化する能力を示すことです。 デフォルトで、ViewState はビルトイン MAC を通じてメッセージの完全性を提供しますが、暗号化は、有効化できるオプションの構成設定です。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>ViewState オブジェクトに含まれるデータを暗号化することにより、ViewState のクライアント側のセッション データの機密性を提供します (特に、ユーザーが内部ロジックまたはデータ構造に関する仕様を知ることができないよう、保護されるべき内部の詳細が表示ステータスに含まれる場合)。</li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーションはセッション管理をクライアントに課し、表示ステータスの暗号化によりアプリケーション データが、値をデコーディングする Web サイト ユーザーに公開されないようにし、さらに、暗号化されていないフォーム (ブラウザ キャッシュなど) に格納するリスクを軽減します。<li>クライアント Web UI コントロールを使用した閲覧を目的としていない、またはさらなる処理においてサーバによりフィルタリングされる、表示ステータスにおけるアプリケーション内部情報 (データベース オブジェクト、識別子、または認可の詳細など) などの機微な情報を格納します。</li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+  <p>.NET Framework 2.0 ではデフォルトの ViewState 暗号化モードが自動に設定されています。これは、コントロールが ViewState オブジェクトの暗号化を要求する限り、それは暗号化されることを意味します。 下記の ViewStateEncryptionModeおよび EnableViewStateMac 設定はデフォルトの動作であり、情報目的においてのみ示されています。</p>
+ <pre>(e.g. &lt;%@ Page Language="C#" AutoEventWireup="true"&nbsp; CodeFile="Default.aspx.cs" Inherits="_Default" <br />&nbsp;ViewStateEncryptionMode="Auto" EnableViewStateMac="true"%&gt;)</pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、暗号化を伴わずに ViewState オブジェクト内に格納される平文 データを示しています。 詳細は、テスト ケースを参照してください。</p>
+ <pre>protected void Page_Load(object sender, EventArgs e)<br />{<br />&nbsp;&nbsp;&nbsp; Page.RegisterRequiresViewStateEncryption();<br />&nbsp;&nbsp;&nbsp; ViewState["secret"] = "some sensitive information we wish to protect";<br />}</pre>
+  <ul>
+    <li>ViewState オブジェクトに格納される機微データは、Web サイト ユーザーによる情報漏えいに対して脆弱です。 ViewState は HTML ソース内に非表示パラメーターとして格納され、単に Base64 デコーディングされているだけの場合があります。 <li>アプリケーション内部およびロジックは、ViewState パラメーターをデコーディングする Web サイト ユーザーに公開される場合があります。</li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>問題例での Base64 値のデコーディングにより、潜在的に機微な情報が明らかになっています。</p>
+  <p>
+    <strong>問題例</strong>
+  </p>
+ <pre>&lt;input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" <br />&nbsp; value="/wEPDwUJNzgzNDMwNTMzDxYCHgZzZWNyZXQFLXNvbWUgc2Vuc2l0aXZlIGluZm9ybWF0aW9uIHdlIHdpc2ggdG8gc<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HJvdGVjdGRk/D+Ejemia+ssVPj/D8lfGFO7z6g=" /&gt;</pre>
+ <pre>
+    <br />The value: /wEPDwUJNzgzNDMwNTMzDxYCHgZzZWNyZXQFLXNvbWUgc2Vuc2l0aXZlIGluZm9ybWF0aW9uIHdlIHdpc2ggdG8gc<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; HJvdGVjdGRk/D+Ejemia+ssVPj/D8lfGFO7z6g=</pre>
+ <pre>
+    <br />Contains:</pre>
+ <pre>
+    <br />ff 01 0f 0f 05 09 37 38 33 34 33 30 35 33 33 0f&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... ..78 3430 533. <br />16 02 1e 06 73 65 63 72 65 74 05 2d 73 6f 6d 65&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... secr et.- some <br />20 73 65 6e 73 69 74 69 76 65 20 69 6e 66 6f 72&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sen siti ve i nfor <br />6d 61 74 69 6f 6e 20 77 65 20 77 69 73 68 20 74&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; mati on w e wi sh t <br />6f 20 70 72 6f 74 65 63 74 64 64 fc 3f 84 3f e9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; o pr otec tdd. ?.?. <br />a2 6b eb 2c 54 f8 ff 0f c9 5f 18 53 bb cf a8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .k., T... ._.S ..</pre>
+  <p>
+    <strong>ソリューション例</strong>
+  </p>
+ <pre>&lt;input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" <br />&nbsp; value="XEqVgkIRKsuTZq+5LgNeGFAbDKGhBiO6ctuLmnJ2sFzlGsJste6CFJZb/vWojG3SrXF8<br />H1jODKvB2KJgtOQ1LeSGppXnzhB2ToaN+KuzwMI=" /&gt;</pre>
+ <pre>The value:XEqVgkIRKsuTZq+5LgNeGFAbDKGhBiO6ctuLmnJ2sFzlGsJste6CFJZb/vWojG3SrXF8<br />H1jODKvB2KJgtOQ1LeSGppXnzhB2ToaN+KuzwMI=</pre>
+ <pre>Contains:<br />5c 4a 95 82 42 11 2a cb 93 66 af b9 2e 03 5e 18&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \J.. B.*. .f.. ..^. <br />50 1b 0c a1 a1 06 23 ba 72 db 8b 9a 72 76 b0 5c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; P... ..#. r... rv.\ <br />e5 1a c2 6c b5 ee 82 14 96 5b fe f5 a8 8c 6d d2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ...l .... .[.. ..m. <br />ad 71 7c 1f 78 ce 0c ab c1 d8 a2 60 b4 e4 35 2d&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .q|. x... ...` ..5- <br />e4 86 a6 95 e7 ce 10 76 4e 86 3f f8 ab b3 c0 c2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .... ...v N.?. ....   </pre>
+  <h1>期待される結果</h1>
+  <p>ViewState 暗号化が有効化されると、プレーンテキスト文字列を探すために __VIEWSTATE パラメーターの内容のBase64 デコーディングを試行することで検証できます。 さらに、暗号化された ViewState 設定は、結果として生じるページにおいて次の非表示の要求パラメーターを組み込みます。</p>
+ <pre>        &lt;input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" /&gt;</pre>
+  <h1>詳細情報</h1>
+  <p>セッション データの暗号化によるパフォーマンス インパクトにより、この例は、Page.RegisterRequiresViewStateEncryption() メソッドが呼び出される場合はいつでもページの表示ステータスの暗号化を示します。 また、開発者は、以下の ViewStateEncryptionMode を含むように ASPX を修正できます。</p>
+ <pre>(e.g. &lt;%@ Page Language="C#" AutoEventWireup="true"  CodeFile="Default.aspx.cs"<br />	 Inherits="_Default" ViewStateEncryptionMode="Always" EnableViewStateMac="true"%&gt;)</pre>
+  <p>ViewState の暗号化の追加的なパフォーマンス インパクトを考慮するよう注意し、ユーザー セッションに起因する潜在的な機微情報のためにサーバ側のセッション オブジェクトを代わりに使用することと、注意深く比較検討することをお勧めします。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET 2.0 でマシン鍵を構成する方法: <a href="http://channel9.msdn.com/wiki/default.aspx/Channel9.HowToConfigureTheMachineKeyInASPNET2">http://channel9.msdn.com/wiki/default.aspx/Channel9.HowToConfigureTheMachineKeyInASPNET2</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

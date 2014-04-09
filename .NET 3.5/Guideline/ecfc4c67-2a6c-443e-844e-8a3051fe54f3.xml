@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1323208444" Content_Hash="60159307">
+  <Metadata>
+    <Id>ecfc4c67-2a6c-443e-844e-8a3051fe54f3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>IPSsec を使用してサーバ間のトラフィックを暗号化する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>インターネット プロトコル セキュリティ(IPSec)は、IPベースのネットワーク トラフィックにおいての暗号化、完全性、認証サービスを提供します。&nbsp;IPSecは、傍受、タンパリング、中間者攻撃、IPスプーフィング、その他のパスワードに関する攻撃などといった内部ネットワークの脅威から、どのコンピュータが互いに通信を行えるか、また通信に使用するプロトコルを制限することで、サーバ間の保護を提供します。</p>
+  <h1>理由</h1>
+  <p>複数のサーバは、セキュアな環境では共存しません。 傍受やスプーフィングは、2つ以上のエンティティが、公開されているインターネットまたは社内イントラネットなどの一般的に信頼できないメディアを介して通信する場合の脅威です。 IPSecを使用しない場合、ネットワーク上でやり取りされるデータが傍受、改ざん、盗難される恐れが増します。</p>
+  <h1>状況</h1>
+  <p>IPSecは、次のタスクに&nbsp;使用することができます。</p>
+  <ul>
+    <li>2つのコンピュータ間で送信されるデータのすべてを暗号化することで、メッセージの機密性を提供します。 <li>データの暗号化を行わずに、2 つのコンピュータ間でメッセージの完全性を提供します 。 <li>2 つのコンピュータ間で相互認証を提供します。 たとえば、特定のクライアント コンピュータ (アプリケーションまたは Web サーバ等) からの要求だけを許可するポリシーを定めることで、データベース サーバをセキュリティで保護することができます。 <li>互いに通信できるコンピュータを限定します。 特定の IP プロトコル や TCP/UDP ポートに通信を制限することもできます。</li></li></li></li>
+  </ul>
+  <p>&nbsp;静的IPアドレスがない2つのサーバでは、IPSecは使用できません。</p>
+  <h1>対策</h1>
+  <p>2 つのサーバ間のトラフィックをセキュリティで保護するには、以下の手順を実行してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>IPフィルタの作成。</strong> こうすることで、&nbsp;互いに通信できるコンピュータが&nbsp;限定され、&nbsp;特定の&nbsp;通信プロトコルの使用を必須にすることができます。&nbsp;フィルタの構成は次のとおりです</p>
+      <ul>
+        <li>送信元IPアドレスまたはアドレスの範囲。 <li>宛先IPアドレスまたはアドレスの範囲。 <li>TCP、UDP、 "任意" などのIPプロトコル。<li>送信元および宛先ポート（TCPまたはUDPの場合のみ）。</li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>フィルタアクションの作成。</strong> このプロシージャは、2つのフィルタアクションを作成します。 最初のフィルタアクションは、指定されたコンピュータからのすべての通信をブロックするために使用され、2番目は、アプリケーションサーバとデータベースサーバコンピュータ間の暗号化の使用を強制するために使用されます。 </p>
+        <li>
+          <p>
+            <strong>ルールの作成。</strong> このプロシージャは、プロシージャ1で作成したフィルタをプロシージャ2で作成した二つのフィルタアクションに関連付けるために使用される、二つのルールを作成します。 </p>
+          <li>
+            <p>
+              <strong>リモートコンピュータにIPSec ポリシーをエクスポートします。</strong> データベースサーバで作成したIPSec ポリシーは、アプリケーションサーバ コンピュータにエクスポートしコピーする必要があります。 </p>
+            <li>
+              <p>
+                <strong>ポリシーの割り当て。</strong> アクティブになる前にIPSecポリシーを割り当てる必要があります。 一つのコンピュータ上の一時点では、一つのポリシーだけをアクティブにできることに注意してください。 </p>
+              <li>
+                <p>
+                  <strong>動作することを確認します。</strong> ネットワーク モニター (netmon.exe) を使用して、2 つのサーバ間で送信されるデータが&nbsp;暗号化されていることを確認してください。 </p>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>方法: ２基のサーバ間の通信を保護するために IPSec を導入する場合。&nbsp;<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/SecNetHT18.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/SecNetHT18.asp</a><li>方法:「IPSec を使用してポートのフィルタリングおよび認証を行う」を<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/HTUseIPSec.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/HTUseIPSec.aspからご覧ください。</a><li>方法:「Windows Server 2003でのターミナルサービス通信をセキュアに保つ IPSec ポリシー」を<a href="http://support.microsoft.com/kb/816521">http://support.microsoft.com/kb/816521からご覧ください。</a></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ecfc4c67-2a6c-443e-844e-8a3051fe54f3">IPSsec を使用してサーバ間のトラフィックを暗号化する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1426004683" Content_Hash="-1821203979">
+  <Metadata>
+    <Id>58c6084a-cae0-4d1a-a241-4bd344a232f5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>乱数を生成する方法</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>暗号鍵をプログラム的に生成する必要がある場合は、鍵と初期化ベクトルの作成に <b>RNGCryptoServiceProvider</b> クラスを使用し、<b>Random</b> クラスは使用しないでください。 <b>Random</b> クラスと異なり、<b>RNGCryptoServiceProvider</b> は FIPS-140 準拠の暗号方式が強力な乱数を作成します。 次のコード例に、この関数を使用する方法を示します。 </p>
+ <pre>
+    <pre>using System.Security.Cryptography;<br />. . . <br />RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();<br />byte[] key = new byte[keySize];rng.GetBytes(key);</pre>
+  </pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

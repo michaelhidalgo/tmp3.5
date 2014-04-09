@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1377211448" Content_Hash="-142472953">
+  <Metadata>
+    <Id>7273658c-00f5-449f-83b2-23c75bf0cb8b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF サービス用にサービス アカウントを作成する方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>サービス アカウントのような特定の ID で WCF サービスを実行することは、サービスの分離に役立ちます。 サービス リソースをアプリケーションのアカウントへ制限することができ、また、Windows 監査を使用して他のアプリケーションやサービスとは別にアプリケーションのアクティビティを追跡できるようになります。</p>
+  <p>次のステップは、 WCF サービスを実行するサービス アカウントの作成方法を表示します。</p>
+  <ol>
+    <li>Windows アカウントを作成<li>次の aspnet_regiis.exe コマンドを実行して、関連する ASP.NET アクセス許可をアカウントに割り当てます。<ol><pre>aspnet_regiis.exe -ga machineName\userName</pre></ol><strong>注記</strong>: アプリケーションをASP.NET 互換モードで実行する必要がある場合にこのステップが必要とされます、そうでなければこのステップは省略できます。 <li>[ローカル セキュリティ ポリシー] ツールを使用して、Windows アカウントに「<strong>ローカルのログオンを拒否する</strong>」というユーザー権限を与えます。 こうすることで、アカウントの特権が減少し、すべてのユーザーがこのアカウントを用いてローカルで Windows にログオンすることができなくなります。  </li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>aspnet_regiis ツールの詳細は、<a href="http://msdn.microsoft.com/en-us/library/k6h9cz8h(VS.80).aspx">http://msdn.microsoft.com/en-us/library/k6h9cz8h(VS.80).aspx にある「ASP.NET IIS 登録ツール(Aspnet_regiis.exe)」 を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

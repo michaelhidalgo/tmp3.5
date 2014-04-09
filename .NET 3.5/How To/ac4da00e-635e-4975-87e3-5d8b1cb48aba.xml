@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="706028672" Content_Hash="1720557962">
+  <Metadata>
+    <Id>ac4da00e-635e-4975-87e3-5d8b1cb48aba</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ファイル入出力を制限する方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>制約を適用することで、アプリケーションからアクセスできるファイルまたはディレクトリを判別する必要がある場合は、コード アクセス セキュリティを使用し、<b>FileIOPermission </b> 属性を使用して制限付きアクセス許可をコードに付与することができます。 アセンブリに厳密名が付けられ、または暗号方式が強力なその他のエビデンスが含まれている場合、管理者は企業またはコンピュータ横断的なコード アクセス セキュリティ ポリシーを構成して、制限付きの <b>FileIOPermission</b> をアセンブリに付与することができます。 </p>
+  <p>ASP.NET Web アプリケーションを中の信頼度で動作するように構成することで、アプリケーションの仮想ディレクトリ階層へのファイル アクセスを制限することができます。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1062548507" Content_Hash="-1036611512">
+  <Metadata>
+    <Id>b59de6d9-66bb-481c-a57f-3fcb806c85d0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ACL をプログラムする方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p><b>System.Security.AccessControl</b> （システム セキュリティ アクセス制御）ネームプレースで提供されているクラスを使って、Windows オブジェクト用の随意アクセス制御リスト（DACL）およびシステム アクセス制御リスト（SACL）をプログラムします。 </p>
+  <p>アクセス制御を変更したり、新しいオブジェクトを ACLを他のオブジェクトから別のオブジェクトにコピーして作成したり、または様々なシステム オブジェクトにセキュリティ監査を設定する場合は、 <b>Security</b>（セキュリティ）、<b>AccessRule</b>（アクセス ルール）、および<b>AuditRule</b> （監査ルール）クラス（上記の各システム オブジェクトで提供されています）を使用することができます。 </p>
+  <p>次のコード例は ACL をファイルに追加する方法を示しています。 </p>
+ <pre>using System;<br />using System.Security.AccessControl;<br />using System.Security.Principal;<br />using System.IO;<br />// Create an empty Security Descpriptor.<br />FileSecurity newFileSec = new FileSecurity();<br />// Give Read permission to user on this file.<br />newFileSec.AddAccessRule(<br />    new FileSystemAccessRule(@"Domain\UserName",<br />        FileSystemRights.Read,AccessControlType.Allow));<br />            // Set a security audit rule for read operations.<br /> // Note - An audit rule for a user account requires a <br />// corresponding access rule for the same user account.<br />// To permit file and directory auditing on Microsoft Windows&nbsp;NT<br />// or later, you must enable Audit Access Security policy on<br />// your computer. By default, this policy is set to No Auditing.<br />newFileSec.AddAuditRule(<br />    new FileSystemAuditRule(@"Domain\UserName",<br />        FileSystemRights.Read, AuditFlags.Success));<br />            // Create a file with the permissions and audit rule.<br />FileInfo newFile = new FileInfo("e:\\test1.txt");<br />newFile.Create();<br />           // Set the access control on the newly created file.<br />newFile.SetAccessControl(newFileSec);</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

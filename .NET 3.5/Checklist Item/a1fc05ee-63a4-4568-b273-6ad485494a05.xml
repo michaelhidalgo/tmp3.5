@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="145969037" Content_Hash="-1541958225">
+  <Metadata>
+    <Id>a1fc05ee-63a4-4568-b273-6ad485494a05</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションは Client-Side Validation のみに依存しない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが、セキュリティに関する決定を行うために Client-side Validation に依存しないようにする。&nbsp;Client-side Validationで､ユーザー エクスペリエンスの改善のために望ましくない入力についてユーザー フィードバックを提供することはできますが、それは容易にバイパスされるため、クライアント上のすべての検証がサーバ上でも発生することを検証する必要があります。 </p>
+  <h1>理由</h1>
+  <p>Client-side Validationは、簡単にバイパスすることができます。 たとえば､悪意のあるユーザーは JavaScript を無効にすることによりクライアント側のスクリプト ルーチンを無効にする場合があります。 また、ユーザーが カスタム HTML を使用して独自のフォーム ポストを構築したり、HTTP プロキシを使用してフォーム ポストを変更したりすることも起こり得ます。 Client-side Validationに依存すると、コード インジェクションの脆弱性 (クロスサイト スクリプティングや SQL インジェクションなど) につながる可能性があります。&nbsp;Client-side Validationを使用してオンライン ストアの商品価格のようなアプリケーション ロジックを実施する場合､ロジックがバイパスされる結果、アプリケーションの改ざんから商品または金銭の窃盗に至るまでの脆弱性が発生する恐れがあります。 </p>
+  <h1>チェック方法</h1>
+  <p>この問題をチェックするには、以下の手順を行います。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションのすべての検証ルーチンを特定します。</strong> アプリケーションの設計とコードを調べて、検証ルーチンを特定します。 後のステップで使用するため、それらの検証ルーチンのリストを作成します。 ユーザーによるすべての入力ソースは、アプリケーションに入力が行われた直後に検証ルーチンを使用して検証する必要があります。</p>
+      <li>
+        <p>
+          <strong>検証ルーチンを調べて、それがサーバで実行されることを確認します。 </strong>個々の検証ルーチンを調べて、それがクライアント側である場合は､サーバ上にも検証ルーチンが存在するようにするか、または検証ルーチンがクライアントとサーバの両方で実行するように設計するようにします。 たとえば､<strong>RegularExpressionValidator</strong>、<strong>RegularExpressionValidator</strong>、および <strong>CustomValidator</strong> のような ASP.NET バリデータ コントロールはクライアントとサーバの両方の入力を自動的に検証します。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>入力される可能性のあるすべての値を制約することが困難であるため、入力の検証は本質的には困難です。 違反に該当するすべての入力の変形を指定するよりも、受容する入力の種類を指定する方が重要です (ブラックリスト化ではなく許可リスト化する)。</p>
+  <p>ASP.NETバリデーターコントロールを使用してサーバ側でユーザー入力をチェックし、入力が検証要件を満たさなかった場合はユーザーにフィードバックを提供します。 アプリケーションの各フォームページで、次の手順に従います。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>必須フィールドを決定します。 </strong>必要なフィールド検証コントロールを使用して、必要なすべてのフィールドが存在していることを確認します。 次は、ASP ページのテキスト フィールドを宣言する例です。このフィールドは必須フィールドです。</p>
+ <pre>&lt;td&gt;<br />&nbsp;&nbsp; &lt;asp:RequiredFieldValidator runat=server <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate=txtName<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="User ID is required."&gt; *<br />&nbsp;&nbsp; &lt;/asp:RequiredFieldValidator&gt;<br />&lt;/td&gt;<br />&lt;td&gt;User ID:&lt;/td&gt;<br />&lt;td&gt;&lt;input type=text runat=server id=txtName&gt;&lt;/td&gt;</pre>
+      <p>入力が空白である場合、ラベルの横に * が表示されます。 エラーメッセージが要約で報告されます。 <strong>ControlToValidate</strong> プロパティは検証するコントロールの ID を指定します｡ ページの先頭に検証の要約を追加することが最終ステップです：</p>
+ <pre>&lt;asp:ValidationSummary runat=server <br />HeaderText="There were errors on the page:" /&gt;<br /></pre>
+      <li>
+        <p>
+          <strong>数値の幅の制約を強制します。&nbsp; </strong>RangeValidator コントロールを使用して、すべての数値を特定の有効範囲に制約します。 次は、1 から 50までの有効範囲を持つ、ASP ページ中の整数フィールドを宣言する例です。</p>
+ <pre>&lt;td&gt;<br />  &lt;asp:RangeValidator id="Range1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="txtState"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MinimumValue="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaximumValue="50"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type="Integer"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EnableClientScript="false"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="The value must be from 1 to 50!"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; runat="server"&gt; * </pre>
+ <pre>&nbsp; &lt;/asp:RangeValidator&gt;<br />&lt;/td&gt;<br />&lt;td&gt;State:&lt;/td&gt;<br />&lt;td&gt;&lt;input type=text runat=server id=txtState&gt;&lt;/td&gt;</pre>
+        <li>
+          <p>
+            <strong>検証フィールド検証します。&nbsp;</strong>パスワード入力などのフィールドは、しばしばユーザーに再入力を求めることにより検証されます。 <strong>CompareValidator</strong> コントロールを使用して、比較対象のパスワードを作成して、妥当性/完全性を確認します。 次は、ASP ページで適切に検証するために一致する必要がある 2 つのパスワード フィールドを宣言する例です。</p>
+ <pre>&lt;asp:CompareValidator runat=server<br />            ControlToValidate=txtRePWord<br />            ControlToCompare=txtPWord<br />             ErrorMessage="Passwords do not match." /&gt;</pre>
+          <p>この場合、比較される2つのフィールドは "txtPWord" と"txtRePWord"です。 2 つのフィールドが一致しない場合は検証が失敗し、"Passwords do not match." というエラー メッセージを表示します。</p>
+          <li>
+            <p>
+              <strong>文字列フィールドでタイプ制約を強制します。 </strong>文字列フィールドは、受け入れ可能な文字の範囲が数字や列挙型に比べはるかに広いため、効率よく検証することが最も難しい種類の入力です。 正規表現は、有効なパターンや文字を指示するための柔軟なメカニズムを提供します。 <strong>RegularExpressionValidator</strong> を使用して、ZIP コードや電話番号などの文字列ベースのフィールドでさまざまなチェックを実施します。</p>
+            <p>次は、ASP ページ中で 5 桁の数字のみで構成される ZIPコードを表すテキスト フィールドと、それらの制約を適用するバリデータを宣言する例です。</p>
+ <pre>&lt;input type=text runat=server id=txtZip&gt;<br />      &lt;asp:RegularExpressionValidator runat=server<br />             ControlToValidate="txtZip"<br />             ErrorMessage="Zip code must be 5 digits, all numbers."<br />             ValidationExpression="[0-9]{5}"&gt; *<br />      &lt;/asp:RegularExpressionValidator&gt;<br />&lt;td&gt;Zip code:&lt;/td&gt;<br />&lt;td&gt;&lt;input type=text runat=server id=txtZip&gt;&lt;/td&gt;</pre>
+            <li>
+              <p>
+                <strong>カスタム 検証を使用して、残りの入力制約を実施します。 </strong>ASP.NET に組み込まれている検証コントロールは、Web アプリケーション内で通常発生する大部分のケースを処理しますが、これらの検証コントロールだけでは対応が十分でない場合もあります。&nbsp;<strong>CustomValidator</strong> は、既存の検証システムに連結することが可能なカスタム 検証コードを有効にします。 次は、ASP.NET ページ中でテキスト フィールドを宣言する例です。 このテキスト フィールドには、他の検証コンストラクトでは容易に制約できない必須のビジネス ロジックがあります。すなわち、テキスト フィールド内の文字列が "a" の文字で始まらないようにするカスタム バリデータを実装しています。</p>
+ <pre>&lt;%@ Page Language="vb" %&gt;<br /><br />&lt;script runat=server&gt;<br />public sub CheckID(source as Object, args as ServerValidateEventArgs)<br />&nbsp;&nbsp;&nbsp; args.IsValid = args.Value.substring(0, 1).tolower() &lt;&gt; "a"<br />end sub <br /><br />&lt;/script&gt;</pre>
+              <p>この関数を呼び出すには、<strong>CustomValidator</strong> を追加します。これは、開発者コードを呼び出してチェックを実施するように設計されています。 以下が宣言です:</p>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:CustomValidator runat=server<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; controltovalidate="txtName" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; errormessage="ID is already in use." <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnServerValidate="CheckID" /&gt;</pre>
+              <p>この操作は <strong>RegularExpression</strong> 検証コントロールを使用して行うこともできますが、この場合は、単純なパターン一致に比べ複雑であると考えられる (例: アプリケーションの状態に基づいて検証ルールを変更できる) 高次の検証の種類が定義できるため、カスタム検証を使用する方がより適切であるといえます 。&nbsp;</p>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <ol>
+  </ol>
+  <h1>問題の例</h1>
+  <p>オンラインショッピングカート用の非常にシンプルなフォームを考えてみましょう。 カートコンポーネントは2つのコンポーネントから成ります：</p>
+  <ol>
+    <li>
+      <p>注文処理のため送信するすべてのフィールドを含むHTMLフォーム:</p>
+      <blockquote>
+        <blockquote>
+ <pre>&lt;html&gt;<br />  &lt;head&gt;<br />    &lt;title&gt;Widget shopping cart&lt;/title&gt;<br />  &lt;/head&gt;<br />  &lt;body&gt;<br />&nbsp;&nbsp;  &lt;H1&gt;welcome to the most boring shopping cart on the web!&lt;/H1&gt; </pre>
+ <pre>    A widget's current price is $19.95 USD. Please use the following form to submit an order.</pre>
+ <pre>    &lt;form action="process_order.aspx" method="POST"&gt;  <br />      &lt;p&gt;Please enter the number of widgets you would like to purchase:&lt;/p&gt;<br />&nbsp;&nbsp;&nbsp;   quantity:&lt;br/&gt;<br />&nbsp;&nbsp;&nbsp;  &nbsp;&lt;select name="WidgetQuantity"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;  &nbsp; &lt;option value="1"&gt;1&lt;/option&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   &lt;option value="2"&gt;2&lt;/option&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   &lt;option value="3"&gt;3&lt;/option&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   &lt;option value="4"&gt;4&lt;/option&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;  &lt;/select&gt;</pre>
+ <pre>      ...<br />      &lt;input type="submit" value="order"/&gt;<br />    &lt;/form&gt;</pre>
+ <pre>  &lt;/body&gt;<br />&lt;/html&gt;</pre>
+        </blockquote>
+      </blockquote>
+      <li>
+        <p>フォームの送信を処理し、注文を作成するために必要なステップを実行するASP.NET ページ</p>
+        <blockquote>
+          <blockquote>
+ <pre>int&nbsp;dQuantity = Request("WidgetQuantity");<br />double dPrice = 19.95;</pre>
+ <pre>double dCost = dQuantity * dPrice;</pre>
+          </blockquote>
+        </blockquote>
+      </li>
+    </li>
+  </ol>
+  <p>数量フィールドが正しいかを確認するための検証を欠いているため、このサーバ側のページには問題があります。&nbsp;このアプリケーションは、数量フィールドによって注文数量の範囲に対する制約が常に有効にされているため、ユーザーが所定の操作手順に基づいて操作し、表示された通りにフォームを送信する場合には正常に動作します。&nbsp;しかし、賢いユーザーが自分だけのフォームを構築することを決め、負の数のWidgetQuantity フィールドを送信すると、マイナス残高が発生します。 使用する電子商取引システムによっては、これによりユーザーのアカウントにクレジットが発生する可能性があります。 また、このアプリケーションでは、会社の棚卸資産 からマイナス残高が差し引かれる可能性もあり、後日になって多大な悪影響やコストの発生をもたらす懸念があります。</p>
+  <h1>ソリューションの例</h1>
+  <p>フォームの送信を処理して、注文を作成するために必要な手順を実行する、次のASP.NETページを考えてみましょう。</p>
+ <pre>&lt;%@ Page Language="vb" %&gt;<br />&lt;script runat=server&gt;<br />public sub OnSubmit(source as Object, e as EventArgs)<br />&nbsp;&nbsp;&nbsp; if Page.IsValid then<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ' Now we can perform our transaction.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int dQuantity = Request("WidgetQuantity");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double dPrice = 19.95;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; double dCost = dQuantity * dPrice;<br />&nbsp;&nbsp;&nbsp; end if<br />end sub<br />&lt;/script&gt;<br />&lt;html&gt;<br />&lt;head&gt;<br />&lt;title&gt;Validation Sample&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;</pre>
+ <pre>&lt;form runat=server&gt;<br />&lt;asp:ValidationSummary runat=server headertext="There were errors on the page:" /&gt;</pre>
+ <pre>&lt;table&gt;<br />&nbsp; &lt;tr&gt;<br />&nbsp;&nbsp;&nbsp; &lt;td&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:RequiredFieldValidator runat=server <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; controltovalidate="WidgetQuantity"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; errormessage="WidgetQuantity is required."&gt;*<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/asp:RequiredFieldValidator&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/td&gt;<br />&nbsp;&nbsp;&nbsp; &lt;td&gt;A widget's current price is $19.95 USD. Please use the following form to submit an order.&lt;/td&gt;<br />&nbsp;&nbsp;&nbsp; &lt;td&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;select name="WidgetQuantity"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value="1"&gt;1&lt;/option&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value="2"&gt;2&lt;/option&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value="3"&gt;3&lt;/option&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;option value="4"&gt;4&lt;/option&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/select&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:RegularExpressionValidator runat=server display=dynamic<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; controltovalidate="WidgetQuantity"&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; errormessage="WidgetQuantity must be a non-zero, positive integer." <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; validationexpression="[1-9]{1}[0-9]{0,7}" /&gt;</pre>
+ <pre>&nbsp;&nbsp;&nbsp; &lt;/td&gt;<br />&nbsp; &lt;/tr&gt;<br />...<br />&lt;/table&gt;&lt;br&gt;<br /></pre>
+ <pre>&lt;input type=submit runat=server id=cmdSubmit value=Submit onserverclick=OnSubmit&gt;<br />&lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <p>ASP.NET バリデータ コントロールは、Client-side Validationを提供してサーバとの間のラウンド トリップを軽減し、ユーザー エクスペリエンスを改善すると共に、Server-side Validationも提供してウィジェットの数量フィールドが確実に正の整数になるようにします。 それはまた、注文の提出前に提供されなければならない必須フィールドとして検証されます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET のユーザー入力検証の詳細については､MSDN の「ASP.NET でのユーザー入力検証」を参照してください｡&nbsp;<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnaspp/html/pdc_userinput.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnaspp/html/pdc_userinput.asp</a>&nbsp; <li>検証サーバ コントロール シンタックスの詳細は､MSDN の「Validation Server Control Index」を参照してください。&nbsp;<a href="http://msdn2.microsoft.com/en-us/library/e5a8xz39.aspx">http://msdn2.microsoft.com/en-us/library/e5a8xz39.aspx</a><li>汎用的なコード インジェクションの詳細は、Wikipedia の「コード インジェクション」を参照してください。&nbsp;<a href="http://en.wikipedia.org/wiki/Code_injection">http://en.wikipedia.org/wiki/Code_injection</a>&nbsp; </li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/8ef52996-aec5-4274-aec1-85a3a313e0bc"> Client-side Validationに依存しない</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

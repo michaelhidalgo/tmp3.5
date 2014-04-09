@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-969111469" Content_Hash="-517431858">
+  <Metadata>
+    <Id>9075bfd3-2ad8-4bac-9ab7-e0c3d96a99ae</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF でヘルス モニタリングを使用する方法</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>ヘルス モニタリングを使用すれば、ビジネス ロジックに基づくサービスでのカスタム イベントのログを記録できます。 ヘルス モニタリングを使用すれば、アプリケーションを実装し、また認証および認可に関連するユーザー管理イベントを監視できます。 このインストルメント化は、潜在的に怪しい動作を検知して対処するのに役立てることができます。 また、例えば、アプリケーションに誰がアクセスしているかの追跡や、ユーザー アカウントのパスワードをいつリセットする必要があるかなど、 操作データの収集も可能になります。</p>
+  <p>次のステップを使用して、ヘルス モニタリングを使用するための WCF サービスを構成してください:</p>
+  <ol>
+    <li>カスタム ヘルス モニタリング イベントを作成する。 <li>ヘルス モニタリング用に WCF サービスを構成してください。 <li>アプリケーションを実装してカスタム イベントを発生させてください。</li></li></li>
+  </ol>
+  <p>
+    <strong>カスタムヘルス モニタリングイベントを作成する</strong>
+    <br />クラス ライブラリを作成してから WebAuditEvent から継承されるクラスを作成することで、カスタムのユーザー管理ウェブ イベントを作成します。</p>
+ <pre>using System.Web.Management;</pre>
+ <pre> public class MyEvent : WebAuditEvent<br />    {</pre>
+ <pre>        public MyEvent(string msg, object eventSource, int eventCode)<br />            : base(msg, eventSource, eventCode)<br />        {<br />        }</pre>
+ <pre>        public MyEvent(string msg, object eventSource, int eventCode, int eventDetailCode)<br />            : base(msg, eventSource, eventCode, eventDetailCode)<br />        {<br />        }<br />   public override void FormatCustomEventDetails(WebEventFormatter formatter)<br />        {<br />            base.FormatCustomEventDetails(formatter);</pre>
+ <pre>            // Display some custom event message<br />            formatter.AppendLine("Some Critical Event Fired");<br /> }</pre>
+  <p>
+    <strong>ヘルス モニタリング用に WCF サービスを構成する</strong>
+    <br />下のようにヘルス モニタリングのエレメントを構成ファイルへ追加してください:</p>
+ <pre>…<br />&lt;system.web&gt;<br /> &lt;healthMonitoring&gt;<br />  &lt;eventMappings&gt; <br />   &lt;add name="Some Custom Event" type="MyEventLibrary.MyEvent, MyEventLibrary"/&gt;<br />  &lt;/eventMappings&gt;<br />  &lt;rules&gt; <br />   &lt;add name="Custom event" eventName="Some Custom Event" provider="EventLogProvider" minInterval="00:00:01"/&gt;<br />  &lt;/rules&gt;<br /> &lt;/healthMonitoring&gt;<br />&lt;/system.web&gt;<br />…</pre>
+  <p>
+    <strong>アプリケーションを実装してカスタム イベントを発生させる</strong>
+  </p>
+  <p>サービス コントラクトでカスタム イベントを発生させることにより、 WCF サービスをインスルメント化してください。</p>
+ <pre>[OperationContract]<br />string InvokeCriticalEvent();</pre>
+ <pre>public string InvokeCriticalEvent()<br />    {<br />        MyEvent obj = new MyEvent("Invoking Some Custom Event", this, WebEventCodes.WebExtendedBase + 1);<br />        obj.Raise();<br />        return "Critical event invoked";<br />    }</pre>
+  <p>これらのステップが完了すると、テスト用クライアントからサービス メソッドを呼び出しがあった後で、システム イベント ログにカスタム イベントが記録されていることを検証できます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ヘルス モニタリングについての詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms998306.aspx">http://msdn2.microsoft.com/en-us/library/ms998306.aspxにある「ASP.NET 2.0 でヘルス モニタリングを使用する方法」を参照してください。</a><li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/bb398933.aspx">http://msdn.microsoft.com/en-us/library/bb398933.aspxにある「ASP.NET ヘルス モニタリング概観」を参照してください。</a><li>監査のガイドラインについては、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Homeにある「WCF 3.5 ガイドライン」の監査とログのセクションを参照してください。</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

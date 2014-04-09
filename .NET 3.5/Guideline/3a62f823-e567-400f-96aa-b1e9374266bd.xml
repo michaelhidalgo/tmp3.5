@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2003152330" Content_Hash="756624664">
+  <Metadata>
+    <Id>3a62f823-e567-400f-96aa-b1e9374266bd</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ページおよびディレクトリ アクセス制御には URL認可を使用します</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーションまたはアプリケーションの一部に対してどのユーザーおよびユーザーのグループにアクセスが与えられるかを制御するためには URL認可を使用します。 </p>
+  <h1>理由</h1>
+  <p>URL認可ではページにパスワード保護をかけるのではなく、ページへのアクセスをユーザーのアカウントまたはロールと関係付けすることができます。&nbsp;&nbsp;</p>
+  <h1>状況</h1>
+  <p>アプリケーションがいくつかのページへのアクセスを制限する場合は URL認可を使ってそのような制限を実行します。</p>
+  <h1>対策</h1>
+  <p />URL 認可を構成するには､Web.config ファイル中の &lt;<b>authorization</b>&gt; エレメントを使用して、 どのユーザーおよび (または) ロール名に対して、現在のディレクトリまたは指定されたディレクトリやファイルへのアクセスを許可するかを指定します。 Windows Server 2003 またはそれ以降の ASP.NET ではすべてのファイルが保護されています。その中には、.html、 .gif、.jpg の各ファイルを含む、ASP.NET にマップされていないファイルが含まれます。 <p />Web.config ファイル中の認可設定は、現在のディレクトリとすべてのサブディレクトリにあるすべてのファイルを参照します。ただし、サブディレクトリに &lt;<b>authorization</b>&gt; エレメントを含む独自のWeb.config ファイルがある場合を除きます。 element. その場合は、サブディレクトリの設定が親ディレクトリの設定に優先します。 <p />URL 認可は、Forms Authentication とWindows 認証 の両方に使用できます。 Windows 認証の場合､ユーザー名は"DomainName\WindowsUserName"、ロール名は "DomainName\WindowsGroupName"の形式になります。 ローカルの管理者グループは、"BUILTIN\Administrators" として参照されます。 ローカルのユーザー グループは、"BUILTIN\Users" として参照されます。 次の例では Windows ユーザーおよび Windows ロールが示されています。 <pre>&lt;authorization&gt;   <br />&lt;allow users="DomainName\Bob, DomainName\Mary" /&gt;   <br />&lt;allow roles="BUILTIN\Administrators, DomainName\Manager" /&gt;   <br />&lt;deny users="*" /&gt;<br />&lt;/authorization&gt;   </pre><p />次の例ではカスタマイズされたロールが使用されています。 <pre>&lt;authorization&gt;   <br />&lt;allow roles="Manager"/&gt;   <br />&lt;deny users="*"/&gt;<br />&lt;/authorization&gt;   </pre><p />特定のファイルまたはフォルダに認可ルールを適用するには､この例に示すように、&lt;<b>location</b>&gt; エレメントの内部に &lt;<b>authorization</b>&gt; エレメントを含めます。 <pre>&lt;location path="Secure" &gt;   <br />&lt;system.web&gt;     <br />&lt;authorization&gt;       <br />&lt;deny users="?" /&gt;    <br />&lt;/authorization&gt;   <br />&lt;/system.web&gt;<br />&lt;/location&gt;   </pre><p />この例では、未認証のユーザーへのアクセスを拒否し､&lt;<b>forms</b>&gt; エレメントで指定したログイン ページへのリダイレクトを強制します。 element. <p />次の例は､特定のファイル (Page.aspx) に認可を適用する方法を示しています。 <pre>&lt;location path="page.aspx"&gt;     <br />&lt;authorization&gt;         <br />...    <br />&lt;/authorization&gt;<br />&lt;/location&gt;   </pre><p>必要に応じて､識別子 (または一般的には呼び出し元のロール メンバーシップ) に基づいて、別個の &lt;location&gt; エレメント内で複数の &lt;<b>authorization</b>&gt; エレメントを使用して、 別個のページにさまざまな認可ルールを<b> </b>  適用できます。 </p><h1>関連する項目</h1><ul><li><div><a href="/article/a4f34081-56ae-4a7a-9b90-be4bc68e0402">ページおよびディレクトリのアクセス制御には URL 認可が使用される</a></div></li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

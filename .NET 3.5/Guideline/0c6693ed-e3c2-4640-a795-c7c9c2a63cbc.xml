@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-976535523" Content_Hash="1469345724">
+  <Metadata>
+    <Id>0c6693ed-e3c2-4640-a795-c7c9c2a63cbc</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュリティ ポリシーを定義する</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>最小特権の原則を適用しながら、お使いのアプリケーションのセキュリティ ポリシーを定義してください。 セキュリティ ポリシーでは、お使いのアプリケーションに与えるコード アクセス セキュリティ特権を指定すべきです。 必要最小限のアクションセットのみが許可されるように、アクセス許可セットを制限してください。</p>
+  <h1>理由</h1>
+  <p>セキュリティ ポリシーの定義は、制限しない場合はオペレーティング システムが許可するようなタスクをアプリケーションが実行することを制限する、 綿密な防御メカニズムです。 これは、攻撃者によりアプリケーションが危険にさらされる場合に特に重要です。</p>
+  <h1>状況</h1>
+  <p>ASP.NET ウェブ サービスおよびアプリケーションは、デフォルトでフル トラスト モードで実行します。 アプリケーションでアクセス許可セット全体が必要となることはまれです。 このガイドラインは、アプリケーションで ASP.NET 内で付与可能なアクセス許可セット全体が必要とされない場合はいつでも適用されます。</p>
+  <h1>対策</h1>
+  <p>このガイドラインは、コード アクセス セキュリティを対象としています。コード アクセス セキュリティでは、定義されたポリシーを使用して、アプリケーションでユーザー コンテキストにかかわらず実行できるアクションを制限します。 アプリケーションのユーザー コンテキストの特権レベルを引き下げることも重要です。 </p>
+  <p>お使いのアプリケーションのコード アクセス セキュリティ ポリシーを定義するには、以下の手順を順番に実行してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>お使いのアプリケーションで必要なアクセス許可を特定します。</strong> アプリケーションが必要とするコード アクセス セキュリティ権限の正確なセットを識別します。 この操作は、コードを手動で確認することで、または Permission Calculator (permcalc.exe) を使用することで実行できます。 </p>
+      <li>
+        <p>
+          <strong>適切な信頼レベルを選択します。</strong> お使いのアプリケーションで適切な信頼レベルを選択する場合は、以下の手順を実行してください。</p>
+        <ol>
+          <li>アプリケーションに必要なアクセス許可が、標準的な信頼レベルによって与えられるものと合致するかどうかを評価します。 各信頼レベルで提供されるアクセス許可を確認するには、&amp;#37;windir&amp;#37;\Microsoft.NET\Framework\&amp;#123;version&amp;#125;\CONFIG ディレクトリ内にある各信頼レベル ポリシー ファイルを、 高信頼ポリシー ファイルである web_hightrust.config から順に調べてください。 <li>アプリケーションが、高い信頼レベルが提供する許可よりも少ないコード アクセス セキュリティ権限のみを必要とする場合、中程度の信頼を考えてみます。 中程度から低いレベルへ、そして最小レベルへ移行する手順を繰り返します。アプリケーションが求める最適なレベルを見つけるまで、またはアプリケーションによる要求アクセス許可が部分的信頼レベルを少し上回るまで、部分的な信頼レベルを評価します。 <li>お使いのアプリケーションで必要なアクセス許可の数が、あるレベルで付与される許可よりも多いものの、その次のレベルで提供される許可よりも少ない場合は、カスタム信頼ポリシーの作成を検討してください。</li></li></li>
+        </ol>
+        <li>
+          <p>
+            <strong>お使いの ASP.NET アプリケーションの構成を行います。</strong> お使いの ASP.NET アプリケーションで標準レベルを使用するための構成を、アプリケーションの Web.config ファイルまたはマシンレベルの Web.cofig ファイル内で行うことができます。 マシンレベルの構成は、そのサーバ上でホストされるすべての ASP.NET アプリケーションおよび Web サービスに影響します。 アプリケーションレベルの構成は、特定のアプリケーションのみに影響します。 </p>
+ <pre>&lt;system.web&gt;  ...  &lt;trust level="Medium" originUrl="" /&gt;  ...&lt;/system.web&gt;</pre>
+          <li>
+            <p>
+              <strong>オプションとして、カスタム信頼レベルを作成します。</strong> 定義済み信頼レベルのいずれでも、お使いのアプリケーションの実行に必要な的確なアクセス許可セットが提供されない場合は、カスタム信頼レベルが必要な可能性があります。 たとえば、お使いのアプリケーションで必要なアクセス許可の数が Medium 信頼で提供される許可よりも多く、High 信頼で提供されるアクセス許可よりも少ないことが判明する場合があります。 カスタム ポリシーを作成する場合は、以下の手順を実行してください。</p>
+            <ol>
+              <li>
+                <p>お使いのアプリケーションのアクセス許可要件に最も近い信頼レベルのポリシー ファイルをコピーして、新規のカスタム ポリシー ファイルを作成します。</p>
+                <li>
+                  <p>標準ポリシー ファイルのディレクトリである&amp;#37;Windir&amp;#37;\Microsoft.NET\Framework\&amp;#123;Version&amp;#125;\CONFIG 内のこのファイルを確認します。 必要な追加のアクセス許可をカスタム ポリシー ファイルに追加し、お使いのアプリケーションでこのカスタム ポリシーを使用して実行するように構成を行ってください。 例: </p>
+ <pre>&lt;configuration&gt;<br />   &lt;mscorlib&gt; <br />      &lt;security&gt;<br />         &lt;policy&gt;<br />            &lt;PolicyLevel version="1"&gt;<br />               &lt;SecurityClasses&gt;<br />                  ...<br />                  &lt;SecurityClass Name="DnsPermission" Description="..."/&gt;<br />                  ...<br />               &lt;/SecurityClasses&gt;<br />               &lt;NamedPermissionSets&gt;<br />                  ...<br />                  &lt;PermissionSet<br />                        class="NamedPermissionSet"<br />                        version="1"<br />                        Name="ASP.Net"&gt;<br />                     &lt;IPermission<br />                           class="AspNetHostingPermission"<br />                           version="1"<br />                           Level="High"<br />                     /&gt;<br />                     &lt;IPermission<br />                           class="ConfigurationPermission"<br />                           version="1"<br />                           Unrestricted="true"<br />                     /&gt;<br />                     ...<br />                  &lt;/PermissionSet&gt;<br />                  ...<br />               &lt;/NamedPermissionSets&gt;<br />               &lt;CodeGroup<br />                     class="FirstMatchCodeGroup"<br />                     version="1"<br />                     PermissionSetName="Nothing"&gt;<br />                  &lt;IMembershipCondition<br />                        class="AllMembershipCondition"<br />                        version="1"<br />                  /&gt;<br />                  &lt;CodeGroup<br />                        class="UnionCodeGroup"<br />                        version="1"<br />                        PermissionSetName="ASP.Net"&gt;<br />                  ...<br />                  &lt;/CodeGroup&gt;<br />                  ...<br />               &lt;/CodeGroup&gt;<br />            &lt;/PolicyLevel&gt;<br />         &lt;/policy&gt;<br />      &lt;/security&gt;<br />   &lt;/mscorlib&gt;<br />&lt;/configuration&gt;</pre>
+                  <p>さまざまなコード アクセス許可の詳細については、「<a href="http://msdn2.microsoft.com/en-us/library/h846e9b3(vs.80).aspx">コード アクセス許可</a>」を参照してください。</p>
+                  <li>
+                    <p>お使いのアプリケーションを上記の手順で定義したカスタム信頼ポリシーを使用して実行するための構成を行います。 例: </p>
+ <pre>&lt;location allowOverride="true"&gt;<br />   &lt;system.web&gt;<br />      &lt;securityPolicy&gt;<br />         &lt;trustLevel name="MyAppTrustLevel" policyFile="myapp_customtrust.config" /&gt;<br />      &lt;/securityPolicy&gt;<br />      &lt;trust level="MyAppTrustLevel" originUrl="" /&gt;<br />   &lt;/system.web&gt;&lt;/location&gt;</pre>
+                  </li>
+                </li>
+              </li>
+            </ol>
+            <li>
+              <p>
+                <strong>開発者に信頼レベルの変更を許可しません。</strong> 「<a href="/article/01aa845d-9256-42e8-8504-df338a47a01e">ポリシー設定を強制するために構成設定をロックする</a>」のガイドラインを使用して、お使いのアプリケーションの root web.config で設定されている信頼レベルをロックしてください。</p>
+ <pre>&lt;location allowOverride="false"&gt;<br />   &lt;system.web&gt;<br />      &lt;trust level="Medium" originUrl="" /&gt;<br />   &lt;/system.web&gt;<br />&lt;/location&gt;</pre>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>開発者は、アプリケーションに割り当てられるディレクトリー外へのファイル システム アクセスを必要とする ASP.NET アプリケーションを作成します。 デフォルトの完全信頼レベルでは、アプリケーションで必要となる方法でのファイル システム アクセスが許可されますが、いくつかの不要な特権 (ソケット アクセス、アンマネージ コードを呼び出す機能等) も与えられます。 これらの追加の特権は、アプリケーションが危険にさらされる場合に攻撃者が与えることのできる損害の量を増大させます。</p>
+  <h1>ソリューションの例</h1>
+  <p>開発者は、アプリケーションに割り当てられるディレクトリー外へのファイル システム アクセスを必要とする ASP.NET アプリケーションを作成します。 開発者はアプリケーションに完全なアクセス許可を与えたいと考えません。 開発者は permcalc.exe をアセンブリ上で実行します。これによって、アプリケーションで必要となる的確なアクセス許可が記載された xml レポートが生成されます。許可には、以下のものがあります。</p>
+  <ul>
+    <li>
+      <strong>SMTP アクセス。</strong> 重要なイベントが発生したときにユーザーに通知するための電子メール (パスワード リセット確認返信、新規ユーザー向けの歓迎電子メール等) がアプリケーションに代わって送信されます。 <li><strong>マネージ コードのみ</strong>。アプリケーションは非常にモダンで、タスクの実行にあたってアンマネージ ライブラリに依存しません。 アプリケーションはアンマネージ (ネイティブ) コードを呼び出す必要がありません。 <li><strong>ソケット アクセス。</strong> アプリケーションは、カスタムのソケットベースの通信プロトコルを使用した古い監査パッケージに依存しています。 アプリケーションはソケット接続を確立できる必要があり、データの読み取り/書き込みをそこへ、またはそこから行います。</li></li></li>
+  </ul>
+  <p>開発者は、定義済み信頼レベルを確認して、アプリケーションで使用することができ、かつアプリケーションの要件を満たしている最低の信頼レベルが high 信頼レベルであると判断します。 開発者は、xml 指令を web config ファイルに追加することで信頼レベルを設定します。</p>
+ <pre>&lt;system.web&gt;  ...  &lt;trust level="High" originUrl="" /&gt;  ...&lt;/system.web&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET 信頼レベルおよびポリシー ファイルの詳細については、「<a href="http://msdn2.microsoft.com/en-us/library/wyts434y(VS.80).aspx">ASP.NET 信頼レベルおよびポリシー ファイル</a>」を参照してください。<li>ASP.NET コード アクセス セキュリティの詳細については、「<a href="http://msdn2.microsoft.com/en-us/library/87x8e4d1(VS.80).aspx">ASP.NET コード アクセス セキュリティ</a>」を参照してください。<li>Permission Calculator ツールの詳細については、MSDN の「<a href="http://msdn2.microsoft.com/en-us/library/ms165077(VS.80).aspx">Permission Calculator ツール</a>に関する文書」を参照してください。 <li>さまざまなコード アクセス許可の詳細については、「<a href="http://msdn2.microsoft.com/en-us/library/h846e9b3(vs.80).aspx">コード アクセス 許可</a>」を参照してください。<li>.NET アセンブリのセキュリティ設定の構成の詳細については、MSDN の「<a href="http://msdn2.microsoft.com/en-us/library/cb6t8dtz(VS.80).aspx">コード アクセス セキュリティ ポリシー ツール</a>」を参照してください。</li></li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/eb5dbadd-49ab-46e1-bc0d-d299eeb465f6">ガイドライン：コードを別々のアセンブリに区分する</a>
+      <li>
+        <a href="/article/a053c4e4-2aad-41b9-b60b-e0fdeffd39f4">ガイドライン：重要なセキュリティ運用をログ記録する</a>
+        <li>
+          <a href="/article/257481d8-fcc5-4ed2-a8d8-c198bb399c77">チェックリスト項目：セキュリティ ポリシーが定義されている</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

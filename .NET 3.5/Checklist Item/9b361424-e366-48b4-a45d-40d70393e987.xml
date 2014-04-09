@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="762919249" Content_Hash="2030651670">
+  <Metadata>
+    <Id>9b361424-e366-48b4-a45d-40d70393e987</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データを表示ステータスに保存しない</Title>
+    <Category>パラメータ操作</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>機微データを表示ステータスに保存しないようにする。</p>
+  <h1>理由</h1>
+  <p>デフォルトでは、表示ステータスは情報漏えいに対する保護を提供しないため、機微データに使用することはお勧めしません。 表示ステータスに暗号化を追加することはできますが、それには、暗号化のための CPU の使用と生成される表示ステータスのサイズいずれの点でも、多大なパフォーマンス オーバーヘッドがあります。 最も簡単な方法は、表示ステータスに機微データを保存しないことです。 </p>
+  <h1>チェック方法</h1>
+  <p>表示ステータスに置かれるすべてのデータを調べ、単独でまたは他データとの組み合わせのいずれでも機微でないことを確認します。 デフォルトで、表示ステータスにはページ上のすべてのサーバ コントロールのすべてのプロパテの集合が含まれています。 </p>
+  <p>ランタイム時に表示ステータスに何が保存されているかを確認するために､ASP.NET トレースを使用できます。</p>
+  <ol>
+    <li>ASP.NET トレースをオンにします<li>ページ上でフォームを送信するか、または何らかの方法でポストバックを実行します<li>Hiddenフィールド __VIEWSTATE のトレースを調べます<li>この Hiddenフィールド内の値は表示ステータスのコンテンツを構成しています</li></li></li></li>
+  </ol>
+  <p>あるいは、クライアント側のアプリケーションが返す HTML ソースを調べて、VIEWSTATE 隠しフィールドをチェックします。</p>
+ <pre>&lt;form name="testForm" method="post" action="viewstate.aspx" id="testForm"&gt;	<br />&lt;input type="hidden" name="__VIEWSTATE"&gt;</pre>
+  <h1>修正方法</h1>
+  <p>表示ステータスに機微データが含まれる場合､表示ステータス暗号化を有効にして、傍受に対して保護することを検討する必要があります。SSL では、ユーザーのコンピュータ上で表示ステータスが閲覧および変更されることを防ぐことはできません。 </p>
+  <p>ユーザーのコンピュータ上 (およびネットワーク上) で表示ステータスが閲覧されることを防ぐには、ASP.NET表示ステータス暗号化を使用します。 しかし、暗号化を行うと ViewState のサイズが非常に大きくなりパフォーマンスに影響を与えるため、ViewState に機微データが含まれていない場合はこれを使用しないでください。 </p>
+  <p>表示ステータスの暗号化を有効にするには、次のステップを使用します。</p>
+  <ol>
+    <li> <b>&lt;pages&gt;</b> エレメントの <b>viewStateEncryptionMode 属性がpages&gt;</b> エレメントの<b>viewStateEncryptionMode</b>属性が次の例のように Always に設定されていることを確認します。 <pre>&lt;pages ... viewStateEncryptionMode="Always" ... /&gt;</pre><p>すべてのページで暗号化された表示ステータスを使用したくない場合は､<b>&lt;pages&gt;</b> エレメントの <b>viewStateEncryptionMode 属性が </b>次の例のように <b>Auto</b> に設定されていることを確認します。 </p><pre>&lt;pages ... viewStateEncryptionMode="Auto" ... /&gt;   </pre><p>次に、次の例のようにコード内で <b>RegisterRequiresViewStateEncryption</b> メソッドを呼び出します。 </p><pre>Page.RegisterRequiresViewStateEncryption();</pre><li>次の例のように、<b>validation</b> 属性で暗号化アルゴリズムを使用するように指定します。 <pre>&lt;machineKey ... validation="AES" ... /&gt;</pre><p><b>validation</b> 属性はオーバーロードされており、ハッシュ化アルゴリズムまたは暗号化アルゴリズムのいずれかを指定するために使用できます。&nbsp;<b>3DES</b> または <b>AES</b> を指定できます。<b>AES</b> は、<b>3DES</b> (56 ビット)よりも大きな鍵サイズ (128 ビット、192 ビット、または 256 ビット) を生成し､より安全であると考えられるため、AES の使用をお勧めします｡</p><li> <b>&lt; machineKey&gt;</b> エレメントの <b>decryptionKey 属性を調べます。machineKey&gt;</b> element: <pre>&lt;machineKey decryptionKey="AutoGenerate,IsolateApps" ... /&gt;</pre><p>アプリケーションが Web ファームにインストールされていなければ､<b>decryptionKey</b> 属性には例のようにデフォルト値を使用します。</p></li></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションに、ユーザーが社会保障番号を入力するサーバ側のコントロールが含まれています。&nbsp;表示ステータスは HMACS によって完全性チェックされているため、デフォルトでタンパリングから保護されています。&nbsp;アプリケーションの開発者は社会保障番号が機微な情報であることを知っているため、フォーム ポストに対して SSL を要求します。&nbsp;これにより、ネットワーク上で情報は保護されますが、 表示ステータスが暗号化されていないため､ユーザーのコンピュータにアクセスできる誰もが社会保障番号の情報を見ることができてしまいます。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションに、ユーザーが社会保障番号を入力するサーバ側のコントロールが含まれています。 表示ステータスは HMACS によって完全性チェックされているため、デフォルトでタンパリングから保護されています。 アプリケーションの開発者は社会保障番号が機微な情報であることを知っているため、ネットワーク上でこの情報を保護するためにフォーム ポストに対して SSL を要求します。 さらに、ユーザーのマシン上の情報を保護するために、ASP.NET表示ステータス暗号化を使用して表示ステータスを 暗号化します。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET トレースの詳細は、MSDNの <a href="http://msdn.microsoft.com/en-us/library/bb386420.aspx">ASP.NET Tracing&nbsp;Overview </a> を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/b4b49e15-eb5d-46b0-b56d-231ca447c053">ガイドライン:表示ステータスに機微データを保存することを避ける</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-987390888" Content_Hash="-1070041103">
+  <Metadata>
+    <Id>74fae691-e3c7-4063-a0ef-978be364ca32</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>PermCalc を使用してアクセス許可を計算する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>Permission Calculator ツール(別称、最小付与セット決定ツール) を使用して、アセンブリのパブリック エントリ ポイントにアクセスするために呼び出し元に付与する必要がある、コード アクセス セキュリティ権限を評価します。 Permcalc.exe を使用するには、アセンブリ名を指定して依存している他のアセンブリと共に分析してください。 </p>
+  <p>次のコマンドは、Myapp.exe アプリケーションが実行する必要のある最小限のアクセス許可をレポートします。 XML ファイル用のデフォルト ブラウザでの出力を表示します。 ターゲット ファイルは Myapp.exe で、依存しているファイルは Mydep1.dll および Mydep2.dll です。 </p>
+ <pre>Permcalc.exe -sandbox -show myapp.exe mydep1.dll mydep2.dll </pre>
+  <p><b>-sandbox </b> のスイッチは、アセンブリのエントリ ポイントの呼び出し元が要求するアクセス許可ではなく、アプリケーションが自身を実行できる最小許可のサンドボックスをレポートします。 <b>-show</b> スイッチは、評価の終了時にアウトプットを表示します。 </p>
+  <p>次のコマンドは、すべてのキャッシュ ファイルを再構築し、Mylib.dll アセンブリ用のコール スタックを含みます。 XML ファイル用のデフォルト ブラウザでの出力を表示します。 </p>
+ <pre>Permcalc.exe -cleancache -stacks -show mylib.dll </pre>
+  <p>正確な許可の値が決定できない状況では、ツールのデフォルト動作は、非制限のアクセス許可の状態を使用することで過剰評価することです。 次のオプションはそのような状況で役立ちます。  <b>-Internet</b> スイッチを使用することで、Internet ゾーンのアクセス許可を想定として使用できます。 <b>-Under</b> スイッチを使用することで、デフォルト動作をオーバーライドし、アクセス許可の過小評価を強制できます。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="810231475" Content_Hash="-72196778">
+  <Metadata>
+    <Id>29d960c8-3bc8-469b-957e-b6845a00f02d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ホストされた環境で中程度の信頼を用いてアプリケーションを分離する</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>マシン レベルの構成ファイル内で中程度の信頼のポリシー設定を使用して、共有サーバ上のアプリケーションを同じサーバ上の他のアプリケーションや共有システム リソースから分離します。 </p>
+  <h1>理由</h1>
+  <p>ホスティングされた悪意のあるアプリケーションが別のアプリケーションのデータを読み取ったり、何らかの方法で他のアプリケーションに干渉することができたりする場合は、サーバ上のすべてのアクセス可能なアプリケーションの完全性を効果的に損うことができます。 ホスト環境内のアプリケーションはお互いに信頼してはならず、アプリケーションの分離が強制されないことはアプリケーションが効率的に身を守ることを妨げます。</p>
+  <h1>状況</h1>
+  <p>複数のアプリケーションが共有ホスティング環境で動作するときは、常に&nbsp;アプリケーション&nbsp;を互いに分離するため&nbsp;中程度の信頼&nbsp;&nbsp;特権レベルを使用します。 アプリケーションがイベント ログ アクセスやファイル I/O のような中程度の信頼では利用できない操作が必要な場合は、より高いポリシー レベルに特権を昇格するよりもカスタム信頼ポリシーを作成します。 アプリケーションの操作能力に次のアクセス許可が不要か、もしくは限定的な許可しか必要でない場合は、中程度の信頼が適切です：</p>
+  <ul>
+    <li>
+      <strong>OleDbPermission</strong>。これは、データベースにアクセスするためにアプリケーションが ADO.NET 管理された OLE DB データプロバイダーを使用しないことを意味します。 ただし、SQL Server データベースにアクセスするために、アプリケーションは マネージド SQL Server プロバイダーを使用することができます。 <li><strong>EventLogPermission。</strong>&nbsp;これは、アプリケーションが Windows イベント ログを使用しないことを意味します。 <li><strong>ReflectionPermission</strong>。これは、アプリケーションが反射を使用しないことを意味します。 <li><strong>RegistryPermission。&nbsp;</strong>これは、アプリケーションがレジストリにアクセスしないことを意味します。 <li><strong>WebPermission</strong> が制約されている。 これは、アプリケーションが <strong>&lt;trust&gt;</strong> 要素で定義したアドレスまたはアドレス範囲とのみ通信することを意味します。 <li><strong>FileIOPermission</strong> が制約されている。 これは、アプリケーションの仮想ディレクトリ階層内のファイルにのみアプリケーションがアクセスすることを意味します。 アプリケーションは、その仮想ディレクトリ階層内で読み取り、書き込み、追記、およびPathDiscoveryの操作を実行します。 <li>アプリケーションはアンマネージ コードを呼び出さない<li>アプリケーションはエンタープライズ サービスを使用しない</li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <p>サーバ上のあらゆるWeb アプリケーションで中程度の信頼を強制するには、マシン レベルの Web.config ファイルで次の構成を使用します。</p>
+ <pre>&lt;location allowOverride="false"&gt;<br />&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp; &lt;trust level="Medium" originUrl="" /&gt;<br />&nbsp; &lt;/system.web&gt;<br />&nbsp;&lt;/location&gt;</pre>
+  <h1>関連する規則</h1>
+  <ul>
+    <li>
+      <a href="/article/5a4ca787-30a1-487c-be5d-9d849aaaca36">アプリケーション要件を超えない信頼レベルを選択</a>
+      <li>
+        <a href="/article/743a34cc-ed5f-4550-8458-4456b9da9bf1">開発者にアプリケーションの信頼レベルを変更させない<br /></a>
+        <hr />
+      </li>
+    </li>
+  </ul>
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

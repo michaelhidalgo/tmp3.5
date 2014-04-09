@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-693131302" Content_Hash="673644328">
+  <Metadata>
+    <Id>416f267e-3525-4752-a218-b25c9ffd358d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>オブジェクトをシリアル化できるユーザーを限定する方法</Title>
+    <Category>シリアル化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>オブジェクトがシリアル化できるようにする <b>ISerializable</b> インターフェイスを実装するクラスを作成する場合、オブジェクトをシリアル化しようと試みるコードを認可するため <b>ISerializable.GetObjectData</b> の実装にアクセス許可の要求を追加できます。 これはコードが部分信頼呼び出し元をサポートする場合、特に重要です。 </p>
+  <p>例えば、次のコード断片は <b>System.Security.Permissions.StrongNameIdentityPermission</b> 属性を使用しており、オブジェクトの状態をシリアル化できるのは、要求にあった公開鍵に対応する特定の私有鍵で署名したコードに限定するのに役立ちます。 </p>
+ <pre>using System.Diagnostics;...<br />[StrongNameIdentityPermission(SecurityAction.Demand,<br />                              PublicKey="00240000048...97e85d098615")]<br />public override void GetObjectData(SerializationInfo info,<br />                                    StreamingContext context)   </pre>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;.NET Framework では、完全に信頼されているアセンブリはいずれも、アセンブリでは満足することが不可能な<b>System.Security.Permissions.StrongNameIdentityPermission</b> のような ID 許可のためのリンク要求を含め、どのような要求も満足させます。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

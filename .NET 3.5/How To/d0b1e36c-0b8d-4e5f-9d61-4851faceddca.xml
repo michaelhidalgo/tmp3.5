@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-470290349" Content_Hash="1771550972">
+  <Metadata>
+    <Id>d0b1e36c-0b8d-4e5f-9d61-4851faceddca</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でコード アクセス セキュリティを使用する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>この方法説明では、必要に応じてアプリケーションの適切な信頼性レベルを選択する方法、ならびにカスタム信頼性レベルを定義するために ASP.NET コード アクセス セキュリティ ポリシー ファイルを作成する方法を示しています。 異なるコード アクセス セキュリティ信頼性レベルを使用することによって、段階的にセキュリティ攻撃への露出を制限して更なるアプリケーションの分離を提供することができます。 コード アクセス セキュリティはアクセスできるリソースの種類を制限したり、実行できる演算の種類を制限することによってウェブ アプリケーションを制約することができます。 アプリケーションがホスティング環境または共有サーバ環境において他のアプリケーションを信用できない場合、コード アクセス セキュリティは特に重要です。 例えば、アプリケーションがお互いのプライベート データを読み取ることができないようにしたり、重要な共有システムのリソースにアクセスできないようにするてめに使用することができます。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>手順の概要<li><div>手順 1:  アプリケーションが必要とするアクセス許可を特定します</div><li><div>手順 2:  適切な信頼性レベルを選択します</div><li><div>手順 3:  ASP.NET アプリケーションを構成します</div><li><div>手順 4:  オプションとしてカスタム信頼性レベルを作成します</div><li><div>信頼性レベルを固定します</div><li><div>特権コードのラッピングを実施します</div><li><div>リソース アクセス許可概要</div><li><div>特権付き演算アクセス許可の概要</div><li>その他のリソース</li></li></li></li></li></li></li></li></li></li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>ASP.NET ウェブ アプリケーションにおけるコード アクセス セキュリティの使用方法を学びます。 <li>アプリケーションに最も適した信頼性レベルを選択します。 <li>段階的にセキュリティ攻撃への露出を制限してアプリケーションの分離を強化するためには異なるコード アクセス セキュリティ信頼性レベルを使用します。 </li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET ウェブ アプリケーションおよびウェブ サービスはデフォルトでは完全な信頼性で稼動します。 アプリケーションが完全な信頼性で稼動している場合、コード アクセス セキュリティはアクセスできるリソースや演算を制限することなく、リソースへのアクセスはオペレーティング システム セキュリティおよび Windows アクセス制御リスト（ACL）のみをベースに実施されます。 </p>
+  <p>ASP.NET アプリケーションを保護するためには、コード アクセス セキュリティでアプリケーションがアクセスできるリソースや実行できる特権付き演算を制限することができます。 これはマシン レベル Web.config ファイルまたはアプリケーションの Web.config ファイルにある&lt;<b>trust</b>&gt;（信頼性） エレメントを構成して、ここで示されている定義済みの信頼性レベルのどれかを設定することで実施できます。</p>
+  <div>
+ <pre>&lt;trust level="Full|High|Medium|Low|Minimal" /&gt;   </pre>
+  </div>
+  <p>&lt;<b>trust</b>&gt;（信頼性） エレメントはいくつかの定義済み信頼性レベルをサポートします。 それぞれのレベルはアプリケーションを実行する上で順々に制約の多い環境（コード アクセス セキュリティ権限が少ない）を提供します。</p>
+  <p>アプリケーションが一式のコード アクセス セキュリティ権限を必要とする状況で、完璧に合った定義済み信頼性レベルが存在しない場合、カスタム信頼性レベルを作成する価値があるか、またはより上位の信頼性レベルを目指すべきかを検討します。 最も良い選択は既存の信頼性レベルがアプリケーションのアクセス許可要件にどの程度近いものかによります。 </p>
+  <h1>手順の概要</h1>
+  <p>ASP.NET アプリケーションでコード アクセス セキュリティを使用する方法: </p>
+  <ul>
+    <li>手順 1:  お使いのアプリケーションで必要なアクセス許可を特定します。 <li>手順 2:  適切な信頼レベルを選択します。 <li>手順 3:  お使いの ASP.NET アプリケーションの構成を行います。 <li>手順 4:  オプションとして、カスタム信頼レベルを作成します。 </li></li></li></li>
+  </ul>
+  <h1>手順 1:  アプリケーションが必要とするアクセス許可を特定します</h1>
+  <p>アプリケーションが必要とするコード アクセス セキュリティ権限の正確なセットを識別します。 これはマニュアル式にコードを見直す、または Permissions Calculator ツール (Permcalc.exe) を使用することで行えます。</p>
+  <h2>手動でのコードの ID 許可要件を確認する</h2>
+  <p>アクセス許可要件を手動で特定するには、コードを分析して、アクセスするリソースの種類、必要とするリソースへのアクセスの種類（読み取り/書込みといったような）、実行する特権付き演算を判断します。 </p>
+  <p>アクセス許可要件を手動で特定する際の主な問題は、コードが第三者のアセンブリやシステム アセンブリといったような他のアセンブリを呼び出す場合に発生するものです。 それぞれのアクセス許可要件を特定するのは非常に困難な場合があります。 PermCalc ツールはこういった状況で役に立ちます。</p>
+  <p>特定リソース タイプへのアクセスをするために必要となるアクセス許可に関する更なる情報については、本書で後ほどに掲載されている「Resource Access Permissions Summary」（リソース アクセス許可の概要）の節を参照してください。</p>
+  <p>特権付き演算およびそれらを実行するために必要となるアクセス許可に関する更なる情報については、本書で後ほど掲載されている「Privileged Operation Permissions Summary」（特権付き演算アクセス許可の概要）の節を参照してください。</p>
+  <h2>Permissions Calculator ツールの使用</h2>
+  <p>アプリケーションのビジネスおよびデータ アクセス ロジックに別のアセンブリを使用して、それらをアプリケーションの \bin ディレクトリまたはグローバル アセンブリ キャッシュにおいている場合、これらのアセンブリに PermCalc を実行することができます。 PermCalc は .aspx ウェブ ページに直接実行することはできません。</p>
+  <h3>アセンブリのアクセス許可要件を確認する方法</h3>
+  <ol>
+    <li>Microsoft Visual Studio .NET コマンド ウィンドウで次のコマンドを実行します。 <p><b>permcalc -Show </b>&lt;<b><i>assemblyName</i></b>&gt; </p><p>次の例はこのコマンドによる出力です。 </p><div><pre>&lt;?xml version="1.0" ?&gt; <br />&lt;Assembly&gt;<br />&nbsp; &lt;Namespace Name="ClassLibrary1"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Type Name="Class1"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Method Sig="instance void test()" /&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Method Sig="instance void .ctor()"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Demand&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;PermissionSet version="1" <br />class="System.Security.PermissionSet"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;IPermission version="1"<br />class="System.Security.Permissions.RegistryPermission, mscorlib,<br />Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"<br />Read="true" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;IPermission version="1" class="System.Security.Permissions.FileIOPermission, mscorlib,<br />Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"<br />Unrestricted="true" /&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/PermissionSet&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Demand&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Sandbox&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;PermissionSet version="1" class="System.Security.PermissionSet"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;IPermission version="1" class="System.Security.Permissions.RegistryPermission, mscorlib,<br />Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"<br />Read="true" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;IPermission version="1" class="System.Security.Permissions.FileIOPermission, mscorlib,<br />Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"<br />Unrestricted="true" /&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/PermissionSet&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Sandbox&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/Method&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/Type&gt;<br />&nbsp; &lt;/Namespace&gt;<br />&lt;/Assembly&gt;   </pre></div><li>&lt;<b>Demand</b>&gt;（要求）に掲載されているアクセス許可を調べます element. これらはアセンブリが必要とするアクセス許可です。 この場合、アセンブリは<b>RegistryPermission</b> （レジストリのアクセス許可）と<b>FileIOPermission</b>（ファイル IO のアクセス許可）を必要としています。<div><pre>&lt;IPermission version="1" class="System.Security.Permissions.RegistryPermission, mscorlib,<br />	 Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" Read="true" /&gt;<br />&lt;IPermission version="1"<br />class="System.Security.Permissions.FileIOPermission, mscorlib,<br />Version=3.5.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"<br />Unrestricted="true" /&gt;   </pre></div><p>以下のコマンド例で示されているように、PermCalc ツールには複数のアセンブリを同時に渡すことができます。 </p><p><b>permcalc -Show </b>&lt;（permcalc 表示）assembly1&gt;&lt（アセンブリ1）<b></b>assembly2&gt;&lt;（アセンブリ2）<b></b>assembly3&gt; （アセンブリ3）</p></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;.aspx ページから直接アクセスされるリソースがある場合、そのリソースのアクセス許可要件は手動で計算する必要があります。 PermCalc はアセンブリのみで機能するものです。</blockquote>
+  <h1>手順 2:  適切な信頼性レベルを選択します</h1>
+  <p>アプリケーションに必要なアクセス許可が標準の信頼レベルによって提供されたものに一致するかを評価してみます。 </p>
+  <h2>信頼レベルの概要</h2>
+  <p>様々な信頼性レベルで稼動しているアプリケーションに提供されている能力は表1にまとめられています。</p>
+  <p>
+    <b>表 1 信頼レベルとその機能および制限</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>信頼性レベル</th>
+          <th>主要能力および制限</th>
+        </tr>
+        <tr>
+          <td>完全</td>
+          <td>コード アクセス セキュリティにより課される制限はありません。</td>
+        </tr>
+        <tr>
+          <td>高</td>
+          <td>アンマネージ コードを扱えません。<br />エンタープライズ サービスを扱えません。<br />Microsoft SQL Server およびその他の OLE DB データ ソースにアクセスできます。<br />SMTP サーバを使用して、電子メールを送信することができます。<br />リフレクションのアクセス許可がかなり制限を受けます。 リフレクションでコードを呼び出す能力なし。<br />広範囲にわたる一連のその他のフレームワーク機能を使用できます。 アプリケーションはファイル システムおよびソケットに対する完全アクセス権を付与されます。</td>
+        </tr>
+        <tr>
+          <td>中</td>
+          <td>アクセス許可は、アプリケーションのディレクトリ構造内でそのアプリケーションがアクセスできるものに限定されます。<br />アプリケーションの仮想ディレクトリ階層外では、ファイル アクセスは許可されません。<br />SQL Server にアクセスできます。<br />SMTP サーバを使用して、電子メールを送信することができます。<br />特定の共通環境変数に対する権利が制限されます。<br />リフレクションのアクセス許可はまったく受けられません。<br />ソケットのアクセス許可を受けられません。<br />ウェブ リソースにアクセスするためには、<b> </b>エンドポイント URL<b> </b>を &lt;trust&gt;（信頼性）エレメントの originUrl （起点 URL）属性またはポリシー ファイル内に明示的に追加する必要があります。</td>
+        </tr>
+        <tr>
+          <td>低</td>
+          <td>ネットワーク接続がない読み取りのみのアプリケーションの概念をモデリングするためのものです。<br />アプリケーションの仮想ディレクトリ構造内のファイル I/O に対する読み取り専用アクセス。</td>
+        </tr>
+        <tr>
+          <td>最小</td>
+          <td>実行専用。<br />スレッド上または  <b>HttpContext</b> 上の <b>IPrincipal</b> を変更することはできません。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p />
+  <p>アプリケーションがアンマネージ コードを呼び出す場合、これは完全信頼性で実行する必要があります。 最も制約の少ない部分的信頼性レベルである高レベルにおいても、アンマネージ コードの呼び出しは許されていません。</p>
+  <h3>適切な信頼レベルを選択するには</h3>
+  <ol>
+    <li>高信頼から始めて、各信頼レベルを調べます。 <li>高信頼性ポリシーファイルである web_HighTrust.config ファイルの内容を確認します。 <li>アプリケーションが、高い信頼レベルが提供する許可よりも少ないコード アクセス セキュリティ権限のみを必要とする場合、中程度の信頼を考えてみます。 <li>中程度から低いレベルへ、そして最小レベルへ移行する手順を繰り返します。アプリケーションが求める最適なレベルを見つけるまで、またはアプリケーションによる要求アクセス許可が部分的信頼レベルを少し上回るまで、部分的な信頼レベルを評価します。 </li></li></li></li>
+  </ol>
+  <p>このプロセスではアプリケーションのコード アクセス セキュリティ権限要件に可能な限り沿ったものでアプリケーションが必要としていないアクセス許可を付与しない信頼性レベルを特定することができます。 </p>
+  <h1>手順 3:  ASP.NET アプリケーションを構成します</h1>
+  <p>ASP.NET アプリケーションが標準信頼性レベルを使用するようにアプリケーションの Web.config ファイルまたはマシン レベルの Web.config ファイルで構成することができます。 マシン レベルの構成は全ての ASP.NET ウェブ アプリケーション、ならびにそのサーバでホスティングされているウェブ サービスに適用されます。 アプリケーションレベルの構成は、特定のアプリケーションのみに影響します。</p>
+  <p>マシン レベル構成の場合は、次のディレクトリにある Web.config ファイルに変更を加える必要があります: %windir%\Microsoft.NET\Framework\{version}\CONFIG\。</p>
+  <p>アプリケーション レベルの構成においては、アプリケーションの仮想ディレクトリのroot にある Web.config ファイルに変更を加える必要があります。</p>
+  <p>次の例では、アプリケーションを中程度の信頼性に構成する方法を示しています。</p>
+  <div>
+ <pre>...<br />&lt;system.web&gt;<br />&nbsp; ...<br />&nbsp; &lt;trust level="Medium" originUrl="" /&gt;<br />&nbsp; ...<br />&lt;/system.web&gt;<br />...  </pre>
+  </div>
+  <h1>手順 4:  オプションとしてカスタム信頼性レベルを作成します</h1>
+  <p>定義済み信頼レベルのいずれでも、お使いのアプリケーションの実行に必要な的確なアクセス許可セットが提供されない場合は、カスタム信頼レベルが必要な可能性があります。 たとえば、お使いのアプリケーションで必要なアクセス許可の数が Medium 信頼で提供される許可よりも多く、High 信頼で提供されるアクセス許可よりも少ないことが判明する場合があります。</p>
+  <h2>カスタマイズ信頼性レベル ポリシー</h2>
+  <p>このアプローチでは次を実施することができます: </p>
+  <ol>
+    <li>既存の信頼性レベル ポリシー ファイルをコピーして、カスタム ポリシー ファイルを作成します。 <li>カスタム ポリシー ファイルに必要なアクセス許可を追加します。 <li>カスタム ポリシーを使って実行するようにアプリケーションを構成します。 </li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ポリシーの制約が厳しい場合は、このアプローチでもってホスティング環境の信頼性レベルをカスタマイズできる見込みが低くなります。</blockquote>
+  <p>ポリシーをカスタマイズできる場合は、開発の努力を必要としないこれが望ましいオプションとなります。 </p>
+  <p>次の例では、アプリケーションが中程度の信頼性で提供される全てのアクセス許可を必要としています。 更に、Windows レジストリにも無制限なアクセスを必要としています。 高信頼性レベルにおいてはレジストリへのアクセスが無制限ではあるものの、無制限なファイル I\O アクセスといったようなアプリケーションに付与したくないアクセス許可も提供してしまいます。 このような状況では、まず先にカスタム信頼性レベルを作成することを検討する必要があります。</p>
+  <h3>カスタム信頼性レベル構成ファイルの作成方法</h3>
+  <ol>
+    <li> %windir%\Microsoft.NET\Framework\{version}\CONFIG\ディレクトリにある中程度の信頼性ポリシー ファイル、web_MediumTrust.config を同じディレクトリにある Web_CustomTrust.config という名前のファイルにコピーします。 <li><b>RegistryPermission</b> （レジストリのアクセス許可）セキュリティ クラス定義を Web_CustomTrust.Config ファイルにある&lt;<b>SecurityClass</b>&gt;（セキュリティ クラス） セクションに次の例のように追加します。 <div><pre>&lt;SecurityClass Name="RegistryPermission"<br />&nbsp;Description="System.Security.Permissions.RegistryPermission, <br />mscorlib, Version=2.0.0.0, Culture=neutral, <br />PublicKeyToken=b77a5c561934e089"/&gt;   </pre></div><li>「ASP.Net」と命名されているアクセス許可セットに無制限の<b>RegistryPermission</b> （レジストリのアクセス許可）を追加します。 <div><pre>&lt;PermissionSet<br />&nbsp;&nbsp;&nbsp; class="NamedPermissionSet"<br />&nbsp;&nbsp;&nbsp; version="1"<br />&nbsp;&nbsp;&nbsp; Name="ASP.Net"&gt;<br />&nbsp; ...<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;IPermission<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; class="RegistryPermission"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; version="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unrestricted="true" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp; &lt;/PermissionSet&gt;   </pre></div><li> %windir%\Microsoft.NET\Framework\{version}\CONFIG\ ディレクトリにある default Web.config ファイルに変更を加えて、作成したカスタム信頼性構成ファイルを引用するカスタム信頼性レベルを追加します。 <li>新しい&lt;<b>trustLevel</b>&gt;（信頼性レベル） エレメントを Web.config ファイルの&lt;<b>securityPolicy</b>&gt;（セキュリティ ポリシー）セクションに追加して、<b></b><b>「Custom」</b> （カスタム）と呼ばれる新しいレヴェルを定義して、それをカスタム ポリシー ファイルを関連付けします。 <div><pre><br />&lt;location allowOverride="true"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;securityPolicy&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Full" policyFile="internal" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="High" policyFile="web_hightrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Medium" policyFile="web_mediumtrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Low" policyFile="web_lowtrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Minimal" policyFile="web_minimaltrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Custom" policyFile="web_CustomTrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/securityPolicy&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trust level="Full" originUrl="" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;/system.web&gt;<br />&nbsp;&nbsp; &lt;/location&gt;   </pre></div></li></li></li></li></li>
+  </ol>
+  <p>前期の変更は framework CONFIG フォルダの root Web.config ファイルに適用します。 これによりそのサーバ上にある全てのウェブ アプリケーションにデフォルトを適用します。 </p>
+  <h3>特定アプリケーションの信頼性レベルを構成する方法</h3>
+  <ol>
+    <li>web_CustomTrust.config ファイルをアプリケーションの仮想ディレクトリにコピーします。 <li>Web_CustomTrust.config ファイルをマシン レベルの　ファイルから引用するのではなく、次の例で示されているようにアプリケーションの Web.configファイルから直接引用します。 <div><pre>...<br />&lt;location allowOverride="true"&gt;<br />&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;securityPolicy&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;trustLevel name="Custom" policyFile="web_CustomTrust.config" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/securityPolicy&gt;<br />&nbsp;&nbsp;&nbsp; &lt;trust level="Custom" originUrl="" /&gt;<br />&nbsp; &lt;/system.web&gt;<br />&lt;/location&gt;<br />&nbsp;...  </pre></div></li></li>
+  </ol>
+  <h1>信頼性レベルを固定します</h1>
+  <p>ウェブ サーバの管理者がコード アクセス セキュリティでアプリケーションを確実に分離してシステム レベルのリソースへのアクセスを制限したい場合、管理者はセキュリティ ポリシーをマシン レベルで定義して、個別のアプリケーションがそれを無効にできないようにする必要があります。</p>
+  <p>アプリケーション サービス プロバイダーまたは同じサーバ上で複数のWebアプリケーションの実行に責任を持つ人は、すべての Web アプリケーションの信頼レベルをロックする必要があります。</p>
+  <p>これを実施するためには、 &lt;<b>location</b>&gt;（場所）  タグにあるマシン レベルの Web.config file in a &lt;ファイルを&lt;<b>trust</b>&gt;（信頼性）エレメントを含んで、次の例で示されているように <b>allowOverride</b> （無効化を許す）属性を <b>false</b>（偽）に設定する必要があります。</p>
+  <div>
+ <pre>...<br />&lt;location allowOverride="false"&gt;<br />&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;trust level="Medium" originUrl=""/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp; &lt;/system.web&gt;<br />...<br />&lt;/location&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />...  </pre>
+  </div>
+  <h1>特権コードのラッピングを実施します</h1>
+  <p>不要なアクセス許可を実行しないようにするためには、アクセス許可要件を的確に提供するカスタムのアクセス許可レベルを作成するか、特権リソース アクセス コードをラッピングしてからラッパー アセンブリに完全な信頼性を付与することができます。 前者のアプローチは簡単であるとともに、開発の努力が全く必要ありません。 しかし、 ASP.NET アプリケーションの全ページに特定の拡張アクセス許可を付与したい場合はラッパー アセンブリを使ってリソースへのアクセスを制御することができます。 そのアプローチでは、特権コードを別のラッパー アセンブリに仕分けします。</p>
+  <h2>特権コードをラッピングする方法</h2>
+  <ol>
+    <li>アプリケーションが必要とする追加のアクセス許可の中で、具体的に中程度の信頼性レベルを超えるものを正確に特定します。 <li>アプリケーションのリソース アクセス コードをラッパー アセンブリに入れます。 <li>ラッパー アセンブリ（ウェブ アプリケーションではなく）に完全な信頼性を付与し、強い名前をつけてグローバル アセンブリ キャッシュにインストールします。 <li><b>AllowPartiallyTrustedCallersAttribute</b> （部分的に信頼性のある呼び出し元属性を許す）をラッパー アセンブリに追加して、部分的に信頼性のあるウェブ アプリケーションで呼び出すことを許可します。 <li>ラッパー アセンブリでは、リソース アクセス コードが必要なアクセス許可を <b>CodeAccessPermission</b> （コード アクセス許可）クラスの<b>Assert</b> メソッドを呼び出して、特権付き演算の実施（または特権付きリソースへのアクセス）をして、 <b>RevertAssert</b>　メソッドを呼び出します。 <blockquote><b>注意</b>: &nbsp;&nbsp;他の部分的に信頼性のあるコードが、<b>Assert</b> メソッドを呼び出す前にラッパー アセンブリに露出されているリソースおよび演算にアクセスすることを防ぎたい場合は、ウェブ アプリケーションのみに付与されているカスタムのアクセス許可を要求します。</blockquote></li></li></li></li></li>
+  </ol>
+  <h1>リソース アクセス許可概要</h1>
+  <p>表2では、様々なリソース タイプへのアクセスで必要となるコード アクセス セキュリティ権限が示されています。</p>
+  <p>
+    <b>表2: リソースおよび関連するコード アクセス セキュリティ権限の要件</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>アクセスされるリソース</th>
+          <th>必要なアクセス許可</th>
+        </tr>
+        <tr>
+          <td>DPAPI 暗号化</td>
+          <td>DataProtectionPermission（データ保護のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>DNS ディレクトリ</td>
+          <td>DnsPermission（DNS のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>環境変数</td>
+          <td>環境アクセス許可</td>
+        </tr>
+        <tr>
+          <td>イベント ログ</td>
+          <td>EventLogPermission（イベント ログのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>ファイル ダイアログ</td>
+          <td>FileDialogPermission（ファイル ダイアログのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>ファイル システム</td>
+          <td>FileIOPermission（ファイル IO のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>分離されたファイル収納</td>
+          <td>IsolatedStoragePermission（分離された収納のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>鍵コンテナ</td>
+          <td>KeyContainerPermission（鍵コンテナのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>メッセージ キュー</td>
+          <td>メッセージ キューのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>ネットワーク情報およびトラヒック統計情報</td>
+          <td>NetworkInformationPermission（ネットワーク情報のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>OLE データベース データ ソース</td>
+          <td>OleDbPermission（OLE データベースのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>パフォーマンス カウンタ</td>
+          <td>PerformanceCounterPermission（パフォーマンス カウンタのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>プリンタ</td>
+          <td>PrintingPermission（印刷のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>リフレクション</td>
+          <td>ReflectionPermission（リフレクションのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>レジストリ</td>
+          <td>RegistryPermission（レジストリのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>セキュリティ</td>
+          <td>SecurityPermission（セキュリティのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>SMTP サーバ</td>
+          <td>SmtpPermission（SMTP のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>ソケット</td>
+          <td>SocketsPermission（ソケットのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>SQL Server 通知</td>
+          <td>SqlNotificationPermission（SQL 通知のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>SQL Server</td>
+          <td>SqlClientPermission（SQL クライアントのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>X.509 証明書を含む収納</td>
+          <td>StorePermission（収納のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>ユーザー インターフェイスおよびクリップボード</td>
+          <td>UIPermission（UI のアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>ウェブ サービス（および他の HTTP インターネット リソース）</td>
+          <td>WebPermission（ウェブのアクセス許可）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p />
+  <h1>特権付き演算アクセス許可の概要</h1>
+  <p>表3では、特権付き演算を実行するために必要となるコード アクセス セキュリティ権限を示しています。 </p>
+  <p>
+    <b>表3: 特権付き演算および関連コード アクセス セキュリティ権限要件</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>特権付き演算</th>
+          <th>必要なアクセス許可</th>
+        </tr>
+        <tr>
+          <td>制御アプリケーション ドメインの作成</td>
+          <td>SecurityPermissionFlag.ControlAppDomain（セキュリティのアクセス許可フラグ 制御アプリケーション ドメイン）でのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>ポリシー アプリケーション ドメインの指定</td>
+          <td>SecurityPermissionFlag.ControlDomainPolicy（セキュリティのアクセス許可フラグ 制御ドメイン ポリシー）でのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>セキュリティのアクセス許可アサート</td>
+          <td>SecurityPermissionFlag.Assertionでのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>証拠の作成および操作</td>
+          <td>SecurityPermissionFlag.ControlEvidence（セキュリティのアクセス許可フラグ 制御証拠）でのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>主要オブジェクトの作成および操作</td>
+          <td>SecurityPermissionFlag.ControlPrincipal（セキュリティのアクセス許可フラグ 制御主要）でのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>リモート処理による種類およびチャネルの構成</td>
+          <td>SecurityPermissionFlag.RemotingConfigurationでのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>操作セキュリティ ポリシー</td>
+          <td>SecurityPermissionFlag.ControlPolicy（セキュリティのアクセス許可フラグ 制御ポリシー）でのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>シリアル化</td>
+          <td>SecurityPermissionFlag.SerializationFormatter（セキュリティのアクセス許可フラグ シリアル化フォーマッタ）でのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>スレッド 操作</td>
+          <td>SecurityPermissionFlag.ControlThread でのセキュリティのアクセス許可</td>
+        </tr>
+        <tr>
+          <td>リフレクション</td>
+          <td>ReflectionPermission（リフレクションのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>アンマネージ コードの呼び出し</td>
+          <td>UnmanagedCodePermission（アンマネージ コードのアクセス許可）</td>
+        </tr>
+        <tr>
+          <td>DPAPI を呼び出してデータの暗号化および復号化を実施します</td>
+          <td>DataProtectionPermission（データ保護のアクセス許可）</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p />
+  <h1>
+    <hr />
+  </h1>
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

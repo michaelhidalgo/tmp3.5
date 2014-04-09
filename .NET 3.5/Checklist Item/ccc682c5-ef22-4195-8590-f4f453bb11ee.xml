@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1947383478" Content_Hash="-1956700855">
+  <Metadata>
+    <Id>ccc682c5-ef22-4195-8590-f4f453bb11ee</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>HTTP 要求がフィルタリングされている。 URLScan がインストールされ設定されている。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>すべての HTTP 要求がフィルタリングされるように、URLScan がインストールされ設定されていることをチェックしてください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>URLScan は IISLockdown を実行するとインストールされます。ダウンロードして別々にインストールすることもできます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Windows Server 2003 上の IIS 6.0 は、ビルトイン URLScanと同等の機能を持っています。 URLScan をインストールするかどうかの判断は、所属する組織ごとの要件によります。 詳細については、「<a href="http://www.microsoft.com/technet/security/tools/urlscan.mspx#eeaa">URLScan 2.5 をインストールする</a>」を参照してください。</blockquote>
+  <p>
+    <b>IISLockdown を実行せずに URLScan をインストールするには</b>
+  </p>
+  <ol>
+    <li>IISlockd.exe を <a href="http://download.microsoft.com/download/iis50/utility/2.1/nt45xp/en-us/iislockd.exe">http://download.microsoft.com/download/iis50/Utility/2.1/NT45XP/EN-US/iislockd.exe</a> からダウンロードします。
+<li>以下のコマンドを実行して URLScan セットアップを抽出します。
+<p>i<b>islockd.exe /q /c</b></p></li></li>
+  </ol>
+  <p>URLScan は安全でない文字 (たとえば、ディレクトリ トラバーサルに使用される “..” などの、脆弱性を悪用するために使用される文字) を含む要求をブロックします。 URLScan は、これらの文字を含む要求を %windir%\system32\inetsrv\urlscan ディレクトリにログとして記録します。</p>
+  <p>URLScan の設定は、.ini ファイル %windir%\system32\inetsrv\urlscan\urlscan.ini 内の設定を使用して行います。</p>
+  <p>悪意のある要求をブロックするだけでなく、URLScan を使用して、要求が ASP.NET に届く前にDoS攻撃に対してサーバを防御することができます。 これを行うには、URLScan.ini ファイル内の <b>MaxAllowedContentLength</b>、<b>MaxUrl</b>、および <b>MaxQueryString</b> 引数に制限を設定します。 詳細については、本ガイドの「How To」セクションにある「<a href="http://msdn2.microsoft.com/en-us/library/aa302368.aspx">How To: Use&nbsp;URLScan</a>」を参照してください。</p>
+  <h3>URLScan の変更の取り消し</h3>
+  <p>URLScan を削除するための自動操作はありません。 URLScan に問題がある場合は、IIS から削除するか、拒否された要求をログ記録することによって問題を解析できます。 これを行うには、URLScan .ini ファイル内のオプション  <b>RejectResponseUrl=/~*</b> を使用します。</p>
+  <p>ISAPI フィルターの削除方法の詳細については、本章で後述される「<a href="http://msdn2.microsoft.com/en-us/library/aa302432.aspx#c16618429_021">Step 13. ISAPI Filters</a>」を参照してください。</p>
+  <h1>その他のリソース</h1>
+  <p>URLScan ツールの詳細については、以下の記事を参照してください。</p>
+  <ul>
+    <li>URLScan の実行の詳細については、「<a href="http://msdn2.microsoft.com/en-us/library/aa302368.aspx">How To: Use&nbsp;URLScan</a>」を参照してください。
+<li>URLScan 設定と URLScan.ini ファイルの設定の詳細については、Microsoft ナレッジ ベースの記事 326444「URLScan ツールの構成方法」を参照してください。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

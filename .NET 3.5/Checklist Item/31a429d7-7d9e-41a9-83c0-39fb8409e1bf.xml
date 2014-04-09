@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="889741346" Content_Hash="-903129662">
+  <Metadata>
+    <Id>31a429d7-7d9e-41a9-83c0-39fb8409e1bf</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データはデータベースで暗号化される</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>データベースに格納する機微データは、必ず暗号化してください。</p>
+  <h1>理由</h1>
+  <p>SQL Server の暗号化データは最後の防衛線です。 攻撃者がデータベースへのアクセスに成功したとしても、まだデータを解読する必要があります。 鍵管理および暗号化オーバーヘッドはアプリケーションのコストや複雑性を増大させますが、休眠データの暗号化はアプリケーションの安全性を大幅に向上させることができます。 さらに、それはあるクラスのPersonally Identifiable Information (クレジット カード記録など) に現在または将来的に必要とされ、必要とされない場合でも企業の負担を軽減することができます。</p>
+  <h1>チェック方法</h1>
+  <p>次の手順に従い、&amp;nbsp; データベースに格納されている機微データが暗号化されていることを検証します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>適切な暗号鍵が作成されていることを検証します。</strong>
+      </p>
+      <ul>
+        <li>
+          <p>データベース マスター キーが設定されていることを確認してください。SQL Server はサービス マスター キーの作成および管理を処理しますが、データベース マスター キーはアプリケーションにより作成される必要があります。<strong></strong> この鍵は、トリプル DES を使用して暗号化され、&amp;nbsp;2 か所に格納されます。</p>
+          <ul>
+            <li>
+              <p>1 つ目の格納場所は、提供されたパスワードにより暗号化された、<strong>sys.symmetric_keys</strong> データベース テーブルです。</p>
+              <li>
+                <p>2 つ目は、サービス マスター キーを使用して暗号化された、マスター データベースの <strong>sys.databases</strong> テーブルです。 <br /><br />これらの場所をチェックし、データベース マスター キーが作成済みであることを確認してください。</p>
+              </li>
+            </li>
+          </ul>
+          <li>
+            <p>アプリケーションが使用するサブキーを作成済みであることを確認します。 必要とする暗号化に応じて、次のうちいくつかの種類の鍵を作成済みであることを確認してください。</p>
+            <ul>
+              <li>公開鍵と私有鍵のペアによる公開鍵暗号化に使用される非対称鍵 <li>同じ鍵がデータの暗号化および解読の両方を行う共有秘密鍵に使用される対称鍵 <li>本質的に公開鍵用のラッパーである証明書</li></li></li>
+            </ul>
+            <li>
+              <p>
+                <strong>symmetric_keys</strong> という名前のシステム カタログ表示からすべての行を選択し、現在のデータベース内のすべての鍵を一覧表示して、対象の鍵を作成済みであることを確認します。</p>
+            </li>
+          </li>
+        </li>
+      </ul>
+      <blockquote>
+        <blockquote>
+ <pre>SELECT &amp;#42; FROM sys.symmetric_keys;</pre>
+        </blockquote>
+      </blockquote>
+      <li>
+        <strong>データベースのデータが暗号化されていることを確認してください。 </strong>暗号化に対応する適切な T-SQL 関数を使用して、データベースのデータが、作成された鍵により暗号化済みであることを確認してください。 たとえば、関数 <strong>EncryptByKey</strong>、<strong>DecryptByKey</strong>、<strong>EncryptByCert</strong> および <strong>DecryptByCert</strong> が INSERT および SELECT ステートメントで使用済みであること、およびテーブルで暗号化されているフィールドが型 <strong>varbinary</strong> であることを確認してください。</li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>電子商取引サイトは、データベースのカスタマー テーブルに次の定義を使用します。</p>
+ <pre>CREATE TABLE Customer <br />(    CustId int,<br />     name nvarchar(30),<br />     City varchar(20),<br />     CreditCardType varchar(10),<br />     CreditCardNumber varchar(19),<br />     Notes varchar(4000)<br />) GO</pre>
+  <p>そしてこのクエリを使用して新しいカスタマーを挿入します。</p>
+ <pre>INSERT INTO Customer VALUES<br /> (1, 'Don Kiely', 'Fairbanks', 'Visa',<br />  '1234-5678-8765-4321', 'This customer is a real flake. Don''t trust him&amp;#33;')</pre>
+  <p>SQL インジェクション脆弱性によりサイトがセキュリティ侵害を被る場合、すべてのクレジット カード番号を含むカスタマー データベース全体が攻撃者にさらされます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、<a href="http://msdn.microsoft.com/en-us/magazine/cc163771.aspx">「SQL Server 2005 で上級セキュリティ機能を使用して攻撃者を食い止める」</a>を参照してください。<li>鍵の作成および使用の詳細については、<a href="http://aspnet.4guysfromrolla.com/articles/022107-1.aspx">「SQL Server 2005 Database における対称暗号化の使用」 を参照してください。</a></li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-403336072" Content_Hash="-1324199777">
+  <Metadata>
+    <Id>5b887ce0-6472-4962-a3ab-561fefac53ec</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切なサイズの鍵を使用する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>暗号化サービスで作業をする場合は、パフォーマンスをそれほど犠牲にすることなく充分な安全のマージンを提供できるような適切な鍵サイズを使用してください。</p>
+  <h1>理由</h1>
+  <p>鍵サイズを選択することは、パフォーマンスとセキュリティ間のトレードオフを表しています。 小さすぎる鍵を選択すると、よく保護されていると思われたデータが攻撃に対して脆弱になることがあります。 大きすぎる鍵を選択すると、システムは、現実世界における相応のセキュリティの改善がないにもかかわらず、パフォーマンスの影響を受けることになります。</p>
+  <h1>状況</h1>
+  <p>暗号化サポートをアプリケーションに追加する場合</p>
+  <h1>対策</h1>
+  <p>適切な鍵サイズは、使用中の暗号アルゴリズムに基づいて変更され、またマシンの処理速度が増加し、攻撃手法がより高度化するにつれて時間と共に変化します。 次の推奨事項は、パフォーマンスを過度に犠牲にすることなく、安全域を与えてくれます：</p>
+  <ul>
+    <li>非対称アルゴリズムとして RSA を使用する場合は、2048 ビットの鍵を選択する<li>対称アルゴリズムとして AES を使用する場合は、128 ビットの鍵を選択する<li>他のアルゴリズムは他の鍵サイズを持つことになります。 Microsoft からの最新の推奨事項については、   - <a href="http://msdn.microsoft.com/en-us/library/aa379916(VS.85).aspx">http://msdn.microsoft.com/en-us/library/aa379916(VS.85).aspx にて MSDN の CryptDeriveKey 機能定義をご覧ください。</a></li></li></li>
+  </ul>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="571596583" Content_Hash="1513783384">
+  <Metadata>
+    <Id>5d895784-a43d-488e-a0d3-464403f77d7e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>宣言型および命令型のアクセス許可要求を使用する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>メソッドへのアクセスを認可したい場合、そのメソッドに対する宣言型の主要なアクセス許可の要求を使用することができます。 次の属性では、マネージャ ロールのメンバーであるユーザーだけが <b>GetCustomerDetails</b> メソッドを呼び出すことができます。 </p>
+ <pre>using System.Security.Permissions;using System.Threading;...<br />[PrincipalPermissionAttribute(SecurityAction.Demand, Role="Manager")]<br />public void GetCustomerDetails(int CustId){}   </pre>
+  <p>より詳細な制御が必要で、かつメソッド内で認可を実行する必要がある場合は、命令型の主要なアクセス許可の要求または明示的なロール チェックをコードのブロックに対して実行することができます。 次のコード例に、命令型の主要なアクセス許可要求を実行する方法を示します。 </p>
+ <pre>using System.Security;<br />using System.Security.Permissions;<br />public void GetCustomerDetails(int CustId){<br />    try<br />    {<br />        // Imperative principal permission role check to verify<br />        // that the caller is a manager.<br />        PrincipalPermission principalPerm = new PrincipalPermission(null,<br />                                                 "Manager");<br />        principalPerm.Demand();<br />        // Code that follows is only executed if the caller is a<br />        // member of the "Manager" role.<br />    }<br />    catch( SecurityException ex )<br />    {<br />   . . . <br />    }}   </pre>
+  <p>次のコード例では、明示的なロール チェックを使用しています。 </p>
+ <pre>public void GetCustomerDetails(int CustId){<br />    if(!Thread.CurrentPrincipal.IsInRole("Manager"))<br />    {    . . . }}</pre>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

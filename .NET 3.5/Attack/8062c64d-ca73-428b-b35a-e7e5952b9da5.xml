@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<TeamMentor_Article Metadata_Hash="-2129687537" Content_Hash="598082771">
+   <Metadata>
+    <Id>8062c64d-ca73-428b-b35a-e7e5952b9da5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL インジェクション攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>SQL データベースと対話するすべてのアプリケーション。</p>
+  <h1>説明</h1>
+  <p>SQL インジェクション攻撃は、入力検証の脆弱性をエクスプロイトして、データベースで任意のコマンドを実行させるものです。 これは、アプリケーションが、入力を基にして、データベースにアクセスするための動的な SQL ステートメントを構成している場合に発生します。 これはまた、コードが、ユーザー入力をそのまま含む文字列を渡されるストアド プロシージャを使用している場合にも発生します。 SQL インジェクション攻撃を使用することにより、攻撃者は、攻撃されたプロセスに与えられている特権をすべて持った状態で、データベース上で任意のコマンドを実行することができます。 アプリケーションが、データベースに接続するために、過剰な特権を持ったアカウントを使用している場合には、問題はさらに大きくなります。 このような場合、データの取得、操作、破壊が行えるだけでなく、データベース サーバーを使用してオペレーティング システムのコマンドを実行することが可能で、さらに他のサーバーに侵入することができる場合もあります。 </p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>機密性</strong>: SQL データベースは通常機微データを保持しているので、SQL インジェクションの脆弱性では機密性の損失がしばしば問題となります。 <li><strong>認証</strong>: ユーザー名とパスワードのチェックのために貧弱な SQL コマンドを使用している場合、事前にパスワードを知らなくでも、システムに別なユーザーとして接続することが可能な場合があります。 <li><strong>認可</strong>: 認可情報が SQL データベースで保持されている場合、SQL インジェクションの脆弱性をエクスプロイトすることに成功すれば、この情報を変更することが可能な場合があります。 <li><strong>完全性</strong>: 機微情報を読み取ることができる場合があるのと同様、SQL インジェクション攻撃では、この情報を変更したり、さらには削除したりすることも可能です。 </li></li></li></li>
+  </ul>
+  <p>攻撃者の能力は、データベースに使用するために使用しているアカウントへの許可によって制約されます。 この理由で、アプリケーションは、必要最小限の特権セットを持つアカウントで、データベースに接続するべきです。 </p>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>不十分な入力検証。 <li>型セーフなパラメータを使用せずに SQL ステートメントを動的に構成すること。 <li>過剰な特権でデータベースにログインすること。 </li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>入力を制約する。</strong> SQL コマンドとして使用される可能性のあるすべてのユーザー入力に対して、強力なホワイトリスト スタイルのチェックと型チェックを使用してください。 メタ文字については、エスケープするよりも、それらをホワイトリストに追加するのを避けた方が安全です。 データベースに入力したデータを後ほど使用するときには、メタ文字をエスケープするのを怠ってしまうことがあります。 <li><strong>パラメータ化された SQL ステートメントとストアド プロシージャを使用します。 </strong>パラメータ化された SQL ステートメントは、セキュリティ的に不利な効果を及ぼさずに、SQL に対して特別な意味を持つ文字 (シングル クォートなど) を処理します。 <li><strong>エスケーピング ルーチンを使用します</strong>。パラメータを使用することができず、動的な SQL を使用する必要がある場合には、データベースに対して意味を持つ特殊文字を処理するのに、エスケーピング ルーチンを使用してください。 <li><strong>データベースでの許可が制限されているアカウントを使用します</strong>。理想的には、アカウントは、アプリケーションが使用する必要のあるストアド プロシージャのセットの実行許可だけを持っているべきです。直接のテーブル アクセスの許可は持っているべきではありません。 <li><strong>データベースのエラーはエコーしません</strong>。例外はサーバー上でキャッチして、クライアントには汎用のエラー メッセージを返してください。</li></li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>SQL インジェクションはパラメータ化で修正する方が容易で、信頼性も高くなりますが、それを使用せずに修正することもできます。 user および product という 2 つのテーブルを持つ PHP/MySQL アプリケーションがあるとしましょう。 user テーブルのそれぞれの行には、ユーザー ID、名前、パスワード、クレジット カード番号、および住所が含まれています。 同様に、product テーブルには製品 ID、説明、および価格のコラムがあります。 アプリケーションは、製品 ID が与えられたときに製品の説明を取得する SQL クエリを含んでいます。</p>
+  <pre>&amp;#36;query = "SELECT description FROM products WHERE product_id = " &amp;#43; &amp;#36;prod_id &amp;#43; ";";&amp;#36;result = mysql_query(&amp;#36;query);</pre>
+  <p>そこで、&amp;#36;prod_id の値が 5 なら、&amp;#36;query はこうなります。</p>
+  <pre>SELECT description FROM products WHERE product_id = 5;</pre>
+  <p>攻撃者は、アプリケーションが製品 ID を (数値を期待して) 尋ねたときに、次の文字列を入力します。</p>
+  <pre>5; SELECT &amp;#42; from users</pre>
+  <p>その結果、&amp;#36;クエリは次の値になりますが、これは完全に正当な SQL クエリです。</p>
+  <pre>SELECT description FROM products WHERE product_id = 5; SELECT &amp;#42; from users;</pre>
+  <p>クエリは実行され、製品の説明とともに、user テーブルのすべての行が返されて、攻撃者は、データベースから機密の情報をすべて入手します。 </p>
+  <p>状況とプログラミング言語にはそれぞれ独自の課題がありますが、このケースでは、文字のシーケンスをエスケープすれば、MySQL に、ユーザーが指定した文字列を WHERE 節の一部として解釈させることができます。 このことを行う PHP の関数は、mysql_real_escape_string() です。</p>
+  <pre>&amp;#36;query = "SELECT description FROM products WHERE product_id = " &amp;#43;  mysql_real_escape_string(&amp;#36;prod_id) &amp;#43; ";";&amp;#36;result = mysql_query(&amp;#36;query);</pre>
+  <p>これで、&amp;#36;query の値は次のようになります。</p>
+  <pre>SELECT description FROM products WHERE product_id = \'5; SELECT &amp;#42; from users\';</pre>
+  <p>ユーザーが指定した文字列の中の、危険性のあるすべての文字はエスケープされ、MySQL クエリに安全に入れることができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://en.wikipedia.org/wiki/SQL_injection">http://en.wikipedia.org/wiki/SQL_injection</a>
+      <li>
+        <a href="http://www.php.net/manual/en/security.database.sql-injection.php">http://www.php.net/manual/en/security.database.sql-injection.php</a>
+        <li>
+          <a href="http://msdn2.microsoft.com/en-us/library/ms998271.aspx">http://msdn2.microsoft.com/en-us/library/ms998271.aspx</a>
+          <li>
+            <a href="http://www.unixwiz.net/techtips/sql-injection.html">http://www.unixwiz.net/techtips/sql-injection.html</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/5865cd19-5ead-401d-abd7-7e54cd2c1fc1">ガイドライン: ストアド プロシージャを使用する</a>
+      <li>
+        <a href="/article/b431b7df-36d8-461b-a437-675a20e9548b">ガイドライン: データベースに渡されるすべての入力を検証する</a>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

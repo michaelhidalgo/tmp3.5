@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="368915961" Content_Hash="-1919946476">
+  <Metadata>
+    <Id>d7eaf081-5542-45d6-8a02-5dc14c7c3ecc</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログ ファイルを認可されていないアクセスから保護する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ログ ファイルを認可されていないアクセスから保護してください。</p>
+  <h1>対策</h1>
+  <ul>
+    <li>ログ ファイルおよび SQL 記録へのアクセスは制限して、攻撃者がなかなかログ ファイルを改ざんして形跡を隠すことができないようにしてください。 </li>
+    <li>ログ ファイルを操作できる個人の数を最小限に抑えてください。 管理者のような高い信頼を得ているアカウントに対してのみ、アクセス権を承認してください。</li>
+    <li>監査およびログ ファイルへのアクセスは Windows ACL で制限してください。 SQL Server またはカスタム イベント シンクにイベントをログ記録する場合は、イベント データへのアクセスを制限するために適切なアクセス制御を使用してください。 例えばアカウントまたはアプリケーションが使用しているアカウントには書込み許可を与え、管理者には完全な制御を与え、オペレータには読み取りのみのアクセスを与えるようにしてください。</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

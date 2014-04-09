@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1622449050" Content_Hash="1267299205">
+  <Metadata>
+    <Id>afc3e5ba-5896-4b73-b905-39181815d5eb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>リソースベース認可を実行する方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>リソースベース認可では、リソース自体に対してアクセス許可が設定されます。 たとえば、Windows リソースに ACL を設定してから、最初の呼び出し元の ID を使用してリソースへのアクセス権限を判別します。 WCF でリソースベース認可を使用する場合、最初の呼び出し元の偽装は、アプリケーション レイヤー (ASP.NET アプリケーション等) を通して、WCF サービス レイヤーを通して、さらにファイル リソースにアクセスしているビジネス ロジック コードに対して行う必要があります。</p>
+  <p>リソースベース認可を使用するには、ACL を設定してから最初の呼び出し元を偽装することで、リソース自体に対してアクセス許可を設定する必要があります。</p>
+  <p>次のコードでは、特定の (固定) ID を偽装しています。</p>
+ <pre>using System.Security.Principal;<br />…<br />WindowsIdentity wi = new WindowsIdentity(<a href="mailto:“userName@fullyqualifieddomainName">“userName@fullyqualifieddomainName</a>”);<br />WindowsImpersonationContext ctx = null;</pre>
+ <pre>try<br />{<br />  ctx = wi.Impersonate();</pre>
+ <pre>  // Thread is now impersonating you can access resource needed…<br />}<br />catch<br />{<br />  // Prevent exceptions propagating.<br />}<br />finally<br />{<br />  // Ensure impersonation is reverted<br />  ctx.Undo();<br />}<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx にある 「認可」を参照してください。</a><li>認可の Q&A については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home で、「WCF 3.5 質問と答」の認可セクションを参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

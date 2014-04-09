@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1594582710" Content_Hash="-1094349412">
+  <Metadata>
+    <Id>e3506eda-51bd-4c58-b2dc-5cedb0dc2d11</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF をセルフホストする方法</Title>
+    <Category>ホスティング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>最大限の柔軟性と、できる限り早いサービスの動作を求める場合、セルフホスティングが開発およびデバッグのシナリオには最適です。 展開の段階では、ホスティングにWindows サービスまたはIISを選択する必要があります。</p>
+  <p>.NET アプリケーションでWCGサービスをセルフホスティングする方法は以下に従います。</p>
+  <ol>
+    <li>以下に示されるコード例のように、サービスを開始するメソッドを作成します。<ol><pre>// Host the service within the application.<br />public static void Main()<br />{<br />    // Create a ServiceHost for the CalculatorService type.<br />    using (ServiceHost serviceHost = <br />           new ServiceHost(typeof(Service1)))<br />    {<br />        // Open the ServiceHost to create listeners          <br />        // and start listening for messages.<br />        serviceHost.Open();</pre><pre>        Console.ReadLine();<br />    }<br />}</pre></ol><li>セルフホスティングの場合、ベースアドレスを指定しなければなりません。 この例はconfigファイルの構成方法を示します。<ol><pre>&lt;service <br />    name="Service1"<br />    behaviorConfiguration="ServiceBehavior"&gt;<br />  &lt;host&gt;<br />    &lt;baseAddresses&gt;<br />      &lt;add baseAddress="<a href="http://localhost:8000/WCFSecuritySamples/service%22/">http://localhost:8000/WCFSecuritySamples/service"/</a>&gt;<br />    &lt;/baseAddresses&gt;<br />  &lt;/host&gt;<br />  ...<br />&lt;/service&gt;<br /></pre></ol></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms750530.aspx">http://msdn.microsoft.com/en-us/library/ms750530.aspxから「セルフホスティング」をご覧ください。</a><li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms731758.aspx">http://msdn.microsoft.com/en-us/library/ms731758.aspxから「方法: 管理アプリケーションで WCF サービスをホスティングする」をご覧ください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

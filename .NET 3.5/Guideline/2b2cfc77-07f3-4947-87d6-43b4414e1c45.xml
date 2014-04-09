@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1284194634" Content_Hash="1061837705">
+  <Metadata>
+    <Id>2b2cfc77-07f3-4947-87d6-43b4414e1c45</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>暗号鍵をセキュアに保つ</Title>
+    <Category>暗号化</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>アプリケーションが暗号鍵をどうセキュアに保つかを検証します。 </p>
+  <h1>理由</h1>
+  <p>暗号化されたデータがセキュアであることは鍵にかかっています。 暗号化されたデータを復元するために、攻撃者は鍵と暗号テキストを取得しなければなりません。 そのため、暗号鍵と暗号化されたデータの両方の安全を確保するために設計を検証します。  </p>
+  <h1>状況</h1>
+  <p>DPAPIを使用する場合、あなたに代わってプラットフォームが鍵を管理します。 そうでない場合、アプリケーションが鍵管理を行います。 DPAPIを使用して、他の暗号化形態に必要とされる暗号鍵を暗号化するのが良い方法です。 たとえば、制限のあるACLで設定された鍵の下のレジストリに置くなど、暗号化した鍵を安全に保管します。</p>
+  <h1>対策</h1>
+  <p>暗号鍵は、暗号化と復号化のプロセスの入力として使用される機密の数字です。 暗号化したデータが安全であり続けるためには、この鍵が保護されている必要があります。 攻撃者が復号鍵のセキュリティを侵害すれば、暗号化データはもはや安全ではなくなります。</p>
+  <p />以下を実践することは、暗号鍵の安全を守るのに役立ちます。<ul><li><b>DPAPI を使用して鍵管理を回避</b>。<li><b>鍵を定期的に変更</b>。</li></li></ul><h3>DPAPIを使用して鍵管理を回避する</h3><p>前述のとおり、DPAPI使用の主な利点の一つは、鍵管理に関する問題がオペレーションシステムにより処理されることです。 DPAPI が使用する鍵は、DPAPI 関数を呼び出すプロセス アカウントに関連するパスワードから得られます。 DPAPIを使用して、鍵管理の大変さをオペレーション システムに任せます。</p><h3>鍵を定期的に変更する</h3><p>一般的に、静的な機密は時間の経過とともに発見されやすいものです。 それをどこかに書き留めましたか。 機密を知っていた管理者の Bob は、社内の職位が変更になったり、会社を辞めたりしていませんか。 鍵を使いすぎないようにしましょう。</p><h1>その他のリソース</h1><ul><li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」を参照してください。<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li></ul><hr /><p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

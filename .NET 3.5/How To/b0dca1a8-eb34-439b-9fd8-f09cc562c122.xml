@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="459457545" Content_Hash="332676946">
+  <Metadata>
+    <Id>b0dca1a8-eb34-439b-9fd8-f09cc562c122</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>証明書認証とトランスポート セキュリティを用いて、IIS でホストされたサービス用のプロキシを作成する方法</Title>
+    <Category>ネットワーキング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>以下のステップを実行して、証明書認証とトランスポート セキュリティを必要とする、IIS でホストされたサービスへのプロキシを作成してください。</p>
+  <ol>
+    <li>IMexdataExchange を実装して証明書認証の型が指定されたバインディング構成を使用する、新しい wsHttpBinding エンドポイントをサービス上に作成します。
+<ol><pre>&lt;services&gt;<br />   &lt;service behaviorConfiguration="returnFaults" name="MyService"&gt;<br />      &lt;endpoint binding="wsHttpBinding" bindingConfiguration=""<br />        name="wsHttpEndpoint" contract="IService" /&gt;<br />      &lt;endpoint address="mex" binding="wsMexHttpBinding" <br />        bindingConfiguration=""<br />        name="mexEndpoint" contract="IMetadataExchange" /&gt;<br />    &lt;/service&gt;<br />&lt;/services&gt;…</pre></ol><li>サービスの認証に使用される証明書を構成が指している svcutil.exe.config ファイルをクライアント上に作成します。 エンドポイントには、IMetadataExchange 型とのコントラクトを組み入れる必要があります。エンドポイントは、証明書認証が指定されたバインディング構成を指しています。
+<ol><pre>&lt;configuration&gt;<br />  &lt;system.serviceModel&gt;<br />    &lt;client&gt;<br />      &lt;endpoint behaviorConfiguration="ClientCertificateBehavior" <br /> binding="wsHttpBinding"<br />        bindingConfiguration="Binding1" contract="IMetadataExchange" <br />   name="https" /&gt;<br />    &lt;/client&gt;<br />    &lt;bindings&gt;<br />      &lt;wsHttpBinding&gt;<br />        &lt;binding name="Binding1"&gt;<br />          &lt;security mode="Transport"&gt;<br />            &lt;transport clientCredentialType="Certificate" /&gt;<br />          &lt;/security&gt;<br />        &lt;/binding&gt;<br />      &lt;/wsHttpBinding&gt;<br />    &lt;/bindings&gt;<br />    &lt;behaviors&gt;<br />      &lt;endpointBehaviors&gt;<br />        &lt;behavior name="ClientCertificateBehavior"&gt;<br />          &lt;clientCredentials&gt;<br />            &lt;clientCertificate findValue="CN=clienttempcert" <br />  storeLocation="CurrentUser"<br />              storeName="My" <br />  x509FindType="FindBySubjectDistinguishedName" /&gt;<br />          &lt;/clientCredentials&gt;<br />        &lt;/behavior&gt;<br />      &lt;/endpointBehaviors&gt;<br />    &lt;/behaviors&gt;<br />  &lt;/system.serviceModel&gt;<br />&lt;/configuration&gt;</pre></ol><li>svcutil を <strong>C:\Program Files\Microsoft Visual Studio 8\Common7\IDE</strong> から、クライアント上で svcutil.exe.config が作成された同じ場所にコピーし、<strong>svcutil serviceurl のコマンドを実行します。</strong></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「メタデータの公開」 (<a href="http://msdn.microsoft.com/en-us/library/aa751951.aspx">http://msdn.microsoft.com/ja-jp/library/vstudio/aa751951(v=vs.90).aspx) を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

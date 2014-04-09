@@ -1,0 +1,1512 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1364078352" Content_Hash="-1027738887">
+  <Metadata>
+    <Id>e2ceb17f-da70-40fd-a799-bf67e312bd7a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>正規化バグをテストする方法</Title>
+    <Category>ファイル I/O</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>対象</span>
+  </h1>
+  <p>
+    <span>このタイプのバグは、以下に示すような信頼されていないデータに基づいたファイル システムと対話するアプリケーションでは一般的です。</span>
+  </p>
+  <ul>
+    <li>
+      <span>ファイルのアップロードとダウンロード機能を持つ Web アプリケーションやサービス。</span>
+      <li>
+        <span>ファイル名を解決するApache や IIS などのインターネット Web サービス。</span>
+        <li>
+          <span>CGI、JavaScript、VB スクリプト、Java、ASP、PHP、C# などの Web 関連のスクリプトや言語。</span>
+          <li>
+            <span>ユーザー入力に基づいてファイル操作を実行する管理対象および管理されていないネットワーク アプリケーション。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>概要</span>
+  </h1>
+  <p>
+    <span>ソフトウェア アプリケーションはファイル名やディレクトリをさまざまな方法で表示するため、任意のファイルには複数の形式の名前があります。<span>&nbsp; </span>Microsoft Windows を例に使用して、C: ドライブの “プライベート” という名前のフォルダを見てみましょう。  最も一般的な名前は次のとおりです:</span>
+  </p>
+ <pre>
+    <span>C:\private</span>
+  </pre>
+  <p>
+    <span>次のように呼ぶこともできます。</span>
+  </p>
+ <pre>
+    <span>C:\\private</span>
+  </pre>
+  <p>
+    <span>または (現在の作業ディレクトリが C: ドライブのrootである場合):</span>
+  </p>
+ <pre>
+    <span>
+      <span>&nbsp;</span>
+    </span>
+    <span>".\private"</span>
+  </pre>
+  <p>
+    <span>アプリケーションがそのディレクトリにファイルを書き込もうとする攻撃者を阻止したい場合は、いくつかの対処方法があります。対処方法には、許可しない対象のリストを作成する (ブラックリスティング)、許可する対象のリストを作成する (ホワイトリスティング)、ファイル システム ACL を使用する、ファイル システムへの直接アクセス全体を許可しないなどがあります。<span>&nbsp; </span>しかしながら、問題は、ユーザーが提供するファイル名とパスが予想していたものと実際に一致するかどうかを確認することから始まります。<span>&nbsp; </span>同様の問題は、クロスサイト スクリプティング、SQL インジェクション、コマンド インジェクションなど、多くの種類の脆弱性にもありますが、 ここでは、ファイル アクセスとディレクトリ トラバーサル問題について考えます。</span>
+  </p>
+  <p>
+    <span>正規化バグをテストする方法を以下に示します。</span>
+  </p>
+  <ul>
+    <li>
+      <b>
+        <span>手順 1</span>
+      </b>
+      <span>:&nbsp;<span> </span>正規化攻撃のシナリオを理解する。</span>
+      <li>
+        <b>
+          <span>手順 2</span>
+        </b>
+        <span>:&nbsp;<span> </span>危険度の高いコンポーネントとエントリ ポイントを一覧表示する。</span>
+        <li>
+          <b>
+            <span>手順 3</span>
+          </b>
+          <span>:&nbsp;<span> </span>テストおよび調査を開始する。</span>
+          <li>
+            <b>
+              <span>手順 4</span>
+            </b>
+            <span>:&nbsp;<span> </span>テスト ケース データを調整する。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 1: 正規化攻撃のシナリオを理解する</span>
+  </h1>
+  <p>
+    <span>正規化攻撃を実行する攻撃者の目標は、実際に危険性のある文字列を送信する場合にフィルタリングを実行するソフトウェアに正当な文字列が送信されていると納得させることです。<span>&nbsp; </span>ファイル名を処理する場合、ファイル システムは攻撃者が悪用できる 1 つの曖昧さのレベルを提供します。<span>&nbsp; </span>Web ベースのシステムでは、Web で使用する異なる文字のエンコーディングが 2 番目の曖昧さのレベルを提供します。<span>&nbsp; </span>これらの 2 つのレベルは今日の最も一般的な正規化攻撃を表すため、これらに焦点を当てます。<span>&nbsp; </span>ここに 各層に関連する2 つのサンプル攻撃を示します。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>ファイル システム ベースの正規化攻撃</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>Windows サーバー側アプリケーションはユーザーにファイル パスを要求し、ファイルの内容を表示します。<span>&nbsp; </span>これは、ファイル システムのrootで “</span>
+    <span>プライベート</span>
+    <span>” という名前の重要なディレクトリを使用します (</span>
+    <span>C:\プライベート</span>
+    <span>)。&nbsp;<span> </span>サーバーは送信されたパスにサブ文字列が含まれているかを確認することによってこのディレクトリを保護します</span>
+    <span>プライベート</span>
+    <span>. </span>
+  </p>
+  <p>
+    <span>攻撃者は以下の文字列を試行しますが、それらすべてに “</span>
+    <span>プライベート</span>
+    <span>”</span>
+    <span>が含まれるため、システムに拒否されます。</span>
+  </p>
+ <pre>
+    <span>c:\private</span>
+  </pre>
+ <pre>
+    <span>c:\private\</span>
+  </pre>
+ <pre>
+    <span>..\private</span>
+  </pre>
+ <pre>
+    <span>..\..\private</span>
+  </pre>
+ <pre>
+    <span>c:/private</span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>しかしながら、攻撃者は 8.3 形式の短いファイル名を指定することができます:</span>
+  </p>
+ <pre>
+    <span>C:\privat~1</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>上記の文字列に “</span>
+    <span>プライベート</span>
+    <span>” が含まれないため、これはアプリケーションのブラックリストの一部ではありません。 <span>&nbsp; </span>このようにして、アプリケーションは保護されたフォルダへの攻撃者のアクセスを許可します。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>Web エンコーディングの理解</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>Web 上のすべてのデータは基本的にテキストの文字列です。<span>&nbsp; </span>HTML、JavaScript、URL などのさまざまなコンテキストには区切り文字として使用したり、特別な意味を持つ異なる文字があります。<span>&nbsp; </span>文字列が開始および終了する場所をアプリケーションに理解されるようにするには、それらの区切り文字が含まれる文字列をエンコードする必要があります。<span>&nbsp; </span>このエンコーディングは攻撃者にシステムを欺く機会を提供します。</span>
+  </p>
+  <p>
+    <span>データは状況に応じて異なる時間にエンコードとデコードが行われます。<span>&nbsp; </span>Web アプリケーションはページを作成する間に HTML エンコーディングを実行する必要があります。これを正しく実行できないと、これがたとえばクロスサイト スクリプティング問題の主要な出所になります。 ブラウザーが URL をWeb サーバーに送信すると、URL は送信する前に文字列をエンコードします。</span>
+  </p>
+  <p>
+    <span>たとえば、ユーザーを特殊文字 “&” および “/” が含まれた名前で表示する Web サイトがあるとします。</span>
+  </p>
+ <pre>
+    <span>www.example.com/name=&foo/bar</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>ユーザーがアンパサンドとスラッシュを使用する <b>&foo/bar</b> という名前を選択します。これらはどちらも URL では特別な意味があります。<span>&nbsp; </span>データが上記の通りに送信された場合、Web サーバーは名前をまったく異なるように解釈し、意図されたアクションを実行しません。<span>&nbsp; </span>代わりに、文字列は次のように URL エンコードされた形式で送信されます。</span>
+  </p>
+ <pre>
+    <span>www.example.com/name=%26foo%2Fbar</span>
+  </pre>
+  <p>
+    <span>URL エンコーディングでは、‘%’ 文字を使用してこれ以外では表せない文字をエンコードします。<span>&nbsp; </span>パーセントの後ろの文字列は 16 進数として特殊文字を参照します。<span>&nbsp; </span>もう一方の端の Web サーバーは元のバージョンに戻すために自動的に文字列をデコードしますが、ここに問題が潜んでいます。</span>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>URL エンコーディング ベースの正規化攻撃</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>ほとんどの場合、URL は Web サーバーによってファイル システムにマップされます。<span>&nbsp; </span>これは、以前の攻撃で一覧表示されたファイル名の代替バージョンのリストをさらに長いものにするという効力があります。<span>&nbsp; </span>たとえば、前の例のアプリケーションには C:\inetpub\wwwroot\app\ ディレクトリ外でホストされた Web フロント エンドもあるとします。<span>&nbsp; </span>攻撃者は以下の URL を送信して保護された C:\プライベート ディレクトリにアクセス試行することができます。</span>
+  </p>
+ <pre>
+    <span>http://www.example.com/app/../../../private</span>
+  </pre>
+  <p>
+    <span>このようにして URL のフィルタリング除外を試行する方法は無数にあります。<span>&nbsp; </span>たとえば、サーバーはドットの後ろのスラッシュをフィルタリング除外することができます。<span>&nbsp; </span>ただし、このアクションを生の URL で実行してデコードすると、攻撃者は URL エンコーディング経由でスラッシュの代替表記を使用することができます。</span>
+  </p>
+ <pre>
+    <span>http://www.example/com/app/..%2f..%2f../private</span>
+  </pre>
+  <p>
+    <span>これを修正する 1 つの明確な方法は、文字のエンコードされたバージョンも網羅するように上記のブラックリストを拡張することです。<span>&nbsp; </span>ただし、これは複数のレベルの問題を引き起こす可能性があります。<span>&nbsp; </span>まず最初に、あるユーザーが文字列の Unicode 表記をミックスに追加した場合、文字列をエンコードできる方法の数はさらに多くなります。<span>&nbsp; </span>2 番目に、リストを作成できたとしても、同じ文字列を異なる方法で解釈するシステムの異なる層の問題があります。多数の重要なセキュリティ問題 (Microsoft の IIS バージョン 4 および 5 に対して少なくとも 1 つを含む) は、システムが文字の不正な形式の Unicode 表記を間違って解釈したことが原因です。<span>&nbsp; </span>それらのシステムのいずれかで、以下の文字列が機能した可能性があります。</span>
+  </p>
+ <pre>
+    <span>http://www.example/com/app/..%C0%AF..%C0%AF../private</span>
+  </pre>
+  <p>
+    <span>問題のシステムは、エンコードされた文字列のみを確認し、 デコードの後で何の確認も行わなかったため、この問題は攻撃者にコンピュータを完全に危険にさらすことになりました。以下のような URL は&nbsp;<span> </span>任意のコマンドを実行することが可能です (この場合は、ディレクターのリストを実行することですが、さらに危険なペイロードであっても簡単です)。</span>
+  </p>
+ <pre>
+    <span>http://www.example.com/app/..%c0%af..%c0%af.. winnt/system32/cmd.exe?/c+dir</span>
+  </pre>
+ <pre>
+    <span>
+    </span>
+    <span>
+    </span>&nbsp;</pre>
+  <h1>
+    <span>手順 2: &nbsp;<span></span>危険度の高いコンポーネントとエントリ ポイントのリスト</span>
+  </h1>
+  <p>
+    <span>高レベルでの攻撃について理解できたところで、この問題の一因となる特定のサーバー側の不備について調べる必要があります。<span>&nbsp; </span>問題を詳細に理解した後で、アプリケーションを検査して危険度の高いコンポーネントとエントリ ポイントを特定し、テストを開始します。</span>
+  </p>
+  <h2>
+    <span>問題と軽減策の識別</span>
+  </h2>
+  <p>
+    <span>この問題がソース コードに現れるさまざまな方法を理解し、軽減策を見極めることは、これらの問題がアプリケーションの何処に潜んでいるのかを識別する上で重要な手順です。</span>
+  </p>
+  <p>
+    <span>
+      <b>
+        <i>決定が時期尚早 (非正規の解釈に基づいて)</i>
+      </b>
+    </span>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>正規化エラーの最も一般的な原因は、非正規の解釈に基づいて文字列をあまりにも尚早に確認することにあります。<span>&nbsp; </span>文字列は、アクセス確認に使用される前に (すべてのデコードまたはその他のプロセスが完了した後で、) 正規化形式にする必要があります。<span>&nbsp; </span>たとえば、以下のコードはアクセスの確認が時期尚早です。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>int</span>
+    <span> grabFile(char<span></span>* input)</span>
+  </pre>
+ <pre>
+    <span>{</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>char</span>* m_canonical_path;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>bool</span> result;</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>/*¨check against list of bad names&nbsp;<span> </span>*/</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>result = CheckAccessToFile(bad_input_list, input);<span>&nbsp;&nbsp; </span><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>(1)</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>if</span> (result == <span>true</span>) {</span>
+  </pre>
+ <pre>
+    <span>	/* convert to intended form */ 	</span>
+  </pre>
+ <pre>
+    <span>	m_canonical_path = ConvertToCanonicalForm(input) &nbsp;<span>&nbsp;&nbsp; </span>(2)</span>
+  </pre>
+ <pre>
+    <span>	OpenFile(m_canonical_path)</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>}</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>else</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>return</span>
+      <span>false</span>;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>return</span>
+      <span>true</span>;</span>
+  </pre>
+ <pre>
+    <span>}</span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>このコードは不正に </span>
+    <span>CheckAccessToFile(input)</span>
+    <span> を入力&nbsp;<span> </span>の生バージョンに対して使用しています。<span>&nbsp; </span>アクセスの確認は、アクセスへの呼び出し、またはその他のポリシー決定の直前に行う必要があります。</span>
+  </p>
+ <pre>
+    <span>CheckAccessToFile</span>
+    <span>(</span>
+    <span>m_canonical_path</span>
+    <span>). </span>
+  </pre>
+  <p>
+    <span>注意: &nbsp;<span></span>コードは、</span>
+    <span>ConvertToCanonicalForm() </span>
+    <span>という名前の擬似コード関数を使用して入力文字列を正規化形式に変換します。<span>&nbsp; </span>この関数は、使用しているプラットフォームに応じて、適切な関数呼び出しと置換する必要があります。<span>&nbsp; </span>たとえば、<span>&nbsp;</span>使用しているテクノロジに応じて、使用できるのは Java の</span>
+    <span>getCanonicalPath()</span>
+    <span>または Visual Basic の</span>
+    <span>GetAbsolutePathName()</span>
+    <span> に追加コマンドを注入できます。<span> </span></span>
+    <span>関連のある正規化変換関数に対して使用しているプラットフォームを確認してください。</span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>ブラックリストに基づいた決定</span>
+      </i>
+    </b>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>システムが文字列を適切な時期に正しい形式で確認したとしても、確認が適切に行われなかった場合は問題が存在する場合があります。<span>&nbsp; </span>ブラックリストはこの種の確認に頻繁に使用されますが、危険性のある文字列を簡単に見過ごす結果を招く場合があります。<span>&nbsp; </span><span>&nbsp;</span>無効なリソースの未知の表記を使用して擦り抜けることができるため、ブラックリストはほとんど常に不十分で、この脆弱性に対する防衛力は弱いです。 <span>&nbsp;</span>以下の擬似コードの例は、これを示しています。</span>
+  </p>
+ <pre>
+    <span>int</span>
+    <span> grabFile(char<span></span>* input)</span>
+  </pre>
+ <pre>
+    <span>{</span>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>	char</span>
+    <span>* m_canonical_path;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 	</span>
+      <span>bool</span> result;</span>
+  </pre>
+ <pre>
+    <span>	/* convert here before it’s too late*/</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>
+      </span>
+    </span>
+  </pre>
+ <pre>
+    <span>	canonical_path = ConvertToCanonicalForm(input) ;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>	/* check against the canonical file - the safe representation */</span>
+    </span>
+  </pre>
+ <pre>
+    <span>	m_inpuFile = CheckAccessToFile(bad_input_list, m_canonical_path); </span>
+  </pre>
+ <pre>
+    <span>
+      <span>	if</span> (result == <span>true</span>) </span>
+  </pre>
+ <pre>
+    <span>		OpenFile(m_canonical_path);</span>
+  </pre>
+ <pre>
+    <span>	</span>
+    <span>
+      <span>else</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	&nbsp;&nbsp; </span>
+      <span>return</span>
+      <span>false</span>;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>return</span>
+      <span>true</span>;</span>
+  </pre>
+ <pre>
+    <span>}</span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>このコードは正規化形式 (</span>
+    <span>CheckAccessToFile</span>
+    <span>(</span>
+    <span>m_canonical_path</span>
+    <span>)) を正しく確認しますが、ブラックリスト外の危険性のあるパターンの検出に失敗します。<span>&nbsp; </span>たとえば、攻撃者は以下のようなリストにないバリエーションを使用する可能性があります。</span>
+  </p>
+ <pre>
+    <span>C:\privat~1</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <b>
+      <i>
+        <span>ホワイトリストに基づいた決定</span>
+      </i>
+    </b>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>ホワイトリストを利用することは、正規化攻撃から保護するためのより優れた手段です。<span>&nbsp; </span>ホワイトリストはファイルのすべての有効な表記のリストです。<span>&nbsp; </span>サーバーはホワイトリストに対して入力をチェックし、ホワイトリスト外の入力文字列はすべて却下します。<span>&nbsp; </span>これは、サーバーが認識しないファイル パスのバリエーションを攻撃者が探し出すブラックリストの問題を解決します。</span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>ホワイトリストは文字列のリストまたは正規表現として実装することができます (正規表現が物理リストでない場合であっても、可能性のあるすべての一致を使用して論理リストを表示します)。</span>
+  </p>
+  <p>
+    <span>以下の擬似コードはこの方法を示しています。<br /><span>&nbsp;&nbsp;</span></span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    </span>
+  </p>
+ <pre>
+    <span>int</span>
+    <span> grabFile(char<span></span>* input)</span>
+  </pre>
+ <pre>
+    <span>{</span>
+  </pre>
+ <pre>
+    <span>
+      <span>	char</span>* m_inpuFile;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span>bool</span> result;</span>
+  </pre>
+ <pre>
+    <span>&nbsp;	</span>
+    <span>
+      <span>/*check against list of good forms of the string */</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>m_path = CheckAccessToFile(<span>good_input_list</span>, input);</span>
+  </pre>
+ <pre>
+    <span>&nbsp;	</span>
+    <span>
+      <span>if</span> (result == <span>true</span>) {</span>
+  </pre>
+ <pre>
+    <span>		m_inpuFile = Canonicalize(input) //convert to intended form<span></span></span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>OpenFile(result)</span>
+  </pre>
+ <pre>
+    <span>	} else {</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		</span>
+      <span>/* disallow if the string is not in the good list */</span>
+    </span>
+  </pre>
+ <pre>
+    <span>		return</span>
+    <span>
+      <span>false</span>;</span>
+  </pre>
+ <pre>
+    <span>	</span>
+    <span>}&nbsp;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span>return</span>
+      <span>true</span>;</span>
+  </pre>
+ <pre>
+    <span>}</span>
+  </pre>
+  <p>
+    <b>
+      <i>
+        <span>ユーザー特権に基づいた決定</span>
+      </i>
+    </b>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>
+      <span>
+      </span>
+    </span>
+  </p>
+  <p>
+    <span>これまで見てきたすべてのコードは、文字列の比較に基づいてファイルまたはフォルダへのアクセスを決定します。<span>&nbsp; </span>バックアップ ソリューションには、アクセス制御リスト (ACL) などのオペレーティング システム制御メカニズムの使用が含まれています。<span>&nbsp; </span>これらのアクセス確認方法では、ユーザーが提供する文字列を使用せずに、 サーバーの管理者によって設定されたユーザー特権を使用します。<span>&nbsp;&nbsp;</span></span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>最初に、ACL を使用してフォルダ特権を制限する必要があります。<span>&nbsp; </span>たとえば、ACL を使用して管理者のみにそのフォルダの読み取りと書き込みを許可するとします。<span>&nbsp; </span>管理者以外は誰もフォルダを読み取ったり、参照することはできません。<span>&nbsp; </span>サーバーは管理者特権を使用して実行するため、サーバーの有効な特権を引き下げるコードを作成する必要があります。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+ <pre>
+    <span>
+    </span>
+    <span>
+      <span>bool</span> ShowFile(<span>char</span> * input)</span>
+  </pre>
+ <pre>
+    <span>{</span>
+  </pre>
+ <pre>
+    <span>
+      <span>	/* start by changing to lower privileges */</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span>ImpersonateUser(Internet User);</span>
+    </span>
+  </pre>
+ <pre>
+    <span>&nbsp;	</span>
+    <span>
+      <span>try</span>
+      <span>&nbsp;&nbsp; </span>{</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>OpenFile(input);<span>&nbsp; </span></span>
+  </pre>
+ <pre>
+    <span>	} catch<span></span> {</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	</span>
+      <span>/* (Internet User doesn't have access) */</span>
+    </span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>/* return to initial privileges */</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>RevertToSelf();</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>return</span>
+      <span>false</span>;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>}</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span>/* return to initial privileges */</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span>RevertToSelf();</span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>	return</span>
+      <span>true</span>;</span>
+  </pre>
+ <pre>
+    <span>}</span>
+  </pre>
+  <p>
+    <span>このようなコードはアクセス制御を使用して正規化攻撃を軽減します。<span>&nbsp; </span><i>構文上の</i>決定、ユーザーが指定したパスのパターン マッチング、および不正なパターンはありません。  攻撃者が選択するパスにかかわらず、<span>&nbsp; </span>特権がない場合、システムはそのリソースへのアクセスを拒否します。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>すべてのエントリ ポイントを検索</span>
+  </h2>
+  <p>
+    <span>正規化バグの原因とそれらを修正する方法の例を見てきたので、ここでは使用しているアプリケーションでこのような問題の可能性のあるエントリ ポイントを探し出します。<span>&nbsp; </span>アプリケーションの動作に応じて、これらの問題に影響を受ける機能は 1 つまたは 2 つのみである場合も、多数である場合もあります。<span>&nbsp; </span>これらのいくつかの機能のリストを作成することから開始し、その機能に影響を及ぼす可能性のあるすべてのエントリ ポイントに戻します。<span>&nbsp; </span>エントリ ポイントのリストは以下のようになります。</span>
+  </p>
+  <ul>
+    <li>
+      <span>Request.QueryString[path]</span>
+      <li>
+        <span>&_GET[path]</span>
+        <li>
+          <span>HTTP 変数、フォームの送信経由</span>
+          <li>
+            <span>Shell 変数</span>
+            <li>
+              <span>データベース クエリ結果</span>
+              <li>
+                <span>LDAP クエリ結果</span>
+                <li>
+                  <span>Web サービスが返すデータ</span>
+                  <li>
+                    <span>シック クライアント ユーザー インターフェイス</span>
+                    <li>
+                      <span>その他</span>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>正規化攻撃によって影響を受けた機能に使用される可能性のある特定の関数を以下に示します。</span>
+    <i>
+      <span>
+      </span>
+    </i>
+  </p>
+  <ul>
+    <li>
+      <span>fopen() </span>
+      <li>
+        <span>CreateFile()</span>
+        <li>
+          <span>FileInputStream</span>
+          <li>
+            <span>StreamReader</span>
+            <li>
+              <span>Policy.Allow()</span>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>これらの他に正規化攻撃の危険にさらされる可能性のある関数は多数存在するため、プログラムの動作と理由について確実に理解してください。</span>
+  </p>
+  <p>
+    <span>以下のような表にして上記のリストをコンパイルしたら、テストの間、危険度の高いコンポーネントを体系的に検証することができます。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <span>コンポーネント</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>API</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>行</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>URL</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>フォーム</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>UI</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>サービス</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>API</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>FileBrowser.asp</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>OpenTextFile</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>103</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>OpenTextFile</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>145</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>OpenFile</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>231</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>Response.php</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>fopen</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>1001</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>fopen</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>1116</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>FileHandler.cpp</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>CreateFile</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>234</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>CreateFile</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>531</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>showAccount.java</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>FileStreamReader</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>432</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <u>
+                <span>
+                </span>
+              </u>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>FileStreamReader</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>674</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>x</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <span>
+    </span>&nbsp;</p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 3: テストおよび調査の開始</span>
+  </h1>
+  <p>
+    <span>次の手順では、単純なファジー文字列を使用してシステムの実装のテストを開始し、システムの応答を観察します。<span>&nbsp; </span><span>&nbsp;&nbsp;</span></span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <h2>
+    <span>単純なファジー文字列で開始して結果を観察する</span>
+  </h2>
+  <p>
+    <span>Web フォームなどの基本的なエントリ ポイントを使用してテストを開始します。 単純な文字列を選んでそれをフォームから送信します。</span>
+  </p>
+ <pre>
+    <span>..\..\..\..\xyz</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>次に、エラー メッセージがないか結果を調べます。<span>&nbsp; </span>エラー メッセージには、Web アプリケーション (またはローカル アプリケーション) の状態についての役立つ情報が表示されます。<span>&nbsp; </span>たとえば、Web サーバーが次のようなエラー メッセージを返します:</span>
+  </p>
+ <pre>
+    <span>Your request contains invalid characters</span>
+  </pre>
+  <p>
+    <span>これは、サーバーが文字列で潜在的に危険な文字を検出したことを示します。<span>&nbsp; </span>これらの文字を URL エンコーディングされたフォームで置換するように試みることができます。</span>
+  </p>
+ <pre>
+    <span>
+    </span>
+    <span>..%5c..%5c..%5c..%5cxyz</span>
+  </pre>
+  <p>
+    <span>これで、サーバーはエラーが検出されなかったファイルを返します。<span>&nbsp; </span>以前はナビゲートできなかったサーバー上の特定のディレクトリにナビゲートできるようになったため、これは有効です。<span>&nbsp; </span>しかしながら、ファジー文字列で試行しているため、サーバーは有効なフォルダを検索できませんでした。<span>&nbsp; </span>それにもかかわらず、サーバーはディレクトリ階層内のナビゲーションを行うことができます。<span>&nbsp; </span>次の手順では、ファジー文字列を置換してターゲットのフォルダにアクセスできるようにします。</span>
+  </p>
+ <pre>
+    <span>..%5c..%5c..%5cprivateFiles</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>わずか数回の試行後にこのテスト文字列に到達し、ターゲットを検出しました。<span>&nbsp; </span>ご覧のように、正規化が可能である場合、アプリケーションに保護されていると信じ込ませるディレクトリ トラバーサル攻撃にこのような技法を使用することができます。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 4: テスト ケース データの調整</span>
+  </h1>
+  <p>
+    <span>この手順では、ファイルやフォルダなどのリソースにアクセスするためのさまざまなバリエーションを使用してテスト ケースを強化する必要があります。<span>&nbsp; </span>次に、テストのエントリ ポイントに応じてテスト ケース データを調整する必要があります。<span>&nbsp; </span>最後に、二重エンコーディング テスト ケースを実行します。</span>
+  </p>
+  <h2>
+    <span>同じリソースにさまざまな方法でアクセス試行します</span>
+  </h2>
+  <p>
+    <span>ファイルを開くには、さまざまな方法があります。<span>&nbsp; </span>たとえば、ディレクトリ ツリーを上下にナビゲートすることによって、ファイルにアクセスすることができます。<span>&nbsp; </span>次の文字列は Windows の C:\privateFiles フォルダを開きます。</span>
+  </p>
+ <pre>
+    <span>C:\windows\..\privateFiles</span>
+  </pre>
+  <p>
+    <span>Windows では、データ ストリームにアクセスすることによって、ファイルのデータを読み込むこともできます。</span>
+  </p>
+ <pre>
+    <span>C:\privateFiles\secretFile.txt::$DATA</span>
+  </pre>
+  <p>
+    <span>この手順の間に、テスト ケースを微調整して保護された各リソースの表記の最大数を追加する必要があります。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+    </span>
+    <span>二重エンコーディング</span>
+  </h2>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>二重エンコーディング問題は、エンコーディングとデコーディング関数が不正にコード化されて危険な文字列が作成されてしまった場合に発生します。</span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>たとえば、次のアプリケーションは以下のように実行します。</span>
+  </p>
+  <ul>
+    <li>
+      <span>
+        <span>(1)&nbsp;<span>&nbsp;&nbsp; </span></span>
+      </span>
+      <span>URL に</span>
+      <span>%2fが含まれているかどうか確認します</span>
+      <span>
+      </span>
+      <li>
+        <span>
+          <span>(2)&nbsp;<span>&nbsp;&nbsp; </span></span>
+        </span>
+        <span>サーバーによって送信された</span>
+        <span>$inputPath</span>
+        <span> をデコードします</span>
+        <li>
+          <span>
+            <span>(3)&nbsp;<span>&nbsp;&nbsp; </span></span>
+          </span>
+          <span>再度</span>
+          <span>$inputPath</span>
+          <span> をデコードします</span>
+          <li>
+            <span>
+              <span>(4)&nbsp;<span>&nbsp;&nbsp; </span></span>
+            </span>
+            <span>ファイルを</span>
+            <span>$inputPathの最新のフォームに基づいて開きます</span>
+            <span>
+            </span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+ <pre>
+    <span>&lt;?php</span>
+  </pre>
+ <pre>
+    <span>      $m_encoded_path;</span>
+  </pre>
+ <pre>
+    <span>      inputPath = $_GET['name'<span></span>];</span>
+  </pre>
+ <pre>
+    <span>(1)&nbsp;<span>&nbsp; </span>check if the URL contains %2f.<span>&nbsp; </span>Reject if found</span>
+  </pre>
+ <pre>
+    <span>(2)&nbsp;<span>&nbsp; </span>$inputPath = urldecode($inputPath);</span>
+  </pre>
+ <pre>
+    <span>(3)&nbsp;<span>&nbsp; </span>$inputPath = urldecode($inputPath);</span>
+  </pre>
+ <pre>
+    <span>(4)&nbsp;<span>&nbsp; </span>OpenFile($inputPath);</span>
+  </pre>
+ <pre>
+    <span>?&gt;</span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>攻撃者は、以下の文字列を渡して上位フォルダに配置されている “</span>
+    <span>../../private/SecretFile.doc</span>
+    <span>” という名前のフォルダにアクセス試行します。<span>&nbsp; </span>ここで、攻撃者は二重エンコーディング文字列を使用します。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>http://www.anywebsite/app/name=..%25252f..%25252f../private/SecretFile.doc </span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>上記のコードを使用してこの URL を実行した結果です。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <ul>
+    <li>
+      <span>サーバーは %2f をチェックしますが、検出されなかったため、URL (1) を拒否しません。</span>
+      <li>
+        <span>最初のデコード関数 (2) は、オリジナルの文字列を以下に変換します。&nbsp; </span>
+        <b>
+          <span>http://www.anywebsite/app/name=..%2f..%..2f../private/SecretFile.doc </span>
+        </b>
+        <li>
+          <span>2 つ目のデコードではパスを危険なパスに変更します。</span>
+          <b>
+            <span>http://www.anywebsite/app/ name=../../../private/SecretFile.doc </span>
+          </b>
+          <li>
+            <span>攻撃者はプライベート ファイルを開きます。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>&nbsp;</p>
+  <h2>
+    <span>各エントリ ポイントに応じてテストを調整します</span>
+  </h2>
+  <p>
+    <span>最後に、適切なカバレッジを獲得するために、アプリケーションに入力を送信するさまざまな方法を網羅する必要があります。</span>
+  </p>
+  <ul>
+    <li>
+      <span>
+        <span>
+          <span>&nbsp;</span>
+        </span>
+      </span>
+      <span>URL - サーバーおよびブラウザーに応じたさまざまなエンコーディング スキーマ 。</span>
+      <li>
+        <span>ローカル アプリケーションの GUI - 一般的なクライアント側のテキスト フィールドやボタン、コマンド行引数、実行時に読み込まれたファイル、レジストリ、または環境変数を使用。</span>
+        <li>
+          <span>ポリシー決定 - アンチウイルス ポリシーなどの規則や条件が含まれたファイルまたはデータベース。</span>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>手順 2 で作成したエントリ ポイントの完全なリストを参照し、テスト段階の洞察力を使用して追加のエントリ ポイントを含めます。<span>&nbsp; </span>各エントリ ポイントにはテスト中に考慮する必要のあるさまざまな形式があります。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>
+    <span>正規化バグは比較的対処が容易です。<span>&nbsp; </span>最初に一般的な攻撃のシナリオからこれらのバグが出現する理由を理解する必要があります。<span>&nbsp; </span>次に、これらのバグが発生する理由とブラックリストの代わりにホワイトリストや ACL を使用してそれらのバグを軽減する方法を学習し、適切な時間に入力パスをチェックします。<span>&nbsp; </span>危険度の高いコンポーネントとエントリ ポイントを一覧表示した後で、単純なファジー文字列を使用してテストを開始し、アプリケーションがそれにどのように反応するかを観察します。<span>&nbsp; </span>各エントリ ポイントの形式に基づいてさまざまな攻撃のバリエーションでテスト ケースを調整して終了します。 使用中のさまざまなエンコーディングについてすべて理解し、コンテキストに基づいて必要とされる特定のルールに応じてデータを調整しているか確認してください。</span>
+  </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

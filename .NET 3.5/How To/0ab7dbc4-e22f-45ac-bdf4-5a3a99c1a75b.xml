@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1638855471" Content_Hash="363667338">
+  <Metadata>
+    <Id>0ab7dbc4-e22f-45ac-bdf4-5a3a99c1a75b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ロール プロバイダーを使用するとき強制的に認可する方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>ロール プロバイダーを使用している場合は、Roles.isUserInRole を呼び出すことによって、必須のチェックを行うことができます。 AspNetWindowsToken ロール プロバイダーを使用している場合は、Windowsロールに対して強制認可を使用することができます。 アクセスするリソースまたは実行するアクションが、ランタイムまで不明である、またはコード メソッドのレベルを超えた粒度別のアクセス制御が必要である場合、強制セキュリティが有用です。 </p>
+  <p>クライアントを認可するために Roles.IsUserInRole メソッドを強制的に使用して SQL またはカスタムロールでありうる Windows グループまたはロールを認可します。 ロールは、以下に示すように変数に含めることも、必要に応じて動的に変更することもできます：</p>
+ <pre>string RequiredGroup = "Administrators";<br />  try<br />  {<br />    if (!Roles.IsUserInRole(User.Identity.Name, "RequiredGroup"))<br />    {<br />      Msg.Text = "You are not authorized to view user roles.";<br />      UsersListBox.Visible = false;<br />      return;<br />    }<br />  }<br />catch (HttpException e)<br />  {<br />    Msg.Text = "There is no current logged on user. Role membership cannot be verified.";<br />    return;<br />  }<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認可の詳細情報については、「認可」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx) を参照してください。</a><li>Roles.IsUserInRole メソッドに関する情報については、 <a href="http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx">http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx をご覧ください。</a><li>認可のガイドラインは、次の URL で「WCF 3.5 ガイドライン」の「認可」セクションを参照してください: <a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home</a><br /></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

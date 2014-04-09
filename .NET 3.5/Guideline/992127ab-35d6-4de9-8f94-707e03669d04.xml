@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="927514285" Content_Hash="-1638002751">
+  <Metadata>
+    <Id>992127ab-35d6-4de9-8f94-707e03669d04</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>未使用の場合はセッション状態サービスを無効化する</Title>
+    <Category>セッション管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>セッション状態サービスは、アプリケーションにより使用されていない場合は無効化することをお勧めします。 </p>
+  <h1>理由</h1>
+  <p>停止することにより、ASP.NET により実行される冗長なセッション処理を削減できます。&nbsp;</p>
+  <h1>対策</h1>
+  <p>セッション状態は、以下のようにWeb.configの<b>&lt;</b> <b>sessionState&gt;エレメント上でモード属性</b>を｢オフ (off)｣に設定することにより、個別のアプリケーションに対して&nbsp;オフ&nbsp;にすることができます。</p>
+ <pre>&lt;sessionstate mode="off" /&gt;<br /></pre>
+  <h1>参考情報</h1>
+  <ul>
+    <li> <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;306996">http://support.microsoft.com/default.aspx?scid=kb;en-us;306996 で「ASP.NET において ASP セッション状態を無効化」します。</a><li> <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;317604">http://support.microsoft.com/default.aspx?scid=kb;en-us;317604 で「ASP.NET Session State を格納するように SQL Server を構成」します。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

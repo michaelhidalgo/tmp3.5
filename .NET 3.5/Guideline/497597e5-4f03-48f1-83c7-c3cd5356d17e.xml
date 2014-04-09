@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="534467449" Content_Hash="1437440254">
+  <Metadata>
+    <Id>497597e5-4f03-48f1-83c7-c3cd5356d17e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>信頼できるホストのみデータベース サーバーへの接続を許可する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>データベース サーバへの直接アクセスを防ぎます。</p>
+  <h1>理由</h1>
+  <p>直接アクセスすることで攻撃者はクエリー分析(Isqlw.exe)のようなツールを使用しSQL Server への接続を確立してコマンドを発行できるようになります。 これはデータへの不正アクセスにつながります｡</p>
+  <h1>状況</h1>
+  <p>アプリケーションで SQL バックエンドを使用する場合。</p>
+  <h1>対策</h1>
+  <p>SQL Server へのアクセスを制限するには：</p>
+  <ul>
+    <li>
+      <p>
+        <strong>外部から</strong>：ファイアウォールを構成して、SQL Server ポート（デフォルトでTCP 1433 および UDP 1434）が境界ネットワークから見えないようにします。 </p>
+      <li>
+        <p>
+          <strong>境界線内から</strong>：認可されていない内部ホストによる直接アクセスを、内部ファイアウォールがある場合はそれを使用し、さらには IPSec およびポート フィルタリングを使用して制限します。 IPSecは暗号化に加えてコンピュータ認証のために使用でき、また他のコンピュータからの攻撃を防止するために特定のアプリケーションサーバのみがデータベースサーバに接続できることを確実にするために使用できます。 詳細情報については「<a href="http://msdn2.microsoft.com/en-us/library/aa302366.aspx">How To: Use IPSec for Filtering Ports and Authentication</a>.（方法：ポートのフィルタリングと認証での IPSec の使用）」を参照してください。</p>
+        <li>
+          <p>
+            <strong>露出の最小限化</strong>：制作データベース サーバは作業で共同するアプリケーション サーバと最低限のその他の監視、外部ログ、バックアップおよび管理等の保守システムのみからアクセスできるようになっていなければなりません。 開発と生産システムは同一のデータベースサーバを共有してはならず、開発マシンは生産サーバにアクセスできないようにします。</p>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>問題の例</h1>
+  <p>金融会社はウェブアプリケーションを使用してエージェントが会社のデータベースと相互処理できるようにしています。 攻撃者を防止するため、会社はデータベースサーバへ攻撃者がアクセスしないよう制限するファイアウォールを使用します。 しかしながら、ファイアウォール内のワークステーションの一つはマルウェアに感染します。 このワークステーションが攻撃者に悪用されて内部ネットワークがスキャンされます。 攻撃者が SQL Server を発見した場合､セキュリティ侵害したワークステーションをプロキシとして利用し、クエリー分析のようなツールを使用してサーバへ接続しコマンドを発行します。</p>
+  <h1>ソリューションの例</h1>
+  <p>金融会社はウェブアプリケーションを使用してエージェントが会社のデータベースと相互処理できるようにしています。 外側の攻撃者を防止するため会社はファイアウォールを使用し、データベースへの内部脅威を防止するため会社はIPSecを使用してアクセスを制限します。 これにより、ファイアウォール内側のワークステーションの一つがマルウェアに感染しており攻撃者が悪用して内部ネットワークをスキャンしたとしても、攻撃者は SQL Server を発見しませんし、また接続またはコマンドを発行することもできません。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>IPSec の使用に関する詳細情報については、<a href="http://msdn2.microsoft.com/en-us/library/aa302366.aspx">How To: Use IPSec for Filtering Ports and Authentication</a>（方法: IPSec のポートのフィルタリングおよび認証での使用）を参照してください。<li>信頼関係の重要性に関する詳細情報については、<a href="http://msdn2.microsoft.com/en-us/library/aa480587.aspx">Trusted Subsystem</a>（信頼性のあるサブシステム）を参照してください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/2331944b-ec63-48f6-9467-0bc2ebb8390c">チェックリスト アイテム：データベース サーバには信頼されたホストのみ接続が許可されます</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

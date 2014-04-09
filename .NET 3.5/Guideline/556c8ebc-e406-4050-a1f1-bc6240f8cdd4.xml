@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1648725944" Content_Hash="506244354">
+  <Metadata>
+    <Id>556c8ebc-e406-4050-a1f1-bc6240f8cdd4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>カスタム認証ではなくメンバーシップ プロバイダーを使用する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>カスタマイズされた Forms Authentication コードを作成するのではなく、ASP.NET メンバーシップ プロバイダーを使用してください。 </p>
+  <h1>理由</h1>
+  <p>メンバーシップ機能は、Credential 情報の保護、強力なパスワードの強制、ユーザーの検証に対する一貫した API の提供、そしてセキュアなユーザー管理を可能にします。&nbsp; また、メンバーシップ機能は自動的に認証チケットを作成します。&nbsp; </p>
+  <h1>状況</h1>
+  <p>アプリケーションが Forms Authentication（フォーム認証）を使用している場合はメンバーシップ プロバイダーを使用してください。 ユーザー格納場所が SQL、Active Directory、またはActive Directory アプリケーション モード（ADAM）にある場合は既存のメンバーシップ プロバイダーを使用することができます。</p>
+  <p>非 Active Directory LDAP ディレクトリといったような既存のユーザー格納を使用する場合、またはユーザーが別のプラットホームで保存する場合はカスタマイズしたメンバーシップを作成して、<b>MembershipProvider</b> 抽象型クラスからメンバーシップ プロバイダーを継承します。</p>
+  <h1>対策</h1>
+  <p>メンバーシップ機能には SQL Server、Active Directory、ならびに Active Directory アプリケーション モード（ADAM）といったようなユーザー格納の内蔵プロバイダーが提供されています。&nbsp; 非 Active Directory LDAP ディレクトリといったような既存のユーザー格納を使用する場合、またはユーザーが別のプラットホームで保存する場合はカスタマイズしたメンバーシップを作成して、<b>MembershipProvider</b> 抽象型クラスからメンバーシップ プロバイダーを継承します。&nbsp; そうすることで、アプリケーションは標準のメンバーシップ機能と API およびログイン制御を使用することで、引き続きメリットを得ることができます。&nbsp; </p>
+  <p />メンバーシップを構成するには、プロバイダー ストアを指すように接続文字列を定義し、Web.config ファイルにプロバイダーの定義を構成する必要があります。 <p /><b>メンバーシップを構成するには:</b><ol><li>アプリケーションに &lt;<b></b><b> authentication mode="Forms"/</b>&gt; を設定して、forms authentication を構成します。 <li>接続文字列を&lt;<b>connectionStrings/</b>&gt;  セクションに追加して、ユーザー ストアを指すようにします。 <b>ActiveDirectoryMembershipProvider</b> を使用している場合には、Active Directory または ADAM でユーザー コンテナに指し示されるのは、Lightweight Directory Access Protocol (LDAP) のクエリ文字列です。 <b>SqlMembershipProvider</b>を使用している場合には、これはユーザー ストア データベースを示すデータベース接続文字列です。 <li>&lt;<b>membership</b>&gt;セクションを追加し、選択したメンバーシップ プロバイダーを構成します。<b></b> <li>アプリケーションのWeb.config の&lt;<b></b><b>membership</b>&gt;エレメントの下に &lt;<b>providers</b>&gt;セクションを作成し、特定のプロバイダーを構成します。<b></b> メンバーシップ システムは数々の異なるプロバイダーをサポートしています:<li>ユーザー アカウントが Active Directory または ADAM にある場合には、<b>ActiveDirectoryMembershipProvider</b> を使用します。<li>ユーザー アカウントが SQL Server にある場合には、<b>SqlMembershipProvider</b> を使用します。<li>ユーザー アカウントが前述したもの以外のストアにある場合には、<b>MembershipProvider</b> 基底クラスから継承して、カスタム メンバーシップ プロバイダーを作成します。 <li>&lt;<b>membership</b>&gt;エレメントの<b>defaultProvider</b> 属性を 選択したプロバイダーに設定します。 </li></li></li></li></li></li></li></li></ol><p />ユーザーを検証および管理するには、メンバーシップ API (例えば <b>Membership.CreateUser</b>および<b>Membership.ValidateUser</b>) を使用するか、メンバーシップ構成を自動的に使用する<b>Login</b> コントロールを使用します。 <p /><h1>関連する項目</h1><ul><li><div><a href="/article/9491b1b1-cd90-4daf-88c8-a3cd5a584fef">カスタム認証ではなくメンバーシップ プロバイダーが使用される</a></div></li></ul><p /><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

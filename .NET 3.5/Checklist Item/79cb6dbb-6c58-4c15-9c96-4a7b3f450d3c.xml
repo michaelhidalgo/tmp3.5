@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1258373607" Content_Hash="-379817706">
+  <Metadata>
+    <Id>79cb6dbb-6c58-4c15-9c96-4a7b3f450d3c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データがパラメーターに配置されていない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>機微データが、保護されていないパラメーターに配置されていないことを確認します。</p>
+  <h1>理由</h1>
+  <p>保護されていないパラメータ内に保存されている機微データは、ネットワーク上ではプレーンテキストで送信される可能性があり、ネットワーク スニファを持つ攻撃者またはウェブ プロキシのオペレーターが簡単に盗み出すことができます。</p>
+  <h1>チェック方法</h1>
+  <p>機微データは、以下の目的でユーザーのブラウザーとアプリケーション間で送信される場合があります。</p>
+  <ul>
+    <li>
+      <p>
+        <strong>アプリケーションに入力を送信する:</strong> ユーザーは URL およびフォームベースのパラメーターを介して、アプリケーションに入力を提供できます。 </p>
+      <li>
+        <p>
+          <strong>ユーザー アクティビティを追跡する:</strong> アプリケーションで、Cookieまたは隠しフィールドを使用してユーザー アクティビティが追跡される場合があります。 </p>
+      </li>
+    </li>
+  </ul>
+  <p>HTTP ベースのパラメーターはプレーン テキスト形式で処理されるため、以下の手順を使用して、機微データを処理する際に、アプリケーションで HTTP ベースのパラメーターが適切に使用されていることを確認します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機微データを識別します。 </strong>機微データとは、秘密に保たれており、認可されている当事者にのみ開示するべき情報のことです。 機微データの典型的な例として、以下に限定されませんが、顧客名、政府発行のID番号、クレジット カードまたその他の財務情報、パスワード、および私有鍵などが含まれます｡ ヘルス ケアや銀行など一部の業界では、機密情報を定義する規制基準を設けています。 アプリケーションに規制要件が適用される場合、規制要件に従って機微データを識別します。 機微データは次のように定義されます:</p>
+      <ul>
+        <li>Personally Identifiable Informationが含まれるか、またはPersonally Identifiable Informationの導出に使用できる、他者と共有すべきでない情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>お使いのアプリケーションで機微データの処理時に SSL が使用されていることを確認してください。 </strong>SSL を使用しない場合、機微データはすべてネットワーク スニファまたは Web プロキシによって HTTP セッションから簡単に読み取ることができます。 詳細情報は、「<a href="/article/a92aca4f-314d-40fe-9ecd-e3bbe19a555b">ネットワーク上の機微データを保護する</a>」および「<a href="/article/b070122f-f1d1-47da-a378-57f845d5db61">通信リンクを暗号化する</a>」を参照してください。</p>
+        <li>
+          <p>
+            <strong>POST リクエストが使用されていることを確認します。 </strong>SSL を使用している場合でも、HTTP パラメータは一部のプロキシからアクセスが可能で、Web サーバ ログおよびブラウザ履歴に表示されます。 お使いのアプリケーションで、機微データの受け入れが HTTP POST 要求のみを経由して行われていることを確認してください。 以下の項目が適切な状態であることを確認します。</p>
+          <ul>
+            <li>
+              <p>
+                <strong>HTML 形式</strong>: 機微データを送信するすべての形式で、ユーザーのブラウザーが POST リクエストを使用するように明示的に指定されていることを確認します。</p>
+              <blockquote>
+ <pre>&lt;form <strong><u>method="POST"</u></strong> action="https://login.example.com/myapp/login.aspx"&gt;<br />  &lt;input type="text" name="user" size=25&gt;&lt;br&gt;<br />  &lt;input type="password" name="pass" size=25&gt;&lt;br&gt;<br />  &lt;input type="submit" name="submit" value="log in"&gt;<br />&lt;/form&gt;</pre>
+              </blockquote>
+              <li>
+                <p>
+                  <strong>サーバー側コード</strong>: POST メソッドを介した機微データのみが許可されていることを確認します。</p>
+                <blockquote>
+ <pre>string sensitiveData = Request.Form&amp;#91;"sensitiveParam"&amp;#93;; </pre>
+                </blockquote>
+              </li>
+            </li>
+          </ul>
+          <li>
+            <p>
+              <strong>機微データが HTTP パラメーターまたはCookieに格納されていないことを確認します。 </strong>機微データが HTTP パラメーターまたはCookieに格納されていないことを確認します。 すべての機微データがセッションに格納されるようにします。 追加情報は、「<a href="/article/5e086fea-df5c-4958-9b8f-e6f175b458f7">機微データはキャッシュされない</a>」のチェックリストを参照してください。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のページでは、GET リクエストを使用して資格情報が送信されています。 ページが送信されると、URL で資格情報が入手可能な状態となります。 要求は暗号化されていない状態で送信されるため、悪意のあるユーザーは HTTP トラフィックをスニッフィングすることで Credential 情報を入手することができます。 また、Credential 情報はサーバ ログおよびクライアントのブラウザ履歴のどちらにも表示され、パブリックな端末上では深刻な問題となります。</p>
+ <pre>&lt;html&gt;<br />  &lt;head&gt;<br />    &lt;title&gt;login form&lt;/title&gt;<br />  &lt;/head&gt;<br />  &lt;body&gt;<br />    &lt;form method="GET" action="<a href="http://login.example.com/myapp/login">http://login.example.com/myapp/login</a>"&gt;<br />    &lt;input type="text" name="user" size=25&gt;&lt;br&gt;<br />    &lt;input type="password" name="pass" size=25&gt;&lt;br&gt;<br />    &lt;input type="submit" name="submit" value="log in"&gt;<br />    &lt;/form&gt;<br />  &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>POST HTTP メソッドに関する詳細情報は、「<a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html">HTTP/1.1 メソッドの定義</a>」を参照してください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/a96eaddb-5fb2-458e-b5ca-fde05a9a3a06">ガイドライン：機微データをパラメータ内に置かない</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

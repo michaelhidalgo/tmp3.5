@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="268980052" Content_Hash="1447772179">
+  <Metadata>
+    <Id>98fb697a-6278-4f73-8937-291b2b83cdb4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>エラーメッセージに価値がある情報を開示しない</Title>
+    <Category>エラー ハンドリング</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>エラー メッセージはすべて一般的で、攻撃者にとって便利となる有益な情報または機微情報を開示しないことを確認してください。</p>
+  <h1>理由</h1>
+  <p>しばしば攻撃者は、根底にあるテクノロジを理解するための第一歩としてウェブアプリケーションのエラーメッセージを探ります。 攻撃者はエラーメッセージ同士の矛盾点を探し、異なるコードパスが取られるのはいつか、あるいは入力した内容の質についての情報を探ります。 SQL などのバックエンド システムから直接エコーされるエラー メッセージおよび OS エラー メッセージは、悪意のあるユーザーが次の攻撃のために &amp;nbsp; 何を入力するかを&amp;nbsp;選びやすくします。 </p>
+  <h1>チェック方法</h1>
+  <p>
+    <strong>すべてのエラー メッセージに対して以下のことをチェックします</strong>:</p>
+  <ol>
+    <li>エラー メッセージは単純で一般的である。 特に、以下のことに関する追加の情報を含めないでください:<ul><li>プロセスされる情報の品質<li>データをプロセスするメカニズム</li></li></ul><li>デバッグ情報はユーザーにエコーされません。 <li>すべての認証エラーに対して表示されるエラー メッセージは 1 つだけです。 このメッセージは基本的であるべきで、以下のエラー タイプ間を識別するために使用できる情報を含んではなりません:<ul><li>無効なユーザー名<li>有効なユーザー名、無効なパスワード<li>アカウントがロックされている<br />これについての詳細は<a href="/article/e0ebf8be-838c-4762-8c44-0d90adf63aef">アカウントロックアウト攻撃を参照してください。</a></li></li></li></ul><li>既定のエラー メッセージの代わりに、エラーを詳細に説明したカスタムのエラー メッセージが使用されます:<ul><li> web.config ファイルで<strong>customErrors</strong> を［<strong>RemoteOnly</strong> ］または［<strong>On</strong> ］に設定します。</li></ul></li></li></li></li>
+  </ol>
+  <p>
+    <strong>動的に生成されたエラー メッセージについては、以下のことも確認します</strong>:</p>
+  <ol>
+    <li>動的エラー メッセージの使用が最小限に留められている。 <li>同じメッセージをレポートするエラー メッセージはすべて全く同じである。</li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードでは、ユーザーの認証が行われます。 ただし、このコードではエラー メッセージを通じて、送信された資格情報が有効なユーザーまたは無効なユーザーのどちらを表すかを公開してしまっています。</p>
+  <blockquote>
+ <pre>public void login()<br />&amp;#123;<br />      if (&amp;#33;validUser())<br />      &amp;#123;<br />            throw new Exception("User not found.");<br />      &amp;#125;<br />      if (&amp;#33;validPass())<br />      &amp;#123;<br />            throw new Exception("Wrong password.");<br />      &amp;#125;<br />      commit();<br />&amp;#125;</pre>
+  </blockquote>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認証のベスト プラクティスに関する詳細は、OWASP&amp;nbsp;<a href="http://www.owasp.org/index.php/Guide_to_Authentication">認証ガイド</a>を参照してください。<li>適切なエラーの処理法に関する詳細は、OWASP&amp;nbsp;<a href="http://www.owasp.org/index.php/Error_Handling,_Auditing_and_Logging">エラー処理、ログ記録と監査</a>を参照してください。</li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/08f2f28f-d09a-4b82-843e-8d971fc50553">ガイドライン: エラーメッセージ内に有益な情報を開示しない</a>
+      <hr />
+    </li>
+  </ul>
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1142412021" Content_Hash="490559039">
+  <Metadata>
+    <Id>6b715586-69b2-4a8a-a573-e7ac16819adb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>.NET リモート処理を用いた TCP チャンネルを使用する場合はSystem.Net.Security.NegotiateStream を検討する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>呼び出し元を認証するためにチャネルを通じて送信されるデータを暗号化し署名します。 このためには、&lt;<b>channel</b>&gt; エレメントを構成し、 設定をコンピュータ上のすべてのアプリケーションに適用するか、または特定のアプリケーションに適用するかに応じて、&nbsp;Machine.config ファイル、Web.config ファイルまたは App.config ファイルにおいて、<strong>authenticationMode</strong> を "<strong>IndentifyCallers</strong>" に、<strong>secure</strong> を "<strong>true</strong>" に設定します。</p>
+  <h1>理由</h1>
+  <p>データが有線で送信される場合、一般に、それは&nbsp;最終目的地に進む過程で複数の中間リレーを通過します。 情報を送信するときに&nbsp;暗号化および認証&nbsp;を使用することは重要です。なぜなら、それにより送信中の不慮の傍受や修正に対する保護が追加されるためです。</p>
+  <h1>状況</h1>
+  <p>リモート処理でTCP チャネルを使用するようにアプリケーションを実装する際は、このガイドラインに従うことをお勧めします。</p>
+  <h1>対策</h1>
+  <p>次の例は､サーバ側での認証の要求および暗号化でチャンネルを保護する方法を示しています。</p>
+ <pre>&lt;channel ref="tcp" port="1234"<br />          authenticationMode="IdentifyCallers" secure="true" /&gt;   </pre>
+  <p>ドメインの Credential 情報を使用してクライアントを認証するには、<b> </b>クライアント構成ファイル中の &lt;<b>channel</b>&gt; 属性を ｢true｣に設定する必要があります。 次の例は､クライアント構成ファイルのサンプルを示しています。</p>
+ <pre>&lt;channel ref="tcp" useDefaultCredentials="true" secure="true"<br />          impersonationLevel="Identify" /&gt;   </pre>
+  <p>Kerberos 認証を使用するには、クライアントはサービス プリンシパル名 (SPN) を指定する必要があります。 この指定は、プログラム的に行うことも、または次の例のようにクライアント構成ファイルで行うこともできます。</p>
+ <pre>&lt;channel ref="tcp"<br />          useDefaultCredentials="true"<br />          impersonationLevel="Identify"<br />          spn="someService/somehost.com" /&gt;   </pre>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;.NET リモート処理の使用は、インタープロセスまたはサーバ間の通信にはお勧めしません。 .NET リモート処理は、プロセス内部でのクロス アプリケーション ドメイン通信に向いています。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

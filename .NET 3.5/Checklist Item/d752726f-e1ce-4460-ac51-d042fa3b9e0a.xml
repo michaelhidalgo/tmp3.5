@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="470152742" Content_Hash="-1314203552">
+  <Metadata>
+    <Id>d752726f-e1ce-4460-ac51-d042fa3b9e0a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションの実行には最小限の特権のアカウントが使用されます</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ASP.Net アプリケーションを実行するために使用するアカウントには必ず必要最小限の特権が付与されているようにします。</p>
+  <h1>理由</h1>
+  <p>最小特権の原則とはユビキタス セキュリティ概念のことです。 このガイドラインに従う場合、&amp;nbsp;アプリケーションには通常の稼動で必要のない特権を付与しません。</p>
+  <h1>チェック方法</h1>
+  <p>IIS 5 および 6 の場合、アプリケーションはデフォルトでそれぞれ最小限の特権のアカウントで ASPNET およびネットワーク サービスを使用します。 アプリケーションはカスタム アカウントを使って展開されるため、アプリケーションの構成設定を確認することが重要です。</p>
+  <p>アプリケーションが最小限の特権で実行されていることを確認するには次のステップで ASP.NET の実行で使用されるアカウントを特定して、それには必ず最小限の特権を付与します。</p>
+  <p>
+    <strong>IIS 5、Windows 2000、および Windows XP の場合</strong>
+  </p>
+  <ol>
+    <li>
+      <p>ランタイムの CONFIG フォルダにある machine.config ファイルを開きます。 パスは次のようなものとなります:</p>
+      <blockquote>
+ <pre>C:\WINDOWS\Microsoft.NET\Framework\v3.5.xxxxx\CONFIG</pre>
+      </blockquote>
+      <li>
+        <p>aspnet_wp.exe （IIS 5 用の ASP.NET ワーカー プロセス）を実行するアカウントを定義する&lt;<strong>processModel</strong>&gt; セクションを見つけます。 属性が次のどちらかの構成になっていることを確認します:</p>
+        <ul>
+          <li>
+            <p>属性<strong>autoConfig="true"</strong>が設定され、<strong>userName</strong>および<strong>password</strong>属性が指定されていません。 この場合、<strong>userName</strong>および<strong>password</strong>は <strong>machine</strong>および<strong>autogenerate</strong>の値に設定され、ASP.NET はローカル セキュリティ機関で保存されている強力なランダム パスワードが付与されている ASPNET アカウント下でワーカー プロセスを実行するように指示されます。</p>
+            <li>
+              <p><strong>userName</strong>および<strong>password</strong>属性は最小限の特権のアカウントに設定します。 このアカウントはアプリケーション用にカスタマイズすることができます。 次を確認して、ASP.NET アカウントには確実に最小特権の原則が適用されているようにします:</p>
+                <strong>userName</strong>および<strong>password</strong>属性は最小限の特権のアカウントに設定します。 このアカウントはアプリケーション用にカスタマイズすることができます。 次を確認して、ASP.NET アカウントには確実に最小特権の原則が適用されているようにします:</p>
+              <ul>
+                <li>アカウントへのローカル ログインが拒否されました。</li>
+              </ul>
+              <li>
+                <p>いずれの場合も<strong>userName</strong>が<strong>System</strong>に設定されていないようにします。これにより ASP.NET にシステムとネットワークへの完全なアクセスが与えられます。</p>
+              </li>
+            </li>
+          </li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <strong>IIS 6 および Windows Server 2003 の場合:</strong>
+  </p>
+  <ol>
+    <li>
+      <p>IIS Manager を開いて、ローカル コンピュータとアプリケーション プールを拡張します。</p>
+      <li>
+        <p>アプリケーションを見つけて右クリックをし、Properties（プロパティ）をクリックして Identity （ ID ）タブに進みます。</p>
+        <li>
+          <p>アプリケーションの ID は w3wp.exe （IIS 6 の ASP.NET ワーカー プロセス）が実行されるアカウントを定義します。 アプリケーション プール ID が次のいずれかのように構成されていることを確認します:</p>
+          <ul>
+            <li>
+              <p>アプリケーション プール ID が"Predefined" （定義済み）の場合は "NetworkService" （ネットワーク サービス）アカウントを使用します。</p>
+              <li>
+                <p>アプリケーション プール ID が "Configurable"（構成可能）の場合、次の内容を確認して、ASP.NET アカウントに最小特権の原則を確実に適用します:</p>
+                <ul>
+                  <li>アカウントへのローカル ログインが拒否されました。 <li>アカウントは IIS_WPG グループの一員に限定されます。</li></li>
+                </ul>
+              </li>
+            </li>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は会社の株をつかってドキュメントを保存する HR （人事）アプリケーションです。 アプリケーションがタスクを完了させるために最低限必要となる特権を上回る特権で稼動しています。 侵入者は正規化攻撃により、アプリケーションのレポート ダウンロード機能をエクスプロイトして通常上層部のみに限定されている会社の重要な記録にアクセスすることができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>システム アカウントならびに Windows サーバ プラットホームにおけるアプリケーションの安全な展開に関する更なる情報は、<strong> </strong> <em> </em> <em> </em>&nbsp;<a href="http://technet.microsoft.com/en-us/library/cc170953.aspx">http://technet.microsoft.com/en-us/library/cc170953.aspx</a>&nbsp;からダウンロードできるマイクロソフトの TechNet 記事の&nbsp;第2および第3章&nbsp;、「Services and Service Accounts Security Planning Guide（サービスおよびサービス アカウントのセキュリティ計画ガイド）」&nbsp;「The Approach to Running Services More Securely（サービスをより安全に実行するアプローチ）」 および 「How To Run Services More Securely（サービスをより安全に実行する方法）」を参照してください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

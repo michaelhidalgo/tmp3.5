@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="830329510" Content_Hash="1191567133">
+  <Metadata>
+    <Id>c7e3ea7d-a8fa-44d0-880e-a6059873bc16</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>例外詳細がサーバにログ登録される</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>例外がサーバにログされ、さらなる分析やデバッグができるようにします。</p>
+  <h1>理由</h1>
+  <p>悪意のある攻撃はアプリケーションの例外となります。 例外には、プロダクション システムで発生する問題に関する重大な情報が含まれます。&nbsp;ログ記録ことで問題の追跡に役立ちます。 </p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションが構造化例外処理を用い、さらにグローバル エラーハンドラを使用するようにします。 参照:</p>
+  <ul>
+    <li>
+      <a href="/article/4d3f994b-3be7-4e3d-8183-e213612cf5c4">チェックリスト項目: グローバル例外ハンドラーが非ハンドル例外に使用されている</a>
+      <li>
+        <a href="/article/bc10306c-f37c-4780-a096-847070ae67da">チェックリスト項目: 構造化例外処理が使用されている</a>
+      </li>
+    </li>
+  </ul>
+  <p>すべての例外ハンドラおよびグローバル エラーハンドラにおいて、サーバに例外詳細をログ記録ためのコードがあることを確実にします。&nbsp;コードは次に類似しています:</p>
+ <pre>    //get reference to the source of the exception chain<br />    Exception ex = Server.GetLastError().GetBaseException();<br />     // log the details of the exception and page state to the<br />    // event log.<br />    EventLog.WriteEntry("My Web Application",<br />      "MESSAGE: " + ex.Message +<br />       "\nSOURCE: " + ex.Source,<br />       EventLogEntryType.Error);</pre>
+  <h1>修正方法</h1>
+  <p>例外はすべてイベント ログに保存し、トラッキングや後の分析のために記録します。&nbsp;イベントログは、コードの<strong>Try</strong>/<strong>Catch</strong>/<strong>Finally</strong> ブロックで発生し、グローバル エラーハンドラでも同様です。 次のようなコードを使用します:</p>
+ <pre>&lt;%@ Application Language="C#" %&gt;<br /> &lt;%@ Import Namespace="System.Diagnostics" %&gt;<br />  &lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> {<br />    //get reference to the source of the exception chain<br />    Exception ex = Server.GetLastError().GetBaseException();<br />     // log the details of the exception and page state to the<br />    // event log.<br />    EventLog.WriteEntry("My Web Application",<br />      "MESSAGE: " + ex.Message +<br />       "\nSOURCE: " + ex.Source,<br />       EventLogEntryType.Error);<br />     // Optional e-mail or other notification here...<br /> }<br />   &lt;/script&gt;</pre>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションは悪意のあるユーザーによる攻撃にさらされています。 攻撃によりもたらされる結果として、データベースへの接続やデータ収集時に、一連のアプリケーション例外が発生します。&nbsp;残念ながら、アプリケーションはサーバに例外詳細をログしません、このデバッグおよび監査情報は完全に失われます。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションは悪意のあるユーザーによる攻撃にさらされています。 攻撃によりもたらされる結果として、データベースへの接続やデータ収集時に、一連のアプリケーション例外が発生します。&nbsp;アプリケーションは例外詳細をサーバにログ記録ため、デバッグおよび監査情報がサイト管理者により発見され、さらなる分析を行うために開発チームに届けられます。</p>
+ <pre>&lt;%@ Application Language="C#" %&gt;<br /> &lt;%@ Import Namespace="System.Diagnostics" %&gt;<br />  &lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> {<br />    //get reference to the source of the exception chain<br />    Exception ex = Server.GetLastError().GetBaseException();<br />     // log the details of the exception and page state to the<br />    // event log.<br />    EventLog.WriteEntry("My Web Application",<br />      "MESSAGE: " + ex.Message +<br />       "\nSOURCE: " + ex.Source,<br />       EventLogEntryType.Error);<br />     // Optional e-mail or other notification here...<br /> }<br />   &lt;/script&gt;</pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/201ecd28-c916-4c83-92ea-7416fbf52987">例外詳細をサーバにログ記録</a>
+      <li>
+        <a href="/article/2e16a65a-25d2-4ea9-a513-e020d2408241">チェックリスト項目: グローバルエラーハンドラを使用して非処理例外を捕える</a>
+        <li>
+          <a href="/article/bc10306c-f37c-4780-a096-847070ae67da">チェックリスト項目: 構造化例外処理が使用されている</a>
+          <li>
+            <a href="/article/b24a7dd0-a01a-4cbb-8559-6d566f54bd6c">チェックリスト項目: イベントのログ記録と監査にヘルス モニタリングが使用されている </a>
+            <li>
+              <a href="/article/8d30acbe-f771-40fa-976d-3c5376d7bf08">チェックリスト項目: 機微なユーザーデータがログされない</a>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

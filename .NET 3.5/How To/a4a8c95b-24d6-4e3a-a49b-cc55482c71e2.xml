@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1210884634" Content_Hash="-2100002345">
+  <Metadata>
+    <Id>a4a8c95b-24d6-4e3a-a49b-cc55482c71e2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でクロスサイト スクリプティングを防ぐ方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このハウツーは、 適切な入力検証手法を使用して、および出力をエンコーディングすることによって、ASP.NET アプリケーションをクロスサイト スクリプティング攻撃から保護する方法を示しています。 また、これら 2 つの主な対策に加えて、使用できる他の保護メカニズムをいくつか記述します。</p>
+  <p>クロスサイト スクリプティング (XSS) 攻撃では、クライアント側スクリプト コードの注入によって、Web ページの検証における脆弱性をエクスプロイトします。 Webアプリケーションをクロスサイト スクリプティング攻撃の影響を受けやすくする一般的な脆弱性には、入力を正しく検証しない、出力をエンコードしない、共有データベースから取得したデータを信頼することなどが含まれます。 クロスサイト スクリプティング攻撃からアプリケーションを保護するためには、すべての入力に悪意があるものと仮定します。 すべての入力を制限し、検証します。 潜在的に HTML 文字を含む可能性のあるすべての出力をエンコードします。 これには、ファイルやデータベースから読み取られたデータが含まれます。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  ASP.NET 要求の検証が有効になっていることを確認する</div>
+            <li>
+              <div>手順 2:  HTML 出力を生成する ASP.NET コードを見直す</div>
+              <li>
+                <div>手順 3:  HTML 出力が入力パラメータを含むかどうか決定する</div>
+                <li>
+                  <div>手順 4:  潜在的に危険な HTML タグと属性を見直す</div>
+                  <li>
+                    <div>手順 5。 対策を評価する</div>
+                    <li>
+                      <div>追加考慮事項</div>
+                      <li>
+                        <div>その他のリソース</div>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>Webページの検証における一般的なクロスサイト スクリプティング脆弱性を理解します。 <li>クロスサイト スクリプティング攻撃への対策を適用します。 <li>正規表現、型チェック、および ASP.NET バリデータ制御を使用して、入力を制約します。 <li>ブラウザーがスクリプトコードを含む HTML タグを実行しないことを確実にするため、出力を制約します。 <li>潜在的に危険な HTML タグと属性を見直し、対策を評価します。 </li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>クロスサイト スクリプティング攻撃は、クライアント側のスクリプト コードを注入することにより、Web ページ検証の脆弱性をエクスプロイトします。 スクリプト コードは応答データの中に埋め込まれ、疑いを持たないユーザーに送り返されます。 ユーザーのブラウザーは、スクリプト コードを実行します。 ブラウザーは信頼できるサイトからスクリプト コードをダウンロードしているため、ブラウザーにはコードが正当でないことを認識する方法がなく、Microsoft Internet Explorerのセキュリティゾーンは全く防衛しません。 クロスサイト スクリプティング攻撃は、HTTPおよびHTTPS（SSL）接続を通じても動作します。 </p>
+  <p>クロスサイト スクリプティング攻撃の最も深刻な例の一つでは、攻撃者が、信頼できるサイトへのアクセスを提供する認証 Cookie を取得し、その Cookie を攻撃者が知っている Web アドレスにポストするようなスクリプトを書きます。 これにより、攻撃者は正規のユーザー ID をスプーフィングして、Web サイトへの不正なアクセスを得ることができます。</p>
+  <p>Web アプリケーションをクロスサイト スクリプティング攻撃の 影響を受けやすくする一般的な脆弱性には、以下が含まれます：</p>
+  <ul>
+    <li>入力を制約せず、検証しない。 <li>出力をエンコードしない。 <li>共有データベースから取得したデータを信頼すること。 </li></li></li>
+  </ul>
+  <h2>ガイドライン</h2>
+  <p>クロスサイト スクリプティング攻撃を防ぐための 2 つの最も重要な対策は以下のとおりです：</p>
+  <ul>
+    <li>
+      <b>入力を制限</b>します。<b></b><li><b>出力をエンコードする</b>。</li></li>
+  </ul>
+  <h3>入力を制約する</h3>
+  <p>すべての入力に悪意があると仮定することから始めます。 入力の型、長さ、書式、および範囲を検証します。 </p>
+  <ul>
+    <li>サーバ制御を介して供給される入力を制約するには、 <b>RegularExpressionValidator</b> や <b>RangeValidator</b> のような ASP.NET バリデータ制御を使用します。 <li>クライアントサイドの HTML 入力制御を介して供給される入力や、クエリ文字列および Cookie など他のソースからの入力を制約するには、サーバ側コードで正規表現の期待どおりの使用をチェックする <b>System.Text.RegularExpressions.Regex</b> クラスを使用します。 <li>整数、ダブル（倍精度）、日付、通貨金額などの型を検証するには、入力データを相当の .NET Framework データ型に変換するし、結果として生じる変換エラーを処理します。 </li></li></li>
+  </ul>
+  <h3>出力のエンコード</h3>
+  <p>ユーザーからの入力、またはデータベースなどの他のソースからの入力が含まれている場合、出力をエンコードするには、<b>AntiXSSLibrary.HtmlEncode</b> メソッドを使用します。 <b>HtmlEncode</b> はそれらの文字を表わす HTML-to-HTML 変数で特別な意味を持つ文字を置き換えます。 たとえば、&lt; は <b>&lt;</b> に置き換えられ、<b>"</b> は <b>"</b> に置き換えられます。データをエンコードしても、ブラウザがそのコードを実行する原因にはなりません。 代わりに、データは無害な HTML として提供されます。</p>
+  <p>同様に、URLが入力から構築される場合は<strong>AntiXSSLibrary.UrlEncode</strong> を使って出力 URL をエンコードします。</p>
+  <h1>手順の概要</h1>
+  <p>クロスサイト スクリプティングを防止するために、次の手順を実行します:</p>
+  <ul>
+    <li>手順 1:  ASP.NET 要求の検証が有効になっていることを確認します。 <li>手順 2:  HTML 出力を生成する ASP.NET コードを見直します。 <li>手順 3:  HTML出力に入力パラメータが含まれているかどうか判断します。 <li>手順 4:  潜在的に危険な HTML タグと属性を見直します。 <li>手順 5。 対策を評価します。 </li></li></li></li></li>
+  </ul>
+  <h1>手順 1:  ASP.NET 要求の検証が有効になっていることを確認する</h1>
+  <p>デフォルトでは、要求の検証が Machine.config で有効になっています。 要求の検証がサーバの Machine.config ファイルで現在有効に設定されており、アプリケーションが Web.config ファイルがこの設定を上書きしないことを確認します。 次のコード 例に示すように、<b>validateRequest</b> が <b>true </b>に設定されていることを確認します。</p>
+  <div>
+ <pre>&lt;system.web&gt;<br />&nbsp; &lt;pages buffer="true" validateRequest="true" /&gt;<br />&lt;/system.web&gt;   </pre>
+  </div>
+  <p>ページ単位で要求検証を無効にすることができます。 必要でない限り、ページがこの機能を無効にしないことを確認します。 たとえば、入力としてHTML文字の範囲を受け入れるように設計された自由形式、リッチテキスト入力フィールドが含まれている場合は、ページに対してこの機能を無効にする必要があります。 </p>
+  <h2>ASP.NET 要求の検証が有効になっていることをテストするには</h2>
+  <ol>
+    <li>要求の検証を無効にする ASP.NET ページを作成します。 これを行うには、次のコード例に示すように、<b>ValidateRequest="false"</b> を設定します。 <div><pre>&lt;%@ Page Language="C#" ValidateRequest="false" %&gt;<br />&lt;html&gt;<br />&nbsp;&lt;script runat="server"&gt;<br />&nbsp; void btnSubmit_Click(Object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // If ValidateRequest is false, then 'hello' is displayed<br />&nbsp;&nbsp;&nbsp; // If ValidateRequest is true, then ASP.NET returns an exception<br />&nbsp;&nbsp;&nbsp; Response.Write(txtString.Text);<br />&nbsp; }<br />&nbsp;&lt;/script&gt;<br />&nbsp;&lt;body&gt;<br />&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:TextBox id="txtString" runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="&lt;script&gt;alert('hello');&lt;/script&gt;" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:Button id="btnSubmit" runat="server"&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnClick="btnSubmit_Click" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="Submit" /&gt;<br />&nbsp; &lt;/form&gt;<br />&nbsp;&lt;/body&gt;<br />&lt;/html&gt;   </pre></div><li>ページを実行します。 <b>txtString</b> のスクリプト が渡され、ブラウザーにクライアント側スクリプトとして提供されるので、メッセージ ボックスに <b>Hello</b> が表示されます。 <li><b>ValidateRequest="true"</b> を設定するか、または <b>ValidateRequest</b> ページ属性を削除して、再度ページを参照します。 次のエラー メッセージが表示されていることを確認します。 <div><pre>A potentially dangerous Request.Form value was detected from the client (txtString="&lt;script&gt;alert('hello...").  </pre></div><p>これは、ASP.NET 要求の検証がアクティブになっており、潜在的に危険な HTML 文字が含まれているため、入力が拒否されたことを示しています。 </p><blockquote><b>注意</b>: &nbsp;&nbsp;ASP.NET の要求検証に頼りきらないでください。 ご自分で行う入力検証に追加する対抗手段として扱ってください。</blockquote></li></li></li>
+  </ol>
+  <h1>
+    <br />手順 2:  HTML 出力を生成する ASP.NET コードを見直す</h1>
+  <p>次のコード例に示すように、ASP.NET は、2 つの方法で出力としてHTMLを書き込みます。</p>
+  <div>
+ <pre>Response.Write<br />&lt;% = </pre>
+  </div>
+  <p>HTML と URL の出力がクライアントに返される場所を特定するために、ページを検索します。</p>
+  <h1>手順 3:  HTML 出力が入力パラメータを含むかどうか決定する</h1>
+  <p>出力に入力パラメータが含まれているかどうかを究明するには、設計とページ コードを分析します。 これらのパラメータは、さまざまなソースに由来することができます。 以下のリストには、一般的な入力ソースが含まれています。</p>
+  <ul>
+    <li>
+      <b>次のような フォーム フィールド</b>。  <div><pre>Response.Write(name.Text);<br />Response.Write(Request.Form["name"]);<br />クエリ文字列<br />Response.Write(Request.QueryString["name"]);  </pre></div><li><b>次のような クエリ文字列</b>：<div><pre>Response.Write(Request.QueryString["username"]);  </pre></div><li><b>次のような データベースおよびデータ アクセス方法</b>：<div><pre>SqlDataReader reader = cmd.ExecuteReader();<br />Response.Write(reader.GetString(1));  </pre></div><p>他のアプリケーションと共有する場合、データベースから読み取ったデータには特に注意してください。 </p><li><b>次のような Cookie コレクション</b>: <div><pre>Response.Write(<br />Request.Cookies["name"].Values["name"]);  </pre></div><li><b>次のような セッション変数およびアプリケーション変数</b>： <div><pre>Response.Write(Session["name"]);<br />Response.Write(Application["name"]);  </pre></div></li></li></li></li></li>
+  </ul>
+  <p>ソースコード解析に加えて、フォーム フィールドに "<b>XYZ</b>" などのテキストを入力して出力をテストすることにより、簡単なテストを実行することもできます。 ブラウザーが "<b>XYZ</b>" を表示する場合、またはHTMLのソースを表示したとき "<b>XYZ</b>" が見える場合、Web アプリケーションはクロスサイト スクリプティングに対して脆弱だと言えます。  </p>
+  <p>より動的なものを参照するには、&lt;<b>script</b>&gt;<b>alert('hello');</b>&lt;<b>/script</b>&gt; を入力フィールドにスローします。 この手法は、出力を生成するために入力がどう使用されるかに依存するため、すべての場合に必ずしも動作しないことがあります。</p>
+  <h1>手順 4:  潜在的に危険な HTML タグと属性を見直す</h1>
+  <p>動的に HTML タグを作成し、潜在的に危険な入力でタグ属性を構築している場合は、それらを書き出す前に、タグ属性を HTML エンコードしていることを確認します。 </p>
+  <p>次の .aspx ページは、&lt;<b>asp:Literal</b>&gt; 制御を使ってどのようにHTMLを直接リターンページに書き出すかを示しています。 コードは、色名のユーザー入力を受け取り、送り返された HTML にそれを挿入して、入力された色でテキストを表示します。 挿入されたテキストが安全であることを確認するために、ページは<b>HtmlEncode</b> を使用します。</p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" AutoEventWireup="true"%&gt;</pre>
+ <pre>&lt;html&gt;<br />&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Color:&nbsp;&lt;asp:TextBox ID="TextBox1" runat="server"&gt;&lt;/asp:TextBox&gt;&lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="Button1" runat="server" Text="Show color" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnClick="Button1_Click" /&gt;&lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Literal ID="Literal1" runat="server"&gt;&lt;/asp:Literal&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp; &lt;/form&gt;<br />&lt;/html&gt;</pre>
+  </div>
+ <pre>&lt;script runat="server"&gt;<br />&nbsp; private void Page_Load(Object Src, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; protected void Button1_Click(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Literal1.Text = @"&lt;span style=""color:" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + Server.HtmlEncode(TextBox1.Text)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; + @"""&gt;Color example&lt;/span&gt;";<br />&nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp; }<br />&lt;/Script&gt;</pre>
+  <h2>潜在的に危険な HTML タグ</h2>
+  <p>網羅的なリストではないものの、以下の一般的に使用される HTML タグでは、悪意のあるユーザーがスクリプト コードを挿入するために使用する可能性があります：</p>
+  <ul>
+    <li>&lt;<b>applet</b>&gt; <li>&lt;<b>body</b>&gt; <li>&lt;<b>embed</b>&gt; <li>&lt;<b>frame</b>&gt; <li>&lt;<b>script</b>&gt; <li>&lt;<b>frameset</b>&gt; <li>&lt;<b>html</b>&gt; <li>&lt;<b>iframe</b>&gt; <li>&lt;<b>img</b>&gt; <li>&lt;<b>style</b>&gt; <li>&lt;<b>layer</b>&gt; <li>&lt;<b>link</b>&gt; <li>&lt;<b>ilayer</b>&gt; <li>&lt;<b>meta</b>&gt; <li>&lt;<b>object</b>&gt; </li></li></li></li></li></li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <p>攻撃者は、クロスサイト スクリプティングを注入するために、先行するタグと組み合わせて <b>src</b>、<b>lowsrc</b>、<b>style</b>、<b>href</b> のような HTML 属性を使用することができます。 例えば、<b> </b>次の例に示すように &lt;<b>img</b>&gt; タグの src 属性は、注入ソースでありえます。</p>
+  <div>
+ <pre>&lt;img src="javascript:alert('hello');"&gt;<br />&lt;img src="java
+script:alert('hello');"&gt;<br />&lt;img src="java&#X0A;script:alert('hello');"&gt;  </pre>
+  </div>
+  <p>攻撃者はまた、次に示すように MIME 型を変更することでスクリプトを混入させるために、 &lt;<b>style</b>&gt; タグを使用することもできます。</p>
+  <div>
+ <pre>&lt;style TYPE="text/javascript"&gt;<br />&nbsp; alert('hello');<br />&lt;/style&gt;   </pre>
+  </div>
+  <h1>手順 5。 対策を評価する</h1>
+  <p>なんらかの入力を使って HTML を生成する ASP.NET コードを見つける際に、特定のアプリケーションに対する適切な対策を評価する必要があります。 対策は次のとおりです：</p>
+  <ul>
+    <li>HTML 出力をエンコードします。 <li>URL の出力をエンコードします。 <li>ユーザー入力をフィルタリングします。 </li></li></li>
+  </ul>
+  <h2>HTML 出力のエンコード</h2>
+  <p>Web ページにテキスト出力を書き込むが、テキストに HTML 特殊文字（&lt;、&gt;、<b>&</b> など) が含まれているか不明な場合は、次のコード例に示すように、<b>AntiXSSLibrary.HtmlEncode</b> メソッドを使用してテキストを前処理します。 これを行うのは、ユーザー入力、データベース、またはローカル ファイルからテキストを取り込んだ場合です。</p>
+  <div>
+ <pre>Response.Write(AntiXSSLibrary.HtmlEncode(Request.Form["name"]));  </pre>
+  </div>
+  <p>入力が整形式で正しいことをチェックする代わりに、出力のエンコーディングで代用しないでください。 それは、追加のセキュリティ対策として使用します。</p>
+  <h2>URL の出力をエンコード</h2>
+  <p>入力を含む URL 文字列をクライアントへ返す場合は、次のコード例に示すように <b>AntiXSSLibrary.UrlEncode</b> メソッドを使ってこれらの URL 文字列をエンコードします。</p>
+  <div>
+ <pre>Response.Write(AntiXSSLibrary.UrlEncode(urlString));  </pre>
+  </div>
+  <h2>ユーザー入力のフィルタリング</h2>
+  <p>例えば何らかのリッチテキスト入力フィールドのような、HTML エレメントの範囲を受け入れる必要のあるページを持っている場合は、ページの ASP.NET 要求検証を無効にする必要があります。 これを行ういくつかのページがある場合は、受け入れたい HTML エレメントだけを許可するフィルタを作成します。 一般的な方法は、 太字 (&lt;<b>b</b>&gt;) やイタリック体 (&lt;<b>i</b>&gt;) などの安全なHTMLエレメントに書式設定を制限することです。</p>
+  <h3>制限されたHTML入力を安全に許可するには</h3>
+  <ol>
+    <li><b>ValidateRequest="false"</b> 属性を <b>@ Page</b> ディレクティブに追加して、ASP.NET の検証要求を無効にします。 <li><b>HtmlEncode</b> メソッドを使用して、文字列入力をエンコードします。 <li><b>StringBuilder</b> を使って、その <b>Replace</b> メソッドを呼び出し、許可するHTMLエレメント上のエンコーディングを選択的に削除します。 </li></li></li>
+  </ol>
+  <p>以下の .aspx ページ コードに、そのようなアプローチを示しています。 このページでは、<b>ValidateRequest="false"</b> が設定され、ASP.NET の検証要求が無効になっています。それは入力を HTML-エンコードしてから、 &lt;<b>b</b>&gt; を選択的に許可します。 や &lt;<b>i</b>&gt;  &lt;b&gt; の HTML エレメントに限り使用できるようになります。 </p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" ValidateRequest="false"%&gt;</pre>
+ <pre>&lt;script runat="server"&gt;</pre>
+ <pre>&nbsp; void submitBtn_Click(object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Encode the string input<br />&nbsp;&nbsp;&nbsp; StringBuilder sb = new StringBuilder(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AntiXSSLibrary.HtmlEncode(htmlInputTxt.Text));<br />&nbsp;&nbsp;&nbsp; // Selectively allow&nbsp; &lt;b&gt; and &lt;i&gt;<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;b&gt;", "&lt;b&gt;");<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;/b&gt;", "");<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;i&gt;", "&lt;i&gt;");<br />&nbsp;&nbsp;&nbsp; sb.Replace("&lt;/i&gt;", "");<br />&nbsp;&nbsp;&nbsp; Response.Write(sb.ToString());<br />&nbsp; }<br />&lt;/script&gt;</pre>
+  </div>
+ <pre>&lt;html&gt;<br />&nbsp; &lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="htmlInputTxt" Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; TextMode="MultiLine" Width="318px"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Height="168px"&gt;&lt;/asp:TextBox&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="submitBtn" Runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="Submit" OnClick="submitBtn_Click" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&nbsp; &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <h1>追加考慮事項</h1>
+  <p>このハウツーで前述した手法に加えて、クロスサイト スクリプティングを防止するため、さらなる安全策として次の対策を使用します：</p>
+  <ul>
+    <li>正しい文字エンコーディングを設定します。 <li>入力の無害化に頼らないでください。 <li>HttpOnly属性の Cookie オプションを使用します。 <li> &lt;frame&gt; セキュリティ属性を使用します。 <li>innerHTML の代わりに innerText プロパティを使用します。 </li></li></li></li></li>
+  </ul>
+  <h2>正しい文字エンコーディングの設定</h2>
+  <p>正常にWebページの有効なデータを制限するには、入力データを表示できる方法を制限すべきです。 これは、悪意のあるユーザーが、正規化およびマルチバイトのエスケープ シーケンスを使用して入力検証ルーチンをごまかすのを防ぐことができます。 マルチバイト エスケープ シーケンス攻撃は、均一符号化形式-8（UTF-8）などの文字エンコーディングが、非 ASCII 文字を表現するためにマルチバイト シーケンスを使用するという事実を使用した巧妙な操作です。 一部のバイト列はUTF-8合法ではありませんが、一部のUTF-8デコーダによって受け入れられる可能性があり、こうしてエクスプロイト可能なセキュリティ ホールを提供します。</p>
+  <p>Web.config ファイルの&lt;<b>globalization</b>&gt;  エレメントを使用することにより、ASP.NET は、ページ レベルまたはアプリケーション レベルで文字セットを指定することを可能にします。 次のコード例では、両方のアプローチを示し、HTML と HTTP の初期のバージョンではデフォルトである ISO-8859-1 文字エンコーディングを使用します。</p>
+  <p>ページ レベルで文字エンコーディングを設定するには、&lt;<b>meta</b>&gt; エレメントまたは次のように <b>ResponseEncoding</b> ページレベルの属性を使用します：</p>
+  <div>
+ <pre>&lt;meta http-equiv="Content Type" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; content="text/html; charset=ISO-8859-1" /&gt;</pre>
+ <pre>または<br />&lt;% @ Page ResponseEncoding="iso-8859-1" %&gt;   </pre>
+  </div>
+  <p>Web.config ファイルの文字エンコーディングを設定するには、次の構成を使用します。</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;globalization <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requestEncoding="iso-8859-1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; responseEncoding="iso-8859-1"/&gt;<br />&nbsp;&nbsp; &lt;/system.web&gt;<br />&lt;/configuration&gt;  </pre>
+  </div>
+  <h2>Unicode 文字の検証</h2>
+  <p>ページの Unicode 文字を検証するには、次のコードを使用します。</p>
+  <div>
+ <pre>System.Text.RegularExpressions の使用<br />. . . </pre>
+ <pre>public class WebForm1 : System.Web.UI.Page<br />{<br />&nbsp; private void Page_Load(object sender, System.EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Name must contain between 1 and 40 alphanumeric characters<br />&nbsp;&nbsp;&nbsp; // and (optionally) special characters such as apostrophes&nbsp; <br />&nbsp;&nbsp;&nbsp; // for names such as O'Dell</pre>
+ <pre>&nbsp;&nbsp;&nbsp; if (!Regex.IsMatch(Request.Form["name"],<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @"^[\p{L}\p{Zs}\p{Lu}\p{Ll}\']{1,40}$"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new ArgumentException("Invalid name parameter");</pre>
+ <pre>&nbsp;&nbsp;&nbsp; // Use individual regular expressions to validate other parameters<br />&nbsp;&nbsp;&nbsp; . . . <br />&nbsp; }<br />}  </pre>
+  </div>
+  <p>以下は、上記のコードに示された正規表現を説明します：</p>
+  <ul>
+    <li>
+      <b>^</b> は、この位置で見るのを始めることを意味します。 <li><b>\p{ ..}</b> は、 <b>{..}</b> で指定された名前付き文字クラス内の任意の文字に対応します。<li><b>{L}</b> は、左から右への照合を実行します。 <li><b>{Lu}</b> は、大文字の照合を実行します。 <li><b>{Ll}</b> は、小文字の照合を実行します。 <li><b>{Zs}</b> はセパレータとスペースに一致します。 <li><b>'</b> はアポストロフィに一致します。 <li><b>{1,40}</b> は文字数が 1 以上40 以下を指定します。 <li>$は、この位置で見るのをやめることを意味します。 </li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h2>入力の無害化に頼らない</h2>
+  <p>一般的な方法は、既知の安全でない文字をフィルタリングすることにより、コードが入力を無害化しようとするものです。 悪意のあるユーザーは、通常、検証をバイパスするための代替手段を見つけることができるため、この方法には頼らないでください。 その代わりに、コードは、既知のセキュアで安全な入力をチェックする必要があります。 表 1 は、いくつかの一般的な文字を表現するための様々な安全な方法を示しています。</p>
+  <p>
+    <b>表 1: 文字表示</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>文字</th>
+          <th>10 進数</th>
+          <th>16 進数</th>
+          <th>HTML 文字セット</th>
+          <th>Unicode</th>
+        </tr>
+        <tr>
+          <td>
+            <b>" </b>（二重引用符）</td>
+          <td>&#34</td>
+          <td>&#x22</td>
+          <td>"</td>
+          <td>\u0022</td>
+        </tr>
+        <tr>
+          <td>
+            <b>' </b> (単一引用符)</td>
+          <td>&#39</td>
+          <td>&#x27</td>
+          <td>&apos;</td>
+          <td>\u0027</td>
+        </tr>
+        <tr>
+          <td>
+            <b>&</b> (アンパサンド)</td>
+          <td>&#38</td>
+          <td>&#x26</td>
+          <td>&amp;</td>
+          <td>\u0026</td>
+        </tr>
+        <tr>
+          <td>&lt; （未満）</td>
+          <td>&#60</td>
+          <td>&#x3C</td>
+          <td>&lt;</td>
+          <td>\u003c</td>
+        </tr>
+        <tr>
+          <td>&gt; （より大きい）</td>
+          <td>&#62</td>
+          <td>&#x3E</td>
+          <td>&gt;</td>
+          <td>\u003e</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p />
+  <h2>HttpOnly 属性の Cookie オプションを使用</h2>
+  <p>Internet Explorer 6 サービス パック 1 以降は <b>HttpOnly</b> cookie属性をサポートしており、そのことは, クライアント側スクリプトが <b>document.cookie</b> プロパティから Cookie にアクセスするのを防ぎます。 代わりに、スクリプトは空の文字列を返します。 ユーザーが現在のドメインで Web サイトを参照するたびに、 Cookie は依然としてサーバに送信されます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>HttpOnly</b> Cookie 属性をサポートしない Web ブラウザーは、Cookie を無視するかまたは属性を無視します。それは依然としてクロスサイト スクリプティング攻撃の対象であることを意味します。<b></b></blockquote>
+  <p>Microsoft .NET Framework バージョン 2.0 の<b>System.Net.Cookie</b> クラスは、<b>HttpOnly</b> 属性プロパティをサポートします。 <b>HttpOnly</b> 属性プロパティは、Forms Authentication により常に true に設定されます。 </p>
+  <p> .NET Framework の以前のバージョン (バージョン 1.0 および 1.1) は、アプリケーション Global.asax ファイル内の <b>Application</b>_<b>EndRequest</b> イベント ハンドラーに次のものに類似したコードを追加し、明示的に<b>HttpOnly</b> 属性を設定します。</p>
+  <div>
+ <pre>protected void Application_EndRequest(Object sender, EventArgs e) <br />{<br />&nbsp; string authCookie = FormsAuthentication.FormsCookieName;<br />&nbsp; foreach (string sCookie in Response.Cookies) <br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Just set the HttpOnly attribute on the Forms <br />&nbsp;&nbsp;&nbsp; // authentication cookie. Skip this check to set the attribute <br />&nbsp;&nbsp;&nbsp; // on all cookies in the collection</pre>
+  </div>
+ <pre>&nbsp;&nbsp;&nbsp; if (sCookie.Equals(authCookie))<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Force HttpOnly to be added to the cookie header<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Cookies[sCookie].Path += ";HttpOnly";<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp; }<br />}</pre>
+  <h2>&lt;frame&gt; セキュリティ属性の使用</h2>
+  <p>Internet Explorer 6<b> </b>以降は、&lt;<b>frame</b>&gt; と &lt;iframe&gt; のための新しい <b>security</b> 属性をサポートします。 適用できます。 Internet Explorer のユーザーの制限付きサイト セキュリティ ゾーン設定を個々のフレームや iframe に適用するのに、<b>security</b> 属性を使用することができます。 デフォルトでは、制限付きサイト ゾーンはスクリプトの実行をサポートしていません。 </p>
+  <p><b>security</b> 属性を使用する場合は、次に示すように <b>"restricted"</b> に設定する必要があります。</p>
+  <div>
+    <div>
+      <div>
+      </div>
+      <div>&nbsp;</div>
+    </div>
+ <pre>&lt;frame security="restricted" src="http://www.somesite.com/somepage.htm"&gt;&lt;/frame&gt;   </pre>
+  </div>
+  <h2>innerHTML の代わりにinnerText プロパティを使用する</h2>
+  <p>ページの構築に<b>innerHTML</b> プロパティを使用し、HTML が潜在的に信頼できない入力に基づいている場合、それを安全なものにするために <b>HtmlEncode</b> を使用する必要があります。 これを行うことを覚えていなければならないことを避けるためには、代わりに <b>innerText</b> を使用します。 <b>innerText</b> プロパティは コンテンツを安全に提供し、スクリプトが実行されないことを確実にします。</p>
+  <p>次の例は、2 つの HTML &lt;<b>span</b>&gt;  制御のためのこのアプローチを示したものです。  <b>Page_Load</b> メソッドのコードは、<b>innerText</b> プロパティを使って <b>Welcome1</b> &lt;span&gt; エレメントに表示されたテキストを設定します。<b> </b>そのため、HTML エンコーディングは不要です。 コードはテキストを <b>Welcome2</b> &lt;<b>span</b>&gt; エレメントに、<b>innerHtml</b> プロパティを使って設定します。 したがって、安全なものにするために、まず それを<b>HtmlEncode</b> する必要があります。</p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" AutoEventWireup="true"%&gt;</pre>
+ <pre>&lt;html&gt;<br />&nbsp; &lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;span id="Welcome1" runat="server"&gt; &lt;/span&gt;<br />&nbsp;&nbsp;&nbsp; &lt;span id="Welcome2" runat="server"&gt; &lt;/span&gt;<br />&nbsp; &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  </div>
+ <pre>&lt;script runat="server"&gt;<br />&nbsp; private void Page_Load(Object Src, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Using InnerText renders the content safe-no need to HtmlEncode<br />&nbsp;&nbsp;&nbsp; Welcome1.InnerText = "Hello, " + User.Identity.Name;</pre>
+ <pre>&nbsp;&nbsp;&nbsp; // Using InnerHtml requires the use of HtmlEncode to make it safe<br />&nbsp;&nbsp;&nbsp; Welcome2.InnerHtml = "Hello, " + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Server.HtmlEncode(User.Identity.Name);<br />&nbsp; }<br />&lt;/Script&gt;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

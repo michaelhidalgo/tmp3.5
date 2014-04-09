@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1067079792" Content_Hash="1889767648">
+  <Metadata>
+    <Id>f256b92b-ade2-4452-878b-8ee45166c33d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>X509 証明書を用いてアセンブリに署名する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>X.509 証明書と私有鍵を持っている場合、私有鍵とX.509 証明書から生成されたソフトウェア パブリッシャ証明書を使用してアセンブリに署名できます。 Signcode.exeツールを使用してアセンブリに署名します。 Makecert.exeツールを使用して、テスト目的でX.509 証明書を生成できます。 </p>
+  <p>テストX.509証明書と対応する私有鍵をつくる、以下のスイッチでMakecert.exe ツールを実行します。</p>
+ <pre>makecert c:\TestCert.cer -sv c:\TestPrivateKey.pvk </pre>
+  <p>促された場合、パスワードを指定します。 鍵のペアを生成する必要があります。 次に、以下に示す通りCert2pctツールを実行することで、ソフトウェア パブリッシャ証明書をX.509証明書から作成します。</p>
+ <pre>cert2spc c:\TestCert.cer c:\TestSPCFile.spc </pre>
+  <p>次に、生成されたソフトウェア パブリッシャ証明書とX.509証明書の私有鍵でアセンブリに署名します。 これを行うためには、次のシンタックスを実行し、.Net Framework サインコード ツールを使用します。</p>
+ <pre>signcode /spc c:\TestSPCFile.spc /v c:\TestPrivateKey.pvk &lt;assembly to sign</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

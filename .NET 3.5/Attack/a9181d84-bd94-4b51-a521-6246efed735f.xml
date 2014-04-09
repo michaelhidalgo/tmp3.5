@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1493768801" Content_Hash="1131462436">
+  <Metadata>
+    <Id>a9181d84-bd94-4b51-a521-6246efed735f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>二重エンコーディング攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>すべての Web アプリケーション</p>
+  <h1>説明</h1>
+  <p>入力を 2 回エンコードすることにより、攻撃者は、1 回だけデコードされることによるセキュリティ チェックを回避することができる場合があります。 1 回デコードされた入力はセキュリティ チェックをパスし、悪意のある入力をバックエンド サーバーに渡すことができます。そこでそれは完全にデコードされ、入力として解釈されます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>リモート コードの実行</strong>: この攻撃はしばしば、XSS または SQL インジェクションと組み合わされて、セキュリティ チェックを回避するために使用されます。 <li><strong>ディレクトリ トラバーサル</strong>: '../' とバリアントをエンコードすることにより、セキュリティ チェックをバイパスし、その後サーバーまたはファイル システムによって解釈されて、攻撃者が保護されたファイルにアクセスできる場合があります。</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>エンコードされた入力に対してユーザー入力の検証に失敗すること。 <li>データを信頼すること、または共有データ ストアから取得したデータを完全にはデコードおよびチェックしないこと。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>入力の制約: すべてのユーザー入力に対して、強力なホワイトリスト スタイルのチェックを使用してください。 <li>完全デコード: バックエンド サーバーにおいて、受信したデータの処理を行う前に、メソッドを用いて、すべての入力を完全にデコードしてください。</li></li>
+  </ul>
+  <h1>例</h1>
+  <p />
+  <table>
+    <tbody>
+      <tr>
+        <td>悪意のある文字列</td>
+        <td>テクノロジー</td>
+        <td>1 回エンコードのバージョン</td>
+        <td>2 回エンコードのバージョン</td>
+      </tr>
+      <tr>
+        <td>' (シングル クォート)</td>
+        <td>SQL</td>
+        <td>&amp;#37;27</td>
+        <td>&amp;#37;2527</td>
+      </tr>
+      <tr>
+        <td>..\</td>
+        <td>ディレクトリ トラバーサル</td>
+        <td>&amp;#37;2E&amp;#37;2E&amp;#37;2F</td>
+        <td>..&amp;#37;252F .. &amp;#37;&amp;#37;35c ..&amp;#37;&amp;#37;35&amp;#37;63 ..&amp;#37;25&amp;#37;35&amp;#37;63 ..etc </td>
+      </tr>
+      <tr>
+        <td>alert("XSS")</td>
+        <td>Javascript</td>
+        <td>\u0061\u006C\u0065\u0072\u0074\u0028\u0022\u0058\u0053\u0053\u0022\u0029</td>
+        <td>\u005C\u0075\u0030\u0030\u0036\u0031\u005C\u0075\u0030\u0030\u0036\u0043\u005C\u0075\u0030\u0030\u0036\u0035\u005C\u0075\u0030\u0030\u0037\u0032\u005C\u0075\u0030\u0030\u0037\u0034\u005C\u0075\u0030\u0030\u0032\u0038\u005C\u0075\u0030\u0030\u0032\u0032\u005C\u0075\u0030\u0030\u0035\u0038\u005C\u0075\u0030\u0030\u0035\u0033\u005C\u0075\u0030\u0030\u0035\u0033\u005C\u0075\u0030\u0030\u0032\u0032\u005C\u0075\u0030\u0030\u0032\u0039\u000A</td>
+      </tr>
+      <tr>
+        <td>&lt;script&gt;gotcha&amp;#33;&lt;/script&gt;</td>
+        <td>HTML</td>
+        <td>&lt;script&lt;gotcha&amp;#33;&lt;/script&lt;</td>
+        <td>&lt;script&gt;gotcha&amp;#33;&lt;/script&gt;</td>
+      </tr>
+    </tbody>
+  </table>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Web ベースのエンコーディングについての詳細は、次を参照してください。<a href="http://www.webreference.com/javascript/reference/core/ident.html">セキュアなコードを書く</a><li>URL エンコーディングに関連した攻撃についての詳細は、次を参照してください。<a href="http://people.w3.org/rishida/scripts/uniview/conversion.php ">URL エンコーデッド攻撃</a></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン: ユーザーが指定したすべてのファイル名とパス入力をフィルター</a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

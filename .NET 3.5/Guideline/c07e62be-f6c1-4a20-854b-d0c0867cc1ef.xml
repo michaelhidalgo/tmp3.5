@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="204954324" Content_Hash="1292234731">
+  <Metadata>
+    <Id>c07e62be-f6c1-4a20-854b-d0c0867cc1ef</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュアなカンバセーションを使用して、セッションごとに複数のトランザクションをサポートする必要がある場合は、メッセージ セキュリティを使用する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>セキュア カンバセーションを使用して、セッションごとに複数のトランザクションをサポートする必要がある場合は、メッセージ セキュリティを使用することを検討します。</p>
+  <h1>理由</h1>
+  <p>これにより、性能が向上します。 </p>
+  <h1>状況</h1>
+  <p>複数のメッセージを WCF サービスと交換する場合。</p>
+  <h1>対策</h1>
+  <p>WCF クライアントが複数のメッセージを WCF サービスと交換する必要がある場合は、パフォーマンスを向上させるためにセキュア カンバセーション機能を使用することができます。 セキュア カンバセーションを使用することは、トークン ネゴシエーションと認証が、セッション内のすべての要求に対して一度だけ起こることを意味します。</p>
+  <p>セキュア カンバセーションは、WS-Security（例えば WSHttpBinding、NetTcpBinding、NetMsmqBindingなど）をサポートするすべての標準バインディングでメッセージ セキュリティと有効になっています。</p>
+  <p>以下はセキュア カンバセーションがオンの状態を示す構成例です。</p>
+ <pre>...<br />&lt;wsHttpBinding&gt;<br />  &lt;binding name="NewBinding0"&gt;<br />    &lt;security&gt;<br />      &lt;message establishSecurityContext="true" /&gt;<br />    &lt;/security&gt;<br />  &lt;/binding&gt;<br />&lt;/wsHttpBinding&gt;<br />...<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メッセージ保護の詳細については、「メッセージ セキュリティ」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733137.aspx">http://msdn2.microsoft.com/en-us/library/ms733137.aspx) を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1897959311" Content_Hash="-199073400">
+  <Metadata>
+    <Id>1304c0ce-685d-46d4-a821-4fd40857663f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>要求とアサートの使用方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>要求が現在のスタック フレームを越えて伝播するのを防ぐために <b>CodeAccessPermission</b>.<b> Assert</b> メソッドを呼び出す必要がある場合、<b>CodeAccessPermission</b>.<b> Assert</b> を呼び出す前に、呼び出しコードを認可するための代替アクセス許可を要求することを検討します。たとえば、アンマネージ ライブラリを呼び出し、アンマネージ コードのアクセス許可をアサートする必要がある場合、最初に別の組み込みまたはカスタムのアクセス許可を要求することを検討してください。 </p>
+  <p>コードが呼び出す単一メソッドの要求を満たすためだけに <b>Assert</b> を呼び出す場合は、メソッド呼び出に先立って <b>Assert</b> を配置します。 そして、アサーション ウィンドウをできる限り小さくするため、また<b>Assert</b> で有効である故にメソッドが呼び出す任意の後続のコードが成功してしまうことを防ぐために、<b>RevertAssert</b> メソッドをただちに呼び出します。 一般的な方法は、<b>RevertAssert</b> への呼び出しを <b>finally</b> ブロックに配置して、たとえ例外が発生した場合にも常に呼び出されることを保証します。 </p>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

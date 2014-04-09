@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1962599992" Content_Hash="-2139013894">
+  <Metadata>
+    <Id>ba6050ac-4bdd-4f5c-864b-a973b56d889d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パスワードを保護する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アプリケーションが強いパスワードの使用を必ず強制するようにしてください。 アプリケーションが Windows 認証を使用する場合、Windows または Active Directory パスワード ポリシーの恩恵を受けることができます。 パスワードを構成ファイルに保存する必要がある場合は、必ず暗号化するようにしてください。 パスワードを保存する構成セクションの暗号化には保護構成機能を使用してください。 ASP.NET アプリケーションには Aspnet_regiis.exe を使用することができます。 Windows アプリケーションといったような、その他の種類のアプリケーションの場合は、保護構成 API を使って構成ファイルのセクションをプログラムで暗号化します。 </p>
+  <p>パスワードを認証用データベースに保存する場合は、プレーンテキストや暗号化フォームでは保存しないでください。 その代わりに、ソルトを付加した不可逆のハッシュで保存してください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-915132610" Content_Hash="-1944383597">
+  <Metadata>
+    <Id>1eb713d2-a487-4d4a-931e-875532792725</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で複数のドメイン内で Active Directory を用いて Forms Authentication を使用する方法</Title>
+    <Category>Forms Authentication</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このガイドでは、Active DirectoryマルチドメインでASP.NET メンバーシップ機能を使用する方法を説明します｡ 各ドメイン用の <b>ActiveDirectoryMembershipProvider</b> および対応する接続文字列を構成する方法を表示します。 特定のドメインに対応する<b>MembershipProvider</b> のインスタンスを取得する方法、および関連プロバイダーを通じて <b>ValidateUser</b> のようなメンバーシップ API を呼び出す方法を表示します。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  ログイン ページを持つウェブ アプリケーションを作成する</div>
+            <li>
+              <div>手順 2:  ウェブ アプリケーションのForms Authenticationを設定する</div>
+              <li>
+                <div>手順 3:  ウェブ アプリケーションでActiveDirectoryMembershipProviderを使用するための設定を行う</div>
+                <li>
+                  <div>手順 4:  認証にメンバーシップAPIを使用する</div>
+                  <li>
+                    <div>セキュリティに関する考慮事項</div>
+                    <li>
+                      <div>追加考慮事項</div>
+                      <li>
+                        <div>その他のリソース</div>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>Forms Authentication を持つ<b>ActiveDirectoryMembershipProvider</b> を使用してください。 <li>複数ドメインを使用する時の <b>ActiveDirectoryMembershipProvider</b> の構成方法を学習してください。 <li>メンバーシップおよびForms Authenticationを使用する際の運用上の重要考慮事項を学習する。 <li>メンバーシップおよびForms Authenticationを使用する際のセキュリティ上の重要考慮事項を学習する。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET メンバーシップ機能は、ユーザー名とパスワードなどのユーザー Credential 情報を保持するために使用される基本データストアの抽象概念を提供し、またユーザー Credential 情報の検証やユーザーデータベースの管理を可能にするAPIを提供します。 サポートされるメンバーシップ プロバイダーには、SQL Server ユーザー ストア データベースでは <b>SqlServerMembershipProvider</b>、およびActive Directory と Active Directory Application Mode (ADAM) ユーザー ストアでは  <b>ActiveDirectoryMembershipProvider</b> が含まれます。</p>
+  <p>このガイドでは、マルチドメイン シナリオ下でActive Directoryに対してForms Authenticationを使用する単純なウェブ サイトの開発方法を説明します。 複数ドメインを使用する時に <b>ActiveDirectoryMembershipProvider </b> を構成する方法、および関連ドメイン コントローラに対してユーザーを認証する方法が記されています。 </p>
+  <h1>手順の概要</h1>
+  <p>マルチドメイン環境下でActive Directoryメンバーシッププロバイダーを使うForms Authenticationを使用する単純なウェブサイトを開発するには、以下の手順を実施します｡</p>
+  <ul>
+    <li>手順 1:  ログイン ページを持つウェブ アプリケーションを作成する。 <li>手順 2:  ウェブ アプリケーションでForms Authenticationを設定する。 <li>手順 3:  ウェブ アプリケーションでActiveDirectoryMembershipProviderを使用するための設定を行う｡ <li>手順 4:  認証にメンバーシップAPIを使用する。 </li></li></li></li>
+  </ul>
+  <h1>手順 1:  ログインページを持つウェブ アプリケーションを作成する｡</h1>
+  <p>マルチドメイン シナリオ下でメンバーシップによるForms Authenticationを実装する時は､ASP.NETで提供される Loginコントロールは使用できません。 その代わりに、メンバーシップAPIを直接呼び出す必要があります。 <b>TextBox</b> および <b>Button</b> のようなサーバ コントロールを使用して、独自のカスタム ログイン ページを作成する必要があります。そのログインページにより、既存のユーザーはログインが可能になり、新規ユーザーは新規アカウントを作成して登録することが可能になります。</p>
+  <h3>ログイン ページを持つウェブ アプリケーションを作成するには</h3>
+  <ol>
+    <li>Microsoft Visual Studio .NET 開発システムを起動し、次に FormsAuthAD という名の新規 ASP.NET Web サイトを作成してください。 <li>Solution Explorer を使用して、Login.aspx という名の新規 Web フォームをサイトへ追加してください。 <li>ユーザー ID を受け入れる<b>Label</b> および <b>TextBox</b> サーバ コントロールを追加してください。 <li>パスワードを受け入れる<b>Label</b> および <b>TextBox</b> サーバ コントロールを追加してください。 確実に、<b>TextBox</b> の <b>TextMode</b> プロパティを <b>Password</b> に設定してください。<li><b>Button</b> サーバ コントロールを追加して、<b>Text</b> プロパティを <b>Login</b> に設定してください。</li></li></li></li></li>
+  </ol>
+  <h1>手順 2:  ウェブ アプリケーションでForms Authenticationの設定を行う</h1>
+  <p>この手順では､ASP.NETアプリケーションでForms Authenticationを使用するための設定を行います。 </p>
+  <h3>ウェブ アプリケーションのForms Authenticationを設定するには</h3>
+  <ol>
+    <li>Solution Explorer を使用して、Web.config ファイルをプロジェクトに追加してください。 <li>アプリケーションのWeb.configファイルまたはマシンレベルのWeb.configファイル内で&lt;<b> authentication (認証)</b>&gt; エレメント、またモード属性を <b>Forms</b> に変更してください。<li>次の &lt;forms&gt; エレメントを&lt;<b>authentication</b>&gt;  の子として追加してください<b> </b>。 エレメントの子エレメントとして追加し、 name と timeout 属性を以下のように設定します。 <div><pre>&lt;authentication mode="Forms"&gt;<br />&nbsp; &lt;forms<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name=".ADAuthCookie"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeout="10" /&gt;<br />&lt;/authentication&gt;   </pre></div><p>&lt;<b>authentication</b>&gt; エレメントの mode 属性のみを設定し、&lt;<b>forms</b>&gt; エレメントの 属性の設定を省略している場合は<b> </b>、 &lt;<b>forms</b>&gt; にはデフォルト設定が使用されます。 の構成が使用されます。 上書きしたい属性だけを構成するようにしてください。 Machine.config.commentsファイルに定義されているForms Authenticationのデフォルト設定は、以下のとおりです。 </p><div><pre>&lt;forms name=".ASPXAUTH" loginUrl="login.aspx" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultUrl="default.aspx" protection="All" timeout="30" path="/" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="false" slidingExpiration="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieless="UseDeviceProfile" domain="" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enableCrossAppRedirects="false"&gt;<br />&nbsp; &lt;credentials passwordFormat="SHA1" /&gt;<br />&lt;/forms&gt;   </pre></div><li>Web.config ファイル 中に &lt;<b>authentication</b>&gt; エレメントの下にある次のような &lt;authorization&gt; エレメント を追加してください、<b> </b>これですべての認証されたユーザーが Web ページにアクセスできるようになります。 <div><pre>&lt;authorization&gt; <br />&nbsp;&nbsp;&nbsp; &lt;deny users="?" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;allow users="*" /&gt;<br />&lt;/authorization&gt;   </pre></div><p>この構成では、認証されたユーザーのみがアプリケーションにアクセスできます。 "<b>?"  は、</b>認証されていないユーザーを表し、"<b>*</b>" はすべてのユーザーを表します。 未認証のユーザーを拒否することにより、未認証のユーザーによるすべての要求はログインページにリダイレクトされます。 &lt;<b>forms</b>&gt; 上の <b>loginUrl</b>  属性 ログイン ページ名を判断します。 Machine.config.comments  におけるこの属性のデフォルト設定は、<b>Login.aspx</b> です。</p></li></li></li></li>
+  </ol>
+  <h1>手順 3:  ウェブ アプリケーションでActiveDirectoryMembershipProviderを使用するための設定を行う</h1>
+  <p>Active Directory フォレストでアプリケーションがサポートするすべてのドメインを識別し、次に各ドメインの <b>ActiveDirectoryMembershipProvider</b> インスタンスを構成してください。</p>
+  <h3>マルチドメインにASP.NET メンバーシッププロバイダーを設定するには</h3>
+  <ol>
+    <li>Web.config ファイルで、各ドメイン用のActive Directory ユーザー データベースを指し示す、次の例に表示されるものに類似した接続文字列を追加してください。 <div><pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="TestDomain1ConnectionString" connectionString="<a href="ldap://testdomain1.test.com/CN=Users,DC=testdomain1,DC=test,DC=com">LDAP://testdomain1.test.com/CN=Users,DC=testdomain1,DC=test,DC=com</a>" /&gt;<br />&nbsp; &lt;add name="TestDomain2ConnectionString" connectionString="<a href="ldap://testdomain2.test.com/CN=Users,DC=testdomain2,DC=test,DC=com">LDAP://testdomain2.test.com/CN=Users,DC=testdomain2,DC=test,DC=com</a>" /&gt;<br />&nbsp; &lt;add name="TestDomain3ConnectionString" connectionString="<a href="ldap://testdomain3.test.com/CN=Users,DC=testdomain3,DC=test,DC=com">LDAP://testdomain3.test.com/CN=Users,DC=testdomain3,DC=test,DC=com</a>" /&gt;<br />&lt;/connectionStrings&gt;   </pre></div><li><blockquote><b>注意</b>: &nbsp;&nbsp;ここに表示されている接続文字列は、3 つのテスト用ドメイン内の <b>Users</b> コンテナに接続します。 これらの文字列を更新して、ドメイン内の関連する <b>Users</b> コンテナを指し示すようにしてください。<b></b></blockquote><li>Web.config ファイルで、ここに表示されるように各ドメインを指し示す <b>ActiveDirectoryMembershipProvider</b> インスタンスを使用して  &lt;<b>membership</b>&gt; エレメントを構成してください。 <div><pre>&lt;membership &gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="TestDomain1ADMembershipProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.ActiveDirectoryMembershipProvider, System.Web, Version=2.0.0.0, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="TestDomain1ConnectionString"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionUsername="testdomain1\administrator" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionPassword="password"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="TestDomain2ADMembershipProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.ActiveDirectoryMembershipProvider, System.Web, Version=2.0.0.0, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="TestDomain2ConnectionString"&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionUsername="testdomain2\administrator" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionPassword="password"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;add<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="TestDomain3ADMembershipProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.ActiveDirectoryMembershipProvider, System.Web, Version=2.0.0.0, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="TestDomain3ConnectionString"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionUsername="testdomain3\administrator" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionPassword="password"/&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/membership&gt;   </pre></div><p>確実に、<b>connectionStringName</b> 属性を&lt;<b>connectionStrings</b>&gt; にて既に指定している、正しい接続文字列名に設定してください。 セクションが備わっていることを確認します。 </p></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;前の例では、テスト用ドメインで作業をしていて、新規アカウントを作成できる管理者アカウントのパスワードを持っていることが想定されています。 ドメインの管理者名とパスワードはプレーンテキストで提供する必要があります。 結果として、&lt;<b>connectionStrings</b>&gt; と共に、この構成セクションを暗号化することをお勧めします。 セクションが備わっていることを確認します。 </blockquote>
+  <h2>Active Directoryへの接続</h2>
+  <p><b>ActiveDirectoryMembership</b> プロバイダーが Active Directory に接続する際、Credential 情報が <b>connectionUsername</b> プロパティで指定されている(小文字の <i>n</i> は、<b>connectionStringName</b> のプロパティとは異なることに注意) アカウントを使用します。 <b>connectionUsername</b> プロパティを指定する場合、<b>connectionPassword</b> も指定する必要があり、そうでなければ例外がスローされます。 </p>
+  <p>アカウントの Credential 情報を指定しない場合､Active DirectoryはASP.NET Web アプリケーションのプロセスアカウントを使用します。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Active Directory への接続に使用するサービス アカウントには、Active Directory での十分なアクセス許可が付与されている必要があります。 Active Directory 組織単位 (OU)内でユーザーアカウントを管理している場合は､そのOU上で読み取り、書き込み、削除を行う権限権のみ (オプションで､パスワードのリセット特権) を持つサービスアカウントを作成して使用できます。<b></b></blockquote>
+  <h1>手順 4:  認証にメンバーシップAPIを使用する</h1>
+  <p>ユーザーを検証する際に使用するユーザー名のフォーマットは、&lt;<b>membership</b>&gt; の <b>attributeMapUsername</b> 属性に応じて変わります。 element. <b>ActiveDirectoryMembershipProvider</b> 用のデフォルトの構成は、ここに表示されるようにネーム マッピングにユーザーのプリンシパル名(UPN)を使用します。</p>
+  <div>
+ <pre>attributeMapUsername="userPrincipalName"   </pre>
+  </div>
+  <p>このため、すべてのユーザー名には、<i>UserName@DomainName</i>; というフォーマットを使用する必要があります。例:<i>mary@testdomain.com</i>、<i>steve@testdomain.com</i>。</p>
+  <p>Web.config ファイル中のメンバーシップ プロバイダー構成ファイルで次の属性を設定することにより、単純なユーザー名フォーマットを使用できるように、ネーム マッピングを変更できます。</p>
+  <div>
+ <pre>attributeMapUsername="sAMAccountName"   </pre>
+  </div>
+  <p>上のコンフィギュレーションを使用して、単純なユーザー名を使用できます。 例: Mary、Steve。</p>
+  <h3>UPNからユーザー名とドメインを抽出するには</h3>
+  <p>このプロシージャは､<i>username@domainname</i>というフォーマットのユーザー名をキャプチャしたいことを想定しています。</p>
+  <ol>
+    <li>入力を検証して、ユーザー名が<i>username@domainName</i>フォーマットで入力されていることを確認するコードをログインフォームに追加します。例えば、ここに表示される 1 例のような <b>RegularExpressionValidator</b> コントロールを使用することができます。 <div><pre>&lt;asp:RegularExpressionValidator id="unameRegex" runat="server" <br />&nbsp;&nbsp; ErrorMessage="Invalid user name. Format: <a href="mailto:username@domainName">username@domainName</a>" <br />&nbsp;&nbsp; ValidationExpression="^[\w-]+([\. ][\w-]+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*"<br />&nbsp;&nbsp; ControlToValidate="UserNameTextBox"&gt;<br />&lt;/asp:RegularExpressionValidator&gt;   </pre></div><li>ログインボタンのクリックイベントハンドラに次のようなコードを追加します。 <div><pre>string[] partsOfUserName = UserNameTextBox.Text.Split("@".ToCharArray());string domainName = partsOfUserName[1];  </pre></div></li></li>
+  </ol>
+  <h3>単純なユーザー名からユーザー名とドメインを抽出するには</h3>
+  <p>このプロシージャは､<i>doma</i>i<i>nName\userName</i>というフォーマットのユーザー名をキャプチャしたいことを想定しています。認証を行うには単純なユーザー名のみが必要とされますが、それを使って検証するための正しい <b>ActiveDirectoryMembershipProvider</b> インスタンスが選択できるように、ユーザーの正しいドメインを知っておく必要もあります。 この方法としては、次の2つがあります。</p>
+  <ul>
+    <li>適切なプロンプト<b>Label</b>を持つ別の <b>TextBox</b> を、ユーザーがドメインを入力するログイン フォームに追加してください。<li>ユーザーに<i>domainName\userName</i>というフォーマットを使用してユーザー名を入力するよう要求する｡</li></li>
+  </ul>
+  <p>以下の手順は2つ目の方法を想定しています。 </p>
+  <ol>
+    <li>入力を検証して、ユーザー名が<i>domainName\userName</i>というフォーマットで入力されていることを確認するコードをログインフォームに追加します。例えば、ここに表示される 1 例のような <b>RegularExpressionValidator</b> コントロールを使用できます。 <div><pre>&lt;asp:RegularExpressionValidator id="unameRegex" runat="server" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="Invalid user name. Format: domainName\username" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ValidationExpression="^\w+([-.]\w+)*\\[\w-]+([\. ][\w-]+)*"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="UserNameTextBox"&gt;<br />&nbsp; &lt;/asp:RegularExpressionValidator&gt;   </pre></div><li>ログインボタンのクリックイベントハンドラに次のようなコードを追加します。 <div><pre>string[] partsOfUserName = UserNameTextBox.Text.Split("<a href="file://\\".ToCharArray">\\".ToCharArray</a>());<br />string domainName = partsOfUserName[0];<br />string userName = partsofUserName[1];  </pre></div></li></li>
+  </ol>
+  <h3>ユーザーを認証するには</h3>
+  <ol>
+    <li>入力を検証して、ユーザー名が<i>username@domainName</i>フォーマットで入力されていることを確認するコードをログインフォームに追加します。例えば、<b>RegularExpressionValidator</b> コントロールを使用してください。 <li>ユーザー名とドメインを抽出するために先ほど入力したコードの後で、次のようなコードをログインボタンのクリックイベントハンドラに追加します。 <div><pre>MembershipProvider domainProvider;<br />switch (domainName)<br />{<br />&nbsp; case "TestDomain1.test.com":<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; domainProvider = Membership.Providers["TestDomain1ADMembershipProvider"];<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br />&nbsp; case "TestDomain2.test.com":<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; domainProvider = Membership.Providers["TestDomain2ADMembershipProvider"];<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br />&nbsp; case "TestDomain3.test.com":<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; domainProvider = Membership.Providers["TestDomain3ADMembershipProvider"];<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br />&nbsp; default:<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw(new Exception("This domain is not supported"));<br />}</pre></div><li><div><pre>// Validate the user with the membership system.<br />if(domainProvider.ValidateUser(UserNameTextBox.Text, PasswordTextBox.Text))<br />{<br />&nbsp;&nbsp;&nbsp; // If there is a RequestUrl query string attribute, the user has<br />&nbsp;&nbsp;&nbsp; // been redirected to the login page by forms authentication after<br />&nbsp;&nbsp;&nbsp; // requesting another page while not authenticated.<br />&nbsp;&nbsp;&nbsp; if (Request.QueryString["ReturnUrl"] != null)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // RedirectFromLoginPage sets the authorization cookie and then<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // redirects to the page the user originally requested.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Set second parameter to false so cookie is not persistent<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // across sessions.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FormsAuthentication.RedirectFromLoginPage(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; UserNameTextBox.Text, false);<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // If there is no RequestUrl query string attribute, just set<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // the authentication cookie. Provide navigation on the login page<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // to pages that require authentication, or user can use browser<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // to navigate to protected pages. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Set second parameter to false so cookie is not persistent<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // across sessions.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FormsAuthentication.SetAuthCookie(UserNameTextBox.Text, false);<br />&nbsp;&nbsp;&nbsp; }<br />}<br />else<br />{<br />&nbsp; Response.Write("Invalid UserID and Password");<br />}  </pre></div></li></li></li>
+  </ol>
+  <h1>セキュリティに関する考慮事項</h1>
+  <p>認証チケットを保護できないことは、不正なスプーフィングやなりすまし、セッション ハイジャック、および特権の昇格につながる可能性のある一般的な脆弱性です。 Forms Authenticationを使用する場合、安全な認証アプローチの確保に役立つ次の推奨事項を考慮してください。</p>
+  <ul>
+    <li>
+      <b>認証Cookieを HTTPS 接続に制限する。</b> ネットワーク送信中のForms Authentication Cookieの傍受や改ざんを防ぐためには、認証アクセスを必要とするすべてのページで Secure Sockets Layer (SSL) を使用し、Forms Authenticationチケットの使用を SSL チャネルのみに制限するようにしてください。 <li><b>SSL 用にサイトのパーティショニングを行う。</b> これにより、サイト全体で SSL を使用しなくてもよくなります。<b></b><li><b>Forms Authentication Cookieに固執しないでください。 </b>認証 Cookie は、クライアント コンピュータのユーザー プロファイルに格納されており、攻撃者がユーザーのコンピュータに対して物理的アクセスした場合、格納された認証Cookie が盗まれる可能性があるため、認証 Cookie は保持しないようにしてください。<li><b>チケット寿命を短縮することを検討してください｡ </b>攻撃者が捕獲したCookieを使用してスプーフした(なりすました)身元でアプリケーションにアクセスすることができる時間ウィンドウを短くするため、Cookie寿命の短縮を検討してください｡ <li><b>固定期限切れの使用を検討してください｡</b> SSL が使用できないシナリオでは、<b>slidingExpiration="false"</b> の設定を検討してください。<li><b>堅牢なユーザー管理方針を実施してください｡</b> 他人のパスワードを推測できないように、また辞書攻撃のリスクを軽減するためにも、すべてのユーザーアカウントで強力なパスワードの使用を強制してください｡ <li><b>パスワード複雑化のルールを実施してください｡</b> <b>PasswordRegularExpression</b> プロパティを適切な正規表現に設定することにより、<b>CreateUserWizard</b> コントロール経由で入力されたパスワードを検証してください。 また、サーバ上のメンバーシップ プロバイダーでも同じ正規表現を使用するよう設定を行ってください。<b></b><li><b>効果的なデータ検証をすべての要求上で実行する。</b> 厳密なデータ検証を実行し、SQL インジェクションやクロスサイト スクリプティング等の可能性を最小限に抑えます。 <li><b>個別のCookie名とパスを使用してください｡</b> 一意なCookie名やパスを使用することで、1 つのサーバ上で複数アプリケーションをホストした場合に発生し得る問題が回避されます。 <li><b>認証Cookieとパーソナル化 Cookie を別個にしておいてください。</b> ユーザー指定の設定条件と非機微データを含むパーソナライゼーション Cookie は、認証 Cookie からは分離して保管してください｡ <li><b>ナビゲーションには絶対URLを使用してください｡ </b>これにより、HTTP から HTTPS ページへのリダイレクトで発生し得る問題を回避します。 </li></li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>追加考慮事項</h1>
+  <p><b>ActiveDirectoryMembershipProvider</b> は、このハウツーで説明されているものよりはるかに多くの属性をサポートします。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

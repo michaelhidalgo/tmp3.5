@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1326453140" Content_Hash="-1538490191">
+  <Metadata>
+    <Id>f45de1f9-3801-4677-966e-433241bfdd91</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュアな鍵の格納ロケーションが使用されている</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションの鍵が定義された位置に保存されているか確認してください。（例えば、アプリケーションのweb.configの暗号化されたセクション、および暗号化されてWindowsのレジストリ内｡） それらがアプリケーションにハードコード化されていないか、またはコンフィグレーションファイル内にプレーンテキストとして保存されていないか確認してください｡</p>
+  <h1>理由</h1>
+  <p>侵入者は、暗号化で防御された場合、最も脆弱な面である鍵管理を攻撃します。 鍵は機微データを保護する暗号化を生成するために使用されるので、鍵それ自体が保護される必要のある機微なデータになります。 </p>
+  <h1>チェック方法</h1>
+  <p>以下の手順によって、安全な鍵保管場所が使用されているか確認してください｡</p>
+  <ol>
+    <li>
+      <p />
+      <strong>暗号鍵を処理するために使用されるメカニズムを識別してください。</strong> 使用されるメカニズムはWindowsのレジストリまたはアプリケーションのweb.configファイルのいずれかでなければなりません。 アプリケーションが最も適切なメカニズムを使用しているか確認してください。 鍵のストレージの位置が適切に文書化されていない場合は､コード中で暗号化機能を探し、鍵素材を逆トレースして一時的また恒久的にそれがどこに保存されているのか見つけてください。 文書化したものがある場合は､コードが文書に合致しているかチェックしてください｡ コード経由で追跡する際､システムの鍵の合計寿命を見ることを確認してください。 安全な最初のソースからのパスが正確でも、使用後に安全でない状態で書き出されるかもしれません。<p>アプリケーションの暗号鍵をWindowsレジストリへ保存する場合､保護するためにDPAPIが使用されているか確認してください｡ 下記のコードは一例です。</p><pre>encKey = ProtectedData.Protect(encKey, salt, DataProtectionScope.CurrentUser);<br />RegistryKey rk = Registry.LocalMachine.OpenSubKey("SOFTWARE\\MyApp\\KeyStore", true);<br />rk.SetValue("encKey", wBuff, RegistryValueKind.Binary);</pre><p>アプリケーションの暗号鍵をWeb.config に保存する場合、必ず <strong>appSettings</strong> セクションに保存してください。 <strong>aspnet_regiis</strong> ユーティリティを使用して、<strong>appSettings</strong> セクションが暗号化されていることを確認してください。 </p><li><p><strong>鍵ストアが保護されているか確認してください｡</strong></p><ul><li><p>DPAPIまたはASP.NETのいずれかで保護された構成ファイルが使用されているか確認してください｡ </p><li><p>アプリケーションおよび管理者のみがアクセスできるように、適切なアクセス許可が構成ファイルおよびレジストリキーに設定されているか確認してください｡ </p><li><p>アプリケーションおよび管理者のみがIISメタベースにアクセスできるか確認してください｡<br />メタベースへのアクセスは、一般ファイルまたはレジストリ キーと同じく、ACL で制御されます。 認可されたアカウントのみが &lt;CODE&gt;BUILTIN\Administrators&lt;/CODE&gt; グループにリストされ、他の ACL が適切に設定されていることを検証してください。</p></li></li></li></ul><li><p><strong>アプリケーションがセキュアに鍵を取り扱うことを検証してください。</strong></p><ul><li><p>キーがソースコードにハードコード化されていないか確認してください｡ 暗号化または署名の操作から逆トレースする際、私有鍵素材がアプリケーションのソースコード本体に文字通り含まれている場合は､保護された鍵ストアへ移動する必要のある&amp;nbsp;ハードコード化された鍵を&amp;nbsp;見つけたことになります。</p><li><p>鍵が保護されていない構成ファイルに置かれないか確認してください｡ 私有鍵が構成ファイルから読み取られ、aspnet_regiisユーティリティが（または手動で）暗号化されてないと判断した場合､鍵は保護された鍵ストアへ移動する必要があります。</p><li><p>鍵が使用後にメモリからアンロードされているか確認してください｡ 今後不要になった鍵が消去されないでメモリに残っている場合､また何らかの形で保護されずに一時ストレージに書き出されている場合､メモリまたは安全でないストアから盗まれる危険性があります。 鍵素材の合計寿命をチェックすることは、このような問題を見つけるために重要です。</p></li></li></li></ul></li></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードでは、アプリケーション内にハードコードされた暗号化鍵を示しています。 決意の固い攻撃者は、ソースコードへの&nbsp;アクセスを取得した後に&nbsp;鍵を侵害できます: </p>
+ <pre>byte[] salt = MyApp.Crypto.GenerateSalt();<br />string secretString = "application's encryption key";<br />HMACSHA512 md = new HMACSHA512(salt);md.Initialize();<br />byte[] rawKey = md.ComputeHash(Encoding.ASCII.GetBytes(secretString));<br />md.Clear();<br /> Rijndael encMD = Rijndael.Create();<br />encMD.Key = rawKey;encMD.IV = salt;<br />ICryptoTransform encCT = encMD.CreateEncryptor();</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>IIS メタベースをセキュアにする詳細は、<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/iissdk/html/3b227030-f79d-4426-b1c0-b5b72e49c9fd.asp">メタベース セキュリティ</a> を参照してください&nbsp;on MSDN.</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

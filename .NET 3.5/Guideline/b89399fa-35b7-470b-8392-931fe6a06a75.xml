@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1206865693" Content_Hash="1520335631">
+  <Metadata>
+    <Id>b89399fa-35b7-470b-8392-931fe6a06a75</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データを Cookie 、Hiddenフィールドまたはクエリ文字列に保存しないこと</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>機微データを Cookie 、フォーム フィールドまたはクエリ文字列の中に入れないでください。 </p>
+  <h1>理由</h1>
+  <p>先行のストレージ メカニズムはすべて周知のもので実際は安全ではありません。 前に記述したストレージの種類はどれも傍受またはタンパリングに対する保護に対応しません。 それらは、ほとんどの攻撃者がアカウントの Credential 情報やクレジット カード情報のような興味深いデータを探す、典型的な場所でもあります。 </p>
+  <h1>状況</h1>
+  <p>機微データがブラウザとウェブ サーバ間で送信される必要がある時はいつでも、これが適切な対策です。 </p>
+  <h1>対策</h1>
+  <p>ユーザーの機微データにアクセスする必要がある場合､サーバに保存されたままにしておき､すべての状態管理を実行してください。 以前に紹介したストレージ メカニズムは、セッション ID、または、何個の結果項目が表に表示されるか、といった非機微なクライアント設定のようなことに関してのみ適切です。&amp;nbsp;&amp;nbsp;</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/e9e34335-e80f-4273-8d59-d7f82cabf3b2">機微データはキャッシュしないでください</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

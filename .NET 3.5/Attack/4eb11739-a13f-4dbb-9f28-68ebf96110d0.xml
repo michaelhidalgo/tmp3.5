@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1134918211" Content_Hash="-720422532">
+  <Metadata>
+    <Id>4eb11739-a13f-4dbb-9f28-68ebf96110d0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>LDAP インジェクション攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>LDAP を利用するアプリケーション。</p>
+  <h1>説明</h1>
+  <p>LDAP インジェクションは、ユーザーからの入力を使用して LDAP ディレクトリに問い合わせるアプリケーションをエクスプロイトする手法です。 LDAP (Lightweight Directory Access Protocol) は、ディレクトリ サービスにアクセスするプロトコルとして広く使われています。 ディレクトリは、人に関する一連の属性を階層形式で整理して提供します。たとえば、電話帳がそうです。 </p>
+  <p>基本的に、これは SQL インジェクションや XML インジェクションとまったく同じ攻撃です。 唯一の違いは、使用されるクエリ言語とアクセスされるデータベースです。 ディレクトリは主に人に関する情報を保守管理するために使用されるため、LDAP インジェクションを行えば、ディレクトリに存在するすべての人の個人情報を参照、改ざん、削除できる可能性があります。 最もよくある間違いは、ユーザー入力を検証することなくフィルター文を動的に作成することです。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>意図しない情報漏えい<li>クエリ結果の操作による特権の昇格<li>アップデート プログラムの操作による LDAP データ ストアの破壊</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>信頼されていない入力を使用して動的 LDAP クエリを構築すること</li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>信頼されていない入力は「含める」リストを参照して検証してから利用するべきです (RegEx パターン、プリミティブ型キャスト、ドメイン制約など)。</li>
+  </ul>
+  <h1>例</h1>
+  <p>
+    <strong>脆弱なコード:</strong>
+  </p>
+  <p>次の PHP コードはローカルホストの LDAP サーバに接続し、ユーザーが提供した値に姓が一致するレコードを検索します。 </p>
+  <pre>&lt;?php&amp;#36;ds=ldap_connect("localhost");<br /> if (&amp;#36;ds)<br /> &amp;#123;<br />    &amp;#36;ok=ldap_bind(&amp;#36;ds);<br /> // anonymously bind for read-only access<br />    &amp;#36;surname=&amp;#36;_GET&amp;#91;'surname'&amp;#93;;<br />    &amp;#36;filter = "(sn=" . &amp;#36;surname . ")";<br />    &amp;#36;sr=ldap_search(&amp;#36;ds, "o=My Company, c=US", &amp;#36;filter);<br />    &amp;#36;info = ldap_get_entries(&amp;#36;ds, &amp;#36;sr);<br />    echo "&lt;p&gt;There are " . &amp;#36;info&amp;#91;"count"&amp;#93; . " entries for that search:&lt;p&gt;";</pre>
+  <pre>    for (&amp;#36;i=0; &amp;#36;i&lt;&amp;#36;info&amp;#91;"count"&amp;#93;; &amp;#36;i&amp;#43;&amp;#43;) &amp;#123;<br />        echo "common name: " . &amp;#36;info&amp;#91;&amp;#36;i&amp;#93;&amp;#91;"cn"&amp;#93;&amp;#91;0&amp;#93; . "&lt;br /&gt;";<br />        echo "telephone: " . &amp;#36;info&amp;#91;&amp;#36;i&amp;#93;&amp;#91;"telephoneNumber"&amp;#93;&amp;#91;0&amp;#93; . "&lt;br /&gt;";<br />        echo "email: " . &amp;#36;info&amp;#91;&amp;#36;i&amp;#93;&amp;#91;"mail"&amp;#93;&amp;#91;0&amp;#93; . "&lt;br /&gt;&lt;hr /&gt;";<br />    &amp;#125;</pre>
+  <pre>    ldap_close(&amp;#36;ds);</pre>
+  <pre>&amp;#125;<br /> else &amp;#123;<br />    echo "&lt;h4&gt;connection error&lt;/h4&gt;";&amp;#125;?&gt;</pre>
+  <p>このコードが teammentorexample.com の index.php にある場合、以下の URL によって、姓が「Smith」であるすべてのレコードが返されます。</p>
+  <pre>http://teammentorexample.com/index.php?surname=Smith</pre>
+  <p>
+    <strong>攻撃例:</strong>
+  </p>
+  <p>それでは、攻撃者が「Smith」の代わりに</p>
+  <pre>
+    <strong>x)(&amp;#124;(cn=&amp;#42;</strong>
+  </pre>
+  <p>以下のように入力したと仮定します。 つまり、攻撃者は以下を実行できます。</p>
+  <pre>http://teammentorexample.com/index.php?surname=x)(&amp;#124;(cn=&amp;#42;</pre>
+  <p>上のコードの数行を調べると、これはディレクトリにある全員の一覧を返すことがわかります。</p>
+  <pre>    &amp;#36;sirname=&amp;#36;_GET&amp;#91;'surname'&amp;#93;;<br />    // &amp;#36;surname = x)(&amp;#124;(cn=&amp;#42;)<br />    &amp;#36;filter = "(sn=" . &amp;#36;surname . ")";<br />    // &amp;#36;filter = (sn=x)(&amp;#124;cn=&amp;#42;)<br />     &amp;#36;sr=ldap_search(&amp;#36;ds, "o=My Company, c=US", &amp;#36;filter);<br />    // this reads: search My Companies directory for people<br />    //      having surname equal to x or anything<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>LDAP インジェクションに関する詳細は、<a href="http://www.owasp.org/index.php/Interpreter_Injection#LDAP_Injection">OWASP LDAP Injection</a>の記事を参照してください。 <li>LDAP に関する詳細は、<a href="http://en.wikipedia.org/wiki/Ldap">Wikipedia LDAP</a> の記事を参照してください。 <li>詳細な LDAP 参照については、<a href="http://www.ietf.org/rfc/rfc2251.txt">RFC 2251</a> を参照してください。</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

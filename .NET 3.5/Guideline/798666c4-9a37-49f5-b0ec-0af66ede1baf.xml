@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="356845194" Content_Hash="1441995915">
+  <Metadata>
+    <Id>798666c4-9a37-49f5-b0ec-0af66ede1baf</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>正規化による課題に注意する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>セキュリティ上の決定を行うために入力に基づく名前 (ユーザー名、ファイル名、URL など) がアプリケーションによって使用されるかどうかを判断してください。 これが該当する場合、コードは、正規化による課題の影響を受けやすくなります。 </p>
+  <h1>理由</h1>
+  <p>名前を表現できる方法が多数あるため、正規化による課題は厄介なことで有名です。 アプリケーションによって名前が入力として受け入れられる場合は、処理前にこれらが検証されて正規化表現に変換されるようにしてください。 </p>
+  <h1>状況</h1>
+  <p>アプリケーションによってファイル名または URL が入力として受け入れられる場合は、処理前にこれらが検証されて正規化表現に変換されるようにしてください。 </p>
+  <h1>対策</h1>
+  <p>正規化形式のデータとは、最も標準的または単純な形式のものです。 正規化とは、データを正規化形式に変換するプロセスです。 ファイル パスと URL は特に正規化による課題に陥りやすく、よく知られたエクスプロイトには正規化のバグの直接的な結果であるものが多数あります。 たとえば、正規化形式でファイルとパスを含んでいる次の文字列を考えます。</p>
+ <pre>c:\temp\somefile.dat</pre>
+  <p>次の文字列も同じファイルを表している可能性があります。</p>
+ <pre>somefile.dat<br />c:\temp\subdir\..\somefile.dat<br />c:\temp\somefile.dat..\somefile.dat<br />c%3A%5Ctemp%5Csubdir%5C%2E%2E%5Csomefile.dat</pre>
+  <p />最後の例では、文字は 16 進形式で指定されています。<ul><li>%3A はコロン文字です。 <li>%5C はバックスラッシュ文字です。 <li>%2E はドット文字です。 </li></li></li></ul><p>一般的には、正規化による課題を避けるため、ユーザーからのファイル名入力を許可しないように設計することをお勧めします。 代わりの設計を検討します。 たとえば、ユーザーのためにアプリケーション側でファイル名を決定します。</p><p>どうしてもファイル名入力を許容する必要がある場合は、形式に厳密に従っているかを確認してから、特定のファイルへのアクセスを許容するか拒否するかといったセキュリティ上の決定を下してください。</p><p>ファイル名を処理する方法とセキュアな方法でファイル I/O (入出力)を実行する方法の詳細については、第 7 章「<a href="http://msdn.microsoft.com/library/en-us/dnnetsec/html/THCMCh07.asp">Building Secure Assemblies (セキュリティ保護されたアセンブリを構築する)</a>」および第 8 章「<a href="http://msdn.microsoft.com/library/en-us/dnnetsec/html/THCMCh08.asp">Code Access Security in Practice (コード アクセス セキュリティの実践)</a>」の「File I/O (ファイル I/O)」セクションを参照してください。</p><h1>その他のリソース</h1><ul><li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」を参照してください。<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li></ul><hr /><p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

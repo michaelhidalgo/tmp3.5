@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2095669178" Content_Hash="-1621311366">
+  <Metadata>
+    <Id>b8c5a48b-1d43-4563-890a-847610df7da6</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーに ASP.Net ロール プロバイダーに対して認可する方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>ウィンドウズ グループを認可に使用したい場合は、ASP.NET ロール プロバイダーの <strong>AspNetWindowsTokenRoleProvider </strong>（ASP.NET ウィンドウズ トークン ロール プロバイダー）名の使用を検討してください。 こうすることで、認可の設計をお使いのサービス内での実装から分離することができます。 ロール プロバイダーの変更を決定した場合、変更は認可の実行に必要なコードに影響しません。 <strong>WindowsPrincipal.IsInrole</strong>（ウィンドウズ 主要はロールを実行中）で認可の確認をするのではなく、ロール マネージャ API を使って命令的チェックで実施することを検討してください。</p>
+  <p>次のステップに従って、ASP.NET ロール プロバイダーでユーザーを宣言的に認可してください: </p>
+  <ol>
+    <li>サービスの app.conf または web.config ファイルの SQL ロール プロバイダーを次のようにして構成してください: <ol><pre>  &lt;system.web&gt;<br />    &lt;!-- Configure the Sql Role Provider --&gt;<br />    &lt;roleManager enabled ="true" <br />                 defaultProvider ="SqlRoleProvider" &gt;<br />      &lt;providers&gt;<br />        &lt;add name ="SqlRoleProvider" <br />             type="System.Web.Security.SqlRoleProvider" <br />             connectionStringName="SqlConn" <br />             applicationName="MembershipAndRoleProviderSample"/&gt;<br />      &lt;/providers&gt;<br />    &lt;/roleManager&gt;<br />  &lt;/system.web&gt;</pre></ol><li>SQL ロール プロバイダー データベースに保存されているロールを使用するために ASP.NET ロール プロバイダーを構成します: <ol><pre>    &lt;behaviors&gt;<br />      &lt;serviceBehaviors&gt;<br />        &lt;behavior name="CalculatorServiceBehavior"&gt;<br />          &lt;!-- Configure role based authorization to use the Role Provider --&gt;<br />          &lt;serviceAuthorization principalPermissionMode ="UseAspNetRoles"<br />                                roleProviderName ="SqlRoleProvider" /&gt;<br />          &lt;serviceCredentials&gt;<br />            &lt;!-- Configure user name authentication to use the Membership Provider --&gt;<br />            &lt;userNameAuthentication userNamePasswordValidationMode ="MembershipProvider" <br />                                    membershipProviderName ="SqlMembershipProvider"/&gt;<br />        &lt;/behavior&gt;<br />      &lt;/serviceBehaviors&gt;<br />    &lt;/behaviors&gt;</pre></ol><li>認可を必要とする各サービス メソッドに、上記の PrincipalPermission 属性を宣言的に追加することにより Windows グループを認可してください。 [Role] フィールドでメソッドにアクセスするために必要な Windows ユーザー グループを指定します。<ol><pre>[PrincipalPermission(SecurityAction.Demand, Role = "accounting")]<br />public double Add(double a, double b)<br />{<br />    return a + b;<br />}</pre></ol></li></li></li>
+  </ol>
+  <p>次のステップに従って、ASP.NET ロール プロバイダーでユーザーを命令的に認可してください:</p>
+  <ol>
+    <li>サービスの app.conf または web.config ファイルの SQL ロール プロバイダーを次のようにして構成してください: <ol><pre>  &lt;system.web&gt;<br />    &lt;!-- Configure the Sql Role Provider --&gt;<br />    &lt;roleManager enabled ="true" <br />                 defaultProvider ="SqlRoleProvider" &gt;<br />      &lt;providers&gt;<br />        &lt;add name ="SqlRoleProvider" <br />             type="System.Web.Security.SqlRoleProvider" <br />             connectionStringName="SqlConn" <br />             applicationName="MembershipAndRoleProviderSample"/&gt;<br />      &lt;/providers&gt;<br />    &lt;/roleManager&gt;<br />  &lt;/system.web&gt;</pre></ol><li>SQL ロール プロバイダー データベースに保存されているロールを使用するために ASP.NET ロール プロバイダーを構成します: <ol><pre>    &lt;behaviors&gt;<br />      &lt;serviceBehaviors&gt;<br />        &lt;behavior name="CalculatorServiceBehavior"&gt;<br />          &lt;!-- Configure role based authorization to use the Role Provider --&gt;<br />          &lt;serviceAuthorization principalPermissionMode ="UseAspNetRoles"<br />                                roleProviderName ="SqlRoleProvider" /&gt;<br />          &lt;serviceCredentials&gt;<br />            &lt;!-- Configure user name authentication to use the Membership Provider --&gt;<br />            &lt;userNameAuthentication userNamePasswordValidationMode ="MembershipProvider" <br />                                    membershipProviderName ="SqlMembershipProvider"/&gt;<br />        &lt;/behavior&gt;<br />      &lt;/serviceBehaviors&gt;<br />    &lt;/behaviors&gt;</pre></ol><li>クライアントを認可するためには Roles.IsUserInRole （ユーザーはロールを実行中）メソッドをつかってウィンドウズ グループを命令的に認可します。 ロールは、以下に示すように変数に含めることも、必要に応じて動的に変更することもできます：<ol><pre>  string RequiredGroup = “Administrators”;<br />  try<br />  {<br />    if (!Roles.IsUserInRole(User.Identity.Name, “RequiredGroup”))<br />    {<br />      Msg.Text = "You are not authorized to view user roles.";<br />      UsersListBox.Visible = false;<br />      return;<br />    }<br />  }<br />  catch (HttpException e)<br />  {<br />    Msg.Text = "There is no current logged on user. Role membership cannot be verified.";<br />    return;<br />  }<br /></pre></ol></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET ロール プロバイダーに関する更なる情報については、<a href="http://msdn.microsoft.com/en-us/library/aa702542.aspx">http://msdn.microsoft.com/en-us/library/aa702542.aspx にある「方法: サービスでの ASP.NET ロール プロバイダーの使用」を参照してください。</a><li>Roles.IsUserInRole メソッドに関する情報については、 <a href="http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx">http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx をご覧ください。</a><li>認可に関する更なる情報については、<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspxにある「Authorization」（認可）を参照してください。</a><li>認可 Q&A については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Homeにある「WCF 3.5 Questions and Answers」（WCF 3.5 の Q&A）の認可の節を参照してください。</a><br /></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

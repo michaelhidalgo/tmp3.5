@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1445224016" Content_Hash="-823014687">
+  <Metadata>
+    <Id>9491b1b1-cd90-4daf-88c8-a3cd5a584fef</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>カスタム認証の代わりにメンバーシップ プロバイダーが使用される</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ユーザーを認証するために &nbsp;ASP.NET メンバーシップ プロバイダーが使用されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>メンバーシップ機能は、Credential 情報の保護、強力なパスワードの強制、ユーザーの検証に対する一貫した API の提供、そしてセキュアなユーザー管理を可能にします。&nbsp; また、メンバーシップ機能は自動的に認証チケットを作成します。&nbsp;</p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションがメンバーシップ プロバイダーを使用しているかをチェックするには、以下のステップに従います:</p>
+  <ol>
+    <li>
+      <div>web.config または machine.config ファイルの&lt;<strong>membership</strong>&gt; をチェックします。 セクションが備わっていることを確認します。</div>
+      <li>
+        <div>&lt;<strong>membership</strong>&gt;  セクション内で、アプリケーションのユーザーをサポートするプロバイダーに構成された&lt;<b>providers</b>&gt;  セクションがあることを確認します。</div>
+        <li>
+          <div>&nbsp;&lt;<strong>connectionStrings</strong>&gt; セクションに&lt;<b>providers </b>&gt; で指示されたストアへの接続情報が含まれていることをチェックします セクションが備わっていることを確認します。</div>
+          <li>
+            <div>&lt;<strong>membership</strong>&gt; エレメントの <b>defaultProvider</b>属性が選択したプロバイダーを 指していることを確認します。</div>
+            <li>
+              <div>アプリケーションがメンバーシップ API または <strong>Login</strong> コントロールを使用してユーザーを認証することを確認してください。</div>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>例えば、正しくセットアップされた<strong>SqlMembershipProvider</strong> 　の構成ファイルは次のようになります:</p>
+ <pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="MySqlConnection" connectionString="Data Source=MySqlServer;<br />		Initial Catalog=aspnetdb;Integrated Security=SSPI;" /&gt;<br />&lt;/connectionStrings&gt;<br />&lt;system.web&gt;<br />...<br />&nbsp; &lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="15"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;clear /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;add <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="SqlProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlMembershipProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="MySqlConnection"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyApplication"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enablePasswordRetrieval="false"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enablePasswordReset="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requiresQuestionAndAnswer="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requiresUniqueEmail="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; passwordFormat="Hashed" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/providers&gt;<br />&nbsp; &lt;/membership&gt;<br /></pre>
+  <h1>修正方法</h1>
+  <p>メンバーシップ機能には SQL Server、Active Directory、および Active Directory Application Mode (ADAM) を含むユーザー ストアのプロバイダーが内蔵されています。</p>
+  <p>非 Active Directory LDAP ディレクトリや別のプラットフォーム上のユーザー ストアなど既存のユーザー ストアを使用したい場合には、<b>MembershipProvider</b>  抽象基底クラスから継承したカスタム メンバーシップ プロバイダーを作成します。 そうすることで、アプリケーションは標準のメンバーシップ機能と API およびログイン制御を使用することで、引き続きメリットを得ることができます。&nbsp; </p>
+  <p />メンバーシップを構成するには、プロバイダー ストアを指すように接続文字列を定義し、Web.config ファイルにプロバイダーの定義を構成する必要があります。 <p /><b>メンバーシップを構成するには:</b><ol><li>アプリケーションに &lt;<b></b><b> authentication mode="Forms"/</b>&gt; を設定して、forms authentication を構成します。 <li>接続文字列を&lt;<b>connectionStrings/</b>&gt;  セクションに追加して、ユーザー ストアを指すようにします。<br /><b>ActiveDirectoryMembershipProvider</b> を使用している場合には、Active Directory または ADAM でユーザー コンテナに指し示されるのは、Lightweight Directory Access Protocol (LDAP) のクエリ文字列です。<br /><b>SqlMembershipProvider</b>を使用している場合には、これはユーザー ストア データベースを示すデータベース接続文字列です。 <li>&lt;<b>membership</b>&gt;セクションを追加し、選択したメンバーシップ プロバイダーを構成します。<b></b> <li>アプリケーションのWeb.config の&lt;<b></b><b>membership</b>&gt;エレメントの下に a&lt;<b>providers</b>&gt;セクションを作成し、特定のプロバイダーを構成します。<b></b> メンバーシップ システムは数々の異なるプロバイダーをサポートしています:<ul><li>ユーザー アカウントが Active Directory または ADAM にある場合には、<b>ActiveDirectoryMembershipProvider</b> を使用します。<li>ユーザー アカウントが SQL Server にある場合には、<b>SqlMembershipProvider</b> を使用します。<li>ユーザー アカウントが前述したもの以外のストアにある場合には、<b>MembershipProvider</b> 基底クラスから継承して、カスタム メンバーシップ プロバイダーを作成します。 </li></li></li></ul><li>&lt;<b>membership</b>&gt;エレメントの<b>defaultProvider</b> 属性を 選択したプロバイダーに設定します。 </li></li></li></li></li></ol><p>ユーザーを検証および管理するには、メンバーシップ API (例えば <b>Membership.CreateUser</b>および<b>Membership.ValidateUser</b>) を使用するか、メンバーシップ構成を自動的に使用する<b>Login</b> コントロールを使用します。 </p><h1>関連する項目</h1><ul><li><a href="/article/556c8ebc-e406-4050-a1f1-bc6240f8cdd4">ガイドライン: カスタム認証の代わりにメンバーシップ プロバイダーを使用</a></li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

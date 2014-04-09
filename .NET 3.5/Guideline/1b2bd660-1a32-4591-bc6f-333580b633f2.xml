@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1644729941" Content_Hash="1596806613">
+  <Metadata>
+    <Id>1b2bd660-1a32-4591-bc6f-333580b633f2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>IIS によってサポートされていないトランスポートを使用する必要がある場合を除き、IIS を使用してサービスをホストする</Title>
+    <Category>ホスティング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>IIS は 効率的なサービス管理と拡張性を実現する機能を数多く搭載しているので、IIS を使用して WCF サービスのホスティングを行います。 </p>
+  <h1>理由</h1>
+  <p>IIS を WCF サービスのホストとして使用することで、プロセス リサイクリング、アイドル シャットダウン、プロセス ヘルス モニタリング、メッセージベース アクティベーション等の IIS 機能を十分に活用することができます。 </p>
+  <h1>対策</h1>
+  <p>IIS 6.0 では http 上でバインディングのみがサポートされているため、TCP、MSMQ、または名前付きパイプを使用する必要がある場合は、代わりに Windows サービスでホスティングを行うべきです。&nbsp; IIS 7.0 では、HTTP、TCP、MSMQ、名前付きパイプ等、一般に使用されているトランスポート プロトコルのすべてがサポートされています。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ホスティングの詳細については、「ホスティング」 (<a href="http://msdn2.microsoft.com/en-us/library/ms729846.aspx">http://msdn2.microsoft.com/en-us/library/ms729846.aspx) を参照してください。</a><li>ホスティングに関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home">http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home) のホスティングのセクションを参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

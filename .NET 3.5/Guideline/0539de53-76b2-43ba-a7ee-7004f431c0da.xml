@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2134118542" Content_Hash="-2064813841">
+  <Metadata>
+    <Id>0539de53-76b2-43ba-a7ee-7004f431c0da</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Client-side Validation に頼らない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>Client-side Validationにより、サーバへのRoundトリップの回数を軽減させますが、バイパスが可能であるためセキュリティには使用しないでください。 サーバですべての入力を検証します。 </p>
+  <h1>理由</h1>
+  <p>クライアントの動作を変更したり、同じデータ検証ルールを遵守しない新しいクライアントを単に記述することは簡単です。</p>
+  <h1>状況</h1>
+  <p>コードがセキュリティに依存している場合、すべてのアプリケーションはServer-side Validationのみを使用する必要があります。</p>
+  <h1>対策</h1>
+  <p>サーバー側コードは独自の検証を実行する必要があります。 攻撃者がクライアントをバイパスしたり、クライアント側スクリプト ルーチンをシャットオフしたりした場合は (たとえば、JavaScript を無効にすることによって)、 Client-side Validationにより、サーバへのRoundトリップの回数を軽減させますが、セキュリティには依存しないでください これは、多層防御の例です。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」(<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a>) を参照してください。&nbsp;&nbsp;</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

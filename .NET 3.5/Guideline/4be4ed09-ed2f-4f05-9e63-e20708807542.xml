@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="682219670" Content_Hash="-627456581">
+  <Metadata>
+    <Id>4be4ed09-ed2f-4f05-9e63-e20708807542</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL クエリを構成する場合は Type-Safe SQL パラメータを使用します</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ダイナミック SQL クエリを構成する場合やパラメータをストアド プロシージャに渡す場合には Type-Safe パラメータを使用します </p>
+  <h1>理由</h1>
+  <p>パラメータ コレクションを使用すると、SQL で入力がリテラル値として扱われ、実行可能コードとして扱われなくなります。 また、パラメータ コレクションを使用して、入力データ型と長さのチェックを行うことができます。 範囲外の値は例外をトリガーします。 Type-Safe SQL パラメータが使用されていない場合には攻撃者がフィルタリングされていない入力に埋め込まれるインジェクション攻撃を実行できるかもしれません。</p>
+  <h1>状況</h1>
+  <p>このガイドラインは SQL ステートメントがダイナミックに構成される場合は常に適用されます。 ストアド プロシージャが活用される際にも常に適切なものです。</p>
+  <h1>対策</h1>
+  <p>アプリケーションが SQL インジェクション攻撃の影響を受けないようにする 1 つの方法として、ストアド プロシージャの使用があります。 ストアド プロシージャは、アプリケーションがデータにアクセスする際に利用できる、データベースに格納されているサブルーチンです。 </p>
+  <p>ストアド プロシージャを使用するだけでは、SQL インジェクションに対する完全な対策にはなりません。 事項すべき重要事項はストアド プロシージャを含むパラメータを使用することであり、そうでない場合にフィルタリングされていない入力を使用すると SQL インジェクションの攻撃を受けやすくなってしまいます。 ストアド プロシージャでは、以下のセキュリティ上のメリットが提供されます。 </p>
+  <ul>
+    <li>入力パラメータをパラメータ化することによって入力を強制して入力を効果的にフィルタリングします。<li>ストアド プロシージャは通常ほとんどのデータベースによりデータベース ユーザーとは異なるセキュリティ特権で実行できるようになっているため、アプリケーションによりストアド プロシージャで指定されているアクション以外に実行できることが制限されます。 例えばアプリケーションはストアド プロシージャへのアクセスを実行するものの、ベース テーブルへのアクセスはできません。</li></li>
+  </ul>
+  <p>Type-Safe SQL パラメータを使用するには次のステップに従います：</p>
+  <ol>
+    <li>
+      <p>
+        <strong>可能であれば、ストアド プロシージャを使用します。</strong> ストアド プロシージャは、データベース サーバーに格納されているコンパイル済みのステートメントです。 ストアド プロシージャを使用することで、アプリケーションのパフォーマンスやセキュリティを向上できます。 詳細情報については <a href="/article/5865cd19-5ead-401d-abd7-7e54cd2c1fc1">Use Stored Procedures</a> （ストアド プロシージャの使用）ガイドラインを参照してください。</p>
+      <li>
+        <p>
+          <strong>構成中の SQL クエリまたはストアド プロシージャの特定</strong> ユーザーの入力またはその他の信頼性のないソースに起因するパラメータは全て、クエリで特定変数名を指定することによって避けます：</p>
+ <pre>SELECT &amp;#42; from books WHERE ISBN = '&amp;#64;isbn'</pre>
+        <li>
+          <p>
+            <strong>SQL ステートメント内の各パラメータの明示データ型を宣言します。</strong> SQL ステートメントを実行する際にクエリの各パラメータのデータ型と長さを指定します。</p>
+ <pre>myCommand.SelectCommand.Parameters.Add("&amp;#64;isbn", SqlDbType.VarChar, 10);</pre>
+          <li>
+            <p>
+              <strong>各パラメータの値を指定します。</strong> 信頼性のない入力は指定され、SQL ステートメントが次の実行をする際には適切に処理されます：</p>
+ <pre>myCommand.SelectCommand.Parameters&amp;#91;"&amp;#64;isbn"&amp;#93;.Value = '0494483923';</pre>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>小企業向けに従業員の給与計算を処理する ASP.NET アプリケーションがあります。 あるページ上で、[ログイン] ダイアログから入力されたユーザー名とパスワードに基づいてテーブルから従業員レコードの読み出しが要求されます。 アプリケーションの開発者は、このタスクを完了するために SQL SELECT クエリを作成しました。</p>
+ <pre>using (SqlConnection myConnection = new SqlConnection(connectionString))<br /><pre>SqlConnection myConnection = new SqlConnection("Data Source=localhost\\sqlexpress;<br />&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;Initial Catalog=EmployeePayroll;<br />&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;Integrated Security=True");<br />string SQLstr = "SELECT &amp;#42; from users WHERE username = '" &amp;#43; un.Text &amp;#43; <br />&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;"' AND password = '" &amp;#43; <br />&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;&amp;#9;pass.Text &amp;#43; "'";</pre><pre>SqlCommand myCommand = new SqlCommand(SQLstr, myConnection);</pre><pre>SqlDataAdapter myDataAdapter = new SqlDataAdapter(myCommand);</pre><pre>myCommand.Connection.Open();</pre><pre>SqlDataReader myReader = myCommand.ExecuteReader();<br /></pre></pre>
+  <p>上の例では、SELECT ステートメントは入力が十分にチェックされているものとして、予想通りに機能します。 しかし、ユーザーがパスワードに '1234'、ユーザー名に以下のような予想外の入力を行った場合はどうなるでしょうか。</p>
+ <pre>mjones' AND 1=1; -- </pre>
+  <p>この結果、SQL ステートメントがデータベース レベルで実行されることになります。 </p>
+ <pre>SELECT &amp;#42; from users WHERE username = 'mjones' AND 1=1; --'  AND password = '1234';</pre>
+  <p>これによって、ダイアログ ボックスにデータを入力する人が正しいパスワードを使用することなく mjones というユーザーのアカウント情報を選択できるようになります。</p>
+  <h1>ソリューションの例</h1>
+  <p>小企業向けに従業員の給与計算を処理する ASP.NET アプリケーションがあります。 あるページ上で、[ログイン] ダイアログから入力されたユーザー名とパスワードに基づいてテーブルから従業員レコードの読み出しが要求されます。 アプリケーションの開発者がクエリをダイナミックに構成している場合、Type-Safe パラメータを SqlParameterCollection で利用するために次の SQL クエリを使用します：</p>
+ <pre>
+    <pre>using System.Data;<br />using System.Data.SqlClient;</pre>
+ <pre>using (SqlConnection connection = new SqlConnection(connectionString))<br />&amp;#123;<br />&amp;nbsp;DataSet userDataset = new DataSet();<br />&amp;nbsp;SqlDataAdapter myDataAdapter = new SqlDataAdapter(<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;"SELECT &amp;#42; from users WHERE username = <a href="mailto:'&amp;#64;uname'">'&amp;#64;uname'</a> AND password = <a href="mailto:'&amp;#64;pwd'">'&amp;#64;pwd'</a>", connection);&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;<br />&amp;nbsp;myCommand.SelectCommand.Parameters.Add("&amp;#64;uname", SqlDbType.VarChar, 24);<br />&amp;nbsp;myCommand.SelectCommand.Parameters.Add("&amp;#64;pwd", SqlDbType.VarChar, 16);</pre>
+ <pre>  myCommand.SelectCommand.Parameters&amp;#91;"&amp;#64;uname"&amp;#93;.Value = un.Text;</pre>
+ <pre>  myCommand.SelectCommand.Parameters&amp;#91;"&amp;#64;pwd"&amp;#93;.Value = pass.Text;<br /><br />&amp;nbsp;myDataAdapter.Fill(userDataset);<br />&amp;#125;<br /></pre>
+  </pre>
+  <p>上記のコード例では、入力値は長さで制限されて避けられました。 データがパラメータで定義された型または長さに適合しない場合、SqlParameter クラスによって例外がスローされます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>SQL インジェクションに関する詳細情報についてはウィキペディアの<a href="http://en.wikipedia.org/wiki/SQL_injection">SQL Injection</a>を参照してください。 <li>ASP.NET での SQL インジェクションの防御に関する詳細情報については <a href="http://msdn2.microsoft.com/en-us/library/ms998271.aspx">How To: Protect From SQL Injection in ASP.NET</a>（方法：ASP.NET でのSQL インジェクションからの保護）を参照してください。<li>ASP.NET でのインジェクション攻撃の防御に関する詳細情報については<a href="http://msdn2.microsoft.com/en-us/library/bb355989.aspx">How To: Protect From Injection Attacks in ASP.NET</a>（方法：ASP.NET でのインジェクション攻撃からの保護）を参照してください。</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/b431b7df-36d8-461b-a437-675a20e9548b">ガイドライン：データベースに渡される全ての入力を検証します</a>
+      <li>
+        <a href="/article/5865cd19-5ead-401d-abd7-7e54cd2c1fc1">ガイドライン：ストアド プロシージャを使用します</a>
+        <li>
+          <a href="/article/a4e7f10a-b051-43d6-8bc3-3495773450b8">チェックリスト アイテム： Type-Safe SQL パラメータを使用します </a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="319819226" Content_Hash="-1796425245">
+  <Metadata>
+    <Id>0420a3ec-4383-4159-a618-9de81ac33a4d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>偽装は最初の呼び出し元のセキュリティ コンテキストがダウンストリームで必要とされる場合にのみ使用する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>最初の呼び出し元のセキュリティ コンテキストがダウンストリーム階層で監査または認可に必要とされる場合にのみ、偽装を使用してください。 </p>
+  <h1>理由</h1>
+  <p>プログラム型の偽装が適切に行われていないと、セキュリティの脆弱性を招くおそれがあります。&nbsp; 特にマルチスレッド アプリケーションでは、正しく行うことは困難です。&nbsp; 可能な限り、リソース アクセスにはカスタム ドメイン プロセス ID を使用するなど、代替方法を使用してください。&nbsp; プログラム型の偽装は、以下の理由により、可能な限り避ける必要があります。</p>
+  <ul>
+    <li>スレッド偽装トークンがスレッドにわたって伝播されていない、スレッド スイッチが原因でエラーが発生しやすい。 <li>一部のプログラム上の手法では、避けた方が望ましい Credential 情報を保存することが要求される。 <li>一部のプログラム手法でプロセス アカウントに追加の特権の付与が必要になるが、これは避けるべきである。&nbsp; 例えば、Windows Server 2000 で <strong>LogonUser</strong> を呼び出す場合、またはWindows Server 2003 で偽装レベル トークンを取得するためにユーザー プリンシパル名からトークンを生成する新しい <strong>WindowsIdentity</strong> コンストラクタを使用する場合、プロセス アカウントに “オペレーティング システムの一部として機能” を付与する必要があります。 <li>偽装中に例外が発生すると、コール スタック内の上位にある悪意のあるコードが、偽装された ID を使用して実行される可能性がある。&nbsp; これは、特に高度な特権を持つアカウントを偽装している場合に、セキュリティ上の問題を招くことがあります。 </li></li></li></li>
+  </ul>
+  <h1>状況</h1>
+  <p>偽装および委任が必要となる最も一般的な状況としては、次のようなものがあります。</p>
+  <ul>
+    <li>
+      <b>最初の呼び出し元を偽装する。</b>&nbsp; アプリケーションのドメイン ユーザー アカウントに対して設定された ACL により保護された、Windows リソースにアクセスしたい場合。 <li><b>最初の呼び出し元をプログラム的に偽装する。</b>&nbsp; ほとんどのリソースには、アプリケーションのプロセス ID を用いてアクセスするが、特定のメソッドが最初の呼び出し元の ID を用いる必要がある場合。 </li></li>
+  </ul>
+  <p>ユーザーのセキュリティ コンテキスト全体ではなく、そのユーザーのID だけをダウンストリームにセキュアに渡す必要がある場合は、偽装を使用しないでください。&nbsp;できる限り、リソースにアクセスするために 1 人のユーザーを偽装することは回避してください。 </p>
+  <h1>対策</h1>
+  <p>偽装は潜在的に非常に危険です。&nbsp; 偽装を安全に使用することは可能ですが、絶対に必要とされない場合は偽装を回避すべきです。&nbsp; ユーザーのセキュリティ コンテキスト全体ではなく、そのユーザーのID だけをダウンストリームにセキュアに渡す必要がある場合は、偽装を使用しないでください。&nbsp; たとえば、データベースのバックエンドがそのデータベースに接続しているユーザーの ID を知る必要がある場合、ウェブ フロント エンドが信頼済みサブシステムとしての役割を果たし、そのユーザーをデータベースに対して偽装することなく、セキュアな接続を通じてユーザー ID をデータベースに渡すことで、ユーザーの認証および認可をすることができます。&nbsp; こうしたケースでは、偽装を使用しないほうがより安全であるだけでなく、処理も速くなります。この状況でユーザーの偽装を行うと接続プールが使用できなくなり、多額のオーバーヘッドがかかります。 できる限り、リソースにアクセスするために 1 人のユーザーを偽装することは回避してください。&nbsp; より適切な解決策としては、アプリケーションの通常のプロセス ID アクセスが許可されるように ACL を必要に応じて変更するか、または中間ポイントでアクセス制御の処理を行う信頼済みサブシステム ソリューションを使用します。&nbsp; ACL と信頼済みサブシステムの両方で注意を払う必要がありますが、偽装される ID で実行できることをすべてプロセスに許可するのでなく、呼び出しプロセスに対して必要な、単一の特定の機能だけを提供するという利点があります。 </p>
+  <p>これらのことを踏まえたうえで、偽装を安全に使用するにあたってのガイドラインを以下に示します。&nbsp; 1 つ目の構成は、タスク全体を接続中のユーザーとして実行しなければいけないシナリオに適しています。&nbsp; 2 つ目の構成は、特定のリソースで最初のユーザーとして接続することが必要とされるシナリオに適しています。 </p>
+  <h2>最初の呼び出し元を偽装する</h2>
+  <p>統合 Windows 認証を有効にし、それ以外のすべての認証メソッドを無効にした状態で IIS の構成を行ってください。&nbsp; お使いのアプリケーションの Web.config ファイルの<b>&lt;system.web&gt;</b> セクションに次の構成を追加することで、ASP.NET アプリケーションの構成を行ってください。 </p>
+ <pre>&lt;authentication mode="Windows" /&gt;&lt;identity impersonate="true" /&gt;</pre>
+  <p>このコンフィグレーションでは、ASP.NET は、IIS による認証ユーザーを偽装し、ウェブ アプリケーションのコードを実行する ASP.NET の要求 Thread は、自らに対して偽装トークンをアタッチします。 上記のコンフィグレーションでは、すべてのリソース アクセスの実行に最初の呼び出し元の ID を用いることができますが、プロセス ID を用いてローカル ファイルのような特定リソースにアクセスする必要があるときは、次のコードを使用することで、ASP.NET 要求  Thread から一時的に偽装トークンを削除できます。</p>
+ <pre>// Stop impersonationWindowsImpersonationContext <br />ctx = WindowsIdentity.Impersonate(IntPtr.Zero);<br />try<br />{  <br />	// Thread is now running under the process identity.  <br />	// Any resource access here uses the process identity.<br />}<br />finally <br />{  <br />	// Resume impersonation   <br />	ctx.Undo(); <br />}</pre>
+  <h2>最初の呼び出し元を一時的に偽装する </h2>
+  <p>特定のメソッド内で最初の呼び出し元を一時的に偽装するには、認証されたユーザーを表す <b>WindowsIdentity</b> オブジェクトを入手してから、そのオブジェクトの <b>Impersonate</b> メソッドを呼び出す必要があります。 </p>
+  <ol>
+    <li>
+      <p>
+        <strong>お使いのASP.NET アプリケーションで偽装が無効になっていることを確認します</strong>。Web.config ファイル内で次の構成を使用して偽装を無効にします。</p>
+ <pre>&lt;identity impersonate="false" /&gt;</pre>
+      <li>
+        <p>
+          <strong>認証されたトークンを入手します。 </strong>偽装を必要とするメソッドに次のコードを追加します。  </p>
+ <pre>using System.Security.Principal;...</pre>
+ <pre>
+          <br />// Obtain the authenticated user's IdentityWindowsIdentity <br />winId = (WindowsIdentity)HttpContext.Current.User.Identity;<br />WindowsImpersonationContext ctx = null;try<br />{  <br />	// Start impersonating   <br />	tx = winId.Impersonate();  <br />	// Now impersonating   <br />	// Access resources using the identity of the authenticated user<br />}<br />// Prevent exceptions from propagating<br />catch{}<br />finally<br />{  <br />// Revert impersonation   <br />if (ctx != null)     <br />	ctx.Undo();<br />}<br />// Back to running under the default ASP.NET process identity</pre>
+        <p>このコードは最初の呼び出し元を偽装します。&nbsp; 最初の呼び出し元の ID は HttpContext.Current.User.Identity オブジェクト内に維持されます。 </p>
+        <p>上記のコードで、例外の発生時でも偽装が復帰するように、 finally ブロックがどのようにして使用されているかに注目してください。&nbsp; また、このコードでは、スレッド で偽装を行っている間に例外がコール スタック内に伝播できないように catch ブロックが使用されています。 </p>
+      </li>
+    </li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

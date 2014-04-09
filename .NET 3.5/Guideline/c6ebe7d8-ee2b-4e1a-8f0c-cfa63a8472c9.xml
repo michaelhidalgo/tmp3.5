@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-261343957" Content_Hash="1529296748">
+  <Metadata>
+    <Id>c6ebe7d8-ee2b-4e1a-8f0c-cfa63a8472c9</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザー管理イベント用のインストルメント</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ASP.NET ヘルス モニタリングを使用することで、お使いのアプリケーションをインストルメント化して認証および認可にかかわるユーザー管理イベントを監視します。</p>
+  <h1>理由</h1>
+  <p>このインストルメント化は、潜在的に怪しい動作を検知して対処するのに役立てることができます。 また、例えば、アプリケーションに誰がアクセスしているかの追跡や、ユーザー アカウントのパスワードをいつリセットする必要があるかなど、 操作データの収集も可能になります。</p>
+  <h1>対策</h1>
+  <p>次の手順に、お使いのアプリケーションをユーザー管理イベントにインストルメント化する方法を示します。</p>
+  <ol>
+    <li>クラス ライブラリを作成してから WebAuditEvent から継承されるクラスを作成することで、カスタムのユーザー管理ウェブ イベントを作成します。</li>
+    <li>ヘルス モニタリング用に WCF サービスを構成してください。<li>サービス コントラクトでカスタム イベントを発生させることにより、 WCF サービスをインスルメント化してください。<li>テスト クライアントからサービス メソッドを呼び出した後で、イベント ログ中のサービス イベントを検証してください。</li></li></li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

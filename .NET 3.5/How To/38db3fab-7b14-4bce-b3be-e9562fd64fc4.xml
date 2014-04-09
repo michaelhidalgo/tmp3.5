@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="719538726" Content_Hash="-720087803">
+  <Metadata>
+    <Id>38db3fab-7b14-4bce-b3be-e9562fd64fc4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メッセージ反復攻撃を防ぐ方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>反復攻撃は、攻撃者が 2 者のパーティ間でのメッセージの流れをコピーし、その流れを一方または複数のパーティに反復したときに発生します。 反復攻撃からメッセージを保護するには、サービスの反復検出を有効にしてください。 </p>
+  <p>次のステップは反復検出の有効化方法を表示します。</p>
+  <ol>
+    <li>customBinding （カスタマイズされたバインド）エレメントを作成します。<li> &lt;セキュリティ&gt; エレメントを作成します。<li>localClientSettings （ローカル クライアント設定）エレメントまたはlocalServiceSettings （ローカル サービス設定)エレメントを作成します。<li>以下の属性の中から適切なものを設定します: detectReplays (再生検出)、maxClockSkew (最大クロック傾斜)、replayWindow (再生ウィンドウ)、および replayCacheSize (再生キャッシュ サイズ)。 </li></li></li></li>
+  </ol>
+  <p>次の例では a &lt;localServiceSettings&gt; 　(ローカル サービス設定)および &lt;localClientSettings&gt; 　(ローカル クライアント設定)エレメントの両方の属性を設定します。</p>
+ <pre>&lt;customBinding&gt;<br />  &lt;binding name="NewBinding0"&gt;<br />   &lt;textMessageEncoding /&gt;<br />    &lt;security&gt;<br />     &lt;localClientSettings <br />      replayCacheSize="800000" <br />      maxClockSkew="00:03:00"<br />      replayWindow="00:03:00" /&gt;<br />     &lt;localServiceSettings <br />      replayCacheSize="800000" <br />      maxClockSkew="00:03:00"<br />      replayWindow="00:03:00" /&gt;<br />    &lt;secureConversationBootstrap /&gt;<br />   &lt;/security&gt;<br />  &lt;httpTransport /&gt;<br /> &lt;/binding&gt;<br />&lt;/customBinding&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>再生検出に関する更なる情報については、 <a href="http://msdn2.microsoft.com/en-us/library/ms733063.aspx">http://msdn2.microsoft.com/en-us/library/ms733063.aspx　にある「How to: Enable Message Replay Detection」（方法: メッセージの再生検出の有効化）を参照してください</a><li>構成管理の Q&A は、<a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home">http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home にある “WCF 3.5 Questions and Answers “ の「構成管理」セクションを参照してください。</a><br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

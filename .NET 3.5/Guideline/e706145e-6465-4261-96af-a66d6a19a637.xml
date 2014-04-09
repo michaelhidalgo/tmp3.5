@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1030382216" Content_Hash="-939248900">
+  <Metadata>
+    <Id>e706145e-6465-4261-96af-a66d6a19a637</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>デバッグ データを出力に含めない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>リリースの際にはデバッグ情報を OFF にしてください。 攻撃者が更なる攻撃に活用できそうなデバッグ情報がないか、エラー メッセージやその他のデータは綿密に検査してください。 デバッグ データは出力から取除いて、攻撃者がアクセスできないようにします。</p>
+  <h1>理由</h1>
+  <p>攻撃者は、デバッグ データを使用して Web アプリケーションに関する重要な情報を知ることができ、それをさらなる攻撃に活用することができます。 デバッグ データは攻撃者に対して、アプリケーションが使用しているモジュールや、設定されているパラメータ、使用されている認証手法、その他の様々な内容を提供してしまう可能性があります。 攻撃者は、この情報を使用して、これら特定のモジュール内の見えないセキュリティ バグを調査することができます。また、アプリケーションが特定の入力をどのように処理しているかを知ることができ、それによってエンコーディング、暗号化、認証などのセキュリティ モジュールをバイパスできる可能性があります。</p>
+  <h1>状況</h1>
+  <p>すべてのASP.Net アプリケーションに適用</p>
+  <h1>対策</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>デバッグがweb.configでOffになっていることを確認します。 </strong>そのためweb.configファイルに次の行を挿入します。</p>
+ <pre>&lt;configuration&gt;   &lt;system.Web&gt;      &lt;compilation debug="false"&gt;</pre>
+      <li>
+        <p>
+          <strong>エラーメッセージにデバッグ情報がエコーしていないことを確認します。 </strong>ユーザーにデバッグ情報を表示する可能性がある、動的エラーメッセージのエラー処理コードブロックを徹底的に検査します。</p>
+        <li>
+          <p>
+            <strong>ログ機構を介してデバッグ情報を収集します。 </strong>HTTP レスポンスを介してクライアントにデバッグ情報を送信するのではなく、ログ機構を使用します。 どのメッセージをログすべきか、または破棄すべきかを判断する際、<a href="/article/a053c4e4-2aad-41b9-b60b-e0fdeffd39f4">重要なセキュリティオペレーションをログ記録</a>ガイドラインを参照してください。 </p>
+          <li>
+            <p>
+              <strong>追跡装置のアクセス制限</strong> アプリケーションがASP.NET 追跡を使用する場合、アプリケーションの追跡にはローカルサーバのみからアクセスとなることを確実にします。 例: </p>
+ <pre>&lt;trace enabled="true" pageOutput="false" traceMode="SortByTime" <strong>localOnly="true"</strong>/&gt;</pre>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>
+    <strong>例 1:</strong>
+  </p>
+  <p>web.config ファイルの次のエントリは、デバッグ情報を最終プロジェクトにコンパイルします。</p>
+ <pre>&lt;configuration&gt;   &lt;system.Web&gt;       <strong>&lt;compilation debug="true"&gt;</strong></pre>
+  <p>
+    <strong>Example 2:</strong>
+  </p>
+  <p>web.configファイルの次のエントリはアプリケーションのトレースを有効にします。 さらに、それによってリモート ホストがアプリケーション トレースを観察できるようになるため、 そのため攻撃者は、アプリケーション root ディレクトリのTrace.axdファイルを取り出し、アプリケーションに関する内部情報を手に入れることになります。</p>
+ <pre>&lt;configuration&gt;   &lt;system.Web&gt;       <strong>&lt;trace enabled="true" localOnly="false" ... /&gt;</strong></pre>
+  <h1>ソリューションの例</h1>
+  <p>
+    <strong>例 1:</strong>
+  </p>
+  <p>webアプリケーションが本格的稼働を始める前に、web.configファイルがデバッグ情報を最終プロジェクトにコンパイルしないようにアップデートします。これはパフォーマンスの向上にもつながります。 つまり、最終プロジェクトには、攻撃者が将来の攻撃で使用できるような追加情報が含まれていないということです。</p>
+ <pre>&lt;configuration&gt;   &lt;system.Web&gt;<strong> &lt;compilation debug="false"&gt;</strong></pre>
+  <p>
+    <strong>Example 2:</strong>
+  </p>
+  <p>web.configファイルの次のエントリはアプリケーションのトレースを有効にします。 しかし、ローカルホストだけにアプリケーショントレースを監視することが許可されます。 攻撃者は、アプリケーショントレースにアクセスするためにはローカルホストを狙わなければなりません。</p>
+ <pre>&lt;configuration&gt;   &lt;system.Web&gt;       <strong>&lt;trace enabled="true" localOnly="true" ... /&gt;</strong></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>アプリケーションのweb.configファイルでセキュアな属性を設定することに関して、詳しい情報は、<a href="http://www.devx.com/dotnet/Article/32493/0/page/1">.NET 構成ファイルにおけるセキュリティ脆弱性トップ10</a>をご覧ください。<li>デバッグ情報がOnでコンパイルを行う際のパフォーマンス問題については、<a href="http://aspnetresources.com/articles/debug_code_in_production.aspx">生産時にデバッグコードの展開に注意する</a>をご覧ください。<li>ASP.NETアプリケーションのトラブルシューティングについてはMSDNの<a href="http://msdn2.microsoft.com/en-us/library/y13fw6we(VS.80).aspx">ASP.NET トレース</a> をご覧ください。</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/a053c4e4-2aad-41b9-b60b-e0fdeffd39f4">ガイドライン: 重要なセキュリティオペレーションをログ記録</a>
+      <li>
+        <a href="/article/74be8616-ad22-4d1d-a7fc-8ff3d145fc61">ガイドライン: クライアントに例外詳細を公開しない </a>
+        <li>
+          <a href="/article/ab7b0361-a2af-455f-af64-6fcc319c5c52">チェックリスト項目: デバッグデータが出力に含まれていない</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

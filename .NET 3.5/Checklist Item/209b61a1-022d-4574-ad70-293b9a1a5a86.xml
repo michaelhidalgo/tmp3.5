@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1310672980" Content_Hash="-366841990">
+  <Metadata>
+    <Id>209b61a1-022d-4574-ad70-293b9a1a5a86</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>安全性に問題のないメッセージが記載された一般的なエラー ページがクライアントに返される</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>クライアントへのエラー メッセージが、次のような機微なアプリケーション データの公開を引き起こさないことを確認します。</p>
+  <ul>
+    <li>コード構造<li>データベース構造<li>接続文字列<li>Credential 情報</li></li></li></li>
+  </ul>
+  <h1>理由</h1>
+  <p>アプリケーション詳細の公開は、アプリケーションの脆弱性をエクスプロイトすることに成功するために十分な情報を攻撃者に与える可能性があります。</p>
+  <h1>チェック方法</h1>
+  <p>すべての呼び出し元がフィルタリングされた例外情報を受けとるように、&lt;<b>customErrors</b>&gt; の &nbsp;<b>mode</b> エレメントが <b>On</b> になっていることを確認してください。 Web.config ファイルの &lt;<b>customErrors</b>&gt; セクションが、 表示エラー ページのデフォルトを指定するよう設定されていることを確認してください。</p>
+  <h1>修正方法</h1>
+  <p>例外が発生した場合、簡潔なエラー メッセージをクライアントに返し、具体的な詳細をサーバ上にログ記録します。 スタック トレース、SQL ステートメント フラグメント、およびテーブルまたはデータベース名などの内部システムまたはアプリケーションの詳細を、クライアントに公開しないでください。 この種類の情報が、エンド ユーザーに、または現在の信頼境界を超えて広がらないことを確認してください。 悪意のあるユーザーは、システム レベルの診断情報を使用して、アプリケーションについて学習し、将来的な攻撃において悪用できるような弱点を探すことができます。 </p>
+  <p>&lt;<b>customErrors</b>&gt; の <b>mode</b> 属性を設定し、詳細なエラー メッセージの表示を防止します。 <b>On</b> になっていることを確認してください。 <b>mode="Off"</b>  を使用しないでください。これは、システム レベルの情報を含むアプリケーション開発者向けの詳しいエラー ページをクライアントに返すためです。</p>
+  <p>また、次のコード例に示されるような Web.config ファイルの &lt;<b>customErrors</b>&gt;  セクションを使用して、特定のエラーを示す HTTP 応答コードに必要なエラー ページに加えて、デフォルトで表示されるエラー ページを指定することをお勧めします。</p>
+ <pre>&lt;customErrors mode="On" defaultRedirect="ErrDefault.aspx"&gt;<br />    &lt;error statusCode="401" redirect="ErrUnauthorized.aspx" /&gt;<br />    &lt;error statusCode="404" redirect="ErrPageNotFound.aspx" /&gt;<br />    &lt;error statusCode="500" redirect="ErrServer.htm" /&gt;<br />&lt;/customErrors&gt;</pre>
+  <p><b>defaultRedirect</b>  属性は、 たとえばサポート連絡先情報のような、アプリケーション用のカスタム エラー ページの使用を可能にします。 これらのアプリケーション ワイドなエラー ページを使用して、構造化されたイベント処理では見つけられないエラーに対して、ユーザーにわかりやすい応答を提供します。</p>
+  <h1>問題の例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp; しかし、アプリケーションには一般的なエラー ページが指定されていません。&nbsp; その結果、接続が時間切れになると、アプリケーションの詳細情報が例外としてクライアントに公開されます。</p>
+  <p>
+    <strong>説明: </strong>現在の Web 要求の実行中に処理されない例外が発生しました。 エラーについての詳細とコードにおける発生源については、スタックトレースを確認してください｡ </p>
+  <p />
+  <b>例外の詳細: </b>System.Data.SqlClient.SqlException: サーバへの接続中にエラーが発生しました。 &nbsp;SQL Server 2005 への接続時に、この障害は、デフォルト設定下では SQL Server がリモート接続を許可しないという事実により引き起こされる場合があります。 (プロバイダー:SQLネットワークインターフェイス､エラー:26、指定されたサーバ/インスタンスの特定エラー)<p><b>ソース エラー:</b></p><table><tbody><tr><td><pre><br />Line 216:<br />Line 217:            if (conn.State != ConnectionState.Open)<br />Line 218:                conn.Open();<br />Line 219:<br />Line 220:            cmd.Connection = conn;</pre></td></tr></tbody></table><h1>ソリューションの例</h1><p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp; それは、&lt;<b>customErrors</b>&gt; エレメントの <b>mode</b> 属性を <strong>On </strong> に設定済みであるため、SQL 接続が時間切れになると一般的なエラー情報のみが表示されます。</p><h1>関連する項目</h1><ul><li><a href="/article/56445506-9e81-4e20-8562-52d11bf7408b">無害なメッセージを含む一般的なエラー ページをクライアントに返す</a></li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="79561953" Content_Hash="776232349">
+  <Metadata>
+    <Id>00b37bcb-5a47-41ca-9e84-a9e8edb15272</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ページの暗号化が必要な場合は Web ブラウザと Web サーバ間で SSL を使用する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>暗号化通信チャンネルとして SSL を使用することで、サーバと Web ブラウザ間で送信されるデータを保護してください。 SSL は、アカウント情報、請求データ等のトラフィックを暗号化することで、通信の保護に役立つように使用することができます。&nbsp; </p>
+  <h1>理由</h1>
+  <p>機微データが暗号化されていない状態でクライアントとサーバ間で送信された場合、盗まれたり改ざんされたりする可能性があります。&nbsp; SSL は、ネットワーク トラフィックを暗号化することで、クライアントとサーバ間の通信の保護に役立つように使用することができます。&nbsp; 暗号化で傍受 (窃盗) を防ぐことができますが、攻撃者は悪意のある目的でデータをやみくもに改ざんする可能性があります。&nbsp; 完全性チェック (HMAC) を使用することで、データが改ざんされていないことを確認してください。</p>
+  <h1>状況</h1>
+  <p>ページ コンテンツをネットワーク上で暗号化し、サーバの&nbsp;ID&nbsp;を保証する必要がある場合は、ウェブ ブラウザとウェブ サーバ間の通信に&nbsp;SSL を使用してください。 </p>
+  <p>
+    <strong>注記</strong>：SSL では、ページの暗号化 / 復号化により発生するレイテンシーという厳しい性能上のペナルティーが伴うため、SSL を使用するページの数を最適化することが重要です。 詳細情報は、「ガイドライン：性能：SSL を必要とするページにのみ SSL を使用する」を参照してください。</p>
+  <h1>対策</h1>
+  <p>SSL を使用することで、ブラウザ クライアントと Web サーバ間に安全な暗号化通信チャネルを作成してください。</p>
+  <p>SSL を使用するには、以下の操作を実行してください。</p>
+  <p>&nbsp;&nbsp; 1. Web サーバにサーバ証明書をインストールします。<br />&nbsp;&nbsp; 2. 同一の認証局からの root CA (認証局) 証明書をローカル コンピュータの Trusted Root Certification Authorities の証明書ストアにインストールします。<br />&nbsp;&nbsp; 3. IIS を使用して、Web ページへのアクセス中に暗号化の使用を強制するためにサーバを構成を行います。<br />&nbsp;&nbsp; 4. 性能上のオーバーヘッドを最小限に抑えるため、SSL を念頭に置きながらページの設計を行います。 SSL を使用するページを、含めるテキストおよびシンプル グラフィックの数を減らすことで最適化し、サイトを&nbsp;区分し、機微データが含まれるページのみに SSL が使用されることを確認します。&nbsp;</p>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションではWeb ブラウザからアクセス可能なオンライン データベースにログインすることで、ユーザーはデータベース内で連絡先を維持管理することができます。 ログイン&nbsp; Credential 情報はプレーンテキストで送信されるため、ネットワーク上にいる者は&nbsp;ブラウザとサーバ間で送信される&nbsp;データを&nbsp;改ざんしたり、そのコンテンツを閲覧したりすることができます。 完全性とプライバシーがない場合、ユーザーの ID およびページを処理するウェブ&nbsp;エンティティの ID が確認できません。&nbsp;&nbsp;&nbsp;</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションではWeb ブラウザからアクセス可能なオンライン データベースにログインすることで、ユーザーはデータベース内で連絡先を維持管理することができます。 アプリケーションが展開されると、SSL 証明書が Web サーバにインストールされます。 サーバで、ユーザーに暗号化を強制してしながら機微情報が含まれるページを訪問させるための設定が行われます。</p>
+  <h1>追加資料&nbsp;</h1>
+  <ul>
+    <li>ハウツー：SSL を使用して SQL Server との通信をセキュリティで保護する&nbsp; <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/SecNetHT19.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/SecNetHT19.asp</a><li>Secure Sockets Layer の使用<a href="http://msdn2.microsoft.com/en-us/library/ds8bxk2a.aspx">http://msdn2.microsoft.com/en-us/library/ds8bxk2a.aspx</a><li>インターネット プロトコル バージョン 6<a href="http://msdn2.microsoft.com/en-us/library/3x7ak53z(VS.80).aspx">http://msdn2.microsoft.com/en-us/library/3x7ak53z(VS.80).aspx</a><li>ハウツー：ブラウザと sdf 間で SSL を使用する<a href="http://channel9.msdn.com/wiki/default.aspx/GuidanceLibrary.WebServerandBrowserSSLHowTo">http://channel9.msdn.com/wiki/default.aspx/GuidanceLibrary.WebServerandBrowserSSLHowTo</a>+<p /></li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/8afce3ed-b29f-4a25-ab8c-0d070383c7ad">信頼されていないサーバ アプリケーション間で SSL を使用する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

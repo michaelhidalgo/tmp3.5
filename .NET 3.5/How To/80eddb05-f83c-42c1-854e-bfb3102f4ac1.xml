@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="801840512" Content_Hash="-1319945220">
+  <Metadata>
+    <Id>80eddb05-f83c-42c1-854e-bfb3102f4ac1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ビルド スクリプトを用いてアセンブリを難読化する方法</Title>
+    <Category>難読化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>スクリプトからビルド サーバ上に難読化されたアセンブリを作成する必要がある場合は、Dotfuscatorのコマンドライン インターフェイスを使用します。 コマンドラインから Dotfuscator.exe を実行するには、パス環境変数に Dotfuscator の実行可能ファイルのパスを追加するか、またはVSインストールの下にApplication\PreEmptive Solutions\Dotfuscatorのフォルダでそれを参照します。 </p>
+  <p>コマンド プロンプトから Dotfuscator を実行すると、デフォルトでスタンドアロンのグラフィカル ユーザー インターフェイス（GUI）を開きます。 コマンドライン インターフェイスを開くには-<b>v</b> （冗長）スイッチを使用します。 コマンドラインスイッチを使用して以前作成した構成ファイルを指定したり、コマンドラインスイッチを使って直接難読化を実行したり、または構成ファイルとコマンドライン スイッチの組合せを使うことで、スイッチのオプションにより構成ファイル内の設定を上書きまたは補うことができます。 </p>
+  <p>次の例は、冗長モードで My1.dll とMy2.dll の両方を難読化します：</p>
+ <pre>dotfuscator /v /in My1.dll,My2.dll </pre>
+  <p>出力ディレクトリが指定されていないため、出力アセンブリは  .\Dotfuscated と呼ばれるディレクトリに書き込まれ、マップ ファイルは .\Dotfuscated\map.xml に書き込まれます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Dotfuscator についての詳細は、 <a href="http://code.msdn.microsoft.com/Dotfuscator2010video">Dotfuscator チーム ページをご覧ください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

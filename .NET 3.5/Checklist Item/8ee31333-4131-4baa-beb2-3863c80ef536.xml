@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2126177490" Content_Hash="-396206279">
+  <Metadata>
+    <Id>8ee31333-4131-4baa-beb2-3863c80ef536</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションが追加のアクセス許可を必要とする場合はカスタム信頼ポリシーを使用</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが特定の信頼レベルで提供されたもの以外の追加のアクセス許可を必要とし、かつ次の信頼レベルで提供される追加のアクセス許可を必要としない場合には、&nbsp;カスタム信頼ポリシー ファイル&nbsp;が作成されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>アプリケーションに不要なアクセス許可を付与しないためです。</p>
+  <h1>修正方法</h1>
+  <p>カスタム ポリシーを作成するには、新規のカスタム ポリシー ファイルを作成するためのアプリケーションのアクセス許可要件に最も近い、信頼レベル ポリシー ファイルをコピーします。 このファイルを標準的なポリシー ファイル ディレクトリである %Windir%\Microsoft.NET\Framework\{Version}\CONFIG 内で探します。 次に、カスタム ポリシー ファイルに必要な権限を追加し、カスタム ポリシーを使用して実行するようにアプリケーションを構成します。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

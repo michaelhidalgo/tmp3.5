@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1331834971" Content_Hash="-1080191749">
+  <Metadata>
+    <Id>6d5d816e-2dc3-492e-b5dd-e344a01c7124</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>監査目的でフォールトの詳細をログ記録するエラー ハンドラーの作成方法</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>エラー ハンドラーを作成して、サービスにIErrorHandler インターフェイス メソッドを実装することによりフォールトの詳細をログ記録できます。 これを使用することにより、例外をログ記録し抑止するか、またはログ記録して FaultException としてスローされます。</p>
+ <pre>public interface IErrorHandler <br />{<br />        bool HandleError(Exception error, MessageFault fault); <br />        void ProvideFault(Exception error, ref MessageFault fault, ref string faultAction); <br />}</pre>
+  <p>フォールト メッセージを抑止するには、HandleError メソッドを実装しfalseを返してください。 この方法では、コードにログ記録する機能を追加できます。</p>
+  <p>抑止するのではなく FaultException を引き起こすには、ProvideFault メソッドを実装して MessageFault 値を提供してください。 次のコードは、ProvideFault メソッドの実装例を示します。</p>
+ <pre>//code snippet<br />public void ProvideFault(Exception error, MessageVersion version, ref Message fault)<br />{<br />  FaultException newEx = new FaultException();<br />  MessageFault msgFault = newEx.CreateMessageFault();<br />  fault = Message.CreateMessage(version, msgFault, newEx.Action);<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>フォールト コントラクトの詳細は、&lt;A href="http://msdn.microsoft.com/en-us/library/ms733721. にある「コントラクトとサービスでフォールトを指定し処理する」を参照してください。 
+<hr /><p>出典: Microsoft patterns & practices guidance</p></li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

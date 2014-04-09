@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="874269433" Content_Hash="-2067235972">
+  <Metadata>
+    <Id>74e70134-b639-4cdc-b3e7-fe2952256d98</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ネットワーク Credential 情報スニッフィング攻撃</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>コンピュータ ネットワーク上で Credential 情報を送信するネットワーク アプリケーション。</p>
+  <h1>説明</h1>
+  <p>コンピュータ ネットワーク LAN はオープンな性質であるため、ネットワーク上で送信されるトラフィックを、自分のマシンに宛てられていない場合でも参照できます。 これは「スニッフィング」として知られており、Cain や Wireshark など自由に入手できるネットワーク スニッフィング ソフトウェアで簡単に実行できます。 このソフトウェアは攻撃者のネットワーク カードを「無作為検出モード」に設定し、ネットワーク上のすべてのトラフィックをリッスンします。 この攻撃は、特別なハードウェアは必要なく、多くのセキュリティ Web サイトで簡単な段階的ガイドが自由に入手できることから、一層簡単に行われます。 簡単な正規表現を使用して興味のないトラフィックを除外し、ユーザー名とパスワードだけを返すことができます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>情報漏えい<li>セッション ハイジャックと特権の昇格</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>Credential 情報を送信するとき通信チャンネルを暗号化しない。 <li>安全でない認証メカニズム  (HTTP のベーシック認証やダイジェスト認証など) を使用する。 これらのメカニズムはネットワーク上でパスワードを保護する措置を取りません。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>SSL または IPSec を活用する</strong>: これらのプロトコルはいずれも、送信アプリケーションや受信アプリケーションからは透過的な方法でネットワーク上のすべての情報を自動的に暗号化します。 攻撃者は依然としてネットワーク トラフィックを参照できますが、受信する情報は理解不能であり、Credential 情報の盗難が防止されます。 <li><strong>安全なパスワード認証スキームを活用する</strong>: NTLM または Kerberos などの安全な認証スキームは、安全なチャンネルを利用しなくても、ネットワーク上のパスワードを保護します。 </li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://www.ethereal.com/">http://www.ethereal.com/</a>
+      <li>
+        <a href="http://en.wikipedia.org/wiki/Packet_sniffer">http://en.wikipedia.org/wiki/Packet_sniffer</a>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/bd63d4b0-205d-4d95-9022-86a3f0af5232">ガイドライン: Credential 情報を送信するときは SSL を使用する</a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

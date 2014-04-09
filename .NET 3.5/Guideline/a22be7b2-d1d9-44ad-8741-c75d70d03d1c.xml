@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1688950443" Content_Hash="753966246">
+  <Metadata>
+    <Id>a22be7b2-d1d9-44ad-8741-c75d70d03d1c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションをユーザー管理イベントにインストルメント化する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>お使いのアプリケーションを、認証の成功および失敗、パスワードのリセットまたは変更、アカウント ロックアウト等を含むすべてのユーザー管理イベントにインストルメント化します。</p>
+  <h1>理由</h1>
+  <p>これを行うことは、潜在的に不審な動作を検出し、対応するのに役立ちます。&nbsp; また、例えば、アプリケーションに誰がアクセスしているかの追跡や、ユーザー アカウントのパスワードをいつリセットする必要があるかなど、 操作データの収集も可能になります。&nbsp;&nbsp;</p>
+  <h1>状況</h1>
+  <p>認証コンポーネントを持つすべてのシステムでは、それらのコンポーネントがいつ使用されたか  (成功した場合と失敗した場合の両方) をログ記録すべきです。 </p>
+  <h1>対策</h1>
+  <p>デフォルトで、ASP.NET ヘルス モニタリングは、 ユーザー認証がメンバーシップ システムでの Forms Authentication に失敗すると、ASP.NET が取り上げるすべての <b> WebFailureAuditEvents</b> を記録します。&nbsp; ASP.NET はまた、ファイル認可および URL 認可によって保護されたリソースに認可が付与されていないときに <b>WebFailureAuditEvent</b> を取り上げます。 </p>
+  <p />
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

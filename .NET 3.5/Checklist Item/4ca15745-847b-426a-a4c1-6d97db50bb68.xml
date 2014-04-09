@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="332577165" Content_Hash="-472435058">
+  <Metadata>
+    <Id>4ca15745-847b-426a-a4c1-6d97db50bb68</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>認可 Cookie を情報のタンパリングや読み取りに対して保護する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ユーザーが自分の属するロールのリストを変更したり、アプリケーションが使用するロールに関する情報を侵入者が取得したりするのを阻止するために、アプリケーションで認可 Cookie のロール データを保護する。 </p>
+  <h1>修正方法</h1>
+  <p>&lt;<b>roleManager</b>&gt; エレメントを適切に構成して認可 Cookie を保護します。 エレメントの接続文字列も変更する必要があります。</p>
+  <ul>
+    <li><b>cookieProtection</b> 属性を <b>All</b> に設定します。これにより、 Cookie のロール名がデジタル署名および暗号化され、ロール データに対する認可されていない閲覧また変更が防止されます。 <li><b>cookieSlidingExpiration</b> 属性を <b>true</b> に、<b>cookieTimeout</b> 属性を整数値の分数 (例: 10 から 20 またはそれ以下) に設定します。 タイムアウトの時間が経過すると Cookie の有効期限が 切れます。 Cookie は新たに更新する必要があります。 <li><b>cookieRequireSSL</b> 属性を <b>true</b> に設定し、ロール情報を含む認可 Cookie が HTTPS 接続のみを経由してサーバに戻るように指定します。 <li><b>createPersistentCookie</b> 属性を <b>false</b> に設定し、ロール Cookie を永続化ではなくセッション ベースとします。 <li>SSL を使用できない場合は､<b>cookieTimeout</b> を 10 分まで短縮することを検討します。 Cookie ハイジャックが懸念される場合は、<b>cookieSlidingExpiration</b> 属性を「false」に設定することを検討します。 これにより、固定タイムアウト時間の経過後に Cookie の有効期限が切れます。 Cookie は新たに更新する必要があります。 </li></li></li></li></li>
+  </ul>
+  <p>以下は、認可 Cookie を保護するために構成された &lt;<b>roleManager</b>&gt;  エレメントの例です。</p>
+  <p>
+ <pre>&lt;roleManager enabled="true"<br />             cacheRolesInCookie="true"<br />             cookieName=".ASPROLES"<br />             cookieTimeout="30"<br />             cookiePath="/"<br />             cookieRequireSSL="true"<br />             cookieSlidingExpiration="true"<br />             cookieProtection="All"<br />             createPersistentCookie="false"&gt;<br />&lt;/roleManager&gt;</pre>
+  </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

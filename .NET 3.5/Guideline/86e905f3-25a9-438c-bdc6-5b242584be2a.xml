@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-879039793" Content_Hash="418465527">
+  <Metadata>
+    <Id>86e905f3-25a9-438c-bdc6-5b242584be2a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET ロール マネージャをロール認可に使用する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ロール ベースの認可を行うために、カスタム コードを書くのではなく、ASP.NET ロール マネージャーを使用します。 </p>
+  <h1>理由</h1>
+  <p>ASP.NET は、現在認証されているユーザーを自動的に作成、管理および検索することができるロール マネージャー機能を提供します。&nbsp; ロール マネージャーは、プログラマのエラーが深刻なセキュリティ問題を起こす可能性を減らし､アプリケーションに必要なカスタム コードの量を軽減します。 </p>
+  <h1>状況</h1>
+  <p>アプリケーションがWindows 認証を使用するか SQL Server にロールを保存する場合、ASP.NET ロール マネージャを使用すべきです｡&nbsp; 認可スキーマ、もしくは提供されるロール マネージャに存在しない機能が必要な場合､既存のインターフェイスを転用できるように、完全なカスタム認可スキームではなく、カスタム ロール マネージャを作成してください。 </p>
+  <h1>対策</h1>
+  <p>ロールは､構成されたロール プロバイダーを使用して <b>RoleManager</b> HTTP モジュールにより構成されたロール ストアからアクセスされます。&nbsp; これは、ユーザーが認証された後でURL認可とファイル認可アクセス チェックが発生する前、およびプログラム型ロール チェックが発生する可能性のある前に発生します。 </p>
+  <p />ASP.NET アプリケーションでロール マネージャ機能を使用するには、以下を実施する必要があります。<ol><li>アプリケーションの Web.config ファイルで &lt;<b>system.web</b>&gt; セクションの 下に &lt;roleManager&gt; エレメントを追加し、 の下に &lt;<b>roleManager</b>&gt; エレメントがあることを <b>enabled</b> 属性に <b>true</b> を設定して、ロール マネージャを有効にします。<li>&lt;<b>connectionStrings</b>&gt; セクションにロール ストアを示す接続文字列を 追加します。 <b>AuthorizationStoreRoleProvider</b> を使用している場合､接続文字列は Active Directory または ADAM にある Authorization Manager Policy ストアを示す LDAP クエリ文字列になります。 <b>SqlRoleProvider</b> を使用している場合､接続文字列はロール ストア データベースを示すデータベース接続文字列になります。 <li>アプリケーションの Web.config ファイルで &lt;<b>roleManager</b>&gt; エレメントに特定のプロバイダーを構成します。<b></b> ロール マネージャ システムは、以下のプロバイダーをサポートしています。<li>アプリケーション ロールが Active Directory または ADAM の Authorization Manager Policy ストアにある場合は､<b>AuthorizationStoreRoleProvider</b> を使用します。<li>アプリケーション ロールが SQL Server データベースにある場合は､<b>SqlRoleProvider を使用します。</b><li>アプリケーションがロールとして Windows グループを使用している場合は､<b>WindowsTokenRoleProvider</b> を使用します。これは、Windows 認証のみとの併用をお勧めします。 <li>アプリケーション ロールが上記のストア以外のストアにある場合は､<b>RoleProvider</b> ベース クラスを継承するカスタム ロール プロバイダーを作成します。 <li>&lt;<b>roleManager</b>&gt; エレメントの <b>defaultProvider</b> 属性を、 選択したロール プロバイダーに設定します。 </li></li></li></li></li></li></li></li></ol><p>ロールをチェックおよび管理するには、(<b>Roles.IsUserInRole </b>、<b>Roles.CreateRole</b> などの) ロール マネージャ API を使用します。</p><p>アプリケーションがロール ベースの認可を必要とする場合、次のガイドラインを使用してください:</p><ul><li><p><b>ロール プロバイダーを使用してロール認可を行ってください。</b>&nbsp; ロール プロバイダーは、コードを書いて維持することが必要なく、ユーザーのロールを読み込みます。&nbsp; また、ロール プロバイダーによる一定の方法で、基本データ ストアに関係なく、ユーザーのロール メンバーシップを確認できます。&nbsp; 可能な場面では、提供されるロール プロバイダーのいずれかを使用してください。 これらには、<b>SqlRoleProvider</b>、<b>WindowsTokenRoleProvider</b>、および <b>AuthorizationStoreRoleProvider</b> が含まれます。すでに非 SQL Server データベースまたは非 Active Directory LDAP ストアにカスタム ロールがある場合､独自のカスタム ロール プロバイダーを実装することを検討してください。 </p><p>次のコードは､ロール マネージャ API 、具体的に <b>Roles.IsUserInRole</b> の使用方法を表示しています。</p><pre>// Tests whether the currently authenticated user is a member<br />// of a particular role.<br />if(Roles.IsUserInRole("Manager"))<br />   // Perform restricted operation else<br />   // Return unauthorized access error.<br />// Tests whether any given user is a member of a role:<br />if(Roles.IsUserInRole("Bob","Manager"))<br />   // Perform restricted operation<br />else<br />   // Return unauthorized access error.</pre><li><p><b>ロールが SQL Server にある時は､ SqlRoleProvider を使用してください。</b>&nbsp; SQL Server にロール情報を保存する場合､<b>SqlRoleProvider</b> を使用するようにアプリケーションを構成してください。これは必要ではありませんが、<b>SqlMembershipProvider</b> を使用して Forms Authentication を構成して、認証と認可に同一のデータベースを使用することもできます。 </p><li><p><b>Windows グループをロールとして使用する時は、WindowsTokenRoleProvider を使用してください。</b>&nbsp; アプリケーションが Windows 認証 を使用し、Windows グループをロールとして使用する場合､アプリケーションを構成して<b>WindowsTokenRoleProvider</b> を使用してください。</p><li><p><b>アプリケーション ロールが ADAM にある時は､AuthorizationStoreRoleProvider を使用してください。</b>&nbsp; アプリケーションが Active Directory に対して Windows 認証を使用し、自らのドメインのWindows グループ メンバーシップを使用するのではなくアプリケーション特有のロールを必要とする場合、SQL Server サーバまたはADAM の認可マネージャ(AzMan)のポリシーストアにロール情報を保存できます。&nbsp; 認可マネージャは、Microsoft Management Console (MMC) スナップ インを提供して、ロールを作成および管理､またユーザー用のロール メンバーシップを管理します。 </p><p>ユーザー アカウントがActive Directory にあるが Windows 認証 を使えず、Forms Authenticationを使用する必要がある場合､ロール管理の良いソリューションは､ADAM中に AzMan ポリシーを持つ <b>AuthorizationStoreRoleProvider</b> を使用することです。 </p></li></li></li></li></ul><p><b>注記:</b>&nbsp;&nbsp;<b>AuthorizationStoreRoleProvider</b> は、オペレーションやタスクのような認証マネージャのビジネス ロジックを直接はサポートしません。 これを行うには､P/Invoke を使用して認可マネージャ API を直接呼び出す必要があります。&nbsp;&nbsp;</p><h1>関連する項目</h1><ul><li><a href="/article/572ac2ef-647b-4cba-a976-7c285a6d475f"><a href="/article/4c4c6b17-c40f-4710-bd98-03693304ae78">ロール認可にはカスタム コードではなくロール マネージャが使用される</a></a></li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

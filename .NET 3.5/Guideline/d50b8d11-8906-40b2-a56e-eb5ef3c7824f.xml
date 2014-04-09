@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="134432327" Content_Hash="840308950">
+  <Metadata>
+    <Id>d50b8d11-8906-40b2-a56e-eb5ef3c7824f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーからのファイル名またはパスは全てサニタイズしてください。</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ユーザーからのファイル名またはパスを受け入れないでください。&nbsp; どうしてもファイル名またはパスをユーザーから受取らなければならない場合は、充分注意してサニタイズしてください。 </p>
+  <h1>理由</h1>
+  <p>ユーザーからのファイル名またはパスを受け入れると、攻撃者が任意のファイルおよびリソースへのアクセスをアプリケーションに強要する結果となる可能性があります。 </p>
+  <h1>状況</h1>
+  <p>ファイル名をどうしてもユーザーから受取る必要があり、それをファイル システムへのアクセスまたはデータの保存に使用する必要がある場合は、充分に注意してサニタイズしてください。 </p>
+  <h1>対策</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>ファイル名。</strong> ファイル パスがアプリケーションの仮想ディレクトリ階層内のファイルのみを参照していることを確認してください (これが適切である場合)。&nbsp; ファイル名のチェック時に、<b>System.IO.Path.GetFullPath</b> メソッドを使用してファイルのフルネームを取得します。 </p>
+      <li>
+        <p>
+          <strong>ファイル パス。 </strong><b>MapPath</b> を使用して、提供された仮想パスをサーバ上の物理パスにマップする場合､クロス アプリケーション マッピングを防止するため、オーバーロード済みで <b>bool</b> パラメータの受け入れが可能な <b>Request.MapPath</b> を使用します。 次のコード例はこの手法を示しています： </p>
+ <pre>try<br />{<br /> string mappedPath = Request.MapPath( inputPath.Text,<br />                                       Request.ApplicationPath, false);<br />}<br />catch (HttpException)<br />{<br /> // Cross-application mapping attempted <br />}</pre>
+        <p>最終の <b>false</b> パラメータは、クロス アプリケーション マッピングを防止します。&nbsp; つまり、ユーザーは “..” を含むパスを指定することでアプリケーションの仮想ディレクトリ階層外をスキャンすることはできません。 それを試行しようとしても、結果は <b>HttpException</b> 型の例外となります。</p>
+      </li>
+    </li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1388567169" Content_Hash="-263500003">
+  <Metadata>
+    <Id>2f75c185-b831-4c9a-99a1-68c2035d146a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Active Directory に対しユーザーを認証する方法</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>クライアントとサービスの両方が信頼されたドメインにいる時、またはユーザーがイントラネット シナリオ中のようなローカル マシンのアカウントに保存されている時は、Windows 認証 を使用してください。 Active Directory と Windows 認証を併用することで、統一 ID ストア、集中型アカウント管理、強制可能なアカウントおよびパスワード ポリシー、およびパスワードのネットワーク上への送信を回避する強力な認証が行えるという利点があります。 </p>
+  <p>クライアントと AD 間のファイアウォールのようなインフラ上の制約ゆえに Windows 認証が利用できない場合、代わりにユーザー名認証の使用を検討してください。 ユーザー名認証を使用している場合、ユーザー用のユーザー名とパスワードは自動的にWindows アカウントにマップされます。   </p>
+  <p>次の例は、WCF のクライアントの Credential 情報を構成して Windows 認証を使用する方法を表示しています。</p>
+ <pre>…<br />&lt;bindings&gt;<br />  &lt;wsHttpBinding&gt;<br />    &lt;binding name="wsHttpEndpointBinding"&gt;<br />      &lt;security&gt;<br />        &lt;message clientCredentialType="Windows" /&gt;<br />      &lt;/security&gt;<br />    &lt;/binding&gt;<br />  &lt;/wsHttpBinding&gt;<br />&lt;/bindings&gt;<br />…</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms733836.aspx">http://msdn.microsoft.com/en-us/library/ms733836.aspx にある「Credential 情報 の種類の選択」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

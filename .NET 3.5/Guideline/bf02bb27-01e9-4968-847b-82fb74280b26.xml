@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2007178813" Content_Hash="945482957">
+  <Metadata>
+    <Id>bf02bb27-01e9-4968-847b-82fb74280b26</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログを別のサーバに置く</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーションイベントを独立した保護されたサーバにログ記録します。 </p>
+  <h1>理由</h1>
+  <p>プライマリ サーバが侵害された場合も、ほかの場所にあるログは侵害されません。&nbsp; このことは、攻撃者が足跡を隠すのを防ぐことができます。&nbsp; エンドユーザーがアクセスできるようにする必要がないので、ログ記録サーバは、プライマリ サーバよりもはるかに小さいAttack Surface (攻撃対象領域)を持つことになります。&nbsp; これはログをサイトの他の部分よりもはるかに侵害しづらくし、否認防止が主要なビジネス要件であるときには、価値があると言えます。 </p>
+  <h1>状況</h1>
+  <p>クライアント/サーバや Web 環境でログ ファイルを作成するときはいつも、別のサーバ上に置くことは良いアイデアです。&nbsp; 実際には、非常に小規模なシステムではこれは可能でないかもしれません。&nbsp; しかし、独立した専用の Web /中間層とデータベース サーバを伴うほとんどのシステムは、専用のログサーバを正当化するのに十分な大きさがあります。 </p>
+  <h1>どのように</h1>
+  <p>別のサーバにログ記録するには、以下のステップを使用します:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションがヘルス モニタリングの監視を使用していることを確認します。 </strong>ASP.NET アプリケーションでは、ヘルス モニタリング機能はデフォルトで有効になっています。 既定の構成は、<b>%windir%\Microsoft .NET\Framework\{version}\CONFIG </b> 構成ファイル ディレクトリにあるマシン レベルの Web.config.comments ファイルで見ることができます。 </p>
+      <li>
+        <p>
+          <strong>SqlWebEventProvider を構成します。 </strong>SQL Server インスタンスへ書き込むイベント プロバイダーを構成する場合、 <b>SqlWebEventProvider</b> が使用するデータベースを作成し、接続文字列を構成し、プロバイダーの定義を設定する必要があります。 </p>
+        <ol>
+          <li>Visual Studio コマンド プロンプトから次のコマンドを実行し、ウェブ イベント データベースをインストールします。<p /><b>aspnet_regsql.exe -E -S </b>&lt;<b>ServerName</b>&gt;<b> -A w</b><p />このコマンドは次のスイッチを使用します。<ul><li><b>-E。</b> このスイッチを指定すると、データベースへの接続に Windows 認証を使用します。 <li><b>-S</b> &lt;<b>ServerName</b>&gt;<b>。</b> このスイッチは、データベースのインストール先となる、あるいはすでにインストールされているサーバ名を示します。 <li><b>-A w。 </b>このスイッチを指定すると、ウェブ イベント サポートを追加します。 これは<b>SqlWebEventProvider</b> によって求められている、関連するテーブルとストアド プロシージャを作成します。</li></li></li></ul><li>ウェブ アプリケーションを識別するための SQL Server ログオンを作成します。 例えば、ネットワーク サービスを作成してから、Aspnetdb データベースにこのログオン用のデータベース ユーザーを作成します。 <li>データベース ユーザーに<b>aspnet_WebEvent_LogEvent</b> ストアド プロシージャの <b> execute </b> アクセス許可を付与します。 <li>アプリケーションの Web.config ファイルに次の接続文字列を追加します。 <br /><pre>&lt;connectionStrings&gt;<br /> &nbsp;&nbsp; &lt;add name="MySqlConnection" connectionString=  "Data Source=remotehost;Initial Catalog=aspnetdb;Integrated Security=SSPI;"/&gt;<br />&lt;/connectionStrings&gt;</pre><li>Web.config<b> </b>の &lt;<b>healthMonitoring</b>&gt; セクション内で以下の Web.configファイルの&lt;<b>healthMonitoring</b>&gt; セクション内に以下の&lt;<b> providers </b>&gt;構成を追加します。 <br /><pre>&lt;providers&gt;<br />   &lt;add connectionStringName="MySqlConnection"<br />      maxEventDetailsLength="1073741823"<br />      buffer="true"<br />      bufferMode="Extra Critical Notification"<br />       name="MySqlWebEventProvider"<br />       type="System.Web.Management.SqlWebEventProvider,System.Web,Version=2.0.0 .0,<br />		Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a" /&gt;<br /> &lt;/providers&gt; </pre></li></li></li></li></li>
+        </ol>
+        <p />次のリストは、イベント プロバイダーの設定時に設定可能な属性の中でも最も重要な属性を説明しています。<ul><li><b>name。 </b>バッファ モードの名前です。他のエレメントが参照するときに使用します。 <li><b>type。</b> プロバイダー クラスへの完全アセンブリ参照です。 このクラスは<b>System.Configuration.Provider.ProviderBase</b> クラスを実装するはずです。 <li><b>buffer。</b> <b>SqlWebEventProvider</b> を使用している場合、イベント バッファリングを有効にするためにこの属性を使用します。 この属性が <b>true</b>である場合には、<b>bufferMode</b> 属性を構成する必要があります。 既定値は <b>false</b>です。<li><b>bufferMode。</b> <b>SqlWebEventProvider</b> を使用している場合、イベントをバッファリングするのに使用されるバッファ モードのフレンドリ名を指定するには、この属性を使用します。  <li><b>connectionStringName。</b> <b>SqlWebEventProvider</b> を使用している場合、SQL Server データベースへの接続に使用する接続文字列のフレンドリ名を指定するには、この属性を使用します。 <li><b>maxEventDetailsLength。</b> イベント詳細の最大長です。 </li></li></li></li></li></li></ul><blockquote><b>注意</b>: &nbsp;&nbsp;ローカルまたはリモートの SQL Server インスタンスに書き込むのに<b>SqlWebEventProvider</b> を使用する場合、"ステップ3 "に記載されているように必要なデータベース テーブルとロールを構成するには Aspnet_regsql ツールを使用します。 行ってください。<b></b></blockquote></li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ファイル ベースのログによって、2 層のWeb サーバ／データベース モデルの電子商取引サイトが構築され、各マシンはそのログをローカル ディスクに保存します。&nbsp; 複数の Web サーバが危害を受けると、攻撃者はログを消去し、所有者はどのようにして攻撃者が侵入したのか判断することができません。&nbsp; このため、穴がようやく発見されてパッチが施される前に、攻撃は複数回行われます。</p>
+  <h1>ソリューションの例</h1>
+  <p>2 層 Web サーバ/データベース モデルを使用する電子商取引サイトは、通信が暗号化されたチャネル上で生じる、リモート ログ サーバを使用して構築されています。&nbsp; 複数の Web サーバが危害を受けると、攻撃者はリモート ログ記録コンピュータに侵入することができず、よってログを消去することができません。&nbsp; 所有者は、ログ ファイル内の情報のおかげで、すばやく全体像を見ることができ、マシンにはすぐにパッチが適用されます。</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="true"&gt;<br /> &lt;providers&gt;<br />    &lt;add connectionStringName="MySqlConnection"<br />       maxEventDetailsLength="1073741823"<br />       buffer="true"<br />       bufferMode="Extra Critical Notification"<br />        name="MySqlWebEventProvider"<br />        type="System.Web.Management.SqlWebEventProvider,System.Web,Version=2.0.0 .0,<br />		Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a" /&gt;<br />  &lt;/providers&gt;<br />&lt;/healthMonitoring&gt; </pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/8fb399eb-218c-4a50-9630-7dbf6d1ec088">アプリケーションがグを別の保護されたサーバにログ記録</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

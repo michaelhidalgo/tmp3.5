@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="258487219" Content_Hash="608307018">
+  <Metadata>
+    <Id>beba024d-f1f5-40fd-9e90-000e41a20612</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データが含まれている構成セクションを暗号化する</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>SQL 接続文字列などの機微データが含まれている構成セクションを暗号化します。 </p>
+  <h1>理由</h1>
+  <p>構成部分には通常プライバシーに関わる機微リソース アクセス Credential 情報が含まれています（例えば SQL Server リソースへの接続文字列にはユーザー名やパスワードが含まれています）。充分に保護されていない場合、サーバのセキュリティを侵害できるような攻撃者はこれらの値を読み取ることができるため、予防策としてこれらをプレーンテキストで保存しないようにします。&nbsp;</p>
+  <h1>状況</h1>
+  <p>このガイドラインは構成部分が活用される場合に適用します。 </p>
+  <h1>対策</h1>
+  <p>&nbsp;WCFサーバ マシン上の構成ファイルにある機微データを暗号化するには DPAPI を使用します。 </p>
+  <p>マシン鍵保存（デフォルト構成）のDPAPI プロバイダーを使って&lt;connectionStrings&gt; を暗号化するためには、次のコマンドをコマンド ウィンドウから実行します：</p>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</pre>
+  <p>aspnet_regiisオプションは次のとおりです:</p>
+  <ul>
+    <li>-pe: 暗号化する構成セクションを指定します。<li>-app: Web アプリケーションの仮想パスを指定します。 アプリケーションがネストされている場合は､たとえば、"/test/aspnet/MachineDPAPI" のように、 root ディレクトリからのネストされたパスを指定する必要があります。<li>-prov: プロバイダー名を指定します。</li></li></li>
+  </ul>
+  <p>
+    <strong>注</strong>: Web ファーム内の複数サーバ上で構成ファイル データを暗号化する必要がある場合は、RSA 鍵コンテナが容易にエクスポートできるため、RSA で保護された構成プロバイダーを使用します。<br /></p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>DPAPI の使用方法の詳細は､<a href="http://msdn2.microsoft.com/en-us/library/ms998280.aspx">http://msdn2.microsoft.com/en-us/library/ms998280.aspx にある｢DPAPI を使用して ASP.NET 2.0 の構成セクションを暗号化する方法｣を参照してください｡</a><li>RSA の使用方法の詳細は､<a href="http://msdn2.microsoft.com/en-us/library/ms998283.aspx">http://msdn2.microsoft.com/en-us/library/ms998283.aspx にある｢RSA を使用して ASP.NET 2.0 の構成セクションを暗号化する方法｣を参照してください｡</a><li>構成管理 Q&Aは、以下のサイトで “WCF 3.5 質問と回答” の「構成管理」セクションをご覧ください: <a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

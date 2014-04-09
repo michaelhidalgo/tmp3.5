@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1170451447" Content_Hash="-1078986322">
+  <Metadata>
+    <Id>4ce86b45-ffb7-4646-9f8f-01f87be439da</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>入力ファイル名が要求される場合に、それらの名前を適切なフォーマットにし、アプリケーションのコンテキスト内で検証可能な形で有効にする</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ユーザー提供のファイル名またはパスを適切なフォーマットにし、アプリケーションのコンテキストで有効なロケーションを示すようにする｡ </p>
+  <h1>理由</h1>
+  <p>アプリケーションに任意のファイルおよびリソースにアクセスさせるために悪意のあるファイル入力が用いられることがあります。 </p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションがユーザー提供のファイルまたはパスを受け入れる場合に､検証ルーチン経由で渡されるようにします。 検証ルーチンでは、適切なフォーマットをチェックするだけでなく、ファイル名をアプリケーションに対して適正なものにしなければなりません。</p>
+  <p>入力検証の詳細については､以下のリンクから、｢すべての入力を、長さ､範囲、フォーマットおよび型について検証する｣の項目を参照してください。 </p>
+  <h1>修正方法</h1>
+  <p>以下のステップを使用してこの問題を修復します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ファイル名をチェックしてください。 </strong>ファイル パスがアプリケーションの仮想ディレクトリ階層内のファイルのみを参照していることを確認してください (これが適切である場合)。 ファイル名のチェック時に、<b>System.IO.Path.GetFullPath</b> メソッドを使用してファイルのフルネームを取得します。 </p>
+      <li>
+        <p>
+          <strong>ファイル パスをチェックしてください。 </strong><b>MapPath</b> を使用して、提供された仮想パスをサーバ上の物理パスにマップする場合､クロス アプリケーション マッピングを防止するため、オーバーロード済みで <b>bool</b> パラメータの受け入れが可能な <b>Request.MapPath</b> を使用します。 以下のコードの例では、この手法を使用しています。</p>
+      </li>
+    </li>
+  </ol>
+  <blockquote>
+ <pre>try<br />{<br /> string mappedPath = Request.MapPath( inputPath.Text,<br />                                       Request.ApplicationPath, false);<br />}<br />catch (HttpException)<br />{<br /> // Cross-application mapping attempted <br />}</pre>
+    <p>最終の <b>false</b> パラメータは、クロス アプリケーション マッピングを防止します。 つまり、ユーザーは “..” を含むパスを指定することでアプリケーションの仮想ディレクトリ階層外をスキャンすることはできません。 それを試行しようとしても、結果は <b>HttpException</b> 型の例外となります。</p>
+  </blockquote>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <div>
+        <a href="/article/581e8fff-7841-49ac-8bbe-d74e44aa9bd8">}チェックリスト項目: すべての入力をは、長さ､範囲、フォーマットおよび型について検証する</a>
+      </div>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

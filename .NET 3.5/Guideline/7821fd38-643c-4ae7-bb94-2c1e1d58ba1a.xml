@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-130933852" Content_Hash="-1303851619">
+  <Metadata>
+    <Id>7821fd38-643c-4ae7-bb94-2c1e1d58ba1a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL インジェクション を防ぐ</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>SQL インジェクションを防止するには、入力を検証し、パラメータ化されたストアド プロシージャを使用してデータ アクセスする必要があります。 </p>
+  <h1>理由</h1>
+  <p>パラメータ コレクションを使用する場合、SQL では入力は&nbsp;実行可能なコードではなく&nbsp;リテラル値として処理されます。 また、パラメータ コレクションを使用して、入力データ型と長さのチェックを行うことができます。 範囲外の値は例外をトリガーします。 &nbsp; Type-Safe な SQL パラメータが使用されていない場合、攻撃者は&nbsp;フィルターされていない入力に組み込まれた&nbsp;インジェクション&nbsp;攻撃を実行できる可能性があります。</p>
+  <h1>状況</h1>
+  <p>このガイドラインは SQL ステートメントがダイナミックに構成される場合は常に適用されます。 また、&nbsp;ストアド プロシージャが使用されている場合も&nbsp;このガイドラインが適切です。</p>
+  <h1>対策</h1>
+  <p>&nbsp; Type-Safe な SQL パラメータを使用するには、以下の手順を実行してください。</p>
+  <p>
+    <strong>1. 構築する SQL クエリまたはストアド プロシージャ内のパラメータを決定します。</strong> ユーザーの入力またはその他の信頼性のないソースに起因するパラメータは全て、クエリで特定変数名を指定することによって避けます：</p>
+  <blockquote>
+    <p>SELECT * from&nbsp;books WHERE&nbsp;ISBN = '@isbn'</p>
+  </blockquote>
+  <p>
+    <strong>2. SQL 文内の各パラメータの明示的なデータ型を宣言します。</strong> SQL 文を実行する際に、クエリ内の各パラメータのデータ型および長さを指定してください。</p>
+  <blockquote>
+ <pre>myCommand.SelectCommand.Parameters.Add("@isbn", SqlDbType.VarChar, 10);<br /></pre>
+  </blockquote>
+  <p>
+    <strong>3. 各パラメータの値を指定します。</strong> 信頼性のない入力は指定され、SQL ステートメントが次の実行をする際には適切に処理されます：</p>
+  <blockquote>
+ <pre>myCommand.SelectCommand.Parameters["@isbn"].Value = '0494483923';</pre>
+  </blockquote>
+  <p>さらに、構造化例外処理を使用してデータベース アクセス中に発生するエラーをキャッチし、エラーがクライアントに返されるのを防いでください。 詳細なエラー メッセージによって、接続文字列、SQL Server 名、またはテーブルやデータベースの命名規則のような貴重な情報が開示する可能性があります。 攻撃者は、この情報を使用してより正確な攻撃を構築できます。 </p>
+  <p>追加の予防策として、最小限の特権アカウントを使用してデータベースにアクセスすることで、アプリケーションが攻撃を受けた場合の影響を軽減することができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>SQL インジェクション (<a href="http://msdn.microsoft.com/en-us/library/ms161953.aspx">http://msdn.microsoft.com/ja-jp/library/ms161953(v=SQL.105).aspx)</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

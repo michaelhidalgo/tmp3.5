@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-817056022" Content_Hash="-969087399">
+  <Metadata>
+    <Id>b948d9b0-b2de-42a8-b74d-e6bd3240abb5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>強制ブラウジング バグをテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink>How to Test for Forceful Browsing Bugs</DirectLink>
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>ASP、PHP、Java、および同じような言語で開発された Web アプリケーション。</p>
+  <p>
+    <b>
+    </b>&amp;nbsp;</p>
+  <h1>概要</h1>
+  <p>強制ブラウジングは Web アプリケーションやサービスでは極めて一般的なバグです。&amp;nbsp;この脆弱性は単純です。&amp;nbsp;Web サイトのアプリケーションやサーバーは一般的に設計ごとの特定のフローに従います。&amp;nbsp;たとえば、ホテルの予約 Web サービスでは以下のシーケンスに従って、オンラインで顧客が部屋を予約することができます。アプリケーションは、顧客が部屋と日付を選択 (1) する前に支払い (3) を行うことを予期していません。&amp;nbsp;また、顧客が支払いを行わないのに確認ページ(4)が表示されることもありません(3)。</p>
+  <p>攻撃者は、強制ブラウジングを一般的に以下のような目的で使用します:</p>
+  <ol>
+    <li>認証を回避する。 </li>
+    <li>Web ベースのサービスを悪用する。 </li>
+    <li>機密ページにアクセスする。</li>
+  </ol>
+  <p>強制ブラウジング バグをテストするには、以下の手順を実行することをお勧めします:</p>
+  <ul>
+    <li>手順 1:&amp;nbsp; 攻撃のシナリオを理解する。 </li>
+    <li>手順 2:&amp;nbsp; ハイリスク コンポーネントを特定する。 </li>
+    <li>手順 3:&amp;nbsp; テストと調査を開始する。 </li>
+    <li>手順 4:  テスト ケースを調節する。</li>
+  </ul>
+  <p>&amp;nbsp;</p>
+  <h1>手順 1:&amp;nbsp; 攻撃のシナリオを理解する</h1>
+  <p>強制ブラウジング攻撃のシナリオの詳細を理解することから始めます。&amp;nbsp;以下のシナリオは、最も一般的な強制ブラウジング攻撃手順について説明します:</p>
+  <ol>
+    <li>ユース ケースの順序を中断することによって認証を回避する。 </li>
+    <li>URL パラメータ値を改ざんすることによって、Web ベースのサービスを悪用する。 </li>
+    <li>制限されているページを直接ブラウジングする。</li>
+  </ol>
+  <h2>
+    <em>ユース ケースの順序を中断することによって認証を回避</em>
+  </h2>
+  <p>
+    <b>
+      <i>概要</i>
+    </b>
+  </p>
+  <p>ほとんどの最新のソフトウェアは、ユース ケースを使用してその動作と機能を定義します。&amp;nbsp;Web アプリケーションでは、ユース ケースは特定のタスクを実行するページのシーケンスに影響を及ぼします。&amp;nbsp;たとえば、オンラインのバンキング アプリケーションは、以下のシーケンスを使用してログイン ユース ケースを実装します。</p>
+  <p>最初に、有効なクライアントにシーケンスの最初のページでユーザー名とパスワードを使用してログインするように要求します (<b>index.php</b>)。&amp;nbsp; ログインに成功すると、アプリケーションはシーケンスの 2 番目のページを使用してユーザー (「John」など) にアカウントの概要を送信します <b>(personalInfo.php</b><b></b>)。&amp;nbsp;&amp;nbsp;ログインに失敗すると、アプリケーションは John にログイン エラー メッセージを<b> index.php</b> に送信します。&amp;nbsp;&amp;nbsp;シーケンスには 2 ページしかないため、このユース ケースはシンプルです。</p>
+  <ol>
+    <li>
+      <b>index.php</b>
+    </li>
+    <li>
+      <b>personalInfo.php</b>
+    </li>
+  </ol>
+  <p>これらの手順では、ユース ケースの予想されるシナリオについて説明します:</p>
+  <p>
+    <b>
+      <i>予想される動作</i>
+    </b>
+  </p>
+  <ol>
+    <li>サイトは以下の URL の Web フォームからバンキング クライアントのユーザー名とパスワードを尋ねます。&amp;nbsp;http://www.teammentorexample.com/index.php </li>
+    <li>被害者 (本名 <b><i>John Cohen、</i></b> ユーザー名 <b><i>cohen</i></b>) はユーザー名とパスワードを <u>index.php</u> (図 1) に入力します。 </li>
+    <li>ログインに成功すると、index.php アプリケーション コードは personalInfo.php を呼び出してユーザーへのレスポンスとして送信します。&amp;nbsp;<b><i>user</i></b> URL パラメータを使用してすべての有効なユーザーと個人情報とを区別します。&amp;nbsp;John は有効なユーザーであるため、ログインしてアカウントの概要を取得します (図 2)。 </li>
+    <li>認証に失敗した場合、Web アプリケーションは index.php をエラー メッセージとともにユーザーに送り返します。 </li>
+  </ol>
+  <p>
+    <b>
+      <i>攻撃のシナリオ</i>
+    </b>
+  </p>
+  <p>問題は、攻撃者が login.php(1) ページの予想される順序で開始せずに、直接 personalInfo.php (2) ページに移動することによって Web サイトの意図されたフローを中断した場合に発生します。&amp;nbsp;この場合、アプリケーションのフローには 2 つの手順があります:</p>
+  <p>(1)index.php &amp;nbsp;&amp;nbsp;-&gt;&amp;nbsp; (2) &amp;nbsp;personalInfo.php</p>
+  <p>アプリケーション サーバーは認証バイパスに対して脆弱です。というのも、攻撃者は <b>index.php </b>(1) に正しくログインすることなく、直接 <b>personalInfo.php</b> (2) を強制的に閲覧することができるためです。 これにより、攻撃者は被害者の個人アカウントを強制的に閲覧することができます。&amp;nbsp;</p>
+  <p>以下にこの攻撃の手順を示します:</p>
+  <ol>
+    <li>攻撃者はブラウザのアドレス バーに直接以下の URL を入力します:&amp;nbsp; <b>http://www.teammentorexample.com/personalInfo.php?user=cohen</b></li>
+    <li>脆弱性のあるサーバーは被害者 (John) の情報を personalInfo.php とともに攻撃者のブラウザに送信します。 これで、攻撃者はブラウザから被害者の個人のバンキング情報にアクセスすることができます。</li>
+  </ol>
+  <p>この攻撃が成功するのは、ログイン手順 (1) が成功したかどうかをチェックすることなく、サーバーが要求された personalInfo.php (2) ページにアクセスするためです。&amp;nbsp;</p>
+  <p>ほとんどの Web アプリケーションは、セッション管理を使用して認証状態に基づいて特定のページへのユーザーを制限することによって、この攻撃を防御しています。</p>
+  <p>&amp;nbsp;</p>
+  <h2>URL パラメータ値を改ざんすることによって、Web ベースのサービスを悪用する</h2>
+  <p>前述したように、Web アプリケーションはページのシーケンスが関係するユース ケースを使用して任意のタスクを実行します。&amp;nbsp;この Web アプリケーションでは、映画を借りてオンラインで視聴することができます。&amp;nbsp;ユース ケースには、登録、映画の閲覧、映画のレンタル、映画の視聴、アカウントの管理などをはじめ、さまざまなユース ケースがあります。&amp;nbsp;</p>
+  <p>ユース ケースの順序が重要です。 たとえば、サイトにログインすることなく映画を閲覧したり、レンタルすることなく映画を視聴することはできません。&amp;nbsp;このシナリオでは<i>映画を視聴する</i>ユース ケースに焦点を当てています。</p>
+  <p>
+    <b>
+      <i>予想される動作</i>
+    </b>
+  </p>
+  <p>アカウントを作成した後で、無害のクライアントはログインし、レンタルした映画へのリンクが含まれたホームページを受け取ります。 その後、レンタルした映画を選んで視聴します。&amp;nbsp;&amp;nbsp;これには、以下のシーケンスに従います:</p>
+  <ol>
+    <li>login.php</li>
+    <li>home.php</li>
+    <li>rentedMovies.php </li>
+    <li>watchMovie.php</li>
+  </ol>
+  <p>手順:&amp;nbsp;</p>
+  <ol>
+    <li>登録ユーザー (<i>ユーザー登録</i>ユース ケースで登録) はログインしてセッション鍵を受け取って認証されます (1)</li>
+    <li> サーバーはユーザーにユーザーのホーム ページ <b>home.php</b> (2) を送信します。 </li>
+    <li>ユーザーは、レンタルした映画のリストが含まれたページ rentedMovies.php (3) を受信し、リストをクリックして映画を選択します。&amp;nbsp;これにより、クライアントはこの URL リクエストを<i>映画 </i>URLparameter 値: http://www.teammentorexample.com/selectMovie.php?movie=shrek の映画名とともにサーバーに送信します。<i></i></li>
+    <li>サーバーはユーザーのブラウザで映画を再生することによって応答します。</li>
+  </ol>
+  <p>注意:&amp;nbsp; アプリケーションは、以前は「<i>映画を借りる</i>」ユース ケースを使用して映画をリストに追加していました。&amp;nbsp;</p>
+  <p>
+    <b>
+      <i>攻撃のシナリオ</i>
+    </b>
+  </p>
+  <p>Web アプリケーションのバグを使用することにより、攻撃者は登録してログインすることができます (1)。&amp;nbsp;ログインすると、攻撃者は直接手順 4 (selectMovie.php) に移動して <i>映画 </i>URLparameter 値のフィルム名を渡します。<i></i>&amp;nbsp;アプリケーションは URL に渡された映画が実際にユーザーによってレンタルされたかどうかをチェックせずに直ちに再生を開始します。</p>
+  <p>これらの手順では、攻撃シナリオの詳細を示します:</p>
+  <ol>
+    <li>攻撃者は<i>ユーザー登録</i>ユース ケースを使用して映画サイトに登録します。</li>
+    <li>攻撃者は login.php (1) から映画サイトにログインします。&amp;nbsp; </li>
+    <li>攻撃者は <b><i>Braveheart </i></b>を視聴しようとしましたが、この映画を借りていないことに気付きます。 </li>
+    <li>攻撃者はレンタル料金を払いたくないので、URL の映画パラメータを以下のように変更して<b>selectMovie.php </b>(3) にあるこの映画の場所を強制的に閲覧します:<i> </i>&amp;nbsp;<b>http://www.teammentorexample.com/watchMovie.php?name=braveheart</b></li>
+    <li>アプリケーションの次の <b> watchMovie.php</b> ページでは URL に渡された映画が攻撃者によってレンタルされたかどうかをチェックすることなく、攻撃者のブラウザで映画を無料で再生します。</li>
+  </ol>
+  <p>&amp;nbsp;</p>
+  <h2>
+    <em>非表示の制限されたページやファイルを閲覧する&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; </em>
+  </h2>
+  <p>これで、ほとんどの Web アプリケーションの設計者がサービスやアプリケーションを絵コンテ (ユーザーが何かを行ったり場所を移動したりする) のようなものとして開発していることを理解できたはずです。&amp;nbsp;&amp;nbsp;一般的には任意の数のさまざまなフローやユース ケースがあります。&amp;nbsp;各フローはさまざまなページのウォークスローです。 しかし、構成ファイルやプライベートなドキュメント フォルダなど、特定の動作に含まれていないページがあります。&amp;nbsp;このシナリオでは、攻撃者は制限された領域を強制的に閲覧します。</p>
+  <p>
+    <b>
+      <i>予想される動作</i>
+    </b>
+  </p>
+  <ol>
+    <li>あるユーザーが個人情報が含まれたアプリケーション サイトの URL を入力します:&amp;nbsp; www.teammentorexample.com/webapp/hidden/privatestore </li>
+    <li>サイトはユーザーに 401 (アクセス拒否) レスポンスを送信します</li>
+  </ol>
+  <p>
+    <b>
+      <i>攻撃のシナリオ</i>
+    </b>
+  </p>
+  <ol>
+    <li>攻撃者は個人情報が含まれたアプリケーション サイトの URL を入力します: www.teammentorexample.com/webapp/hidden/privatestore</li>
+    <li>サイトは攻撃者にこの場所を参照してそのコンテンツを表示できるようにします。</li>
+  </ol>
+  <p>このアプリケーションでは許可が存在しないか緩すぎて、攻撃者がプライベート ストアへのアクセスを取得できるため、脆弱です。</p>
+  <p>&amp;nbsp;</p>
+  <h1>手順 2:&amp;nbsp; ハイリスク コンポーネントを識別する</h1>
+  <p>手順 2 では、まず最初に、このバグを防止するための優れたプログラミングの実践 (軽減策) を認識し、後でテストできるようにハイリスク ページとそれらの軽減策を一覧表示し、強制ブラウジング攻撃のすべてのエントリ ポイントを特定し、体系的かつ包括的なテストを行うためのテスト計画を作成する必要があります。&amp;nbsp;</p>
+  <h2>
+    <em>アプリケーション コードの確認</em>
+  </h2>
+  <p>このタスクを開始するには、強制ブラウジング バグから保護するための軽減策 (適切なプログラミング) について適切に理解している必要があります。&amp;nbsp;セキュアなアプリケーションはこのバグを次のようにして軽減します。</p>
+  <ul>
+    <li>ファイルおよびフォルダに Web サーバーのセキュリティを設定する。 </li>
+    <li>セッション管理によって強制される一連の順序付けられた複数ステップ操作の閲覧を制限する。 </li>
+    <li>機密ページを表示する前に認証を再度チェックする。</li>
+  </ul>
+  <p>Web アプリケーションのすべてのページは強制ブラウジングの脆弱性がある危険性があります。&amp;nbsp;ここで前述した軽減策を使用するページだけでなく、使用しないページも含め、アプリケーション内のすべてのページを一覧表示します。&amp;nbsp;</p>
+  <p>
+    <b>
+      <i>ファイルおよびフォルダに Web サーバーのセキュリティを設定する</i>
+    </b>
+  </p>
+  <p>まず最初に Web サーバー管理者のコンソールと個々のファイル/ディレクトリの許可を調べます。&amp;nbsp;Apache や IIS などの Web サーバーは、Web フォルダへのアクセス制御を提供します。&amp;nbsp;たとえば、IIS では Windows 認証ユーザーのみ、または任意の匿名ユーザーへのアクセスを許可します:</p>
+  <p>
+    <img src="about:../../../LibrariesImages/badf0b18-8c46-43cc-bd90-f1853e111a55/clip_image009.png" />
+  </p>
+  <p>&amp;nbsp;</p>
+  <p>理想的には、匿名ユーザーは、危険性の低いページにのみアクセスできるようにする必要があります。&amp;nbsp;その他すべてのページは何らかの認証の形式を使用する必要があります。&amp;nbsp; Windows のローカルまたはドメインのアカウントに基づき、既存のアクセス制御リスト (ACL) を使用して安全に実装されているため、<b>統合 Windows 認証</b>をお勧めします。&amp;nbsp;</p>
+  <p>また、ASP .NET でも特定のユーザーまたは役割を使用して 権限を <i>web.config</i> ファイルに設定することができます (役割ベースのセキュリティ)。&amp;nbsp;この文書の最後にある項目は、このトピック<a style="mso-endnote-id: edn1" title="" href="about:blank#_edn1" name="_ednref1">[i]</a> に関する重要なリソースです。<br /><br />この <i>web.config</i> コードは、Bob のみを許可し、その他すべてのユーザーを拒否します。</p>
+ <pre>&lt;configuration&gt;</pre>
+ <pre>&amp;nbsp;&lt;system.web&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;authorization&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;allow users="domainname\Bob" /&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;deny users="*" /&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/authorization&gt;</pre>
+ <pre>&amp;nbsp;&lt;/system.web&gt;</pre>
+ <pre>&lt;/configuration&gt;</pre>
+  <p>&amp;nbsp;</p>
+  <p>以下のコードは、役割ベースの許可をコード化する方法を図示します。</p>
+ <pre>&lt;configuration&gt;</pre>
+ <pre>&amp;nbsp;&lt;system.web&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;authorization&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;allow roles="domainname\Managers" /&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;deny users="*" /&gt;</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;/authorization&gt;</pre>
+ <pre>&amp;nbsp;&lt;/system.web&gt;</pre>
+ <pre>&lt;/configuration&gt;</pre>
+ <pre>&amp;nbsp;</pre>
+  <p>Apache でもまた、.htaccess ファイルを使用するかまたは Apache の構成内で、ユーザー名、パスワード、および IP アドレス<a style="mso-endnote-id: edn2" title="" href="about:blank#_edn2" name="_ednref2">[ii]</a>によってファイルやディレクトリへのアクセスを制限することができます。<br />Apache の .htaccess ファイルを使用したパスワード保護の例を示します:</p>
+ <pre>&lt;CODE&gt;AuthUserFile /home/newuser/www/stash/.htpasswd&lt;/CODE&gt;<br />&lt;CODE&gt;AuthGroupFile /dev/null&lt;/CODE&gt;<br />&lt;CODE&gt;AuthName "Protected Directory"&lt;/CODE&gt;<br />&lt;CODE&gt;AuthType Basic&lt;/CODE&gt;<br />&lt;CODE&gt;&lt;Limit GET POST&gt;&lt;/CODE&gt; <br />&lt;CODE&gt;require user newuser&lt;/CODE&gt;<br />&lt;CODE&gt;&lt;/Limit&gt;&lt;/CODE&gt; </pre>
+  <p>また、IP アドレスに基づいてユーザーを拒否することもできます:</p>
+ <pre>&lt;CODE&gt;Order allow, deny&lt;/CODE&gt;<br />&lt;CODE&gt;Deny from 123.45.67.8&lt;/CODE&gt;<br />&lt;CODE&gt;Deny from 123.123.7&lt;/CODE&gt;<br />&lt;CODE&gt;Allow from all&lt;/CODE&gt;</pre>
+  <p>
+    <b>注意</b>: 特定の許可が必要なすべてのサーバーのファイル、ディレクトリ、プライベート ディレクトリ、およびその他のオブジェクトを確認してください。</p>
+  <p>&amp;nbsp;</p>
+  <p>
+    <b>
+      <i>セッション管理によって強制される一連の順序付けられた複数ステップ操作の</i>
+    </b>
+    <b>
+      <i>閲覧を制限する</i>
+    </b>
+  </p>
+  <p>優れた軽減策とは、ユース ケースをクライアントのセッションと一致させることです。&amp;nbsp;ユース ケースが各ユーザー セッションのナビゲーション状態に一致する表を作成します。&amp;nbsp;&amp;nbsp;次に、任意のユーザーに新しいページを閲覧できるようにする前に、表のモデルを強制的に実施します。&amp;nbsp;ユーザーのセッションが要求されたページの予想されるセッションに一致しない場合は、要求されたページへのアクセスを拒否します。&amp;nbsp;</p>
+  <p>以下の手順では、この軽減策について説明します:</p>
+  <p>&amp;nbsp;</p>
+  <p>1.&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;アプリケーションは&amp;nbsp; <i>電子メールのチェック</i> ユース ケースのモデルを作成します:</p>
+  <p>ユース ケース:電子メールのチェック:</p>
+  <ul>
+    <li>セッション ID: (login.php に作成されたクライアント ベースのセッション) </li>
+    <li>予想される手順:</li>
+  </ul>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <p>login.php</p>
+          </td>
+          <td>
+            <p>クライアント ベースのセッション</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p>welcome.php</p>
+          </td>
+          <td>
+            <p>クライアント ベースのセッション</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p>checkaccount.php </p>
+          </td>
+          <td>
+            <p>クライアント ベースのセッション</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>&amp;nbsp;</p>
+  <p>ユース ケース:アカウントの管理:</p>
+  <ul>
+    <li>セッション ID: (login.php に作成された管理者ベースのセッション) </li>
+    <li>予想される手順:</li>
+  </ul>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <p>admin.php</p>
+          </td>
+          <td>
+            <p>管理者ベースのセッション:</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p>welcome.php</p>
+          </td>
+          <td>
+            <p>管理者ベースのセッション:</p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p>manage.php </p>
+          </td>
+          <td>
+            <p>管理者ベースのセッション:</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>&amp;nbsp;</p>
+  <p>2.&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;攻撃者はこのシーケンスを使用して管理コンソールへの移動を試行します:&amp;nbsp;</p>
+ <pre>login.php -&gt; welcome.php -&gt; manage.php</pre>
+  <p>この攻撃者はセッションを保持していて、ログインしてアカウントにアクセスできますが: 管理者ベースのセッションの代わりにクライアント ベースのセッションを使用して管理コンソールに割り込もうとしています。&amp;nbsp;Web アプリケーションは無効なシーケンスを認識し、攻撃者が manage.php にアクセスするのを阻止します。</p>
+  <p>
+    <b>
+      <i>&amp;nbsp;</i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>機密ページを表示する前に認証を再チェックする</i>
+    </b>
+  </p>
+  <p>アプリケーション コードを見直して、クライアントの認証状態を再チェックしたかどうかを調べます。 たとえば、以下のコードは機密情報を表示する前に認証を再チェックします:</p>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/* start session management */</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;session_start()</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if (user_authenticated_against_session)</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/* allow acess to user */</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;else</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/* deny access *</pre>
+  <p>&amp;nbsp;</p>
+  <p>さらに、要求しているクライアントが適切なセッションを使用しているかどうかをチェックするコードを調べます:</p>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/* start session management */</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;session_start()</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;if (current_session_matches_required_session)</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/* allow acess to user */</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;else</pre>
+ <pre>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;/* deny access *</pre>
+ <pre>&amp;nbsp;</pre>
+  <p>
+    <b>
+      <i>すべてのエントリ ポイントを識別する</i>
+    </b>
+  </p>
+  <p>エントリ ポイントは、攻撃者が強制ブラウジング攻撃のパスを送信するのに使用する可能性のある経路です。 強制ブラウジングの一般的なエントリ ポイントを以下に示します:</p>
+  <ul>
+    <li>URL コンテンツ </li>
+    <li>Web フォーム入力フィールド。 </li>
+    <li>Web サービス方法。 </li>
+    <li>HTTP クライアントから送信されたネットワーク パケット。</li>
+  </ul>
+  <p>
+    <b>
+      <i>ハイリスク コンポーネント、軽減策、およびエントリ ポイントを一覧表示する</i>
+    </b>
+  </p>
+  <p>アプリケーション Web ページのファイルおよびフォルダのすべてのリストを作成することによって、この手順を終了します。&amp;nbsp;リストの各エントリでは、ページが特定の強制ブラウジングの軽減策を使用するかどうかを示します。&amp;nbsp;さらに、どのエントリ ポイントが特定のテスト用のページ、フォルダ、またはファイルに関連しているかを示します:</p>
+  <p>&amp;nbsp;</p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <b>ファイル名</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>軽減済み</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>軽減策</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>URL</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>Web フォーム</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>サービス</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>ネットワーク</b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>Login.php</b>
+          </p>
+        </td>
+        <td>
+          <p>はい</p>
+        </td>
+        <td>
+          <p>認証済みセッションを作成しています</p>
+        </td>
+        <td>
+          <p>X</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>Adminconsole.php</b>
+          </p>
+        </td>
+        <td>
+          <p>はい</p>
+        </td>
+        <td>
+          <p>セッションの追跡</p>
+        </td>
+        <td>
+          <p>X</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>Index2.php</b>
+          </p>
+        </td>
+        <td>
+          <p>はい</p>
+        </td>
+        <td>
+          <p>認証済みセッションを再チェックしています</p>
+        </td>
+        <td>
+          <p>X</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>getMoney.asp</b>
+          </p>
+        </td>
+        <td>
+          <p>はい</p>
+        </td>
+        <td>
+          <p>.htaccess</p>
+        </td>
+        <td>
+          <p>X</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>Profile.asp</b>
+          </p>
+        </td>
+        <td>
+          <p>はい</p>
+        </td>
+        <td>
+          <p>IIS 統合 Windows 認証</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>X</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>Privatefolder</b>
+          </p>
+        </td>
+        <td>
+          <p>いいえ</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>X</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>Configuration.ini</b>
+          </p>
+        </td>
+        <td>
+          <p>いいえ</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>X</p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>&amp;nbsp;</b>
+          </p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+        <td>
+          <p>&amp;nbsp;</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>&amp;nbsp;</p>
+  <p>このような表は、テストをする際に役立ちます。&amp;nbsp;軽減策をテストすることは重要です。というのも、実装が不完全で、強制ブラウジングを可能にする脆弱性がある場合があるためです。</p>
+  <p>&amp;nbsp;</p>
+  <h1>手順 3:&amp;nbsp; テストと調査を開始する</h1>
+  <p>このセクションでは、テスト環境を設定し、テストおよび調査を開始する方法を提言します。</p>
+  <h2>
+    <em>Web アプリケーション ディレクトリ構造の検出</em>
+  </h2>
+  <p>設計文書やソース アクセスの利点がない場合は、テスト用のアプリケーションのすべてのフォルダおよびファイルを検出する方法を見つける必要があります。&amp;nbsp;これには非常に時間がかかる場合があるため、自動化する方が賢明です。&amp;nbsp;</p>
+  <p>これを行うための効果的な方法は、Web クローラ/スパイダー ボットを利用することです。&amp;nbsp;この種のツールでは、内部リンクをたどることにより、サーバー上の多数のリソースを一覧表示することが可能で、テスト用のサイトのインデックスを作成できます。</p>
+  <p>ディレクトリ構造を検出する別の方法として、総当たり検出があります。&amp;nbsp;ここでは、攻撃者は総当たり攻撃を使用してディレクトリ名を作成するツールを使用する必要があるため、それらがテスト用のアプリケーションに存在するかどうかをチェックします。</p>
+  <p>&amp;nbsp;</p>
+  <h2>
+    <em>すべての軽減策をテストする</em>
+  </h2>
+  <p>次のセッションでは、基本的な方法を使用して手順 2 で作成した表からすべての軽減策をテストします。</p>
+  <p>
+    <b>保護されているディレクトリをテストする </b>
+  </p>
+  <p>できるだけ低い権限を使用してテストを開始する必要があります。&amp;nbsp;できるだけ低いアクセス権にするため、サイトからログアウトしていることを確認します。&amp;nbsp;次に、より高い権限を持つクライアントによってアクセス可能なディレクトリを調べます。&amp;nbsp;それらに強制ブラウジングを試行します。&amp;nbsp;</p>
+  <p>危険な要素が含まれた役割を許可する可能性があるため、<i>ユーザー</i> and <i>役割</i>の両方をテストしてください。</p>
+  <p>最後に、Web サーバー (IIS、Apache など) によって保護されているすべてのディレクトリがテストされたことを確認してください。</p>
+  <p>
+    <b>複数手順操作のシーケンスを中断させる</b>
+  </p>
+  <p>ページの論理的なシーケンスを中断させるよう試行します。&amp;nbsp;たとえば、映画のレンタル サイトで実行したように、銀行サイトで以下のページのシーケンスを使用してクライアントのアカウントを表示します:</p>
+  <ol>
+    <li>www.teammentorexample.com/accounts/login.asp </li>
+    <li>www.teammentorexample.com/accounts/accountSummary.asp </li>
+    <li>www.teammentorexample.com/ accounts/GiveAccountNumber.asp</li>
+    <li>www.teammentorexample.com/accounts/displayAccountInfo.asp</li>
+  </ol>
+  <p>この手順では、複数の方法で上記のシーケンスを中断してみます。&amp;nbsp;アプリケーションに危険を及ぼさないシーケンスの中断には時間を費やさないでください。</p>
+  <p>
+    <b>機密ページを表示する前に認証を再チェックする</b>
+  </p>
+  <p>アプリケーションが機密ページを表示する前に適切に認証を検証しているかをテストする手順を以下に示します:</p>
+  <ol>
+    <li>ログインと認証を行って、セッションを受け取ります。 </li>
+    <li>自分だけにアクセス権のある機密ページを閲覧します:&amp;nbsp; http://www.teammentorexample.com/accountInfo.asp?name=yourname </li>
+    <li>ログアウトします</li>
+    <li>ログインせずに、上記のサイトに移動した同じ URL を入力します:&amp;nbsp; http://www.teammentorexample.com/accountInfo.asp?name=yourname</li>
+  </ol>
+  <p>これは、セッション ハイジャックと同じですが、ハイジャックされたセッションはありません。&amp;nbsp;攻撃者はアプリケーションが機密ページを表示する前に認証を再チェックしないという事実を悪用します。&amp;nbsp;強制ブラウジングの脆弱性は、被害者のアカウント情報がロードされている場合に存在します。</p>
+  <p>
+    <b>&amp;nbsp;</b>
+  </p>
+  <h1>手順 4:  テスト ケースを調整する</h1>
+  <p>最後のテスト手順は、対象範囲と速度の両方についてテストを調整することです。</p>
+  <h2>
+    <em>すべてのエントリ ポイントのすべてのエンコーディングを網羅する</em>
+  </h2>
+  <p>この手順では、制限されたページを要求するためにすべてのバリエーションをテストする必要があります。&amp;nbsp;たとえば、URL はさまざまな方法で表示することができます: あるアプリケーションはスペースの代用にプラス (＋) 記号を使用します:</p>
+  <p>www.teammentorexample.com/profile/Jonny+Smith+Robinson</p>
+  <p>一方で、別のアプリケーションは同じスペースを表示するのに %20 の文字を使用します:</p>
+  <p>www.teammentorexample.com/profile/Jonny%20Smith%20Robinson</p>
+  <p>特定のサイトへの強制ブラウジングを可能にするには、エンコーディングを修正する必要があり、そうしない場合は、ページが見つかりませんエラー (404) が表示されてサイト全体を網羅することができません。 &amp;nbsp;また、特定のエンコーディングではチェックが存在しない場合があり、正規化の脆弱性 <a style="mso-endnote-id: edn3" title="" href="about:blank#_edn3" name="_ednref3">[iii]</a> が存在する場合があり、これにより、想定外のエンコーディングを使用して強制ブラウジング攻撃の成功につながる場合があります。</p>
+  <h2>
+    <em>テストを自動化する</em>
+  </h2>
+  <p>強制ブラウジング テストを簡単に自動化することができます。&amp;nbsp;以下に手順を示します:</p>
+  <p>1.&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;アクセスするのに必要な状態や権限などのアプリケーションのページのリストを使用してモデルを作成します。</p>
+  <p>2.&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;ページのリストに基づいて URL を作成するテスト ジェネレータをさまざまなエンコーディングと共に書き込みます。</p>
+  <p>3.&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;テスト用のサーバー アプリケーションに URL を送信するテスト プログラムを書き込みます。</p>
+  <p>4.&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;サーバーが各テストに対して応答する方法およびそれがモデルに一致するかどうかを観察するテスト検証機能を書き込みます。&amp;nbsp;</p>
+  <p>
+    <b>&amp;nbsp;</b>
+  </p>
+  <p>
+    <b>結果</b>
+  </p>
+  <p>強制ブラウジング バグをテストするには、攻撃シナリオおよびそれらの軽減策を見直すことによって、どのようなものかを理解する必要があります。&amp;nbsp;次に、アプリケーションのすべてのページのリストを作成し、それらのページとそれらに関係するエントリ ポイントに対して、強制ブラウジング攻撃が軽減されているかどうかをチェックします。&amp;nbsp;</p>
+  <p>テスト段階では、ディレクトリ構造を調べて、アプリケーションによって使用されるすべてのファイルを一覧表示することから始めます。&amp;nbsp;すべての既存の軽減策についてテストして検証することが重要です。&amp;nbsp;さまざまなエントリ ポイントのエンコーディング技術に基づいてテスト ケースを調整して終了します。&amp;nbsp;</p>
+  <p>強制ブラウジング バグのテストを成功させるには、徹底的に行う必要があります。&amp;nbsp;テストに役立つツールを使用したり、自動化を展開したりすることにより、できるだけ対象範囲を最大化します。 </p>
+  <p>&amp;nbsp;</p>
+  <div>
+    <br />
+  </div>
+  <div>
+    <hr />
+  </div>
+  <p>
+    <a style="mso-endnote-id: edn1" title="" href="about:blank#_ednref1" name="_edn1">
+    </a>&amp;nbsp;</p>
+  <p>[i] ASP.NET および IIS でより安全なサイトを構築して展開するための入門ガイド&amp;nbsp; <a href="http://msdn.microsoft.com/en-us/magazine/cc301387.aspx">http://msdn.microsoft.com/en-us/magazine/cc301387.aspx</a></p>
+  <p>[ii] htaccess リファレンス&amp;nbsp;Scott Allen <a href="http://www.hybrid6.com/webgeek/2007/02/htaccess-reference.php">http://www.hybrid6.com/webgeek/2007/02/htaccess-reference.php</a>&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;</p>
+  <p>[iii]&amp;nbsp;&amp;nbsp;Web 固有の正規化バグ (Microsoft の安全なコードを作成するより)。 <a href="http://www.microsoft.com/mspress/books/sampchap/5612b.aspx">http://www.microsoft.com/mspress/books/sampchap/5612b.aspx</a></p>]]></Data>
+  </Content>
+</TeamMentor_Article>

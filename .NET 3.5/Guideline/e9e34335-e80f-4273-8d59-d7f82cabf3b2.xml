@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2024469347" Content_Hash="-380740232">
+  <Metadata>
+    <Id>e9e34335-e80f-4273-8d59-d7f82cabf3b2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データをキャッシュしない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ASP.NET 出力キャッシュはアプリケーションのパフォーマンスを向上させる優れた方法ですが、パスワード、クレジット カード番号、アカウント情報などといった機微なデータがページに含まれる場合、キャッシュを行うべきではありません。 ASP.NET出力キャッシュは、デフォルトではオフになっています。 </p>
+  <h1>理由</h1>
+  <p>通常、出力キャッシングはクライアント側で行われ、キャッシュされているデータに機微データが含まれている場合は重要なセキュリティ問題につながるおそれがあります。 出力キャッシングでは、機微データをCookieに保存するときと同様の影響が出ます。&nbsp;クライアントのマシン上、プロキシサーバ上、またはウェブサーバ上でデータが維持される可能性があります。 このため、デバイスがキャッシュするデータが流出し、攻撃者を惹きつけるデータを残します。 </p>
+  <h1>状況</h1>
+  <p>ページが機微情報を表示する場合、出力キャッシュが無効であることを確認してください。 </p>
+  <h1>対策</h1>
+  <p>デフォルトでは出力キャッシュがオフであり、有効化するには明確にオンに切り替える必要があります。&nbsp; 出力キャッシングをオンにする方法は2 つあります。高水準宣言 API を使用する方法と低水準プログラム API を使用する方法です。</p>
+  <p>ページの.aspxファイル内の<strong>@OutputCache</strong> 命令などによって、高レベルの宣言型APIが使用されます。</p>
+  <p>
+    <strong>HttpCachePolicy </strong>クラスのインスタンスを返す<strong>Page.Response.Cache</strong> プロパティを介して低レベルプログラム型APIが使用されます。</p>
+  <p>機微データがキャッシュされないために、次の手順に従います:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ページに機微データがないか確認します。</strong>&nbsp; すべてのページで、機微データのインスタンスがないか確認します。&nbsp; これには以下が含まれますが、これに限定されません。</p>
+      <ul>
+        <li>他のユーザーと共有すべきではない、Personally Identifiable Information、またはPersonally Identifiable Informationを取得するために使用できる情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。 </li></li></li>
+      </ul>
+      <p>機微データを含むページを識別したら、ステップ2および3に進みます。</p>
+      <li>
+        <p>
+          <strong>ページに宣言型出力キャッシングがないか確認します。</strong>&nbsp; <strong>@OutputCache</strong> 命令の使用について、ステップ1で明らかになったページを見直します。&nbsp; 存在する場合は、削除します。</p>
+        <li>
+          <p>
+            <strong>ページでプログラム出力キャッシングがないか確認します。</strong>&nbsp; <strong>HttpCachePolicy </strong>クラスについて、ステップ1で明らかになったページを見直します。&nbsp; 一般的に<strong>Page.Response.Cache</strong> プロパティを介してアクセスされます。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションには、電子商取引のトランザクションを実行するためにクレジット カード情報をユーザーに尋ねるページが含まれます。&nbsp; パフォーマンスのため、 <strong>@OutputCache</strong>ディレクティブを介してアプリケーション内の全ページで出力キャッシュがオンになっています。</p>
+ <pre>&lt;%@ OutputCache Duration="60" VaryByParam="None" %&gt;</pre>
+  <p>これにより、機微データを含むページが、ブラウザ、プロキシ、およびウェブ サーバなどのあらゆる HTTP 1.1 対応デバイスにキャッシュされることになります。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションには、電子商取引のトランザクションを実行するためにクレジット カード情報をユーザーに尋ねるページが含まれます。&nbsp; パフォーマンスのために、ほぼすべてのページで <strong>@OutputCache</strong> ディレクティブを介して出力キャッシュがオンになっています。&nbsp; クレジット カード情報を含むページのような機微なページでは、HTTP1.1対応デバイスでキャッシュされるのを防ぐために<strong>@OutputCache</strong>ディレクティブが取り除かれています。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET での出力キャッシュに関する詳細な情報は、<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpguide/html/cpconaspoutputcache.asp">Caching ASP.NET Pagesをご覧ください。</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

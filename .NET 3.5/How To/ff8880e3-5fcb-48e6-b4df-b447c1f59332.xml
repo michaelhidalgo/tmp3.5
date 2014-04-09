@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1638989043" Content_Hash="-567407671">
+  <Metadata>
+    <Id>ff8880e3-5fcb-48e6-b4df-b447c1f59332</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>例外をセキュアに処理する方法</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アプリケーションは、例外をスローする場合、機微な情報を公開することなくフェールすること、アクセスを拒否すること、そして安全でない状態のままにされていないことを確認します。 パスワードなどの機微データまたは私的データをログ記録しないでください。それらは漏えいされる可能性があります。 </p>
+  <p>スタック トレース、SQL ステートメント、およびテーブルまたはデータベース名などの内部システムまたはアプリケーションの詳細を公開しないでください。 この種類の情報が、アプリケーションのユーザーに対して、または現在の信頼境界を越えて広まらないことを確認します。 悪意のあるユーザーが、システム レベルの診断情報を使用してアプリケーションについて研究し、弱点を探ってそれを将来的にエクスプロイトする可能性があります。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1307081589" Content_Hash="708165234">
+  <Metadata>
+    <Id>fda6f06b-c276-43e1-a74d-fcb28cdda689</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>持続された鍵へのアクセスを限定する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ランタイムに使用される鍵を持続性のストレージに保存する時は、適切な ACL を使用し、鍵へのアクセスを制限してください。 管理者、SYSTEM、およびランタイムのコードの ID のみに鍵へのアクセスを付与してください (例えば、デフォルトのアプリケーション プールで実行される ASP.NET アプリケーションの場合は Network Service のアカウント)。</p>
+  <p>鍵のバックアップを取る時は、プレーンテキストでは保存しないでください。 代わりに、DPAPI を使用して暗号化するか、または強力なパスワードを使用してリムーバブル メディアに置いてください。</p>
+  <h1>理由</h1>
+  <p>&nbsp;制限付きアクセスで保護されていない場合、攻撃者は持続された鍵にアクセスすることができます。&nbsp;&nbsp; </p>
+  <h1>状況</h1>
+  <p>暗号化サポートをアプリケーションに追加する場合</p>
+  <h1>対策</h1>
+  <p>DPAPI を使用して暗号鍵を暗号化し、それを保護レジストリ鍵に保存します。 また、ACL を作成してレジストリ キーを保護し、管理者には完全な制御を、アプリケーションのプロセス アカウントには読み取り専用アクセスを可能にします。</p>
+  <p>HKEY_LOCAL_MACHINE を使用すると、インストール時に鍵を保存し、それをその後維持するのが容易になります。</p>
+  <p>ACL をレジストリ キーに構成する際に使用できるステップは次の通りです</p>
+  <ol>
+    <li>コマンド ラインから <strong>regedit.exe</strong> を実行してレジストリを開いてください<li>データが保存される、例えば <strong>My Computer\HKEY_LOCAL_MACHINE\SOFTWARE\TestAppDataのようなレジストリを見つけてください</strong><li>レジストリ キーを右クリックして<strong>Permissions（アクセス許可）を選択してください。</strong><li>アクセス許可を必要とする必要なユーザー アカウントを追加し、関連性のないアカウントとそれらのアクセス許可を取除いてください。 <li> <strong>Apply</strong> （適用）をクリックして、それからダイアログボックスの <strong>Permission For...</strong>（のアクセス許可）で<strong>Ok をクリックして</strong> <strong>Regitsry Editor</strong>（レジストリ エディタ）を閉じてください。</li></li></li></li></li>
+  </ol>
+  <p>セキュリティ要件にさらにアクセス性の低いストレージ ソリューションが定められている場合は、HKEY_CURRENT_USER にある鍵を使用してください。 この方法をとると、現在のユーザー鍵へのアクセスはプロセス ID に基づいて自動的に制限されるため、ACL を明示的に構成する必要がありません。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;HKEY_CURRENT_USER を使用すると、現在のスレッドまたはプロセス トークンに関連付けられたユーザー プロフィールが読み込まれた場合にのみ、プロセスから現在のユーザー鍵にアクセスできるため、より制限的なアクセスが可能となります。&nbsp;</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

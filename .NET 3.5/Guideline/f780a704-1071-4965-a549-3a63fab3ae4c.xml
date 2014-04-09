@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="625375126" Content_Hash="315856721">
+  <Metadata>
+    <Id>f780a704-1071-4965-a549-3a63fab3ae4c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切なサイズの鍵を使用する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>機微データの保護には適切なサイズの鍵を使用します。 </p>
+  <h1>理由</h1>
+  <p>鍵サイズを選択することは、パフォーマンスとセキュリティ間のトレードオフを表しています。&nbsp;</p>
+  <h1>対策</h1>
+  <p>小さすぎる鍵を選ぶと、しっかりと保護されていると思われているデータが実は攻撃に脆弱であることがあります。 大きすぎる鍵を選択すると、システムは、現実世界における相応のセキュリティの改善がないにもかかわらず、パフォーマンスの影響を受けることになります。 適切な鍵サイズは、使用中の暗号アルゴリズムに基づいて変更され、またマシンの処理速度が増加し、攻撃手法がより高度化するにつれて時間と共に変化します。 <br />次の推奨事項は、パフォーマンスを過度に犠牲にすることなく、安全域を与えてくれます：</p>
+  <ul>
+    <li>非対称アルゴリズム(RSA)を使用する時は、2048ビット鍵を選択します。</li>
+    <li>対称アルゴリズム (AES) を使用する時は、128ビット鍵を選択します。</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

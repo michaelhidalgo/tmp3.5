@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2097012735" Content_Hash="-1094998589">
+  <Metadata>
+    <Id>5b80df0c-551f-4542-bb93-111665f1158b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>データ フロー解析を実行する</Title>
+    <Category>セキュリティ工学</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>プロジェクト文書には、データ フロー解析の結果を記載することをお勧めします。</p>
+  <h1>理由</h1>
+  <p>データ フロー解析は、入力検証に関連する脆弱性の発見に役立ちます。</p>
+  <h1>チェック方法</h1>
+  <p>プロジェクト文書を調べて、データ フロー解析の結果が記載されていることを確認します。</p>
+  <h1>修正方法</h1>
+  <p>次の手順でデータ フロー解析を実行します。</p>
+  <ol>
+    <li>
+      <p>入力場所ごとに、入力ソースの信頼度を判別します。&amp;nbsp;疑わしい場合は、信頼しないでください。 </p>
+      <li>
+        <p>考えられる出力までのデータの流れを追跡し、途中にデータ検証の形跡があればそれをメモします。 </p>
+        <li>
+          <p>次の入力に移動して、続行します。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

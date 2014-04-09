@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1944942451" Content_Hash="760695127">
+  <Metadata>
+    <Id>f2c9b3d7-41b5-4dca-a5c2-925986d50c76</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アセンブリを難読化する方法</Title>
+    <Category>難読化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アセンブリを難読化するには、Visual Studio と搭載されているDotfuscator Community Editionが使用できます。 難読化済みアセンブリからの例外メッセージやスタックトレースも難読化されているため、これらに対応するメカニズムが必要です。 Dotfuscatorにより生成されたマップファイルを使用でき、古いシンボル名と新しいシンボル名の間をマッピングします。 さらにDotfuscator の標準版およびプロフェッショナル版で提供されるLucidatorを使用することも可能です。 </p>
+  <p>細かな制御には、宣言型難読化によりコード内の難読化パラメータを指定します。 .Net Framework は2つのカスタム属性を持ち、アセンブリ難読化時にDotfuscator をサポートします：<b>System.Reflection.ObfuscateAssemblyAttribute</b> および <b>System.Reflection.ObfuscationAttribute</b>。<b>System.Reflection.ObfuscateAssemblyAttribute</b> を使用してアセンブリレベルの難読化属性を指定し、<b>System.Reflection.ObfuscationAttribute</b> でメンバレベルの難読化設定を指定します。 </p>
+  <p>メンバレベルの属性を使用して、どのメンバが難読化されるかを制御します。 共有アセンブリの難読化にライブラリモードを指定して、パブリックのエントリ ポイントは難読化しないようにします。 これは<b>ObfuscateAssemblyAttribute</b> を使用するか、またはDotfuscator ツール内を適切に構成することで行えます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Dotfuscator についての詳細は、 <a href="http://code.msdn.microsoft.com/Dotfuscator2010video">Dotfuscator チーム ページをご覧ください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

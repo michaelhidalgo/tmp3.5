@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2110666733" Content_Hash="-924580248">
+  <Metadata>
+    <Id>77b1a552-43f0-45d6-b729-b235e0653128</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内にローカル マシン Credential 情報盗難のバグがないかどうかテストする方法</Title>
+    <Category>情報漏えい</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>要約</span>
+  </h1>
+  <p>ユーザー名とパスワードの組み合わせを使用してクライアントを認証する ASP .NET アプリケーションは、アプリケーションの領域内部のどこかにこれらの Credential 情報を保存する必要があります。<span> &nbsp; </span>一部の ASP .NET アプリケーションは、ファイルまたはデータベース サーバに Credential 情報直接保存します。また、他のアプリケーションでは、将来のログインのため、クライアントの Credential 情報をブラウザのキャッシュまたはブラウザの履歴に保存できるようにします。<span> &nbsp;&nbsp; </span>ローカルマシン Credential 情報攻撃を受けている間､攻撃者はまず Credential 情報が保存されているコンピューターにアクセスし次に Credential 情報を読み取ってアプリケーションに追加の攻撃を加えます｡</p>
+  <p>これらの手順に従ってASP.NETでのローカルマシン Credential 情報攻撃バグの検査をしてください:</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する</li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 3: 攻撃シナリオを理解する</span>
+  </h1>
+  <p>まず、ASP .NET アプリケーションのローカル Credential 情報窃盗バグのための攻撃シナリオの骨格を理解する必要があります。</p>
+  <p>認証を扱うASP .NET アプリケーションは、ローカル コンピュータのファイルまたはデータベースのような Credential 情報ストア内に有効な Credential 情報の記録を保持します。<span>&nbsp;  </span>ローカル マシンの Credential 情報窃盗攻撃中は、攻撃者はターゲット クライアントのJ2EE アプリケーション Credential 情報を保存するために使用されるコンピュータにログインし、ターゲット コンピュータから Credential 情報を盗むための様々な方法を使用します。<span> &nbsp; </span><span>&nbsp;</span>ASP .NET アプリケーションが認証を実装する方法に応じて、Credential 情報はファイル、SQL Server データベース、Microsoft の Active Directory、またはSecurity Account Manager (SAM) ユーザー ストアに保存される場合があります。<span>&nbsp; </span>追加の Credential 情報がキャッシュ履歴とブラウザのストアに見つかる場合があります｡</p>
+  <p>詳細: </p>
+  <ol>
+    <li>攻撃者が対象のコンピューター (クライアントの資格情報が格納されているコンピューター) にログインします。<li>攻撃者は、Credential 情報の保管、キャッシュ履歴、またはブラウザーの格納場所から対象クライアントの資格情報を取得します。<li>攻撃者は目標クライアントの Credential 情報を使用してASP.NETアプリケーションにアクセスします｡</li></li></li>
+  </ol>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 2: 原因と対策を分析する</span>
+  </h1>
+  <p>次に､ローカル Credential 情報盗難バグの様々な原因と対応策を見直す必要があります｡</p>
+  <h2>
+    <span>
+      <em>Credential 情報の保管に対するアクセス許可</em>
+    </span>
+  </h2>
+  <p>ホスト コンピュータの全ての低い特権のユーザーがアクセスできるロケーションに Credential 情報を保存する ASP .NET アプリケーションは、ローカル マシンの Credential 情報攻撃に脆弱です。<span>&nbsp; </span>例えば、<i>c:\user_files</i> フォルダに Credential 情報を保存するアプリケーションは、このフォルダに適切なアクセス許可またはアクセス制御リスト (ACL) を確実に設定する必要があります。 <span>&nbsp; </span>アプリケーションが Credential 情報ファイル <i>c:\user_files\credentials.txt</i> を使用し、アクセスを管理者、ASP .NET アプリケーションのみが使用する低い特権のアカウントにのみ制限する(すなわち、ログインしているユーザーにアクセスを許可しない)ことを怠ると、アプリケーションは全てのログインした攻撃者がファイルを読み取り Credential 情報を盗むことができます。<span>&nbsp; </span>同じことはデータベーステーブルにも当てはまります; ユーザー名およびパスワードを保存するために使用するテーブルにアクセス許可を設定しない ASP .NET アプリケーションでは、 SQL Server のゲスト ユーザーがデータベースから Credential 情報を読み取り盗むことができます。</p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>プレーン テキストの資格情報</em>
+    </span>
+  </h2>
+  <p>Credential 情報を保存する必要があるアプリケーションは、攻撃者がクライアントの Credential 情報を盗んでも、それをターゲット アプリケーションへのログインに使用できないように適切な予防措置を講じる必要があります。<span>&nbsp;&nbsp; </span>したがって、追加暗号化を行ったソルト付き一方向ハッシュとして、パスワード ベリファイアを格納することをお勧めします。<span>&nbsp;&nbsp; </span>結果として､攻撃者がローカル Credential 情報盗難攻撃に成功した場合でも､攻撃者はパスワードのハッシュをしか入手できず、目標アプリケーションにログインするために必要な実際のパスワードは入手できません｡</p>
+  <p>ASP .NET アプリケーションは、Forms authentication を SQL Server またはActive Directory プロバイダーと使用することを選択できます。<span>&nbsp;&nbsp; </span>これらの認証オプションを選ぶ開発者は､最終的に Credential情報の保管が暗号化されているか確認する必要があります｡</p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>ブラウザーのキャッシュでの資格情報の保持</em>
+    </span>
+  </h2>
+  <p>ASP .NET アプリケーションは、クライアントが将来の使用のためパスワードを記憶できるように選択することができます。<span>&nbsp; </span>このオプションは、通常ログイン フォーム中の “remember me next time” チェックボックスとして表示されます。<span>&nbsp; </span>Credential 情報窃盗攻撃を避けるため、開発者はデフォルトでこのオプションを無効にし、常にクライアントに有効な Credential 情報を入力することを求めることをお勧めします。<span> &nbsp; </span>これにより、 Credential 情報が以後の使用のためにブラウザのキャッシュに保存されることを防止できます｡</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 3: テストケースの実行</span>
+  </h1>
+  <p>ローカル資格情報盗難バグの理論的側面を確認したら、以下のテスト ケースを実行して、アプリケーションに脆弱性があるかどうかを確認する必要があります。</p>
+  <h2>
+    <span>
+      <em>ファイル/レジストリ内のセキュアでない Credential 情報ストアの検査</em>
+    </span>
+  </h2>
+  <p>このテストはどこに Credential 情報が保存されているかに応じて変わります(ファイルシステム対レジストリ)｡ <span>&nbsp;</span>以下の手順を実行します。</p>
+  <ol>
+    <li>特権の低いアカウントを使用してCredential 情報が保存されているマシンにログインしてください｡<li>資格情報を格納するために使用されるフォルダーまたはレジストリ キーにブラウズします。<li>資格情報を読み取ります。</li></li></li>
+  </ol>
+  <p>予測される結果: <span>&nbsp; </span>低い特権のユーザーがファイルシステムまたはレジストリからクライアントの Credential 情報を読み取ることができるなら、そのアプリケーションには脆弱性があります。</p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>Active Directory内のセキュアでないCredential 情報ストアの検査</em>
+    </span>
+  </h2>
+  <p>これらの手順に従ってActive Directory内のセキュアでないCredential 情報を検査してください:</p>
+  <ol>
+    <li>特権の低いアカウントを使用してActive Directoryを実行しているマシンにログインしてください｡<li>Active Directory データベース ファイルを保存するために使用されるフォルダまでブラウズしてください。<span>&nbsp;&nbsp; </span>このフォルダは初期設定では<i>%SystemRoot%\ntds</i>ですが､セキュアでない構成中では違うものである可能性があります｡<li>データベースファイルをダンプしてください｡<li>ダンプファイルの出力でユーザー名とパスワードを見つけてください｡</li></li></li></li>
+  </ol>
+  <p>予測される結果:<span>&nbsp; </span>低い特権のユーザーが Active Directory データベース ファイルフォルダにアクセスできるなら、そのアプリケーションには脆弱性があります。</p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>ブラウザーのキャッシュにある資格情報のテスト</em>
+    </span>
+  </h2>
+  <p>以下の手順に従って、ブラウザーのキャッシュでローカル資格情報の盗難をテストします。</p>
+  <ol>
+    <li>特権レベルの低いアカウントを使用して、対象のマシンにログインします。<li>Burp Proxy などの HTTP プロキシ ツールをダウンロードします。<li>Web ブラウザーを開き、HTTP プロキシを使用するように Web ブラウザーの接続オプションを設定します。<li>プロキシで、傍受をオフにします。<li>ページ中のアプリケーションログへブラウズしてください｡<li>プロキシで、傍受をオンにします。<li>ターゲット クライアントのユーザー名を入力してください。<span>&nbsp; </span>パスワードが隠し文字で表示されるかもしれません｡ <li>ログイン リクエストを送信します。</li></li></li></li></li></li></li></li>
+  </ol>
+  <p>予測される結果:<span>&nbsp; </span>HTTP プロキシが、中断されたログイン要求中のターゲット クライアントのユーザー名およびパスワードを表示する場合、そのアプリケーションには脆弱性があります。</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>認証を使用する ASP .NET アプリケーションは、ローカル マシンの Credential 情報窃盗攻撃を許してしまうので、不十分なアクセス許可で、また平文の形で Credential 情報を保存しないように注意する必要があります。<span>&nbsp; </span>この攻撃は、( Credential 情報を保存するのに使用される)ターゲット コンピュータへのログイン、および正当なユーザーの Credential 情報を発見する試みとで構成されています。<span> &nbsp;&nbsp;&nbsp; </span>ASP .NET アプリケーションで Credential 情報窃盗攻撃をテストするには、必ずこのバグの攻撃シナリオの詳細およびその原因と防御策を十分理解しておくことです。<span>&nbsp; </span>次に、どの Credential 情報ストアをASP .NET アプリケーションが使用するかに応じてテストケースを実行してください。<span>&nbsp;&nbsp;&nbsp; </span>追加のテストケースを実施し､特権の低いアカウントを使用してブラウザの履歴でCredential 情報のリカバリを試みる確認をしてください｡</p>
+  <div>
+    <div>
+      <p>&nbsp;</p>
+    </div>
+  </div>]]></Data>
+  </Content>
+</TeamMentor_Article>

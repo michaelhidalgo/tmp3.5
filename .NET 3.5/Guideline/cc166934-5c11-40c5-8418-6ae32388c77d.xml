@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-404162882" Content_Hash="1393777071">
+  <Metadata>
+    <Id>cc166934-5c11-40c5-8418-6ae32388c77d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アンマネージ API を識別するために、命名規則 (セーフ、ネイティブ、アンセーフ) を使用する</Title>
+    <Category>アンマネージ コード</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>コードを開発、レビュー、または変更する場合に、ネイティブ コードのリスクが通知されるよう、名前付け規則を適用します。 アンマネージ API の種類をカプセル化する prefix を使用することで、アンマネージ コードを分類します。</p>
+  <h1>理由</h1>
+  <p>アンマネージ コードは、マネージ コードから不正に使用されると重大なリスクになります。</p>
+  <h1>状況</h1>
+  <p>アンマネージ コードを呼び出していて、ソースへのアクセス権を保持している場合</p>
+  <h1>対策</h1>
+  <p>以下の名前付け規則を使用します。 </p>
+  <ul>
+    <li>
+      <b>Safe （安全)</b>。これは、コードがいかなるセキュリティ脅威も引き起こさないことを示します。 悪意のあるコードであっても、そうでなくても、呼び出すことに安全性の問題はありません。 例は、プロセッサの現在のティック カウントを返すコードです。 安全クラスには、完全な信頼に対するコード アクセス セキュリティ権限の要求をオフにする<b>SuppressUnmanagedCodeSecurityAttribute</b> で注釈を付けることができます。 <pre> [SuppressUnmanagedCodeSecurity]<br />class SafeNativeMethods {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [DllImport("user32")]<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal static extern void MessageBox(string text);<br />}  </pre><li><b>Native （ネイティブ）</b>。 これは潜在的に危険性のあるアンマネージ コードですが、アンマネージ コードのアクセス許可がフル スタック ウォーク要求で保護されているコードです。 これらは<b>SupressUnmanagedCodeSecurityAttribute</b> で抑制されていない限り、暗示的に相互運用レイヤーによって作成されます。<pre>class NativeMethods {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [DllImport("user32")]<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal static extern void FormatDrive(string driveLetter);<br />}  </pre><li><b>Unsafe （危険）</b>。これは潜在的に危険性のあるアンマネージ コードで、宣言的に抑制されたアンマネージ コードのアクセス許可に対するセキュリティの要求があります。 これらのメソッドは潜在的に危険性があります。 スタック ウォークが実行されないため、これらのメソッドの呼び出し元は完全なセキュリティ レビューを行い、使用が安全で保護されていることを確認する必要があります。 <pre> [SuppressUnmanagedCodeSecurity]<br />class UnsafeNativeMethods {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [DllImport("user32")]<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal static extern void CreateFile(string fileName);<br />}</pre></li></li></li>
+  </ul>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

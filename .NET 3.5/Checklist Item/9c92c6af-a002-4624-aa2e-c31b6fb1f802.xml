@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="74550313" Content_Hash="1423249287">
+  <Metadata>
+    <Id>9c92c6af-a002-4624-aa2e-c31b6fb1f802</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構成設定をロックして、ポリシー設定を適用する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>Web アプリケーションが独自の構成設定を子構成ファイル内でオーバーライドして変更できないようにする。</p>
+  <h1>理由</h1>
+  <p>構成設定をロックすると、アプリケーションが独自の web.config ファイル内で構成設定を変更することを防止できます。 これにより、指定された環境内でホストされるすべてのアプリケーションに対して、 すべての重要なセキュリティ設定が適切に伝播されます。</p>
+  <h1>チェック方法</h1>
+  <p>ASP.NET 構成ファイルは読み込まれる順序で相互に引き継がれます｡ これにより、アプリケーション ディレクトリの web.config ファイルは、machine.config で指定された設定をオーバーライドできます。 ASP.NET は、次のコンフィグレーション レベルの順序に従って、構成ファイルを読み込みます。</p>
+  <p>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <strong>コンフィグレーション レベル</strong>
+          </td>
+          <td>
+            <strong>ファイル名</strong>
+          </td>
+          <td>
+            <strong>ロケーション</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>サーバ</td>
+          <td>machine.config</td>
+          <td>%Windir%\Microsoft.NET\Framework\{version}\CONFIG</td>
+        </tr>
+        <tr>
+          <td>Root Web</td>
+          <td>web.config</td>
+          <td>%Windir%\Microsoft.NET\Framework\{version}\CONFIG</td>
+        </tr>
+        <tr>
+          <td>Web サイト</td>
+          <td>web.config</td>
+          <td>IIS により識別される Web サイトの root ディレクトリ</td>
+        </tr>
+        <tr>
+          <td>ASP.NET アプリケーションroot</td>
+          <td>web.config</td>
+          <td>アプリケーションの root ディレクトリ</td>
+        </tr>
+        <tr>
+          <td>ASP.NET アプリケーション サブディレクトリ</td>
+          <td>web.config</td>
+          <td>アプリケーションのサブディレクトリ</td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <p>一部の構成設定が Web サイトまたはアプリケーション独自の構成ファイルにより変更されることを防止するには、次のステップを使用して、それらの設定を適切にロックする必要があります。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ロックする必要のある構成設定を識別します。</strong> アプリケーションの構成設定を調べて、ロック ダウンする必要のある設定を識別します。 ロックすることが望ましい一般的な設定には次のようなものがあります。</p>
+      <ul>
+        <li>
+          <strong>接続文字列</strong>: 変更を許可しない事前定義された接続文字列をアプリケーションで使用する場合は、この設定をチェックします。 構成ファイル内で接続文字列を見つけるには、<strong>connectionStrings</strong> エレメントを確認します。 <li><strong>メンバーシップ プロバイダー</strong>: 社内で一元管理された認証スキーマを採用しており、アプリケーションがその認証スキーマに適合する必要がある場合、この設定をチェックします。 構成ファイル内でメンバーシップ プロバイダーを見つけるには、<strong>providers</strong> エレメントを確認します。 <li><strong>Web リソース</strong>: アプリケーションが機微な性質を持つ Web リソースを開示して、特別なアクセス制御を必要とする場合、この設定をチェックします。 構成ファイル内で Web リソースを見つけるには､<strong>location</strong> エレメントを確認します。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>適切なロッキング メカニズムが適用されていることを検証します。</strong> ロックする必要があるすべてのエレメントを識別した後､適切なロック操作を用いて各エレメントを保護します。</p>
+        <p>これを構成ファイル内でチェックするには、下のリストの適切なプロパティがエレメント タグに設定されていることを検証します。 ASP.NET の構成設定には、以下のいくつかのレベルの保護があります。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>allowOverride</strong>: <strong>location</strong> タグ内で使用されるこの属性は、<strong>path</strong> 属性により識別される Web リソース用のすべての構成設定をロックします。 共有認証モジュールのような特定の共有リソースのセキュリティ設定をロックする必要があるときに、この属性を使用します。 </p>
+            <li>
+              <p>
+                <strong>lockAllAttributesExcept</strong>:指定済みの属性以外のエレメントのすべての属性をロックします。 この属性を使用すると、他の属性の完全性を保持しながら、特定の属性のみを変更できます。 これは、アプリケーションの運用環境およびアプリケーションが使用するコンポーネントについて何らかの前提がある場合に有効です。 </p>
+              <li>
+                <p>
+                  <strong>lockAllElementsExcept</strong>: 指定済みの子エレメント以外のエレメントのすべての子エレメントをロックします。 この属性を使用すると、他の子エレメントの完全性を保持しながら、エレメントの特定の子エレメントのみを変更できます。 これは、アプリケーションの運用環境およびアプリケーションが使用するコンポーネントについて何らかの前提がある場合に有効です。 </p>
+                <li>
+                  <p>
+                    <strong>lockAttributes</strong>:  エレメントのすべての属性をロックします。 この属性を使用すると、エレメントの子エレメントを保護しないまま、エレメントのすべての属性に対する変更が禁止されます。 </p>
+                  <li>
+                    <p>
+                      <strong>lockElements</strong>: エレメントのすべての子エレメントをロックします。 この属性を使用すると、エレメントの属性を保護しないまま、エレメントの子エレメントを保護します。 </p>
+                    <li>
+                      <p>
+                        <strong>lockItem</strong>: エレメントとその子エレメントをロックします｡ 親エレメントにカプセル化されるエレメントのブロックを保護する必要がある場合に､この属性を使用します。 これは、アプリケーションのすべてのコンポーネントに特定のセキュリティ機能を適用する必要がある場合に有効です。</p>
+                      <p>たとえば､Web リソースは以下のようにロックされます。</p>
+                      <blockquote>
+                        <pre> &lt;location allowOverride="false" path="myApplication1"&gt;<br />   &lt;system.web&gt;<br />     &lt;!- final settings go here --&gt;<br />   &lt;/system.web&gt;<br /> &lt;/location&gt;</pre>
+                      </blockquote>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は、MyCorp の内部 HR アプリケーションです。 MyCorp のセキュリティ ポリシーの一部として､アプリケーションはすべてのコンポーネントで Windows 認証を実施することが求められます。 開発者はアプリケーションのルート web.config に適切な認証設定を行いました。 しかしながら、認証エレメントがロックされていません。 そのため、他の開発者が自分のコンポーネントのweb.config ファイルから認証エレメントをオーバーライドし、アプリケーションの要件に適合しない他の認証メカニズムを許可してしまうことがあり得ます。</p>
+  <p />
+ <pre>&lt;authentication mode="Windows"/&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <strong>location</strong> エレメントの詳細については、MSDN の <a href="http://msdn2.microsoft.com/en-us/library/b6x6shw7.aspx">location Element</a> の資料を参照してください。 <li>ASP.NET 構成ファイルの階層および継承の詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms178685.aspx">ASP.NET Configuration File Hierarchy and Inheritance</a> を参照してください｡<li>セクションのエレメントに継承される全般属性については、<a href="http://msdn2.microsoft.com/en-us/library/ms228167.aspx">General Attributes Inherited by Section Elements</a> を参照してください。</li></li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

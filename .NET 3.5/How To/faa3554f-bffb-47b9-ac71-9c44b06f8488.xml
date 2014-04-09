@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1500796372" Content_Hash="-1367848815">
+  <Metadata>
+    <Id>faa3554f-bffb-47b9-ac71-9c44b06f8488</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF メッセージ ログを有効にする方法</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>メッセージ ログを有効化して、サービスが処理したメッセージをログ記録できます。 メッセージ ログを使用して、アプリケーションの診断および問題の根本的原因の分析を行うことができます。 デフォルトではメッセージ ログはオンになっていません。 構成ファイルの &lt;messagelogging&gt; エレメントにおいて属性を設定してメッセージ ログをオンにし、トレース リスナーを追加してイベントをファイルに記録します。</p>
+  <p>以下のステップを実行して WCF メッセージ ログを有効化します。</p>
+  <ol>
+    <li>コンフィグレーション エディタ ツール(SvcConfigEditor.exe) を使用して WCF サービスのWeb.config ファイルを開いてください。
+<li>構成エディタで診断ノードに進み、[メッセージ ログを有効にする] リンクをクリックします。 
+<li>これによりサービスのメッセージ ログを有効化し、また、[リスナーとソース] フォルダー下でそれぞれリスナー(ServiceModelMessageLoggingListener) およびソース (System.ServiceModel.MessageLogging) を作成します。 </li></li></li>
+  </ol>
+  <p>メッセージ ログ レベルは、サービス レベルとトランスポート レベルの両方で構成できます。 メッセージ ログ レベルの構成</p>
+  <ol>
+    <li>左側のペインの [診断] ノードの下の [MessageLogging] を選択します。
+<li>LogMessagesAtServiceLevel 属性を、ドロップ ダウンから選択して True に設定します。 既定では LogMessagesAtTransportLevel は True に設定されています。</li></li>
+  </ol>
+  <p>メッセージがログ記録される場所を決定するには、[リスナー] ノードの下で [ServiceModelMessageLoggingListener] を選択し、InitData 属性の値を記録します。 既定でメッセージがログ記録される場所は、c:\inetpub\wwwroot\WCFService\web_messages.svclog です。</p>
+  <p>構成ファイルは以下のような内容です:</p>
+ <pre> &lt;system.diagnostics&gt;<br /></pre>
+ <pre>  &lt;sources&gt;<br />   &lt;source name="System.ServiceModel.MessageLogging" switchValue="Warning, ActivityTracing"&gt;<br />    &lt;listeners&gt;<br />     &lt;add type="System.Diagnostics.DefaultTraceListener" name="Default"&gt;<br />       &lt;filter type="" /&gt;<br />     &lt;/add&gt;<br />     &lt;add name="ServiceModelMessageLoggingListener"&gt;<br />       &lt;filter type="" /&gt;<br />     &lt;/add&gt;<br />    &lt;/listeners&gt;<br />   &lt;/source&gt;<br />  &lt;/sources&gt;<br /></pre>
+ <pre>  &lt;sharedListeners&gt;<br />   &lt;add initializeData="c:\inetpub\wwwroot\auditingwcf\web_messages.svclog"<br />        type="System.Diagnostics.XmlWriterTraceListener, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"<br />        name="ServiceModelMessageLoggingListener" traceOutputOptions="Timestamp"&gt;<br />          &lt;filter type="" /&gt;<br />   &lt;/add&gt;<br />  &lt;/sharedListeners&gt;</pre>
+ <pre>&lt;/system.diagnostics&gt;</pre>
+ <pre>&lt;system.serviceModel&gt;<br /> &lt;diagnostics&gt;<br />   &lt;messageLogging logMalformedMessages="true" logMessagesAtServiceLevel="true"<br />                   logMessagesAtTransportLevel="true" /&gt;<br /> &lt;/diagnostics&gt;<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>監査に関する詳細な情報は、<a href="http://msdn2.microsoft.com/en-us/library/ms731669.aspx">http://msdn2.microsoft.com/en-us/library/ms731669.aspxから「セキュリティイベントの監査」をご覧ください。</a><li>メッセージ ログの詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms731859.aspx">http://msdn2.microsoft.com/en-us/library/ms731859.aspx の「メッセージ ログ」を参照してください。</a><li>詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms734737.aspx">http://msdn2.microsoft.com/en-us/library/ms734737.aspx の「Windows Communication Foundation セキュリティ イベントの監査方法」を参照してください。</a><li>監査のガイドラインについては、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home にある「WCF 3.5 ガイドライン」の監査およびログのセクションを参照してください。</a></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

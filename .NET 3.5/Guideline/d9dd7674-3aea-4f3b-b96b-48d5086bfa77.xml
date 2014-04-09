@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2117318399" Content_Hash="-1224072024">
+  <Metadata>
+    <Id>d9dd7674-3aea-4f3b-b96b-48d5086bfa77</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>GenerateKey を使用してランダム鍵を生成する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>マネージド対象暗号クラスの新インスタンスを作成するために既定のコンストラクターを使用する際は、新しい鍵と初期化ベクトルが自動的に作成されます。 対称アルゴリズムのインスタンスで<b>GenerateKey</b> メソッドを呼び出す必要があります。 <b>GenerateKey</b> はランダムの強い鍵を作成し、アルゴリズムに設定します。</p>
+  <h1>理由</h1>
+  <p>対称アルゴリズムを使用するとき、鍵の作成および管理は暗号化プロセスの重要な部分です。 弱い鍵を使用する場合は、攻撃者が鍵を危険にさらし、暗号化されたデータにアクセスできる可能性が高くなります。</p>
+  <h1>状況</h1>
+  <p>プラットホームが提供する暗号化サービスを使用する場合。 </p>
+  <h1>対策</h1>
+  <p>次の例は<b>GenerateKey</b> メソッドの使用方法を示します。</p>
+ <pre>using System.Security.Cryptography;<br />&nbsp; <br />// create instance of AES encryption algorithm and set the key value<br />RijndaelManaged aesEncryptionAlgorithm = new RijndaelManaged();</pre>
+ <pre>//Generate IV and Key for the instance<br />aesEncryptionAlgorithm.GenerateIV();<br />aesEncryptionAlgorithm.GenerateKey();</pre>
+ <pre>// Retrieve the IV and Key and encrypt and safeguard it.</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

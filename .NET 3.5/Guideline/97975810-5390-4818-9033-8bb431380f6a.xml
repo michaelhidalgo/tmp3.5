@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1839112393" Content_Hash="-1955593673">
+  <Metadata>
+    <Id>97975810-5390-4818-9033-8bb431380f6a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>レジストリ内の機微データの暗号化を検討する</Title>
+    <Category>レジストリ</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>レジストリ中に機微データを保存する必要がある場合、DPAPI を使用して暗号化することを検討します。 DPAPI とマシン鍵を使用して、データを暗号化し、暗号化されたデータをレジストリ キーの下に保存します。次に、特定のアプリケーション ID へのアクセスを制限する ACL を使用して、レジストリ キーへのアクセスを制限します。 あるいは､DPAPI をユーザー ストアと共に使用することもできます。  後者のケースでは､ユーザー アカウントのプロフィールを読み取り、鍵にアクセスする必要があります。</p>
+  <h1>理由</h1>
+  <p>レジストリ内の暗号化されたデータは、最終防衛線です。&nbsp; たとえ攻撃者がレジストリ鍵へのアクセス権を取得しても、まだデータを復号する必要があります。&nbsp; 鍵管理および暗号化オーバーヘッドはアプリケーションのコストや複雑性を増大させますが、休眠データの暗号化はアプリケーションの安全性を大幅に向上させることができます。&nbsp; </p>
+  <h1>状況</h1>
+  <p>フィールドがかけるコストに見合った価値のあるものか、必要な保護レベルを検討して、暗号化は保護が必要な場合には使用するようにしてください。&nbsp; 暗号化すべき候補には、ソルト付きハッシュとして格納できない鍵やパスワード等の認証トークン、他の高度に機微な情報およびPersonally Identifiable Information が含まれます。</p>
+  <h1>対策</h1>
+  <p>アプリケーションが他のアプリケーションを持たない独自の専用コンピュータ上で稼働するサーバである場合､または同一サーバ上に複数のアプリケーションを持ちそれらアプリケーションが機敏なレジストリ データを共有できるようにしなければならない場合は、マシン ストアの使用を検討します。 特定のサービス アカウントにのみに DPAPI 鍵へのアクセスを指定し、プロフィールを読み込む場合、DPAPI とユーザー ストアを使用します。</p>
+  <p>次のコードは､ACL で保護されたレジストリ キーを作成する方法および DPAPI とマシン ストアを使用して制限された鍵で暗号化データを保存する方法を 示しています。</p>
+ <pre>using System.Security.Cryptography;<br />using System.Security.AccessControl;<br />using System.Text;<br />using Microsoft.Win32;<br />...</pre>
+ <pre>// Get the original data in a byte array<br />byte[] toEncrypt = UnicodeEncoding.ASCII.GetBytes(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "The secret data to be encrypted");</pre>
+ <pre>// Encrypt the data by using the ProtectedData class.<br />byte[] encryptedData = ProtectedData.Protect(toEncrypt, null,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DataProtectionScope.LocalMachine);</pre>
+ <pre>// Create a new key in the registry with a restricted ACL <br />// and write stream of bytes to the registry key<br />string user = Environment.UserDomainName + "\\" + Environment.UserName;<br />RegistrySecurity security = new RegistrySecurity();<br />RegistryAccessRule rule = new RegistryAccessRule(user,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegistryRights.FullControl,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; InheritanceFlags.ContainerInherit,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PropagationFlags.None,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AccessControlType.Allow);<br />security.AddAccessRule(rule);</pre>
+ <pre>Registry.CurrentUser.CreateSubKey("TestEncryptedData",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegistryKeyPermissionCheck.ReadWriteSubTree,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; security);<br />Registry.SetValue(@"HKEY_CURRENT_USER\TestEncryptedData", "Encrypted",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; encryptedData);</pre>
+  <p>次のコードを使用して、レジストリに保存されたデータを復号化します。</p>
+ <pre>// Read the encrypted data from registry and decrypt the contents <br />byte[] dataFromRegistry = Registry.GetValue(<br />@"HKEY_CURRENT_USER\TestEncryptedData",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Encrypted", null) as byte[];<br />byte[] decryptedData = ProtectedData.Unprotect(dataFromRegistry, null,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DataProtectionScope.LocalMachine);</pre>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

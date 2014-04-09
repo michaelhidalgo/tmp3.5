@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1381674727" Content_Hash="2017414650">
+  <Metadata>
+    <Id>12b0959c-774b-4dde-86b9-a4ff3d264317</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能ならWindows認証をウェブユーザーに使用してください</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <h1>チェック対象</h1>
+  <p>ASP.NET Forms Authenticationの代替として実行可能な場合､Windows認証が使用されているか確認してください。</p>
+  <h1>理由</h1>
+  <p>Forms Authenticationと違いWindows認証はプレーンテキストで、およびダイレクトハッシュでパスワードをネットワーク経由で送信しません。 これにより、攻撃者にとってネットワークトラフィック&amp;nbsp;を監視してパスワードを盗んだり、反復攻撃を介してセッションを盗むことがはるかに困難になります。</p>
+  <p>さらに、統合された ID ストア、アカウントの集中管理、および強制力のあるアカウントおよびパスワードポリシーに役立ちます。 </p>
+  <h1>チェック方法</h1>
+  <p>Windows 認証が正しく使用されていることを確認するには、アプリケーションが正しく設定されていることを確認し、クロスサイト リクエスト フォージェリ（CSRF）に対する保護を確認してください。</p>
+  <p>
+    <strong>アプリケーションがWindows 認証を使用するように構成されていることを確認</strong>:</p>
+  <ol>
+    <li>
+      <p />Internet Information Services (IIS) を起動します。 <ol><li><p>アプリケーションの仮想ディレクトリを右クリックし、[プロパティ] に進みます。 </p><li><p>[ディレクトリ セキュリティ] タブをクリックします。 </p><li><p>[匿名アクセスおよび認証コントロール] で [編集] をクリックします。 </p><li><p />以下の項目を確認してください。<ul><li>[匿名アクセス]チェックボックスが選択されていない。<li>統合 Windows 認証のみがチェックボックスで選択されている。 </li></li></ul></li></li></li></li></ol><li><p>アプリケーションのWeb.configファイルまたはマシンレベルのWeb.configファイル内で&lt;<strong> authentication (認証)</strong>&gt; エレメントを探します。 認証モードがWindowsに設定されているか確認してください｡ たとえば、次のようになります。</p><pre>...<br />&lt;system.web&gt;<br />  ...  &lt;authentication mode="Windows"/&gt;  ...<br />&lt;/system.web&gt;<br />...</pre></li></li>
+  </ol>
+  <p>
+    <strong>クロスサイト リクエスト フォージェリ攻撃に対する防御への保護を確認</strong>:</p>
+  <ol>
+    <li>
+      <p />一意の鍵が各ユーザーのViewStateに割り当てられていることを確認します。 <ul></ul><li><p />単一のGET要求が以下であることを確認します:<ul><li>必要な場合にのみ使用される<li>Webアプリケーションの状態を変更することは決してできない</li></li></ul></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ジョンは会社のために給与支払いのASP.NETウェブアプリケーションを作成し、Active Directory メンバーシッププロバイダーが付属する ASP.NET Forms Authenticationを使用することに決めました｡その時点では最も簡単なオプションに思えたからです。 Forms Authenticationがネットワーク上でパスワードと認証 Cookieをプレーンテキストで送信することなど思いつきませんでした。 アプリケーションがリリースされた一週間後に、ある従業員がこの脆弱性を利用して自分の給料を上げるためにマネージャーになりすましました。</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/5b641c0a-a63a-4524-8ce8-432150e6df6d">ガイドライン：可能ならWebユーザーのために Windows 認証を使用</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

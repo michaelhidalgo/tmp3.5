@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-80841313" Content_Hash="1687405188">
+  <Metadata>
+    <Id>6d737563-9ae4-42e8-9c8d-c7ac4343a0cf</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データを回線上で保護する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>Credential 情報およびアプリケーション固有のデータなどの機微データが、ネットワーク リンクを通して送信される場合を検討します。 適切/強力な暗号化を持つプロトコルを使用して、前述のデータを保護します。 </p>
+  <h1>理由</h1>
+  <p>インターネットには窃取やレイヤーが溢れています。 データが有線で送信される場合、一般に、それは&amp;nbsp;最終目的地に進む過程で複数の中間リレーを通過します。 安全なプロトコルを使用した情報の送信は重要です。なぜなら、それにより送信中の不慮の傍受や修正に対する保護が追加されるためです。 </p>
+  <h1>状況</h1>
+  <p>これは、機微データを 2 つのホスト間で送信する必要がある場合は、それが送信媒体として公開インターネットまたはプライベート LAN のいずれを使用している場合でも適切です。 </p>
+  <h1>対策</h1>
+  <p>Web サーバとブラウザの間で機微データを送信する必要がある場合は、SSL の使用を検討してください。 Web サーバとデータベースの間など、サーバ間の通信を保護する必要がある場合は、IPSec または SSL を検討してください。&amp;nbsp;&amp;nbsp;</p>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

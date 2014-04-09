@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1054526540" Content_Hash="1139796158">
+  <Metadata>
+    <Id>4d4f0d06-84f1-40b5-8908-534dca09865f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>別のアプリケーション ドメインを用いて信頼されていないコードを分離する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>.NET Framework では、API を使用してボイラープレート コードの必要性を排除し、アプリケーション ドメインの制約実行環境 (またはサンドボックス) の設定を簡素化できます。 この API を使用して作成されたアプリケーション ドメインは、2 つのアクセス許可セットを備えたアセンブリを読み込みます。 アセンブリが全面的に信頼されているか、アセンブリが <b>grantSet</b> パラメーターにより渡されるアクセス許可セットを認められています。 </p>
+  <p>以下のコードの例は、API を .NET Framework で使用することにより、サンドボックス アプリケーション ドメインを作成する方法を示しています。 </p>
+ <pre>
+    <pre>using System.Security;<br /><br />using System.Security.Permissions;<br />using System.Threading;using System.Security.Policy;<br />// Get the public key blob of the assembly to which you want to grant full trust.<br />byte[] publicKey = assemblyName.GetPublicKey();<br />if (publicKey == null || publicKey.Length == 0)<br />    throw new InvalidOperationException("Assembly is not strongly named");<br />StrongNamePublicKeyBlob keyBlob = new StrongNamePublicKeyBlob(publicKey);<br />// Create the StrongName.<br />StrongName trustedAssemblyStrongName = new StrongName(keyBlob, assemblyName.Name,<br /> assemblyName.Version);<br />// Set up evidence for the untrusted code.<br />Evidence untrustedEvidence = new Evidence(<br />          new object[] { new Zone(SecurityZone.Untrusted )<br /> },<br />          new object[] { });<br />// Create the permission set. Deny all permissions by default<br />// and explicitly add the permissions that meet your requirements.<br />PermissionSet permissions = new PermissionSet(PermissionState.None);<br />// Grant access to the arbitrary target assembly to be executed.<br />permissions.AddPermission(new FileIOPermission(FileIOPermissionAccess.AllAccess,<br />		@"c:\sandbox\TargetExecutableAssembly.exe"));<br />// Grant read access to myfile1.txt.<br />permissions.AddPermission(new FileIOPermission(FileIOPermissionAccess.Read, <br />		@"c:\sandbox\myfile1.txt"));<br />// Grant the sandboxed AppDomain permission to run managed code.<br />permissions.AddPermission(new SecurityPermission(SecurityPermissionFlag.Execution));<br />// This example uses a console application, so it requires UIPermission.<br />permissions.AddPermission(new UIPermission(PermissionState.Unrestricted ));<br />AppDomainSetup setup = new AppDomainSetup();<br />// The base assembly directory for the sandboxed AppDomain is the<br />// ApplicationBase of Current AppDomain.setup.<br />ApplicationBase = AppDomain.CurrentDomain.SetupInformation.ApplicationBase;<br />// New overload of AppDomain.CreateDomain in .NET 2.0<br />// allows easy setup of sandboxed appdomains.<br />AppDomain sandboxedDomain = AppDomain.CreateDomain(<br />                "Sandboxed AppDomain", untrustedEvidence, setup,<br />                 permissions, new StrongName[] { trustedAssemblyStrongName });<br />                sandboxedDomain.ExecuteAssembly(@"C:\sandbox\TargetExecutableAssembly.exe");</pre>
+  </pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="830182984" Content_Hash="1452197900">
+  <Metadata>
+    <Id>1a5609e3-d9f1-4809-bc50-5ff50f98787f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ARP スプーフィング攻撃</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用対象</h1>
+  <p>あらゆるネットワーク アプリケーション</p>
+  <h1>説明</h1>
+  <p>ARP スプーフィングまたはポイズニング攻撃では、攻撃者は偽の、またはなりすまし (スプーフィング) の ARP メッセージをイーサネット LAN に注入します。 なりすましの ARP メッセージには MAC アドレスと IP アドレスの偽の組み合わせが含まれ、これがネットワーク上のホストと、スイッチやルーターなどのネットワーク デバイスを混乱させます。 このような攻撃の結果として、被害を受けたデバイスがすべてのトラフィックを攻撃者のホストにルーティングしたり、ネットワーク上のすべてのデバイスが別のホストに送信するはずだったトラフィックを攻撃者のマシンに送信したりします。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>情報漏えい</strong> – ネットワーク トラフィックが攻撃者のコンピュータを通してルーティングされるため、攻撃者は送信される暗号化されていないデータを見ることができます。 <li><strong> DoS攻撃</strong>: 攻撃者は、その気になれば正当なパケットを転送しないことによって、ネットワーク サービスを妨害できます。 <li><strong>スプーフィング</strong> – 攻撃者は新しいトラフィックをデータ ストリームに注入したり、正当なトラフィックを選択的に編集したり、転送したりできます。</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>要求していなくても ARP レスポンスを受け入れる。 <li><a href="http://www.securityfocus.com/tools/142">ARPWatch</a>や IDS などの監視ツールを利用せずに動的 ARP テーブルを利用する。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <p>小規模のネットワーク (マシン 30 台以下) に関しては、静的 IP アドレスと静的 ARP テーブルを使用します。 これにより、攻撃者はネットワークのデバイスになりすましの ARP エントリを追加できなくなります。</p>
+      <li>
+        <p>大規模なネットワークに関しては、静的 IP アドレスと静的 ARP テーブルの利用には持続性がありません。 以下のヒントに従い、大規模なネットワークでの ARP スプーフィングを防いでください。</p>
+        <ul>
+          <li>ARP テーブルを監視し、変化があればシステム管理者に通知するツールを使用します。 このようなツールにはたとえば、<a href="http://www.securityfocus.com/tools/142">ARPWatch</a> があります。<li>&gt;内部ネットワークの接続許可をユーザーに与えるときには慎重に行ってください。 部外者にあなたのネットワークへの匿名接続を許可することは、攻撃のリスクを増やします。 <li>802.1x (IIRC) を使用してすべてのネットワーク ユーザーを認証してください。 これに関する詳細は、<a href="http://www.microsoft.com/technet/community/columns/cableguy/cg0402.mspx">ワイヤレス接続用の IEEE 802.1x 認証</a>を参照してください。<li>侵入検知システム (IDS) を実装します。</li></li></li></li>
+        </ul>
+      </li>
+    </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ARP スプーフィングに関する一般情報は、次を参照してください。<a href="http://en.wikipedia.org/wiki/ARP_spoofing">http://en.wikipedia.org/wiki/ARP_spoofing</a><li>ARP ポイズニング攻撃に関する詳細は、次を参照してください。<a href="http://www.watchguard.com/infocenter/editorial/135324.asp">Anatomy of an ARP Poisoning Attack</a></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

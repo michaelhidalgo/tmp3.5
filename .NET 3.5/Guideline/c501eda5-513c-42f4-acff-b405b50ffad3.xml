@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1528374313" Content_Hash="-1238316362">
+  <Metadata>
+    <Id>c501eda5-513c-42f4-acff-b405b50ffad3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>相互認証をオフにする場合は、サービス スプーフィングに注意する</Title>
+    <Category>ネットワーキング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>相互認証をオフにした場合、サービスのスプーフィングに注意する必要があります。</p>
+  <h1>理由</h1>
+  <p>このオプションを選択すると、サービスの呼び出しはDNS ポイズニングや中間者攻撃を介して悪意のあるサービスに転送される可能性があります。</p>
+  <h1>対策</h1>
+  <p>相互認証がオフにされているシナリオでは、サービスを実行している場合、サービスが悪意のある攻撃者にスプーフィングされてしまう可能性があることに注意してください。 相互認証がなければ、サービスへの呼び出しは DNS ポイズニングや中間者攻撃を介して悪意のあるサービスに転送される可能性があります。</p>
+  <p>以下のシナリオでは相互認証がオフになります。</p>
+  <ul>
+    <li>バインディングでメッセージとトランスポート セキュリティをオフにした場合
+<li>デフォルトでメッセージとトランスポート セキュリティがオフになっている basicHttpBinding を使用する場合
+<li>NTLM 認証を使用する場合</li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認証についての詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733082.aspx">http://msdn2.microsoft.com/en-us/library/ms733082.aspx にて “認証” を参照してください。</a><li>トランスポートの選択についての詳細は、 <a href="http://msdn2.microsoft.com/en-us/library/ms733769.aspx">http://msdn2.microsoft.com/en-us/library/ms733769.aspx にて “トランスポートの選択” を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

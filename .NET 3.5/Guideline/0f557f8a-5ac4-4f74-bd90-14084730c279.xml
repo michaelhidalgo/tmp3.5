@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-558252586" Content_Hash="2039501820">
+  <Metadata>
+    <Id>0f557f8a-5ac4-4f74-bd90-14084730c279</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メモリ内での秘密の公開を最小限にする</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>&nbsp;秘密を操作している場合、メモリでの秘密の公開を最小化してください。 </p>
+  <h1>対策</h1>
+  <p>シークレットを操作する際は、シークレット データがどのようにメモリーに保存されているかを考慮します。 平文フォーマットで保持される秘密データはどれだけ保持されますか？ プロセス アドレス空間に保持される平文による秘密は、攻撃者がアプリケーションのアドレス空間を探ることができる場合脆弱性を持ちます。 また、その機密情報を含むメモリのページがページ ファイルにスワップ アウトされるときに、ユーザーがそのページ ファイルにアクセスできる場合、その機密データは脆弱です。 同様に、メモリに保持されている平文で記述された機密情報は、プロセスがクラッシュするとクラッシュ ダンプ ファイルに表示されてしまいます。 <br />メモリ内の機密情報の暴露を最小限にするために、次の方法について検討します。</p>
+  <ul>
+    <li>機密情報のコピーを複数作成することは避けます。 機密データのコピーを複数作成することにより、Attack Surface (攻撃対象領域) が増加します。 機密データのコピーを作成するのではなく、リファレンスを渡します。 また、不変の System.String オブジェクトに秘密を保存する場合、文字列の操作後毎回、新規のコピーが作成されることを理解してください。 </li>
+    <li>機密情報は、可能な限り暗号化したままにします。 データは、機密情報を使用する直前に復号化します。</li>
+    <li>できるだけ早く、秘密の平文を消去してください。 終了したらできるだけ早く、秘密データの平文のコピーをゼロで置換してください。</li>
+  </ul>
+  <p>.NET Framework 2.0 以前では、これらのガイドラインの実装に役立てるためにバイト配列の使用が推奨されていました。 バイト配列はメモリにピン止めされ、暗号化され、ゼロで置換されます。 .NET Framework 2.0 では、代わりにSecureString を使用してください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

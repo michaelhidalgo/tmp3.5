@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1653813886" Content_Hash="-769802114">
+  <Metadata>
+    <Id>f5b0a5fe-c9b3-4a3b-a204-9bc7c7394162</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>代替データ ストリーム攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>Windows NTFS ファイル システム、Macintosh HFS ファイル システム、Novell Storage Services (NSS)、NetWare ファイル システム (NWFS)、Solaris UFS、Sun ZFS、Veritas ファイル システム (VxFS) など、代替データ ストリームをサポートするファイル システムと相互処理するアプリケーション。</p>
+  <h1>説明</h1>
+  <p>一部のファイル システムでは、単一のファイルに複数のデータ ストリームを使用することでデータを「隠す」 ことができます。 ファイルが通常、ファイル システムを介してアクセスされるとき、ストリーム名が除外され、既定の DATA ストリームが利用されます。 ファイル システムのすべてのファイルには少なくとも 1 つのストリームがあります。 代替ストリームは、メタデータ用や、情報を隠すなどの不正な理由のために利用されます。 ほとんどの UI は代替データ ストリームにアクセスする手段を提供しないため、上級ユーザー以外の目に触れることはありません。 しかしながら、複数のデータ ストリームを作成してそれにアクセスすることは、コマンド ラインやプログラミングを利用すれば難しいことではありません。</p>
+  <p>また、代替データ ストリームを実装するには、ファイル名でストリームを表す方法をオペレーティング システムが提供しなければなりません。 NTFS の場合、これはファイル名の終わりに ::&amp;#36;StreamName を追加することで表現されます。 これは、セキュリティ上の決定が多くの場合ファイル名に基づくため、問題を引き起こします。 多くのプログラマーがこの機能を知らないため、実装された認可チェックでは、代替ストリーム名の可能性が考慮されません。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>情報漏えい:</strong> ファイル (asp、php など) に有効な代替名 (index.asp::&amp;#36;DATA) を与えることで、攻撃者は認可チェックを回避することができます。ストリーム名の可能性が考慮されないためです。 この典型的な例は IIS Web サーバで発生しました。 攻撃者がindex.asp::&amp;#36;DATA を要求すると、サーバはインタープリタでそれを実行する代わりに、サーバ側のスクリプトのプレーン テキストで応答しました。 <li><strong>隠されたマルウェア:</strong> 代替データ ストリームはroot キット、ウイルスその他のマルウェアをシステム管理者から隠して実行する絶好の場所になります。</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>ユーザー入力を検証しなかったこと<li>ファイル名に表示されているのが代替ストリーム名である可能性を考慮しなかったこと</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>特に必要性がない限り、ユーザー指定のファイル名を許可しない</strong>: ファイル名の GUID を使用し、提示されたファイル名はデータベースに保存します。 <li><strong>入力を制約する</strong>: ユーザーから受け取る入力には厳密なホワイトリスト スタイルのチェックを強制します。 <li><strong>ファイル システムを通してすべてのファイル名を解決する</strong>: ファイル システムを活用して適切な意志決定を行います。 <li><strong>ホワイトリストを使用してファイル名をチェックする</strong>: 正規表現を利用してファイルを適切に検証します。</li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <ul>
+    <li>
+      <p>
+        <strong>代替データ ストリームを作成する: &amp;#8216;</strong>datastream.txt&amp;#8217;  のコンテンツをファイル &amp;#8216; test.txt&amp;#8217; の代替ストリーム &amp;#8216;demo&amp;#8217; に入れるには、 次の構文を使用します。</p>
+ <pre>type datastream.txt &gt; test.txt:demo</pre>
+      <li>
+        <p>
+          <strong>代替データ ストリームにアクセスする</strong>: データ ストリームに直接アクセスすると、ほとんどのシステムでエラーが発生します。そこで、コマンド &amp;#8216;more&amp;#8217;: のような別のコマンドにコンテンツをパイプする必要があります。</p>
+ <pre>more &lt; test.txt:demo</pre>
+        <li>
+          <p>
+            <strong>既定のデータ ストリームにアクセスする</strong>: 攻撃者は完全名で既定のデータ ストリームを要求することで単純なセキュリティ チェックを回避することができます。</p>
+ <pre>more &lt; test.txt::&amp;#36;DATA</pre>
+          <li>
+            <p>
+              <strong>ASP 代替データ ストリームのコード表示の脆弱性をエクスプロイトする</strong>: 現在は修正されましたが、この問題は次のような仕組みでした。 通常のアクセスでは、ユーザーはファイルを次のように要求します。: http://www.example.com/default.asp. このサイトのソース コードにアクセスするために、攻撃者は同じファイルを次の方法で要求します。: http://www.example.com/default.asp::&amp;#36;DATA. ASP エンジンは、このファイルが解釈を必要とする ASP ファイルとしてこのファイルを認識せず、ファイルのコンテンツを提供します。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Windows NTFS 代替データ ストリームの詳細は、「<a href="http://www.securityfocus.com/infocus/1822">Windows NTFS Alternate Data Streams</a>」を参照してください。<li>代替データ ストリームの作成方法とアクセス方法についての詳細は、"<a href="http://www.ethicalhacker.net/content/view/120/24/">ビデオ: 代替データ ストリーム (ADS): プレーン サイトに隠す</a>" を参照してください。<li>代替データ ストリームの高度な使用方法については、"<a href="http://www.irongeek.com/i.php?page=security/altds">NTFS で代替データ ストリームを使用するための実用ガイド</a>" を参照してください。</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン: ユーザーが指定したすべてのファイル名とパス入力をフィルター </a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

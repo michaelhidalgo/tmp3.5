@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1269347759" Content_Hash="839287949">
+  <Metadata>
+    <Id>d9316f93-fe54-48a6-ab65-384927f1c45f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>鍵はマシン レベルの鍵ストアに保存される</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>専用のサーバ上で実行されるアプリケーション、または同一のIDのもとで実行される複数のアプリケーションでは、鍵がマシン レベルの鍵ストアに保存されることを確認してください。</p>
+  <h1>修正方法</h1>
+  <p>構成ファイルの機微データを暗号化するために使用されるDPAPI および RSA 保護構成のプロバイダーは、鍵の保存用にマシン ストアとユーザー ストアの両方を使用できます。 鍵をマシン ストアに保存して 特定のアプリケーション ID 用にACL を作成する、あるいはユーザー ストアに鍵を保存することができます。 後者の場合、鍵にアクセスするにはユーザー アカウントのプロフィールを読み込む必要があります。</p>
+  <p>次の時はマシン レベルの鍵ストレージを使用してください: </p>
+  <ul>
+    <li>アプリケーションは、他のアプリケーションが実行されない、専用サーバで実行されます。 <li>同一の ID を使用して実行される同一サーバ上の複数のアプリケーションがあり、それらのアプリケーションで機微情報および同一の暗号鍵を共有できるようにしたい。 </li></li>
+  </ul>
+  <p>次の時はユーザー レベルの鍵ストレージを使用してください: </p>
+  <ul>
+    <li>アプリケーションが共有ホスティング環境で実行される。<li>アプリケーションの機微データがサーバの他のアプリケーションにアクセスできないことを保証したい。</li></li>
+  </ul>
+  <p>このシナリオでは、個人の、および私有鍵ストアを各アプリケーションが持てるように、別個の ID を使用することをお勧めします。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

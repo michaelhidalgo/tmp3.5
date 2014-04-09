@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1528327741" Content_Hash="-1090616077">
+  <Metadata>
+    <Id>12f9f465-dbfd-45b1-b5b1-b869e98fe69e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>正規表現でユーザー入力を検証する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、正規表現を使用してアプリケーション内のユーザー入力を検証することです。 多くの一般的な攻撃ベクトルは、アプリケーションの脆弱性を悪用するために、悪意のある入力を利用し、ユーザー指定入力のレベルの低い検証または検証が存在しないことを前提としています。</p>
+  <p>以下の検証ルーチンは、正規表現を使用して、アプリケーションによって受け入れられた入力が、事前決定され、想定されている文字構文要件を満たしていることを確認します。 この手法は “ホワイトリスト” 検証と呼ばれることがあり、正規表現の使用に適しています。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>ユーザーの入力データが既知の有効な構文要件を満たしているかを検証することにより、一般的なセキュリティ上の攻撃から守る<li>別のアプリケーションまたはアプリケーション コンポーネント内で再利用できる、一連の再利用可能なコードベースの検証メソッドを定義する</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーションは、処理操作、ストレージ、またはデータベース クエリに、あらゆる形式のユーザーインプットを使用する。 <li>アプリケーションは、サード パーティ データ フィードまたはファイル アップロードなどの、その他の信頼されていないソースからのデータを使用する。 <li>アプリケーションは、入力データの検証スキームを既に使用していない。 </li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+  <p>このソリューション例では、16 個の正規表現検証関数と、一般的なアプリケーション入力データの種類に対処するヘルパーメソッドを定義します。 正規表現検証関数は、以下のとおりです。</p>
+ <pre>&nbsp;&nbsp;&nbsp;IsValidUserName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsValidCCNumber<br />&nbsp;&nbsp;&nbsp;IsValidPassword&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsValidSSN<br />&nbsp;&nbsp;&nbsp;IsValidName&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    &nbsp;&nbsp;&nbsp; IsValidEmailAddress<br />&nbsp;&nbsp;&nbsp;IsValidStreetAddress&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsValidURL<br />&nbsp;&nbsp;&nbsp;IsValidCity&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;    &nbsp;&nbsp;&nbsp;&nbsp; IsValidIPAddress<br />&nbsp;&nbsp;&nbsp;IsValidUSState&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; IsValidAlphaText<br />&nbsp;&nbsp;&nbsp;IsValidZIPCode&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IsValidAlphaNumericText<br />&nbsp;&nbsp;&nbsp;IsValidUSPhoneNumber&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   &nbsp;&nbsp;&nbsp; IsValidNumericText</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;// Decomposed method which actually creates the pattern object and determines the match.<br />&nbsp;&nbsp;&nbsp;// Used by all of the other functions. <br />&nbsp;&nbsp;&nbsp;static bool MatchString(string str, string regexstr)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; str = str.Trim();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.Text.RegularExpressions.Regex pattern = new System.Text.RegularExpressions.Regex(regexstr);</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return pattern.IsMatch(str);<br />&nbsp;&nbsp; }</pre>
+ <pre>
+    <br />&nbsp;&nbsp; static bool IsValidUserName(string strUsername)<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Allows word characters [A-Za-z0-9_], single quote, dash and period<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // must be at least two characters long and less then 128<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string regExPattern = @"^[\w-'\.]{2,128}$";</pre>
+ <pre> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // We also permit email address characters in user name. Set to false<br />&nbsp;  &nbsp;&nbsp;&nbsp; // if you don't permit email addresses as usernames. <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool allowEmailUsernames = true;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (allowEmailUsernames)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (MatchString(strUsername, regExPattern) || IsValidEmailAddress(strUsername));<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return MatchString(strUsername, regExPattern);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp; }</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;static bool IsValidPassword(string strPassword)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Allows any type of character</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // If complexity is enabled, the password must be longer<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // and contain at least one uppercase, one lowercase, <br />&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // one numeric and one symbolic character. Set to false <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // if your requirements differ.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool passwordComple'ity = true;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // These are some proposed minimum password lengths. If<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // complexity is enabled (above), the stronger (longer) <br />&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; // minimum password rule applies. <br />&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; int minPasswordLen = 6;<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; int strongPasswordLen = 8;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(passwordComplexity) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string regExPattern = @"^.*(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[`~!@#\$%\^\&\*\(\)-_\=\+\[\{\]\}\\\|;:',&lt;\.&gt;/?]).*$";&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return(strPassword.Length &gt;= strongPasswordLen &&<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MatchString(strPassword, regExPattern));<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return(strPassword.Length &gt;= minPasswordLen);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;}</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;static bool IsValidName(string strName)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows alphabetical chars, single quote, dash and space<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// must be at least two characters long and caps out at 128 (database size)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string regExPattern = @"^[a-zA-Z-'\.\s]{2,128}$";&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return MatchString(strName, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;static bool IsValidStreetAddress(string strAddress)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Since so many different types of address formats we're just going to swing the bat at <br />&nbsp;&nbsp;&nbsp;  // this one for now and do a match against a series of digits (potentially containing<br />&nbsp;&nbsp;&nbsp;&nbsp; // punctuation), followed by a series of characters representing the street name and then<br />&nbsp;&nbsp;&nbsp;&nbsp; // potentially a type of street and unit number<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string regExPattern = @"\d{1,3}.?\d{0,3}\s[a-zA-Z]{2,30}(\s[a-zA-Z]{2,15})?([#\.0-9a-zA-Z]*)?";<br />     return MatchString(strAddress, regExPattern);<br />&nbsp;&nbsp; }</pre>
+ <pre>
+    <br />&nbsp;&nbsp; static bool IsValidCity(string strCity)<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp; // Here we simply treat city names like people names and defer to our name validation function. <br />&nbsp;&nbsp;&nbsp;&nbsp; return IsValidName(strCity);<br />&nbsp;&nbsp; }</pre>
+ <pre> &nbsp; static bool IsValidUSState(string strState)<br />&nbsp;  {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Names of 50 US States<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string[] stateNames=&nbsp;&nbsp;{"ALABAMA","ALASKA","ARIZONA","ARKANSAS","CALIFORNIA","COLORADO","CONNECTICUT","DELAWARE",</pre>
+ <pre>                            "FLORIDA","GEORGIA","HAWAII","IDAHO","ILLINOIS","INDIANA","IOWA","KANSAS","KENTUCKY","LOUISIANA",</pre>
+ <pre>                            "MAINE","MARYLAND","MASSACHUSETTS","MICHIGAN","MINNESOTA","MISSISSIPPI","MISSOURI","MONTANA",</pre>
+ <pre>                            "NEBRASKA","NEVADA","NEW HAMPSHIRE","NEW JERSEY","NEW MEXICO","NEW YORK","NORTH CAROLINA",</pre>
+ <pre>                            "NORTH DAKOTA","OHIO","OKLAHOMA","OREGON","PENNSYLVANIA","RHODE ISLAND","SOUTH CAROLINA",</pre>
+ <pre>                            "SOUTHDAKOTA","TENNESSEE","TEXAS","UTAH","VERMONT","VIRGINIA","WASHINGTON","WEST VIRGINIA",</pre>
+ <pre>                            "WISCONSIN","WYOMING"};<br />&nbsp;&nbsp;&nbsp;&nbsp; // Postal codes of 50 US States<br />&nbsp;&nbsp;&nbsp;&nbsp; string[] stateCodes =&nbsp;&nbsp;{"AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA",</pre>
+ <pre>                             "ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR",</pre>
+ <pre>                             "PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"};</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp; // This one is somewhat easier because we have a finite set of values to check against.<br />&nbsp;&nbsp;&nbsp;&nbsp; // We simply uppercase our value anc check against our list.<br />&nbsp;&nbsp;&nbsp;&nbsp; strState = strState.ToUpper();</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp; ArrayList stateCodesArray = new ArrayList(stateCodes);<br />&nbsp;&nbsp;&nbsp;&nbsp; ArrayList stateNamesArray = new ArrayList(stateNames);</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp; return (stateCodesArray.Contains(strState) || stateNamesArray.Contains(strState));<br />&nbsp;&nbsp; }</pre>
+ <pre>
+    <br />&nbsp;&nbsp; static bool IsValidZIPCode(string strZIP)<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows 5 digit, 5+4 digit and 9 digit zip codes<br />&nbsp;&nbsp;&nbsp;&nbsp; // must be at least two characters long and caps out at 128 (database size)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string regExPattern = @"^(\d{5}-\d{4}|\d{5}|\d{9})$";&nbsp; <strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return MatchString(strZIP, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong></pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidUSPhoneNumber(string strPhone)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;  // Allows phone number of the format: NPA = [2-9][0-8][0-9] Nxx = [2-9][0-9][0-9] Station = [0-9][0-9][0-9][0-9]<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string regExPattern = @"^[01]?[- .]?(\([2-9]\d{2}\)|[2-9]\d{2})[- .]?\d{3}[- .]?\d{4}$";&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return MatchString(strPhone, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidCCNumber(string strCCNumber)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // This expression is basically looking for series of numbers confirming to the standards<br />&nbsp;&nbsp;&nbsp;&nbsp; // for Visa, MC, Discover and American Express with optional dashes between groups of numbers<br />&nbsp;&nbsp;&nbsp;  string regExPattern = @"^((4\d{3})|(5[1-5]\d{2})|(6011))-?\d{4}-?\d{4}-?\d{4}|3[4,7][\d\s-]{15}$";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return MatchString(strCCNumber, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidSSN(string strSSN)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;  // Allows SSN's of the format 123-456-7890. Accepts hyphen delimited SSNs or plain numeric values.<br />&nbsp;&nbsp;&nbsp;&nbsp; string regExPattern = @"^\d{3}[-]?\d{2}[-]?\d{4}$";<br />&nbsp;&nbsp;&nbsp;&nbsp; return MatchString(strSSN, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidEmailAddress(string strEmail) <br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows common email address that can start with a alphanumeric char and contain word, dash and period characters<br />&nbsp;&nbsp;&nbsp;  // followed by a domain name meeting the same criteria followed by a alpha suffix between 2 and 9 character lone<br />&nbsp;&nbsp;&nbsp;&nbsp; string regExPattern = @"^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$";&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp; return MatchString(strEmail, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidURL(string strURL)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows HTTP'and FTP URL's, domain name must start with alphanumeric and can contain a port number<br />&nbsp;&nbsp;&nbsp;&nbsp; // followed by a path containing a standard path character and ending in common file suffixies found in URL's<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// and accounting for potential CGI GET data<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string regExPattern = @"^^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&%\$#_=]*)?$";&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return MatchString(strURL, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidIPAddress(string strIP)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows four octets of numbers that contain values between 4 numbers in the IP address to 0-255 and are separated by periods<br />&nbsp;&nbsp;&nbsp;  string regExPattern = @"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return MatchString(strIP, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidAlphaText(string strAlpha)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows one or more alphabetical characters. This is a more generic validation function.<br />&nbsp;&nbsp;&nbsp;&nbsp; string regExPattern = @"^[A-Za-z]+$";<br />&nbsp;&nbsp;&nbsp;&nbsp; return MatchString(strAlpha, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidAlphaNumericText(string strAlphaNum)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows one or more alphabetical and/or numeric characters. This is a more generic validation function.<br />&nbsp;&nbsp;&nbsp;&nbsp; string regExPattern = @"^[A-Za-z0-9]+$";<br />&nbsp;&nbsp;&nbsp;&nbsp; return MatchString(strAlphaNum, regExPattern);<br />&nbsp;&nbsp;&nbsp;}</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;static bool IsValidNumericText(string strNumeric)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Allows one or more positive or negative, integer or decimal numbers. This is a more generic validation function.<br />&nbsp;&nbsp;&nbsp;&nbsp; string regExPattern = @"/[+-]?\d+(\.\d+)?$";<br />&nbsp;&nbsp;&nbsp;&nbsp; return MatchString(strNumeric, regExPattern);<br />&nbsp;&nbsp;&nbsp;}<br /></strong>
+  </pre>
+  <h1>問題の例</h1>
+  <p>以下の例では、動的に生成された SQL クエリ内の未検証の ASP.NET ユーザー入力を使用しています。 このコードは、SQL インジェクションに対して脆弱です。</p>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;string sParam = Request["first_name"];</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp; // Create a new SQL Command object with our query<br />&nbsp;&nbsp; // Dynamically generate SQL query using passed parameter<br />&nbsp;&nbsp; SqlCommand sqlCommand = new SqlCommand("SELECT first, last FROM people WHERE first = '" + sParam + "'");</strong>
+  </pre>
+  <ul>
+    <li>ユーザーが 'first_name' 引数に SQL メタ文字を挿入する場合は、SQL コマンドを実行することができる<li>ユーザー データは、検証を一切行わずに、アプリケーションによってアクセスおよび処理されます。 これは、アプリケーション開発者が非常によく使う手法で、多くのセキュリティ脆弱性が検出されます。 </li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;using System.Collections;<br />&nbsp;&nbsp;&nbsp;using System.Collections.Generic;<br />&nbsp;&nbsp;&nbsp;using System.Text;<br />&nbsp;&nbsp;&nbsp;using System.Text.RegularExpressions;</strong>
+  </pre>
+  <p>このテスト ケースは、16 個すべての正規表現検証関数の使用を示しています。</p>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;static void Main(string[] args)<br />&nbsp;&nbsp;&nbsp;{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Validate some usernames<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Jonathan is a valid username: " + IsValidUserName("Jonathan").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Jonathan!'+ is a valid state: " + IsValidUserName("Jonathan!'+").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <strong> &nbsp;&nbsp;&nbsp; // Validate some passwords<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("J0na+han is a valid password: " + IsValidPassword("J0na+han!").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("jb is a valid password: " + IsValidPassword("jb").ToString());<br />&nbsp; &nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; // Validate some names<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Jonathan is a valid name: " + IsValidName("Jonathan").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Jonathan Bailey is a valid name: " + IsValidName("Jonathan Bailey").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Jonathan GT Bailey is a valid name: " + IsValidName("Jonathan GT Bailey").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Shawn O'Brien 's a valid name: " + IsValidName("Shawn O'Brien").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("Steve Holt! is a valid name: " + IsValidName("Steve Holt!").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; // Validate some street addresses<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("123 Main St. is a valid street address: " + IsValidStreetAddress("123 Main St.").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("45-50 South Lake Road is a valid street address: " + IsValidStreetAddress("45-50 South Lake Road").ToString());<br /> &nbsp;&nbsp;&nbsp; Console.WriteLine("45-50 South Lake Road #8 is a valid street address: " + IsValidStreetAddress("45-50 South Lake Road #8").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("45-50!!! South Lake Road is a valid street address: " + IsValidStreetAddress("45-50!! South Lake Road").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp; &nbsp;&nbsp; // Validate some cities<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Chicago is a valid name: " + IsValidCity("Chicago").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Los Angeles is a valid city name: " + IsValidCity("Los Angeles").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Jones-Parker Corner is a valid city name: " + IsValidCity("Jones-Parker Corner").ToString());<br /> &nbsp;&nbsp;&nbsp; Console.WriteLine("(*&(*&ville is a valid name: " + IsValidCity("(*&(*&ville").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; // Validate some states<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Massachusetts is a valid state: " + IsValidUSState("Massachusetts").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Foobar is a valid state: " + IsValidUSState("Foobar").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <strong> &nbsp;&nbsp;&nbsp; // Validate some ZIP Codes<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("90034 is a valid zip code: " + IsValidUSState("90034").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("90034-1234 is a valid zip code: " + IsValidZIPCode("90034-1234").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Console.WriteLine("900345 is a valid zip code: " + IsValidUSState("900345").ToString());</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <strong>  &nbsp;&nbsp; // Validate some US Phone Numbers<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("1-617-555-1212 is a valid US phone number: " + IsValidUSPhoneNumber("1-617-555-1212").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("(617) 555-1212 is a valid US phone number: " + IsValidUSPhoneNumber("(617) 555-1212").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("617.555.1212 is a valid US phone number: " + IsValidUSPhoneNumber("617.555.1212").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("6175551212 is a valid US phone number: " + IsValidUSPhoneNumber("6175551212").ToString());<br />&nbsp;&nbsp; &nbsp; Console.WriteLine("617/555/1212 is a valid US phone number: " + IsValidUSPhoneNumber("617/5551212").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; // Validate some credit card numbers<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("4444-1234-5678-9900 is a valid credit card number: " + IsValidCCNumber("4444-1234-5678-9900").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("3718 123456 78900 is a valid credit card number: " + IsValidCCNumber("3718 123456 78900").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("1234567890 is a valid credit card number: " + IsValidCCNumber("1234567890").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; // Validate some SSN's<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("123-45-6789 is a valid Social Security Number: " + IsValidSSN("123-45-6789").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("987654321 is a valid Social Security Number: " + IsValidSSN("987654321").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("123-456 is a valid Social Security Number: " + IsValidSSN("123-456").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; // Validate some email addresses<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("pentest@msn.com is a valid email address: " + IsValidEmailAddress("pentest@msn.com").ToString()';<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Jonathan_Bailey-01@mail.msn.com is a valid email address: " <br />			+&nbsp;&nbsp;IsValidEmailAddress("Jonathan_Bailey-01@mail.msn.com").ToString());<br /> &nbsp;&nbsp;&nbsp; Console.WriteLine("Jonathan_Bailey@msn is a valid email address: " +&nbsp;IsValidEmailAddress("Jonathan_Bailey@msn").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <br />
+    <strong>&nbsp;&nbsp;&nbsp;&nbsp; // Validate some URL's<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("http://www.microsoft.com is a valid URL: " <br />			+ IsValidURL("http://www.microsoft.com").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("https://secure.microsoft.com:443/Default.aspx is a valid URL: " <br />			+ IsValidURL("https://secure.microsoft.com:443/Default.aspx").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("ftp://ftp.microsoft.com/download.html#tools is a valid URL: " <br />			+&nbsp;IsValidURL("ftp://ftp.microsoft.com/download.html#tools").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("http://100?arg=val is a valid URL: " <br />			+ IsValidURL("http://100?arg=val").ToString());<br />&nbsp; &nbsp;&nbsp; Console.WriteLine("http://= is a valid URL: " + IsValidURL("http://=").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");</strong>
+  </pre>
+ <pre>
+    <strong> &nbsp;&nbsp;&nbsp; // Validate some IP Addresses<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("192.168.0.1 is a valid IP Address: " + IsValidIPAddress("192.168.0.1").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("0.0.0.0 is a valid IP Address: " + IsValidIPAddress("192.168.0.1").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("300.300.300.300 is a valid IP Address: " + IsValidIPAddress("300.300.300.300").ToString());<br />&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;  }&nbsp;</strong>
+  </pre>
+  <h1>期待される結果</h1>
+ <pre>
+    <strong>   Jonathan Bailey is a valid name: True<br />&nbsp;&nbsp;&nbsp;Jonathan GT Bailey is a valid name: True<br />&nbsp;&nbsp;&nbsp;Shawn O'Brien is a valid name: True<br />&nbsp;&nbsp;&nbsp;Steve Holt! is a valid name: False</strong>
+  </pre>
+ <pre>
+    <strong>   123 Main St. is a valid street address: True<br />&nbsp;&nbsp;&nbsp;45-50 South Lake Road is a valid street address: True<br />&nbsp;&nbsp;&nbsp;45-50 South Lake Road #8 is a valid street address: True<br />&nbsp;&nbsp;&nbsp;45-50!!! South Lake Road is a valid street address: False</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;Chicago is a valid name: True<br />&nbsp;&nbsp;&nbsp;Los Angeles is a valid city name: True<br />&nbsp;&nbsp;&nbsp;Jones-Parker Corner is a valid city name: True<br />&nbsp;&nbsp;&nbsp;(*&(*&ville is a valid name: False</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;Massachusetts is a valid state: True<br />&nbsp;&nbsp;&nbsp;Foobar is a valid state: False</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp; 90034 is a valid zip code: False<br />&nbsp;&nbsp; 90034-1234 is a valid zip code: True<br />&nbsp;&nbsp; 900345 is a valid zip code: False</strong>
+  </pre>
+ <pre>
+    <strong>   1-617-555-1212 is a valid US phone number: True<br />&nbsp;&nbsp; (617) 555-1212 is a valid US phone number: True<br />&nbsp;&nbsp; 617.555.1212 is a valid US phone number: True<br />&nbsp;&nbsp; 6175551212 is a valid US phone number: True<br />&nbsp;&nbsp; 617/555/1212 is a valid US phone number: False</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp; 4444-1234-5678-9900 is a valid credit card number: True<br />&nbsp;&nbsp; 3718 123456 78900 is a valid credit card number: True<br />   1234567890 is a valid credit card number: False<br />   123-45-6789 is a valid Social Security Number: True<br />&nbsp;&nbsp; 987654321 is a valid Social Security Number: True<br />   123-456 is a valid Social Security Number: False</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp;&nbsp;pentest@msn.com is a valid email address: True<br />&nbsp;&nbsp;&nbsp;Jonathan_Bailey-01@mail.msn.com is a valid email address: True<br />&nbsp;&nbsp;&nbsp;Jonathan_Bailey@msn is a valid email address: False</strong>
+  </pre>
+ <pre>
+    <strong>&nbsp;&nbsp; http://www.microsoft.com is a valid URL: True<br />&nbsp;&nbsp; https://secure.microsoft.com:443/Default.aspx is a valid URL: True<br />&nbsp;&nbsp; ftp://ftp.microsoft.com/download.html#tools is a valid URL: True<br />&nbsp;&nbsp; http://100?arg=val is a valid URL: True<br />&nbsp;&nbsp; http://= is a valid URL: False</strong>
+  </pre>
+ <pre>
+    <strong>   192.168.0.1 is a valid IP Address: True<br />&nbsp;&nbsp; 0.0.0.0 is a valid IP Address: True<br />&nbsp;&nbsp; 300.300.300.300 is a valid IP Address: False</strong>
+  </pre>
+  <h1>詳細情報</h1>
+  <ul>
+    <li>前述したように、この例では、”ホワイトリスト” 検証手法を使用しており、ユーザー データは既知の有効な文字セットに対して評価されます。 既知の悪意のある文字や文字列セットに対して入力を評価する「ブラック リスト」検証も、一般的な検証方法です。 新しい攻撃は常に作成されており、現時点で公に知られていない文字の組み合わせが使用される可能性があるため、ホワイトリスト検証を使用することをお勧めします。 <li>入力検証に加えてデータ出力検証を使用することによって、提示中に実行される悪意のある入力攻撃に対して保護を追加することをお勧めします。 </li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

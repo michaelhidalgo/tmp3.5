@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1052382033" Content_Hash="-22636215">
+  <Metadata>
+    <Id>7bfba970-7d34-46e2-9169-d9e43d9353fe</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>正規化と競合状態を避ける一時ファイルの作成</Title>
+    <Category>ファイル I/O</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>C# <li>サーバサイド</li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード サンプルの目的は、正規化および競合状態を回避しながら、Web アプリケーションでファイルを安全に作成するための手法を示すことです。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>ファイル システム上で他のファイルを公開しない ウェブ アプリケーション内に一時ファイルを生成する。 <li>一時ファイルの作成と保存を保護し、ファイル列挙のリスクを軽減する。<li>ランダムに生成された強力なファイル名を使用することにより、競合状態の発生率を軽減する。<li>ユーザー要求の認可が確立したときにウェブルートの外にある一時ファイルを安全に取得する方法を示す。</li></li></li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>ウェブ ベースのアプリケーションは、レポートやその他の一時ファイルを 1 つのファイルとして生成します。これは、許可されたユーザーによって引き続き取得される可能性のあるものです。<li>ウェブ アプリケーションは、後でバッチ プロセスによって処理される一時ファイルを周期的に作成する必要があります。一時ファイルの名前は一意で、どのユーザーの影響も受けないものにする必要があります。<li>ファイルは、要求時にユーザーのために間接的に取得され、アプリケーションによって仲介されます (例: ファイルは認可されていないアクセスを防ぐためにウェブルートの外にある)。</li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+  <p>以下のソリューションは、2 つのケースに分かれています。1 つ目ではファイルを作成し、2 つ目ではファイルを安全に取得してユーザーに渡す方法を示しています。</p>
+  <p>
+    <strong>安全なファイル作成</strong>
+  </p>
+ <pre>protected void CreateFile(){<br />    try<br />    {<br />        // Generate a guid value for a strong, random and unpredictable filename<br />        string guid = Guid.NewGuid().ToString();<br />        // Ensure that file which is written resides in a directory outside of the web root.<br />        // Ideally this file should be on a filesystem separate from the OS.<br />        // None of the generated filename arguments are user influenced values<br />        StreamWriter sw = new StreamWriter("E:\\account-reports\\" + guid + ".pdf");<br />        // Fetch some data and generate the file<br />        //<br />        // ...<br />        sw.Write(strFileContents);<br />        sw.Flush();<br />        sw.Close();<br /><br />        // Insert GUID value in database associated with current user<br />        //<br />        // ...<br />    }<br />    catch (Exception ex)<br />    {<br />        // User supplied exception handling code: Log exception and perform graceful error handling<br />    }<br />} </pre>
+  <p>
+    <strong>安全なファイル取得</strong>
+  </p>
+ <pre>protected void RetrieveFile(){<br />    try<br />    {<br />        // Retrieve file. We call a custom method to perform a database lookup which gets the<br />         // GUID value for the current user.<br />        // Replace the RetrieveGuidForUser method below with your own method which returns the<br />         // guid for the current user.<br />        string userguid = RetrieveGuidForUser(Context.User.Identity);<br />        string fullreportpath = "E:\\account-reports\\" + userguid + ".pdf";<br />        // Retrieve file length<br />        FileInfo fi = new FileInfo(fullreportpath);<br />        long fsize = fi.Length;<br />        // Serve file to user. No values in response headers should be user influenced.<br />        // We read the file from a directory outside of the web root to protect unauthorized<br />        // file access.<br />        Response.AddHeader("Content-Disposition", "attachment;filename=report.pdf");<br />        // Don't allow a user to influence the content disposition or content type otherwise<br />        // there may be possibility of header injection<br />        Response.ContentType = "application/pdf";<br />        Response.WriteFile(fullreportpath, 0, fsize);<br />    }<br />    catch (Exception ex)<br />    {<br />        // User supplied exception handling code: Log exception and perform graceful error handling<br />    }<br />} </pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、ユーザー提供の入力に依存してホスト上に一時ファイルを作成して取得することの危険性を示しています。</p>
+  <p>
+    <strong>ファイル作成</strong>
+  </p>
+ <pre>// None of the generated filename arguments are user influenced values<br />StreamWriter sw = new StreamWriter(HttpContext.Current.Request.PhysicalApplicationPath + <br />                                    Request.Cookie["cid"] +".pdf");<br />// Fetch some data and generate the file//<br />// ...sw.Write(strFileContents);<br />sw.Flush();<br />sw.Close();</pre>
+  <ul>
+    <li>この安全でないファイルの作成ルーチンが webroot に一時ファイルを作成し、結果として Web サーバへのアクセス権を持つすべてのユーザーが別のユーザーに関連付けられた PDF レポートを取得することができる<ul><li>ユーザーが実行したアクションによって直接的または間接的に作成されたファイルは、安全に作成され、ファイル名はランダムで、ユーザーの影響を受けず、ウェブサーバルートの外側にある必要があります。</li></ul><li>Request.Cookie["cid"] 値は、書き込み対象のファイル名を選択するために使用されます。この値はユーザーの影響を受けるため、攻撃者はディレクトリ トラバーサル攻撃を利用してウェブサーバ ホスト上の任意のファイルを上書きする可能性があります。 <li>GUID を使用して、ユーザー提供のCookieに依存せずに、ファイル名のための強力でランダムな値を生成できます。</li></li></li>
+  </ul>
+  <p>
+    <strong>ファイル取得</strong>
+  </p>
+ <pre>string fid = Request.QueryString["fid"].ToString();<br />string ftype = hdnFtype.Value;<br /> string fullreportpath = "E:\\account-reports\\" + fid + "." + ftype;<br />// Retrieve file lengthFileInfo fi = new FileInfo(fullpath);<br />long fsize = fi.Length;<br />// Serve file to user. No values in response headers should be user influenced.<br />// We read the file from a directory outside of the web root to protect unauthorized<br />// file access.Response.AddHeader("Content-Disposition", "attachment;<br />filename="+ fid + "."+ ftype);Response.ContentType = "application/"+ftype;<br />Response.WriteFile(fullpath, 0, fsize);</pre>
+  <ul>
+    <li>Fid 要求クエリ文字列パラメータの値を変更するだけで、他のユーザーのファイルを取得することができるようになります。 値がシーケンシャルの場合は、他のユーザーのファイルを列挙することが非常に簡単になります。 <li>ファイルはウェブサーバルート内に保存されているため、ユーザーはこのファイル取得ルーチンを回避できます。<li>ユーザー提供のクエリ文字列パラメータと ftype hiddenフィールドにより、ディレクトリ トラバーサル攻撃を実行することで、ファイル システムから任意のファイルを取得できます。<li>ユーザー提供のクエリ文字列パラメータと ftype hiddenフィールドにより、レスポンス分割およびその他の HTTP ヘッダ インジェクション問題 (たとえば、HTTP キャッシュ ポイズニング) を発生させる特殊な形式のハイパーリンクを攻撃者が作成できます。 <ul><li>ユーザーが指定する値は、操作のためのファイルを識別するために使用されるべきではなく、むしろユーザーにタンパリングを許さないサーバサイド セッションの詳細情報を代わりに使用する必要がある<li>Hiddenフィールドでは、パラメータ タンパリングのリスクは軽減されません。 クライアントサイドの制御は容易に回避される <li>コンテンツ配置ファイル名は、ユーザーが作成したファイル名と同じにする必要はありません。</li></li></li></ul></li></li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>以下のクラスは、上記のサンプル コードを利用するすべてのプロジェクトにインクルードする必要があります。</p>
+ <pre>using System.IO;</pre>
+  <p>以下のようなコードを実行すると、システム生成の GUID の一意性が示されます。これは、正規化と競合状態を避ける一時ファイルを作成するという目的と一致します。</p>
+ <pre>for (int i = 0; i &lt; 10; i++){<br />    Response.Output.WriteLine("GUID: " + Guid.NewGuid());<br />}</pre>
+  <h1>期待される結果</h1>
+ <pre>GUID: 1a40e34d-9985-4b2e-9c6a-8be88cfcc26b<br />GUID: 1b7bd6d5-057e-4681-b213-a193170fc5d5<br />GUID: b063f09d-d393-4fbc-b704-e5cefd708703<br /><br /><br />GUID: 088101b3-dc2e-474b-a898-53508b4a9ac5<br /><br />GUID: bffc841c-e6e8-4562-8ece-8d1ace19fd4d<br />GUID: 21ff1e43-0d10-46d7-9df6-a9053f3aabc9<br />GUID: 36f49e30-c81d-484a-94a0-cc09197839a0<br />GUID: a6d32483-bc6e-4828-b3cd-423ab1e1389e<br />GUID: d8ed1bf8-413e-4be9-97d8-ad9337030310<br />GUID: eba93b92-384d-41d2-8db3-6028932fee4d</pre>
+  <h1>詳細情報</h1>
+  <p>ファイル取得関数では、ファイル名が完全にサーバによって制御されるため、HTTP ヘッダ インジェクション、ディレクトリ トラバーサル、および競合状態などの一般的な攻撃を避けて、ファイルを安全にユーザーに提供することができることを示しています。 アプリケーションで元のファイル名を保持する必要がある場合は、これらの値を既知の有効な文字についてのデータ検証の後に、システム生成の GUID と一緒に、データベースに保存することができます。 そこで、元のファイル名に Content-Disposition ヘッダが設定されます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>GUID 構造: <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemguidclasstopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemguidclasstopic.asp</a><li>Wikipedia のディレクトリ トラバーサル攻撃: <a href="http://en.wikipedia.org/wiki/Directory_traversal">http://en.wikipedia.org/wiki/Directory_traversal</a><li>Wikipedia の競合状態: <a href="http://en.wikipedia.org/wiki/Race_condition">http://en.wikipedia.org/wiki/Race_condition</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

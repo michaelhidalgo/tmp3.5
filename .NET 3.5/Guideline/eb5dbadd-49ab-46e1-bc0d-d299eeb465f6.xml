@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1994370182" Content_Hash="-1492264774">
+  <Metadata>
+    <Id>eb5dbadd-49ab-46e1-bc0d-d299eeb465f6</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コードをパーティションで区切って個々のアセンブリーにする</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>粒度のあるセキュリティのため、ウェブ コントロール、ユーザー コントロールおよびリソース アクセス コードをパーティションで区切って独自のアセンブリーにします。 各アセンブリに適切なコード アクセス セキュリティ設定を割り当てます。</p>
+  <h1>理由</h1>
+  <p>複数のアセンブリにアプリケーションをパーティショニングすることで、コード アクセス セキュリティ ポリシーを構成または施行する際にさらなる柔軟性を得られます。 異なるコンポーネントは異なる特権や信頼レベルを必要とすることがあり、一つのセキュリティポリシーではアプリケーションに対応できないことがあります。 この方法を行うと、アプリケーションが必要とする最小特権を軽減することが可能で、タスク完了時にコンポーネントの信頼性が増します。</p>
+  <h1>状況</h1>
+  <p>アプリケーションのコンポーネントが異なるレベルの特権や信頼を必要とする場合、このガイドラインを使用します。</p>
+  <h1>対策</h1>
+  <p>アプリケーションのパーティショニングを行うには、次の手順に従います。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>主要コンポーネントを識別</strong>: アプリケーションの設計を見直して、すべての主要機能を見つけ出します。</p>
+      <li>
+        <p>
+          <strong>すべての特別なセキュリティ設定を識別</strong>: アプリケーションのセキュリティ要件を見直します。 コンポーネントが他のアプリケーションには必要とされない特権を必要とする場合をすべて特定します。 たとえば、ファイルシステムにアクセスするすべてのコードが単一のアセンブリに配置される必要があります。</p>
+        <li>
+          <p>
+            <strong>アプリケーションのパーティション</strong>: すべての主要な機能を異なるアセンブリに保存します。 アプリケーションにこのレベルの粒度を与えることで、アプリケーションのセキュリティ設定を適用するときに更なる柔軟性が得られます。 ASP.NETは次のタイプのアセンブリを提供します。</p>
+          <ul>
+            <li>
+              <strong>ページ アセンブリ</strong>: デフォルトでは、各ASP.NETページはそれぞれのアセンブリにコンパイルされ、その後ASP.NETエンジンに読み込まれます。 これらアセンブリのセキュリティ構成は、<strong>web.config</strong>内部に保存されます。<li><strong>実行可能なアセンブリ</strong>: 外部ライブラリまたはDLLとして知られ、これらアセンブリはASP.NET開発以外でも再使用可能です。 これらアセンブリのセキュリティ設定は <strong>app.config</strong> および<strong>caspol.exe</strong> ユーティリティにより管理されます。</li></li>
+          </ul>
+          <li>
+            <p>
+              <strong>適切なセキュリティ設定を適用する</strong>: <a href="/article/0c6693ed-e3c2-4640-a795-c7c9c2a63cbc">セキュリティ ポリシーの定義</a> ガイドラインを使用して、各アセンブリの要件に合ったセキュリティ ポリシーを定義します。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は MyCorpのHRアプリケーションです。 従業員の記録を追跡する基本機能の一つに、文書やカレンダーの共有を可能にするアプリケーションがあり、MyCorpのHRスタッフの最新の情報を基にした日常業務が可能になります。 アプリケーションが単一のアセンブリとしてコンパイルされるため、文書およびカレンダー共有機能に異なるセキュリティ設定を割り当てるのは不可能です。 カレンダー機能に存在する脆弱性に対して、共有文書に危険をもたらすエクスプロイトが作られます。 以下でMyAppのセキュリティ ポリシーの展開を紹介します。</p>
+  <blockquote>
+ <pre>&lt;location allowOverride="true"&gt;<br />   &lt;system.web&gt;<br />      &lt;securityPolicy&gt;<br />         &lt;trustLevel name="MyAppTrustLevel" policyFile="myapp_customtrust.config" /&gt;<br />      &lt;/securityPolicy&gt;<br />      &lt;trust level="MyAppTrustLevel" originUrl="" /&gt;<br />   &lt;/system.web&gt;<br />&lt;/location&gt;</pre>
+  </blockquote>
+  <h1>ソリューションの例</h1>
+  <p>MyApp は MyCorpのHRアプリケーションです。 従業員の記録を追跡する基本機能の一つに、文書やカレンダーの共有を可能にするアプリケーションがあり、MyCorpのHRスタッフの最新の情報を基にした日常業務が可能になります。 カレンダーおよび文書の機能を別のアセンブリとしてコンパイルし、開発者は各コンポーネントに相応しいセキュリティ ポリシーを割り当てることができました。 つまり、カレンダー機能に存在する脆弱性に対して攻撃者が悪用することによる共有文書への攻撃を防ぎます。 次のスニペットは、各アセンブリに関連したセキュリティ ポリシーの配置を示します。</p>
+  <blockquote>
+ <pre>&lt;location allowOverride="false"&gt;<br />   &lt;system.web&gt;<br />      &lt;securityPolicy&gt;<br />         &lt;trustLevel name="MyAppCalendarTrustLevel" policyFile="myapp_calendartrust.config" /&gt;<br />      &lt;/securityPolicy&gt;<br />      &lt;trust level="MyAppCalendarTrustLevel" originUrl="~/Calendar/" /&gt;<br />   &lt;/system.web&gt;<br />&lt;/location&gt;<br />&lt;location allowOverride="false"&gt;<br />   &lt;system.web&gt;<br />      &lt;securityPolicy&gt;<br />         &lt;trustLevel name="MyAppDocumentTrustLevel" policyFile="myapp_documentstrust.config" /&gt;<br />      &lt;/securityPolicy&gt;<br />      &lt;trust level="MyAppDocumentTrustLevel" originUrl="~/Documents/" /&gt;<br />   &lt;/system.web&gt;<br />&lt;/location&gt;</pre>
+  </blockquote>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>.NET アセンブリの内容についてのより詳細な情報は、<a href="http://msdn2.microsoft.com/en-us/library/zst29sk2(vs.80).aspx">アセンブリのコンテンツ</a>をご覧ください。<li>.NET アセンブリのセキュリティ設定の構成についての詳細は、MSDNの「<a href="http://msdn2.microsoft.com/en-us/library/cb6t8dtz(VS.80).aspx">コード アクセス セキュリティ ポリシーツール</a>」をご覧ください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/0c6693ed-e3c2-4640-a795-c7c9c2a63cbc">ガイドライン:セキュリティ ポリシーを定義する</a>
+      <li>
+        <a href="/article/a5b7e377-103e-4805-a567-6092cbbaeba7">ガイドライン: 公開または非公開ドメイン間でのアプリケーションのパーティション </a>
+        <li>
+          <a href="/article/a5b7e377-103e-4805-a567-6092cbbaeba7">ガイドライン: 公開と非公開ドメイン間でのアプリケーションのパーティション </a>
+          <li>
+            <a href="/article/d4143ba9-d87b-4455-8053-d888489a0013">チェックリスト項目: コードの個別アセンブリへのパーティショニング</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

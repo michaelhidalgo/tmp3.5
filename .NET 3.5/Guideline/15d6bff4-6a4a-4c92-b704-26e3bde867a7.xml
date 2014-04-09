@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-925923517" Content_Hash="2144558091">
+  <Metadata>
+    <Id>15d6bff4-6a4a-4c92-b704-26e3bde867a7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SecurityTransparent および SecurityCriticalの使用を検討する</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>コードがコール スタックのアクセス許可を引き上げないことが分かっている場合(たとえばアサーションまたはスタック ウォーク モディファイアの使用)、コードを<b>System.Security.SecurityTransparentAttribute</b>でマークすることを検討してください。</p>
+  <h1>理由</h1>
+  <p>これは特にサード パーティのプラグインなど、信頼済みでないコードを呼び出す場合に役立ちます。 信頼済みでないコードがコール スタックのアクセス許可を制御しようとすると、セキュリティ例外が生成されます。 これによりセキュリティ透過的なコードおよび呼び出しコードは、コール スタックのアクセス許可を引き上げる権限を持つことがありません。</p>
+  <p>信頼済みでないコードを呼び出す際に追加の保護を加えるだけでなく、<b>SecurityTransparent</b> および <b>SecurityCritical</b>属性を使って明示的にコードをマークすると、レビューを行う人にとっても役立ちます。 一般的にほとんどのコードはコード アクセス セキュリティ権限を引き上げないため、<b>SecurityTransparent</b>でマークすることができます。実際に特権の引き上げを行う数少ないコードは重要コードとしてマークすべきと言えます。 これによりレビュアーが、セキュリティ需要コードとしてマークのあるエリアに集中できます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;部分的に信頼済みのコードにより透過的アセンブリを使用して、有効なアクセス許可セットを引き上げることはできないため、透過的とマークされたアセンブリは、標準的APTCAアセンブリほど徹底したセキュリティ監査を必要としません。</blockquote>
+  <h1>状況</h1>
+  <p>このガイドラインは、コール スタックのアクセス許可を引き上げようと試みることがないコードを書くときに役に立ちます。たとえば、アサーションまたはスタック ウォーク モディファイアを使用しており、またコードがサード パーティのプラグインのような信頼されないコードを呼び出すときです。</p>
+  <h1>対策</h1>
+  <p>アセンブリを<b>SecurityTransparent</b> でマークすると、次のルールに従うこととなります:</p>
+  <ul>
+    <li>スタック ウォークの続行を止めるために、アクセス許可をアサートすることはできません。 <li>リンク要求に応えることはできません。 代わりに、透過的アセンブリに呼び出されたAPIのあらゆるリンク要求は自動的にフル要求に変換されます。 <li><b>SkipVerification</b> アクセス許可があったとしても、証明明不能なコードは自動で使用できません 代わりに<b>UnmanagedCode</b> のフル要求が発生します。 <li><b>SuppressUnmanagedCodeAttribute</b>で修飾されていても、P/Invoke メソッドを自動で呼び出すことはできません。代わりに<b>UnmanagedCode</b> のフル要求が発生します。</li></li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;デフォルトでは、.NET 3.5 用にコンパイルされるすべてのアセンブリはセキュリティ クリティカルであり、クリティカルなコードのみを含みます。</blockquote>
+  <p>アセンブリ全体を透過形にするには、次の属性を用いて、アセンブリに<b>SecurityTransparent</b> を明示的に加えます。</p>
+ <pre> [assembly: SecurityTransparent]   </pre>
+  <p>これは、重要コードがアセンブリに含まれず、いかなる方法によってもコール スタックの特権を引き上げないことを示します。 </p>
+  <p>重要コードや透過的なコードを同じアセンブリに混在させる場合、ここに示されるようにまずアセンブリを<b>System.Security.SecurityCriticalAttribute</b>でマークします。</p>
+ <pre> [assembly: SecurityCritical]   </pre>
+  <p>アセンブリを <b>SecurityCriticalAttribute</b>でマークすることで、アセンブリに重要コードが含まれる<i>可能性がある</i>ことを示します。 重要であると明示的にマークしないと、アセンブリ内のすべてのコードは初期値である透過形となります。 セキュリティの重要なアクションを実行したい場合、次の例のように、他の <b>SecurityCritical</b> 属性と共に重要なアクションを実行するコードを明示的にマークする必要があります。</p>
+ <pre> [assembly: SecurityCritical]public class A<br />{<br />&nbsp;&nbsp;&nbsp; [SecurityCritical]<br />&nbsp;&nbsp;&nbsp; public void Critical()<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // critical<br />&nbsp;&nbsp;&nbsp; }</pre>
+ <pre>&nbsp;&nbsp;&nbsp; public int SomeProp<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get {/* transparent */ }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set {/* transparent */ }<br />&nbsp;&nbsp;&nbsp; }<br />}<br />public class B<br />{<br />&nbsp;&nbsp;&nbsp; internal string SomeOtherProp<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get { /* transparent */ }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set { /* transparent */ }<br />&nbsp;&nbsp;&nbsp; }<br />}<br /></pre>
+  <p>重要であることを明示的にマークする、<b>Critical</b>のメソッド例外を除いて、上記のコードはすべて透過形です(アセンブリレベル<b>SecurityCritical</b> 属性でも初期設定において透過形)。</p>
+  <p>クラス全体のすべてのコードを重要としてマークすることも可能です。 次の例に示されるように、クラスレベルの <b>SecurityCritical</b> 属性を使用してから、<b>SecurityCriticalScope.Everything</b>を渡します。</p>
+ <pre> [assembly: SecurityCritical]<br />[SecurityCritical(SecurityCriticalScope.Everything)]<br />public class MyClass<br />{<br />&nbsp; ...<br />}</pre>
+  <h1>その他のリソース</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

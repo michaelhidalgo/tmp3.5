@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-185590267" Content_Hash="2013046759">
+  <Metadata>
+    <Id>4d3f994b-3be7-4e3d-8183-e213612cf5c4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>未処理の例外にはグローバル例外ハンドラーが使用されている</Title>
+    <Category>エラー ハンドリング</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <h1>チェック対象</h1>
+  <p>グローバル例外ハンドラーは､任意の未処理例外をキャッチするために使用されます。 グローバル例外ハンドラは、アプリケーションの信頼性を強化し、情報漏えいのリスクを最小限に抑えます。</p>
+  <h1>理由</h1>
+  <p>未処理の例外は、アプリケーションの性能とセキュリティへの重大な障害となる可能性があります。 アプリケーションが不明なステートに移る、および/または機微な内部アプリケーションの詳細を暴露する可能性があるため、未処理の例外を避ける必要があります。 グローバル例外ハンドラーの使用は、未処理の例外を防止します。</p>
+  <h1>チェック方法</h1>
+  <p>以下のステップを使用して、グローバル例外ハンドラーが未処理例外に使用されることを確認します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>コード中で処理されないすべての例外をキャッチするグローバル エラー ハンドラがアプリケーションの Global.asax に定義されていることを確認します</strong>。 次のコードこれを行う方法の例です：</p>
+ <pre>&lt;%@ Application Language="C#" %&gt;<br />&lt;%@ Import Namespace="System.Diagnostics" %&gt;<br /> &lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e) {<br />     // Add the appropriate logging code<br />        Response.Write("We are sorry, but we cannot complete your request. Please try again later!");<br />    Server.ClearError();<br />}<br /> &lt;/script&gt;</pre>
+      <li>
+        <p>
+          <strong>すべての例外がアプリケーションのイベント ログ記録されていることを確認します｡</strong> アプリケーションのテスト中に､定期的にイベント ログを分析し､未処理の例外を探します。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。 ただし、アプリケーションは汎用的なエラーハンドラーを指定しません。 結果として､接続時間が切れると、例外の中にアプリケーションの詳細がクライアントへ開示されます:</p>
+  <p>
+    <strong>説明:</strong>現在のウェブ要求を実行中に発生した未処理の例外。 エラーについての詳細とコードにおける発生源については、スタックトレースを確認してください｡</p>
+  <p>
+    <strong>例外の詳細:</strong> System.Data.SqlClient.SqlException:サーバへの接続を確立中にエラーが発生しました。 SQLServer に接続する際､この失敗は初期設定は SQL Server がリモート接続を許可しなかったために引き起こされた可能性があります。 (プロバイダー:SQLネットワークインターフェイス､エラー:26、指定されたサーバ/インスタンスの特定エラー)</p>
+  <p>
+    <strong>ソースエラー: </strong>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+ <pre>Line 216:<br />Line 217:            if (conn.State != ConnectionState.Open)<br />Line 218:                conn.Open();<br />Line 219:<br />Line 220:            cmd.Connection = conn;</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET での customErrors エレメントの詳細は､<a href="http://msdn2.microsoft.com/en-us/library/h0hfz6fc.aspx">http://msdn2.microsoft.com/en-us/library/h0hfz6fc.aspx を参照してください。</a><li>ASP.NET でカスタム エラーを作成する方法の詳細は、<a href="http://support.microsoft.com/kb/306355">http://support.microsoft.com/kb/306355 を参照してください。</a></li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

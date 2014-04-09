@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="143343630" Content_Hash="-1907080389">
+  <Metadata>
+    <Id>a7c52909-5903-4677-bc49-8ca2b924d617</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で SQL インジェクションを防ぐ方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このガイドでは、SQL インジェクション攻撃から ASP.NET アプリケーションを保護するためのいくつかの方法を示します。 アプリケーションが動的 SQL ステートメントを構築するために入力を使用するとき、またはデータベースに接続するためにストアド プロシージャを使用する場合に、SQL インジェクションが発生する恐れがあります。 SSL や IPSec の使用など、従来のセキュリティ対策では、SQL インジェクション攻撃からアプリケーションを保護することはできません。 SQL インジェクション攻撃に成功すると、悪意のあるユーザーは、アプリケーションのデータベースでコマンドを実行することができます。</p>
+  <p>対策としては、入力を制約するために使用可能な文字リストを使用する、データアクセスのためにパラメータ化された SQL を使用する、およびデータベース内のアクセス許可が制限されている最小限の特権を持つアカウントを使用するなどの方法があります。 SQL パラメータは Type-Safe であるため、パラメータ化された SQL でストアド プロシージャを使用することをお勧めします。 Type-Safe な SQL パラメータは、動的SQL で使用することもできます。 パラメータ化された SQL を使用できない状況では、文字エスケーピング手法の使用を考慮してください。 </p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  入力を制約する</div>
+            <li>
+              <div>手順 2:  ストアド プロシージャでパラメータを使用</div>
+              <li>
+                <div>手順 3:  動的 SQL を使用したパラメータの使用</div>
+                <li>
+                  <div>追加考慮事項</div>
+                  <li>
+                    <div>その他のリソース</div>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>SQL インジェクション攻撃がどう機能するかを学びます。 <li>SQL インジェクションを防止するには入力を制約します。 <li>SQL インジェクションを防ぐために、Type-Safe な SQL コマンドのパラメータを使用します。 <li>データベースに接続するために最小限の特権を持つアカウントを使用します。 <li>さらにリスクを軽減するために追加の対策を学びます。 </li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>SQL インジェクション攻撃に成功すると、悪意のあるユーザーは、アプリケーションのログインに付与された特権を使用して、アプリケーションのデータベース内のコマンドを実行することができます。 アプリケーションがデータベースに接続するために過剰特権のあるアカウントを使用している場合、問題はより深刻です。 例えば、アプリケーションのログインがデータベースを排除する特権を持っている場合、適切な保護がなければ攻撃者はこの操作を実行することができるかもしれません。</p>
+  <p>データ アクセス コードが SQL インジェクション攻撃を受けやすくする一般的な脆弱性には、以下が含まれます。</p>
+  <ul>
+    <li>不十分な入力検証。 <li>型セーフなパラメータを使用せずに SQL ステートメントを動的に構成すること。 <li>過剰な特権でデータベースにログインすること。 </li></li></li>
+  </ul>
+  <h2>SQL インジェクションの例</h2>
+  <p>ユーザー<b> </b>が <i>nnn-nn-nnnn</i>形式の社会保障番号を想定しているSSN テキストボックスに以下の文字列を入力した後、何が起こるかを検討します。</p>
+  <div>
+ <pre>' ; DROP DATABASE pubs  --   </pre>
+  </div>
+  <p>入力を使用して、アプリケーションは次の動的 SQL ステートメントか、または内部的に類似の SQL ステートメントを実行するストアド プロシージャを実行します。 </p>
+  <div>
+ <pre>// Use dynamic SQL<br />SqlDataAdapter myCommand = new SqlDataAdapter(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT au_lname, au_fname FROM authors WHERE au_id = '" + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SSN.Text + "'", myConnection);</pre>
+  </div>
+ <pre>// Use stored procedures<br />SqlDataAdapter myCommand = new SqlDataAdapter(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "LoginStoredProcedure '" + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SSN.Text + "'", myConnection);<br /></pre>
+  <p>開発者の意図は、コードの実行時に、ユーザーの入力を挿入し、SQLに次のステートメントを生成することでした。</p>
+  <div>
+ <pre>SELECT au_lname, au_fname FROM authors WHERE au_id = '172-32-9999'   </pre>
+  </div>
+  <p>ただし、コードはユーザーの悪意のある入力を挿入し、次のクエリを生成します。</p>
+  <div>
+ <pre>SELECT au_lname, au_fname FROM authors WHERE au_id = ''; DROP DATABASE pubs --'   </pre>
+  </div>
+  <p>この場合、不正入力を開始する <b>'</b> (単一引用符) 文字は、SQL ステートメントの現在の文字列リテラルを終了します。 次に解析されたトークンが現在の文の継続としては意味をなさないが、新規文の開始として意味をなす場合にのみ、現在のステートメントを閉じます。 結果として、不正な入力の開始単一引用符文字により、次の文が得られます。</p>
+  <div>
+ <pre>SELECT au_lname, au_fname FROM authors WHERE au_id = ''   </pre>
+  </div>
+  <p><b>;</b> （セミコロン）文字は、これが現在のステートメントの終わりであり、次の悪意のあるSQLコードが続いていることをSQLに伝えます。</p>
+  <div>
+    <div>
+      <div>
+      </div>
+      <div>
+        <a class="copyCode" href="javascript:CopyCode('ctl00_LibFrame_ctl09');">
+        </a>&nbsp;</div>
+    </div>
+ <pre>; DROP DATABASE pubs   </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;セミコロンは必ずしもSQL ステートメントを区切るために必須ではありません。 これはベンダーや実装に依存していますが、Microsoft SQL Server はそれらを必要としません。 たとえば、SQL Serverは、以下を 2 つの別々のステートメントとして解析します:</blockquote>
+  <blockquote>SELECT * FROM MyTable DELETE FROM MyTable</blockquote>
+  <blockquote>
+  </blockquote>
+  <p>最後に、<b>--</b> (ダブルダッシュ) 文字シーケンスは SQL に残りのテキストを無視するように指示する SQL コメントです。 この場合、SQL は終了<b>'</b> (単一引用符) 文字を無視しますが、さもなければこれは SQL 構文解析器 (parser)エラーを発生させます。</p>
+  <div>
+ <pre>--'   </pre>
+  </div>
+  <h2>ガイドライン</h2>
+  <p>SQL インジェクション攻撃に対抗するためには、以下を行う必要があります:</p>
+  <ul>
+    <li>
+      <b>入力データを制約し、無害化します。 </b>型、長さ、形式、および範囲に関して検証することにより、既知の有効なデータであるかどうかをチェックしてください。 <li><b>データアクセスのための Type-Safe な SQL パラメータを使用します。</b> ストアド プロシージャまたは動的に構築された SQL コマンド文字列でこれらのパラメータを使用することができます。 <b>SqlParameterCollection</b> のようなパラメータ コレクションは、型チェックと長さの検証を提供します。 パラメータ コレクションを使用する場合、入力はリテラル値として扱われ、SQL Server はそれを実行可能なコードとしては扱いません。 パラメータ コレクションを使用することのさらなる利点は、型と長さのチェックを強制できることです。 範囲外の値は例外をトリガーします。 これは、多層防御の良い例です。 <li><b>データベースのアクセス許可が制約されているアカウントを使用します。</b> 理想的には、実行権限はデータベースで選択したストアド プロシージャだけに付与し、テーブルへの直接アクセスは提供すべきではありません。 <li><b>データベースのエラー情報を開示することは避けます。 </b>データベース エラーが発生した場合に、ユーザーに詳細なエラー メッセージを開示しないことを確認してください。 </li></li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;セキュア ソケット レイヤー（SSL）や IP セキュリティ（IPSec）の使用など、従来型セキュリティ対策では、SQL インジェクション攻撃からアプリケーションを保護することはできません。 </blockquote>
+  <h1>手順の概要</h1>
+  <p>SQL インジェクションからアプリケーションを保護するには、次の手順を実行します。</p>
+  <ul>
+    <li>手順 1:  入力を制約する。 <li>手順 2:  ストアド プロシージャと共にパラメータを使用してください。 <li>手順 3:  動的 SQL と共にパラメータを使用してください。<strong></strong></li></li></li>
+  </ul>
+  <h1>手順 1:  入力を制約する</h1>
+  <p>タイプ、長さ、書式、および範囲など、ASP.NET アプリケーションへのすべての入力を検証する必要があります。 データ アクセスのクエリで使用される入力を制約することで、SQL インジェクションからアプリケーションを保護することができます。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;入力を制約する場合には、使用可能な文字リストを作成し、正規表現を使用してリストにない文字を拒否することをお勧めします。 容認できない文字リストの使用に関連する潜在的なリスクは、リストを定義するときに容認できない文字を見落とす可能性が常にあること、 また、容認できない文字を別の書式で表すと検証に合格できることです。 </blockquote>
+  <h2>ASP.NET ウェブ ページへの入力制限</h2>
+  <p>ASP.NET ウェブ ページのサーバ側コードの入力を制約することによって開始します。 簡単にバイパスすることができる Client-side Validation には依存しないでください。 Round トリップを軽減してユーザー エクスペリエンスを向上させるため、Client-side Validation のみを使用してください。</p>
+  <p>サーバ制御を使用する場合は、入力を制約するのに <b>RegularExpressionValidator</b> や <b>RangeValidator</b> 制御のような ASP.NET バリデーター制御を使用します。 通常のHTML入力制御を使用する場合は、入力を制約するためサーバ側コードに <b>Regex</b> クラスを使用します。</p>
+  <p>前のコード例の場合、 SSN 値は ASP.NET <b>TextBox</b> 制御によりキャプチャされ、次に示されるように、<b>RegularExpressionValidator</b> 制御を使って入力を制約することができます。</p>
+  <div>
+ <pre>&lt;%@ language="C#" %&gt;<br />&lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="SSN" runat="server"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:RegularExpressionValidator ID="regexpSSN" runat="server"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="Incorrect SSN Number" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="SSN"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ValidationExpression="^\d{3}-\d{2}-\d{4}$" /&gt;<br />&lt;/form&gt;  </pre>
+  </div>
+  <p>SSN 入力が HTML 制御、クエリ文字列パラメータ、あるいは Cookie など別のソースに由来する場合は、<b>System.Text.RegularExpressions</b> 名前空間から<b>正規表現 (regex)</b> クラスを使用してそれを制約することができます。 次の例では、入力が Cookie から得られることを前提としています。</p>
+  <p>System.Text.RegularExpressions の使用</p>
+  <div>
+ <pre>if (Regex.IsMatch(Request.Cookies["SSN"], "^\d{3}-\d{2}-\d{4}$"))<br />{<br />&nbsp;&nbsp;&nbsp; // access the database<br />}<br />else<br />{<br />&nbsp;&nbsp;&nbsp; // handle the bad input<br />}  </pre>
+  </div>
+  <h2>データ アクセス コードの入力制限</h2>
+  <p>状況によっては、おそらく ASP.NET ページレベルの検証に加えて、データ アクセス コードに検証を提供する必要があります データ アクセス コードに検証を提供する必要のある 2 つの一般的な状況は、以下のとおりです。</p>
+  <ul>
+    <li>
+      <b>信頼できないクライアント。</b> データが信頼できないソースからのものか、またはデータが検証され制約されていることを保証できない場合は、データ アクセス ルーチンへの入力を制約する検証ロジックを追加します。 <li><b>ライブラリ コード。 </b>データ アクセス コードが複数のアプリケーションで使用するよう設計されたライブラリとしてパッケージ化されている場合は、クライアント アプリケーションについて安全な仮定を行うことができないため、データ アクセス コードは、独自の検証を行う必要があります。 </li></li>
+  </ul>
+  <p>次の例は、データ アクセス ルーチンが、SQLステートメントでパラメータを使用する前に正規表現を使用することによって、入力パラメータを検証する方法を示しています。</p>
+  <div>
+ <pre>using System;<br />System.Text.RegularExpressions の使用</pre>
+  </div>
+ <pre>public void CreateNewUserAccount(string name, string password)<br />{<br />&nbsp;&nbsp;&nbsp; // Check name contains only lower case or upper case letters, <br />&nbsp;&nbsp;&nbsp; // the apostrophe, a dot, or white space. Also check it is <br />&nbsp;&nbsp;&nbsp; // between 1 and 40 characters long<br />&nbsp;&nbsp;&nbsp; if ( !Regex.IsMatch(userIDTxt.Text, @"^[a-zA-Z'./s]{1,40}$"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new FormatException("Invalid name format");</pre>
+ <pre>&nbsp;</pre>
+ <pre>&nbsp;&nbsp;&nbsp; // Check password contains at least one digit, one lower case <br />&nbsp;&nbsp;&nbsp; // letter, one uppercase letter, and is between 8 and 10 <br />&nbsp;&nbsp;&nbsp; // characters long<br />&nbsp;&nbsp;&nbsp; if ( !Regex.IsMatch(passwordTxt.Text, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$" ))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new FormatException("Invalid password format");</pre>
+ <pre>&nbsp;</pre>
+ <pre>&nbsp;&nbsp;&nbsp; // Perform data access logic (using type safe parameters)<br />&nbsp;&nbsp;&nbsp; ...<br />}</pre>
+  <h1>手順 2:  ストアド プロシージャでパラメータを使用</h1>
+  <p>ストアド プロシージャを使用することが、必ずしも SQL  インジェクションを防ぐことにはなりません。 重要なのは、ストアド プロシージャでパラメータを使用することです。 パラメータを使用しない場合、本文書の  "概要" の項で説明したように、フィルタリングされていない入力を使用すると、ストアド プロシージャは、SQL インジェクションの影響を受けやすくなります。</p>
+  <p>次のコードは、ストアド プロシージャを呼び出す時の <b>SqlParameterCollection</b> の使用方法を示しています。</p>
+  <div>
+ <pre>using System.Data;<br />using System.Data.SqlClient;</pre>
+ <pre>using (SqlConnection connection = new SqlConnection(connectionString))<br />{<br />&nbsp; DataSet userDataset = new DataSet();<br />&nbsp; SqlDataAdapter myCommand = new SqlDataAdapter( <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "LoginStoredProcedure", connection);<br />&nbsp; myCommand.SelectCommand.CommandType = CommandType.StoredProcedure;<br />&nbsp; myCommand.SelectCommand.Parameters.Add("@au_id", SqlDbType.VarChar, 11);<br />&nbsp; myCommand.SelectCommand.Parameters["@au_id"].Value = SSN.Text;</pre>
+ <pre>&nbsp; myCommand.Fill(userDataset);<br />}  </pre>
+  </div>
+  <p>この場合、 <b>@au_id</b> パラメータは実行可能なコードとしてではなく、リテラル値として扱われます。 また、パラメータの種類と長さがチェックされます。 前のコード例では、入力値を 11 文字よりも長くすることはできません。 データがパラメータで定義された型または長さに適合しない場合、<b>SqlParameter</b> クラスによって例外がスローされます。</p>
+  <h2>パラメータ化されたストアド プロシージャのアプリケーション使用を確認</h2>
+  <p>パラメータを持つストアド プロシージャを使用しても、必ずしも SQL インジェクションを防ぐことはできないため、アプリケーションでこのタイプのストアド プロシージャを使用する方法を見直す必要があります。 たとえば、次のようなパラメータ化されたストアド プロシージャはいくつかのセキュリティ上の脆弱性を持っています。</p>
+  <div>
+ <pre>CREATE PROCEDURE dbo.RunQuery@var ntextAS<br />        exec sp_executesql @varGO   </pre>
+  </div>
+  <p>前述のコード例に類似するストアド プロシージャを使用するアプリケーションには、以下のような脆弱性があります。</p>
+  <ul>
+    <li>ストアド プロシージャは、引き渡されたすべてのステートメントを実行します。 次のように設定されている <b>@var</b> 変数を検討します：<div><pre>DROP TABLE ORDERS;  </pre></div><p>このケースでは、ORDERS テーブルはドロップされます。 </p><li>ストアド プロシージャは、<b>dbo</b> 特権で実行されます。 <li>ストアド プロシージャの名前 (<b>RunQuery</b>) は、お粗末な選択です。 攻撃者がデータベースを綿密に調べれば、ストアド プロシージャの名前が判明してしまいます。 <b>RunQuery</b> のような名前では、ストアド プロシージャが指定されたクエリを実行する可能性が高いことを推測できます。 </li></li></li>
+  </ul>
+  <h1>手順 3:  動的 SQL を使用したパラメータの使用</h1>
+  <p>ストアド プロシージャを使用できない場合でも、動的 SQL ステートメントを構築する際はパラメータを使用する必要があります。 次のコードは、<b>SqlParametersCollection</b> を動的 SQL とどう使うかを示しています。</p>
+  <div>
+ <pre>using System.Data;<br />using System.Data.SqlClient;</pre>
+  </div>
+ <pre>using (SqlConnection connection = new SqlConnection(connectionString))<br />{<br />&nbsp; DataSet userDataset = new DataSet();<br />&nbsp; SqlDataAdapter myDataAdapter = new SqlDataAdapter(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT au_lname, au_fname FROM Authors WHERE au_id = @au_id", <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connection);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp; myCommand.SelectCommand.Parameters.Add("@au_id", SqlDbType.VarChar, 11);<br />&nbsp; myCommand.SelectCommand.Parameters["@au_id"].Value = SSN.Text;<br />&nbsp; myDataAdapter.Fill(userDataset);<br />}</pre>
+  <h2>パラメータ バッチングの使用</h2>
+  <p>単一の Round トリップでサーバへステートメントのバッチを送信するために複数の SQL ステートメントを連結する場合に、パラメータを使用できない、というのはよくある誤解です。 しかし、パラメータ名が繰り返されないようにする場合に、この手法を使うことができます。 ここに示すように、SQL テキストの連結時に一意のパラメータ名を使用することによって、これを簡単に行うことができます。</p>
+  <div>
+ <pre>using System.Data;<br />using System.Data.SqlClient;<br />. . . <br />using (SqlConnection connection = new SqlConnection(connectionString))<br />{<br />&nbsp; SqlDataAdapter dataAdapter = new SqlDataAdapter(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT CustomerID INTO #Temp1 FROM Customers " +<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "WHERE CustomerID &gt; @custIDParm; SELECT CompanyName FROM Customers " +<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "WHERE Country = @countryParm and CustomerID IN " +<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "(SELECT CustomerID FROM #Temp1);",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connection);<br />&nbsp; SqlParameter custIDParm = dataAdapter.SelectCommand.Parameters.Add(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@custIDParm", SqlDbType.NChar, 5);<br />&nbsp; custIDParm.Value = customerID.Text;</pre>
+ <pre>&nbsp; SqlParameter countryParm = dataAdapter.SelectCommand.Parameters.Add(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "@countryParm", SqlDbType.NVarChar, 15);<br />&nbsp; countryParm.Value = country.Text;</pre>
+ <pre>&nbsp; connection.Open();<br />&nbsp; DataSet dataSet = new DataSet();<br />&nbsp; dataAdapter.Fill(dataSet);<br />}<br />. . .   </pre>
+  </div>
+  <h1>追加考慮事項</h1>
+  <p>SQL インジェクションを防ぐための対策を策定する際に考慮すべきその他の事柄には、次のようなものがあります。</p>
+  <ul>
+    <li>特殊入力文字を処理するエスケープ ルーチンを使用します。 <li>最小特権データベース アカウントを使用します。 <li>エラー情報の開示を回避します。 </li></li></li>
+  </ul>
+  <h2>特殊入力文字を処理するためにエスケープ ルーチンを使用する</h2>
+  <p>パラメータ化された SQL を使用できず、代わりに動的 SQL を使用することを余儀なくされる状況では、SQL Server への特別な意味をもつ入力文字 (例えば、単一引用符文字など) について対策を考慮する必要があります。 適切に処理しないと、入力の単一引用符などの特殊文字は、SQL インジェクションを引き起こすために利用されかねません。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;特殊入力文字は、パラメータ化された SQL を使用するときではなく、動的 SQL を使用するときにだけ脅威となります。 </blockquote>
+  <p>エスケープ ルーチンは、SQL Server にとって特別な意味を持つ文字へエスケープ文字を追加することによって、これらの文字を無害化します。 これを以下のコード片に示します。</p>
+  <div>
+ <pre>private string SafeSqlLiteral(string inputSQL){  return inputSQL.Replace("'", "''");</pre>
+  </div>
+  <p>}</p>
+  <h2>最小特権データベース アカウントの使用</h2>
+  <p>最小特権アカウントを使用してアプリケーションをデータベースに接続する必要があります。 接続に Windows 認証を使用する場合、Windows アカウントの設定をオペレーティング システムの観点から最小特権とし、限定された特権および Windows リソースへの限定されたアクセス権をそのアカウントに付与する必要があります。 また、Windows 認証または SQL 認証のいずれを使用するかにかかわらず、対応する SQL Server ログインは、データベース内の権限によって制限する必要があります。</p>
+  <p>同じドメイン内の別のサーバ上のデータベースにアクセスする、Microsoft Windows Server 2003 で実行する ASP.NET アプリケーションの例を考慮してください。 ASP.NET アプリケーションはデフォルトで、ネットワーク サービス アカウントの下で実行するアプリケーション プール内で実行されます。 このアカウントは、最小限の特権を持つアカウントです。</p>
+  <h3>ネットワーク サービス アカウントを使用して SQL Server にアクセスするには</h3>
+  <ol>
+    <li>ウェブ サーバのネットワーク サービス アカウントの SQL Server ログインを作成します。 Network Service アカウントは、ID <i>DOMAIN</i>\<i>WEBSERVERNAME</i>$ としてデータベース サーバに提示されるネットワーク Credential 情報 を持っています。 例えば、 ドメインが XYZ と呼ばれ、Web サーバが 123 と呼ばれる場合、XYZ\123$ のデータベースログインを作成します。 <li>データベース ユーザーを作成し、データベースロールにユーザーを追加することによって、必要なデータベースへの新しいログイン アクセス権限を付与します。 <li>このデータベース ロールが必要なストアド プロシージャを呼び出すか、データベース内の必要なテーブルにアクセスできるようにアクセス許可を確立します。 アプリケーションで使用する必要があるストアド プロシージャへのアクセスだけを許可し、アプリケーションの最小要件に基づいて、テーブルへの十分なアクセス権だけを付与します。 <p>たとえば、ASP.NET アプリケーションがデータベースの検索だけを実行してデータを更新しない場合、テーブルの読み取りアクセス権だけを付与する必要があります。 これによって、攻撃者が SQL インジェクション攻撃に成功した場合に攻撃者が引き起こす可能性がある損害を制限することができます。 </p></li></li></li>
+  </ol>
+  <h2>エラー情報の開示を避ける</h2>
+  <p>構造化例外処理を使用して、エラーをキャッチし、エラーがクライアントに増殖するのを防ぎます。 詳細なエラー情報をローカルに記録しますが、クライアントには限定されたエラー詳細を返します。 </p>
+  <p>ユーザーがデータベースに接続している間にエラーが発生した場合、必ずエラーの特性について限られた情報だけをそのユーザーに知らせてください。 データ アクセスおよびデータベース エラーに関連する情報を開示すると、データベースのセキュリティを損なうために悪用するのにふさわしい情報が、悪意のあるユーザーの手中に収まってしまいます。 攻撃者は、詳細なエラー メッセージ内の情報を悪用して、悪意のあるコードと一緒に注入するつもりの SQL クエリを分解します。 詳細なエラー メッセージによって、接続文字列、SQL Server 名、またはテーブルやデータベースの命名規則のような貴重な情報が開示する可能性があります。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1120590222" Content_Hash="-320203793">
+  <Metadata>
+    <Id>e0ad9813-bcad-4b94-8312-8c16dee5ff97</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュリティ目標が達成される設計を作成する方法</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>設計</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>試行済みまたは試験済みの設計パターンおよびプリンシパルを使用します。 認証、認可、入力/データ検証、例外管理、機微データ、ログ記録と監査、構成管理、暗号化、セッション管理など、セキュリティの観点から重要なエリアに的を絞ります。 設計時に展開に関する問題も考慮してください。 展開トポロジ、ネットワーク インフラ、セキュリティ ポリシー、プロシージャなどに注意を払います。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

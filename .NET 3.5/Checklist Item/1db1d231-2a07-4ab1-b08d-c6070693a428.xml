@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1134401385" Content_Hash="-1070671783">
+  <Metadata>
+    <Id>1db1d231-2a07-4ab1-b08d-c6070693a428</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>RequireSSL 属性の使用により、認証 Cookie は HTTPS 接続のみに制限される</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが、RequireSSL 属性を使用することにより、認証 Cookie を &nbsp;HTTPS 接続のみに制限することを確認してください。</p>
+  <h1>理由</h1>
+  <p>SSL を使用することにより、攻撃者が取得した認証 Cookie を読み取ってアプリケーションへのなりすましのアクセスを実行することを防止します。</p>
+  <h1>修正方法</h1>
+  <p>ブラウザーが HTTPS 接続によってのみ認証 Cookie を送信するように、認証 Cookie の <b>secure</b> プロパティを設定します。 </p>
+  <p>以下に示されるように、&lt;<b>forms</b>&gt; エレメントの <b>requireSSL="true"</b> を使用して <b>secure</b> プロパティを設定します 。</p>
+  <div>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />        requireSSL="true" ... /&gt;</pre>
+  </div>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-299565439" Content_Hash="1223160852">
+  <Metadata>
+    <Id>0b64b4b3-387e-4c3b-a75d-93c4ada92b2c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザー入力を受け入れる動的クエリを回避する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ユーザー入力を含むコードでSQLクエリを作成することを避けます。 代わりに、Type-Safe SQLパラメータを使用するパラメータ化されたストアド プロシージャを選びます。&nbsp;ストアド プロシージャ&nbsp;が使用できない場合は、パラメータ化された動的 SQL 文を使用してください。</p>
+  <h1>理由</h1>
+  <p>ユーザー入力&nbsp;から動的に&nbsp;構築されたデータベース クエリは、SQL インジェクション攻撃を受けやすくなります。 成功したSQL インジェクション攻撃によって、悪意のあるユーザーは、アプリケーションのログインに&nbsp;付与されている特権を使用することで、アプリケーション&nbsp;のデータベース インスタンス上でコマンドを&nbsp;実行することができます。 SQL パラメータは Type-Safe &nbsp;で、データベースが&nbsp;実行可能コードでなく&nbsp;リテラル値として処理するので、パラメータ化 SQL をストアド プロシージャと併用することが推奨されます。 パラメータはまた、種類と長さをチェックされます。 </p>
+  <h1>状況</h1>
+  <p>常にパラメータ化された SQL クエリを使用します。 フォーム フィールド、クエリ文字列パラメータ、 Cookie 等、あらゆる入力&nbsp;を基にして、 SQL クエリを直接構築することを回避してください。&nbsp;&nbsp;</p>
+  <h1>対策</h1>
+  <p>アプリケーションを SQL インジェクションから&nbsp;保護するには、次の手順を実行してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ストアド プロシージャと共にパラメータを使用してください。</strong> ストアド プロシージャだけでは SQL インジェクションを防ぐことは&nbsp;できません。&nbsp;パラメータが使用&nbsp;されて&nbsp;いないと、&nbsp;ストアド プロシージャは、特にフィルターされていない入力を使用している場合、SQL インジェクションの攻撃を受けやすくなります。 次のコードに、ストアド プロシージャの呼び出し時に SqlParameterCollection を使用する方法を示します。</p>
+ <pre>using System.Data;<br />using System.Data.SqlClient;</pre>
+ <pre>using (SqlConnection connection = new SqlConnection(connectionString))<br />{<br />&nbsp; DataSet userDataset = new DataSet();<br />&nbsp; SqlDataAdapter myCommand = new SqlDataAdapter( <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "LoginStoredProcedure", connection);<br />&nbsp; myCommand.SelectCommand.CommandType = CommandType.StoredProcedure;<br />&nbsp; myCommand.SelectCommand.Parameters.Add("@au_id", SqlDbType.VarChar, 11);<br />&nbsp; myCommand.SelectCommand.Parameters["@au_id"].Value = AuthId.Text;</pre>
+ <pre>&nbsp; myCommand.Fill(userDataset);<br />}</pre>
+      <p>この場合、@au_id パラメータは実行コードではなくリテラル値として処理されます。 また、パラメータの種類と長さがチェックされます。 前のコード例では、入力値を 11 文字よりも長くすることはできません。 データがパラメータで定義された型または長さに適合しない場合、SqlParameter クラスによって例外がスローされます。</p>
+      <li>
+        <p>
+          <strong>動的 SQL と共にパラメータを使用してください。</strong> ストアド プロシージャを利用できない場合、動的 SQL ステートメントの構築時にパラメータを使用してください。 次のコードに、動的 SQL と SqlParametersCollection を併用する方法を示します。</p>
+ <pre>using System.Data;<br />using System.Data.SqlClient;</pre>
+ <pre>using (SqlConnection connection = new SqlConnection(connectionString))<br />{<br />&nbsp; DataSet userDataset = new DataSet();<br />&nbsp; SqlDataAdapter myDataAdapter = new SqlDataAdapter(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "SELECT au_lname, au_fname FROM Authors WHERE au_id = @au_id", <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connection);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp; myCommand.SelectCommand.Parameters.Add("@au_id", SqlDbType.VarChar, 11);<br />&nbsp; myCommand.SelectCommand.Parameters["@au_id"].Value = AuthId.Text;<br />&nbsp; myDataAdapter.Fill(userDataset);<br />}</pre>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET の書籍購入アプリケーションは、ISBN を送信することにより書名および著者の検索を可能にするクエリー インターフェイスを備えています。 アプリケーション開発者は、このタスクを遂行するための SQL クエリ&nbsp;を記述します。</p>
+ <pre>string SQLstr = "SELECT book_name, author_name FROM book WHERE book_ISBN = '" + ISBN.Text + "'";</pre>
+  <p>&nbsp;ISBN 入力は、SQL 文を&nbsp;直接生成するために使用される&nbsp;ウェブ&nbsp;フォーム内のテキストフィールドから入力されたものです。 たとえば、次のようになります。</p>
+ <pre>SELECT book_name, author_name FROM book WHERE book_ISBN = '0321194330'</pre>
+  <p>ユーザーが&nbsp;ISBN テキスト ボックス内に次の文字列を入力した場合、何が起きるか考えてみてください。この文字列は、nnnnnnnnnn の書式の ISBN を予想しています。</p>
+ <pre>' ; DROP DATABASE pubs&nbsp; --<br />&nbsp; </pre>
+  <p>コードはユーザーの悪意のある入力を挿入し、次のクエリーを生成します。</p>
+ <pre>SELECT book_name, author_name FROM book WHERE book_ISBN = ''; DROP DATABASE pubs --'&nbsp; </pre>
+  <p>この場合、悪い入力を開始する「'」(シングル クォーテーション マーク) 文字が、SQL ステートメントにおいて現在の文字列リテラルを終了させます。 「;」(セミコロン) 文字は、これが現在のステートメントの終わりであり、その後に次の悪意のある SQL コードが続くということを SQL に伝えます。 最後に、「--」(ダブル ダッシュ) 文字配列は、SQL に残りのテキストを無視するよう伝える SQL コメントです。 この場合、SQL は閉じ「'」(シングル クォーテーション マーク) 文字を無視します。そうしなければ、SQL構文解析器 (parser) エラーを引き起こすことになります。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET の書籍購入アプリケーションは、ISBN を送信することにより書名および著者の検索を可能にするクエリー インターフェイスを備えています。 アプリケーション開発者は、このタスクを遂行するための SQL クエリ&nbsp;を記述します。</p>
+ <pre>string SQLstr = "book_name, author_name FROM book WHERE book_ISBN = '" + ISBN.Text + "'";</pre>
+  <p>ISBN 入力は、SQL 文を&nbsp;直接生成するために使用される&nbsp;ウェブ&nbsp;フォーム内のテキストフィールドから入力されたものです。 たとえば、次のようになります。</p>
+ <pre>SELECTbook_name, author_name FROM book WHERE book_ISBN = '0321194330'</pre>
+  <p>&nbsp;SQL&nbsp;文は、パラメータ化したストアド プロシージャとして書き直すことで、より安全なものにすることができます。</p>
+ <pre>using System.Data;<br />using System.Data.SqlClient;</pre>
+ <pre>using (SqlConnection connection = new SqlConnection(connectionString))<br />{<br />&nbsp; DataSet userDataset = new DataSet();<br />&nbsp; SqlDataAdapter myDataAdapter = new SqlDataAdapter(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "'0321194330'= @isbn",&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connection);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp; myCommand.SelectCommand.Parameters.Add("@isbn", SqlDbType.VarChar, 11);<br />&nbsp; myCommand.SelectCommand.Parameters["@isbn"].Value = ISBN.Text;<br />&nbsp; myDataAdapter.Fill(userDataset);<br />}</pre>
+  <p>SQL クエリ文&nbsp;は、&nbsp;ISBN 列選択基準が SQL クエリに直接連結されないでプレースホルダーとして表示されるという点を除き、1 つ目の SQL 文&nbsp;に&nbsp;類似した方法で構築されます。 次の 2 行で、このクエリで使用される変数の型、予想される長さ、および&nbsp;ISBN フィールドの値&nbsp;を指定しています。&nbsp; @isbn が VarChar として指定されるため、つまりそれは @isbn が実行可能な SQL ステートメントにはなり得ないことを意味しますが、これによって SQL インジェクション攻撃から保護されます。&nbsp;その結果、データベース ドライバーはこの値を&nbsp;文字列リテラルと&nbsp;解釈します。&nbsp;&nbsp;</p>
+  <p>パラメータ化されたストアド プロシージャは、SQL インジェクションのリスクを低減させるために役立つ一方で、他のスクリプト インジェクションの脆弱性の可能性が存在することに留意することが重要です。 詳細については、関連ガイドライン「データ アクセス メソッドに渡された信頼されていない入力を検証する」を参照&nbsp;してください。 </p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/fab1733c-61d7-46a8-88c6-2617a643c0d9">データベース アクセスに最小限の特権アカウントを使用する</a>
+      <li>
+        <a href="/article/4be4ed09-ed2f-4f05-9e63-e20708807542">SQL クエリを構築する場合に Type-Safe な SQL パラメータを使用する</a>
+        <li>
+          <a href="/article/75fce1f7-10d9-430e-b7ab-ce2b73d9f2bc">データ アクセス メソッドに渡された信頼されていない入力を検証する</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

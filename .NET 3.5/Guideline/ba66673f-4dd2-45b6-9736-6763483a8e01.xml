@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1323149940" Content_Hash="1499557681">
+  <Metadata>
+    <Id>ba66673f-4dd2-45b6-9736-6763483a8e01</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>重要な事業活動のためのインストルメント</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ASP.NET ヘルス モニタリングをアプリケーションでインスルメント化して、機微な操作へのアクセスを追跡してください。 </p>
+  <h1>理由</h1>
+  <p>このレベルのインスルメント化は、潜在的に怪しい動作を検知して対処するのに役立てることができます。また、例えば、アプリケーションに誰がアクセスしているかの追跡や、ユーザー アカウントのパスワードをいつリセットする必要があるかなど、 例えば､どのようなビジネスの重要な操作が実行されようとしているのか、またそれが誰によってされるのかを追跡します。たとえば、財務上のトランザクションに関連する、または機微データにアクセスするメソッドの使用を追跡することもできます。</p>
+  <h1>対策</h1>
+  <p>次のステップは、アプリケーションにヘルス モニタリングをインスルメント化する方法を表示します。</p>
+  <ol>
+    <li>銀行口座トランザクションのような一部のビジネス情報を表示する、WebSuccessAuditEvent から引き継ぐクラス ライブラリおよびクラスを作成してください。</li>
+    <li>ヘルス モニタリング用に WCF サービスを構成してください。</li>
+    <li>サービス コントラクトでカスタム イベントを発生させることにより、 WCF サービスをインスルメント化してください。</li>
+    <li>テスト クライアントからサービス メソッドを呼び出した後で、イベント ログ中のサービス イベントを検証してください。</li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は､｢セキュリティ目的で WCF にヘルス モニタリングをインスルメント化する方法｣を参照してください｡<li>ヘルス モニタリングの詳細は､<a href="http://msdn2.microsoft.com/en-us/library/ms998306.aspx">http://msdn2.microsoft.com/en-us/library/ms998306.aspx にある｢ハウツー: ASP.NET 2.0 でヘルス モニタリングを使用する方法｣を参照してください｡</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

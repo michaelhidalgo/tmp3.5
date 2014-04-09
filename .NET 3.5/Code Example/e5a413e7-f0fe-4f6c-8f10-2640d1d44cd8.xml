@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-409984285" Content_Hash="-793074163">
+  <Metadata>
+    <Id>e5a413e7-f0fe-4f6c-8f10-2640d1d44cd8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>RSA 鍵ペアをレジストリから回収してメッセージを解読する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、データ保護 API (DPAPI) を使用してレジストリ内に保存されている公開鍵ペアを取得して、その鍵ペアを使用してメッセージを復号化する方法を示すことです。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>安全に格納された RSA 鍵ペアを使用して、暗号化されたメッセージを解読する<li>鍵を安全にレジストリに格納すること、および DPAPI が簡単に実装可能であることを示す</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>クライアントはサーバに機密の暗号化されたメッセージを送信する必要があるが、それらのメッセージを読み取る必要がない、分散クライアント サーバ アーキテクチャ<li>アプリケーションは、暗号化目的で専用鍵ストアを維持することを望まない</li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>public static byte[] RetrieveRSAKeyPairAndDecryptMessage(byte[] encrypted){<br />      // Retrieve the keypair from the registry, decrypt using the DPAPI<br />      // and store the serialized key data as an XML string<br />       byte[] encryptedKeyPair = Registry.GetValue(@"HKEY_CURRENT_USER\RSAKeyPair",<br />		 "KeyData", null) as byte[];<br />      byte[] keyPairBytes = ProtectedData.Unprotect(<br />           encryptedKeyPair,<br />           null,<br />           DataProtectionScope.CurrentUser);<br />      string keyPairXml = UnicodeEncoding.ASCII.GetString(keyPairBytes);<br />      // Create a new RSA CSP in which to load the public/private key<br />       // data retrieved from the registry<br />      RSACryptoServiceProvider retrievedRSA = new RSACryptoServiceProvider();<br />      retrievedRSA.FromXmlString(keyPairXml);<br />      // Decrypt message and return<br />      return (retrievedRSA.Decrypt(encrypted, false));<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、私有鍵マテリアルを含む RSA 鍵ペアをファイル システムから取得する方法を示しています。</p>
+ <pre>// fileName is a string containing a path location with a serialized RSA key pair<br />// encrypted is a byte array containing an encrypted message for decryption<br />// Open up the public key file and read into a string<br />StreamReader keyReader = new StreamReader(fileName);<br />string keyPairXml = keyReader.ReadToEnd();<br />keyReader.Close();<br />// Create a new RSA CSP in which to load the public/private key <br />// data retrieved from the registry<br />RSACryptoServiceProvider retrievedRSA = new RSACryptoServiceProvider();<br />retrievedRSA.FromXmlString(keyPairXml);<br />// Decrypt message retrieved<br />RSA.Decrypt(encrypted, false);</pre>
+  <ul>
+    <li>ファイルシステムが危険にさらされる場合、私有鍵材料が公開される可能性があります。<li>鍵データを含むファイルに ACL がセキュアに設定されていることを保証するために、追加の管理が必要になる<li>代替の設定では、メッセージ送信時に暗号化が欠如すると、機微データが公開されて送信中に傍受される</li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.IO;<br />using System.Security;<br />using System.Security.AccessControl;<br />using System.Security.Cryptography;<br />using Microsoft.Win32;</pre>
+  <p>上記の解決例と以下のコードを使用して、レジストリに保存されている公開鍵を使用して例を暗号化し、ソリューション例を使用して復号化してください。</p>
+ <pre>static void Main(string[] args){<br />            // Read public key into a string<br />            string publicKeyXml = "&lt;RSAKeyValue&gt;" +<br />            "&lt;Modulus&gt;tnLAgAJwXXxYj+2QPX6q/mHZZf23xSvvovoBlZ1Y7RbTlkY4N2nlcGxfR6mQcTTWKfWShQ7yEaX6rVfhhRhdaH<br />        LCsg7g3AmW2BsoBxWUijD81ZeNKyWrw8t0gjnigNR46+PqO1Xi7R9aA+PgaluhuZBBgJK2wIAlRJSPlTr5OjDr4vJlZiAG/V<br />        qmJVXioPfv1QI2hfLM86JgIcrD47L0K44tKwyhAj4PN1nsomjPeb0P9m9t3od/c+yZGKk+iJ1nwQwG02H/EXROaO6YFKb3xi<br />        jNv69gv+ZLGc+qssXs7Bs7CdzqmQvSylxuXkYz5bQG++raYWm4l056WhtIRG8mqQ==&lt;/Modulus&gt;" +<br />    "&lt;Exponent&gt;AQAB&lt;/Exponent&gt;" +<br />    "&lt;/RSAKeyValue&gt;";<br />            // Encrypt a message using our key and write out the results<br />            string msg = "The quick brown fox jumped over the lazy dog";<br />            byte[] encrypted = ReadRSAPublicKeyAndEncryptMessage(publicKeyXml, msg);<br />              Console.WriteLine("Encrypted data:");<br />            Console.WriteLine(Convert.ToBase64String(encrypted));<br />            // Retrieve RSA KeyPair from registry and decrypt a message<br />            byte[] decrypted = RetrieveRSAKeyPairAndDecryptMessage(encrypted);<br />            Console.WriteLine("\nDecrypted data:");<br />            Console.WriteLine(Encoding.ASCII.GetString(decrypted));<br />}<br />public static byte[] ReadRSAPublicKeyAndEncryptMessage(string xmlKeyData, string fileName){<br />            // Create a new RSA CSP in which to load the public key data from file<br />            RSACryptoServiceProvider yourRSA = new RSACryptoServiceProvider();<br />            yourRSA.FromXmlString(xmlKeyData);<br />            // Encrypt a message and return<br />            byte[] original = Encoding.ASCII.GetBytes("The quick brown fox jumped over the lazy dog");<br />            return(yourRSA.Encrypt(original, false));<br />}</pre>
+  <h1>期待される結果</h1>
+  <p>暗号化されたデータ:</p>
+ <pre>YQdGxH+fyXEVjaoToOT4kVR00nmNv4xBWLRP5hyk7qz2zS9a64I0Ug9S99shDWvmbIT/nsKTkmPu8gZGXx3R7zNXn44KKKIlXKcIxv<br />fXHHnkuMuX3tXdpLZKPhPKcG09nFVtxdKehOnvVQEr5Wyp54XnkqU3B6VpBui6wabN/dqrhE0ziqpAkM2NbhU5H18mfo6brq0Ug9Tn<br />s9xj4mAD5AwDvqKlkumr9qS94czPzt5ECFv8rX4/HBvl/PhQZ+zsYt3xHwkQRDt+T+A5zf1G5ey9pOAKpzPtLI+/2LShaJVujo/fQi<br />foLU1vCa1BoMONCpk0A1B4zIm5a+TpY+zp6w==</pre>
+  <p>復号化されたデータ:</p>
+ <pre>        The quick brown fox jumped over the lazy dog</pre>
+  <h1>詳細情報</h1>
+  <p>RSA は、公開鍵 (非対称とも呼ばれる) 暗号化のためのアルゴリズムで、明確な公開鍵と私有鍵を作成します。 暗号化操作は公開鍵を利用し、復号には私有鍵が必要です。 これは、対称鍵暗号方式よりも利点があります。メッセージを解読するために使用される秘密鍵は、メッセージの暗号化をサポートするために受信側と共有する必要がないためです。 </p>
+  <p>RSA私有鍵は、個々の公開 RSA 鍵を使用して暗号化されたデータの機密性を維持するために安全に保存する必要があります。 ただし、公開鍵は鍵ペアの所有者が、暗号化されたメッセージをその所有者に送信しようとしている人に自由に配布することができます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>RSACryptoServiceProvider (.NET): <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrsacryptoserviceproviderclassctortopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrsacryptoserviceproviderclassctortopic.asp</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

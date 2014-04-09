@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-160220969" Content_Hash="-1202854251">
+  <Metadata>
+    <Id>d664a59c-80aa-452c-92bd-01cd27eec233</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>保護された構成を用いて、構成ファイル内の機微データおよび秘密を保護する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>特定のセクションを暗号化することで、アプリケーションが構成ファイル内の機微データまたは秘密を保護することを確認します。 </p>
+  <p />
+  <h1>修正方法</h1>
+  <p>.NET保護された構成を使用して、構成ファイル内の機微データを保護します。 ASP.NET Web.config ファイルは、特定セクションの暗号化にAspnet_regiisツールを使用できます。 暗号化するべき機微な情報を通常含んでいるWeb.configファイルのセクションは次のとおりです:</p>
+  <ul>
+    <li>&lt;<b>appSettings</b>&gt; 。 このセクションはカスタム･アプリケーション設定を含みます。 <li>&lt;<b>connectionStrings</b>&gt; 。 このセクションは接続文字列を含みます｡ <li>&lt;<b>identity</b>&gt; 。 このセクションはなりすましの Credential 情報を含む可能性があります。 <li>&lt;<b>sessionState</b>&gt; 。 このセクションはプロセス外セッション状態プロバイダー用の接続文字列を含みます｡ </li></li></li></li>
+  </ul>
+  <p>保護された構成は DPAPI および RSA 暗号化をサポートします。 <b>connectionStrings</b> セクションを暗号化にDPAPI プロバイダーをマシン鍵ストア(既定の構成)と使用するには、コマンドプロンプトから次のコマンドを実行します:</p>
+  <p>
+    <b>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" </b>
+  </p>
+  <p>
+    <b>-prov "DataProtectionConfigurationProvider"</b>
+  </p>
+  <p>場所</p>
+  <ul>
+    <li>
+      <b>-pe</b> は、暗号化する構成セクションを特定します。 <li>-<b>app </b>はWebアプリケーションのバーチャルパスを特定します。 アプリケーションがネストされている場合、root ディレクトリからネストされたパスを特定する必要があります。"/test/aspnet/MachineDPAPI"が例として挙げられます。<li><b>-prov</b> はプロバイダー名を特定します。 </li></li></li>
+  </ul>
+  <p>.NET Framework SDK は、 <b>RSAProtectedConfigurationProvider</b> および<b>DPAPIProtectedConfigurationProvider</b> 保護構成プロバイダー (Aspnet_regiis toolと共に使用) をサポートします。 </p>
+  <ul>
+    <li>
+      <b>RSAProtectedConfigurationProvider</b>。これは規定のプロバイダーであり、RSA公開鍵暗号化を使用してデータの暗号化および復号を行います。 プロバイダーを使用して、Webファームの複数のWebサーバで使用される構成ファイルの暗号化を行います。 <li><b>DPAPIProtectedConfigurationProvider</b>。DPAPIを使用してデータの暗号化および風号を行います。 このプロバイダーを使用して、単一のWindowsサーバで使用する構成ファイルの暗号化を行います。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

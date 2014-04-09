@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2013097690" Content_Hash="1317695345">
+  <Metadata>
+    <Id>c67de262-1dab-4eac-9aca-d5b70bb37852</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>強力なパスワード ポリシーを強制する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>&nbsp;Active Directory ポリシー&nbsp;を使用することで、ユーザーが他のユーザーのパスワードを推測することを防ぎ、ユーザー Credential 情報ストアへの辞書攻撃を成功させないための十分な複雑さを備えたパスワードを作成します。</p>
+  <h1>理由</h1>
+  <p>複雑さが十分ではないパスワードは攻撃者によって推測され、ユーザーのアカウントが危害を受ける可能性があります。　&nbsp; 強力なパスワードを使用すると、パスワード保管が脅威にさらされた場合に辞書攻撃を防ぐことができます。&nbsp; ほとんどのユーザーは、アプリケーションの支援を得ずに十分に強力なパスワードを選択することはありません。</p>
+  <h1>状況</h1>
+  <p>パスワードを利用するすべてのシステムで、強力なパスワードを強制すべきです。&nbsp; パスワードの強度およびパスワード変更の頻度は、アプリケーションのセキュリティ ニーズによって異なりますが、すべてのアプリケーションで基本的な強力なパスワードのルールを強制すべきです。</p>
+  <h1>対策</h1>
+  <p>強力なパスワードを強制することは非常に簡単で、お使いのサイトのセキュリティを向上させるための最も簡単な方法の 1 つです。&nbsp; 以下の手順を実行して強力なパスワードを強制してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>パスワードの安全性要件を理解します。</strong> ASP.NET メンバーシップ プロバイダーのデフォルトでは、強力なパスワードが強制されます。&nbsp; <b>ActiveDirectoryMembershipProvider</b> によって、パスワードの長さは最低 7 文字になり、英数字以外の文字が最低 1 つ含まれます。&nbsp; これはセキュリティ要件の軽いアプリケーションの最低条件としては妥当なものであり、これよりも弱いパスワードが許可されるべきケースは極めて少ないです。</p>
+      <p>パスワードの強度を考える場合、強度要件をアプリケーションのセキュリティ ニーズに一致させることが重要です。&nbsp; セキュリティ ニーズが僅かしかないサイトで非常に強力なパスワードを必須にすると、ユーザーは不満を募らせます。&nbsp; 他方、ユーザーが強力なパスワードの選択を望んでいる場合はユーザーの選択を制限しないようにしてください。パスワードの最大長は最低 20 文字とし、印刷可能なすべての文字をパスワード内で使用可能にすべきです。</p>
+      <li>
+        <p>
+          <strong>パスワードの安全性要件を強制します。</strong> <strong>ActiveDirectoryMembershipProvider</strong> で強制される、パスワードの複雑さに関する具体的なルールの構成に使用できる&nbsp;属性が 3 つあり、このほかに認証失敗時のアカウント ロックアウトを制御する&nbsp;属性がさらに 3 つあります。</p>
+        <ul>
+          <li>
+            <b>passwordStrengthRegularExpression</b>。&nbsp;デフォルトは空白です。&nbsp;&nbsp; すべてのパスワードでこの表現を満たさなければいけません。 <li><b>minRequiredPasswordLength</b>。&nbsp;デフォルトは 7 です。&nbsp; すべてのパスワードに最低限、この字数の文字が含まれていなければいけません。 <li><b>minRequiredNonalphanumericCharacters</b>。&nbsp;デフォルトは 1 です。&nbsp; すべてのパスワードにこの字数以上の英数字以外の文字が含まれていなければいけません。 <li><b>maxInvalidPasswordAttempts</b>。&nbsp;デフォルトは 5 です。&nbsp; トラッキング ウィンドウで、パスワード入力の失敗がこの回数を超えた場合、アカウントは一時的にロックアウトになります。 <li><b>passwordAttemptWindow</b>。&nbsp;デフォルトは 10 (分) です。&nbsp; このウィンドウが開いている期間にわたってパスワード入力の失敗がトラックされます。 <li><b>passwordAnswerAttemptLockoutDuration</b>。&nbsp;デフォルトは 30 (分) です。&nbsp; パスワード入力の失敗の回数があまりにも多いアカウントは、この期間にわたってロックアウトになります。</li></li></li></li></li></li>
+        </ul>
+        <p>さらに、<b>ActiveDirectoryMembershipProvider</b> では、パスワードをデフォルトドメイン パスワード ポリシーと照らし合わせて確認します。ユーザーは両方の要件セットを満たすパスワードを選択しなければいけません。&nbsp; 以下は、より強力なパスワードを必須にするための構成が行われた <b>ActiveDirectoryMembershipProvider</b> の例です。</p>
+ <pre>&lt;membership defaultProvider="MyADMembershipProvider"&gt;&nbsp; <br />   	&lt;providers&gt;    <br />      		&lt;add name="MyADMembershipProvider"          <br />			connectionStringName="ADConnectionString"<br />			minRequiredPasswordLength="9"<br />			minRequiredNonalphanumericCharacters="2"          <br />			passwordStrengthRegularExpression="^(?=.*\d)(?=.*[^\w\d].{9,20}$"          <br />			maxInvalidPasswordAttempts=3          <br />			passwordAttemptWindow=20          <br />			passwordAnswerAttemptLockoutDuration=60          <br />			requiresUniqueEmail="true"          .../&gt;   <br />   	&lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+        <li>
+          <p>
+            <strong>セキュリティをさらに向上させます。</strong> パスワードの安全性を向上させるには、以下を行います。</p>
+          <ul>
+            <li>パスワードに大文字と小文字の両方、および英数字以外の文字が含まれていることを確認します。 <li>パスワードにユーザー名、ユーザーの名または姓 (既知の場合)、またはホスト名 / サイト名が含まれていないことを確認します。 <li>パスワードの有効期限が定期的に切れるようにし、ユーザーに新規パスワードの選択を強制します。&nbsp; パスワード変更の間隔はセキュリティ ニーズによって決定すべきですが、3 か月ごとがデフォルトとして妥当です。 <li>ユーザーによる古いパスワードの再使用を禁止します。</li></li></li></li>
+          </ul>
+          <p>非常に強力なセキュリティ要件を持つサイトの場合は、単に強力なパスワードを必須にして強制するだけでは十分でない可能性があります。そうした場合は 2 要因認証の導入を視野に入れるべきであり、そのためにスマートカード、USB ドングル、クロック同期型外部デバイス、クライアント側 SSL 証明書等のソフトウェア専用ソリューションを含む数多くのスキームが存在します。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>あるオンライン バンキング ウェブ サイトでは <strong>ActiveDirectoryMembershipProvider </strong> を認証に使用しています。&nbsp; サイトでは非常に単純なパスワードが必須とされているだけで、ユーザーに対しては ATM カード PIN をパスワードに使用するよう勧めています。&nbsp; このため、攻撃者は総当たり攻撃を仕掛けてユーザーのパスワードを非常に素早く見つけ出し、オンライン アカウントおよび数多くの ATM カードの両方にアクセスすることができます。&nbsp; 以下は、サイトのメンバーシップ プロバイダーの構成です。</p>
+ <pre>&lt;membership defaultProvider="MyADMembershipProvider"&gt;<br />	&lt;providers&gt;    <br />		&lt;add name="MyADMembershipProvider"<br />			connectionStringName="ADConnectionString"           <br />			applicationName="MyAppName"          <br />			minRequiredPasswordLength="4"          <br />			minRequiredNonalphanumericCharacters="0"          <br />			passwordStrengthRegularExpression=""         .../&gt;   <br />	&lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>あるオンライン バンキング ウェブ サイトでは <strong>ActiveDirectoryMembershipProvider </strong> を認証に使用しています。&nbsp; サイトでは比較的複雑なパスワードが必須とされ、ユーザーに対して他のサイトで使用しているパスワードを使用しないように注意を促しています。&nbsp; このため、攻撃者は相当回数の攻撃を行ってもパスワードを破ることはできず、サイト運営スタッフはセキュリティ ログを監視することで侵入者を簡単に検知してロックアウトにすることができます。&nbsp; 不正ログインの回数があまりにも多いためにシステムによって自動的にロックアウトにされたアカウントには、悪意のあるパスワード クラッキング行為が特にはっきりと示されます。&nbsp; 以下は、サイトのメンバーシップ プロバイダーの構成です。</p>
+ <pre>&lt;membership defaultProvider="MyADMembershipProvider"&gt;&nbsp; <br />   	&lt;providers&gt;    <br />     		&lt;add name="MyADMembershipProvider"           <br />                   	connectionStringName="ADConnectionString"           <br /><br />                   	applicationName="MyAppName"          <br /><br />                   	minRequiredPasswordLength="9"          <br /><br />                  		minRequiredNonalphanumericCharacters="2"          <br />                   	maxInvalidPasswordAttempts=3          <br />		 	passwordAttemptWindow=20          <br />		 	passwordAnswerAttemptLockoutDuration=60 <br />			requiresUniqueEmail="true"          .../&gt;<br />   	&lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Windows 2003 のもとで Active Directory に強力なパスワード ポリシーを強制する方法については、「<a href="http://technet.microsoft.com/en-us/library/cc875814.aspx">ステップバイステップ：強力なパスワード ポリシーの強制</a>」を参照してください。</li>
+  </ul>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

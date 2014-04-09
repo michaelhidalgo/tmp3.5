@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1485852690" Content_Hash="360132746">
+  <Metadata>
+    <Id>a8a90884-187a-4427-bb72-94c038aae63a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能な限り Windows 認証を使用する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ユーザーアカウントがActive Directory に存在する場合に、アプリケーションで Windows 認証を使用するようにする。</p>
+  <h1>理由</h1>
+  <p>Active DirectoryとWindows 認証を併用することには、統一されたIDストア、アカウントの一元管理、アカウントとパスワード ポリシーの強制適用、およびプレーンテキストのパスワードをネットワーク上で送信することのない強力な認証といった利点があります。 </p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションが Windows 認証を使用しているかどうかをチェックするには、次の手順に従います。</p>
+  <ol>
+    <li>
+      <div>ユーザー アカウントが Active Directory に格納されているかどうかをチェックします。</div>
+      <li>
+        <div>IIS が、匿名アクセスを無効にするように設定されていることを確認します。</div>
+        <li>
+          <div>IIS が、Web アプリケーションの仮想ディレクトリに対して Windows ベースの認証を使用するように構成されていることを確認します。</div>
+          <li>
+            <div>Web.config ファイルで&lt;<b>authentication</b>&gt; エレメントの <b>mode</b> 属性が  "Windows" (デフォルト設定) に設定されていることを確認します。</div>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>ASP.NETでWindows認証を使用するには、Microsoft インターネット･インフォメーション･サービス(IIS)を使用して匿名アクセスを無効化し、またウェブアプリケーションの仮想ディレクトリ用にWindowsベースの認証方式を構成しなければなりません。 一般的に統合 Windows 認証を使用することが推奨されますが、基本認証、ダイジェスト認証、またはクライアント証明書による認証を使用することもできます。 また、&lt;<b>authentication</b>&gt; エレメントの <b>mode</b> 属性が Web.config ファイルで"Windows" (デフォルト設定) に設定されていることを確認する必要があります。  "Windows" (デフォルト設定) に設定されていることを確認します。 </p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/4888ef0b-253e-4b1f-9f19-59bbc4cb5fdd">ガイドライン: 可能な限り Windows 認証を選択する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

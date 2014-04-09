@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1957386266" Content_Hash="688228654">
+  <Metadata>
+    <Id>72891dcd-2330-4615-a22a-855a02394277</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>統計分析攻撃</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1 class="section">適用先</h1>
+  <p>機微データを暗号化するアプリケーション。</p>
+  <h1 class="section">説明</h1>
+  <p>大量の暗号化データを与えられた場合、攻撃者は大量の暗号化パケットを比較することで機微データを発見できることがあります。 攻撃者は大量のパケットを集め、ネットワークやソフトウェア システムに関する情報を識別しようとします。 攻撃者は、人為的にパケットをシステムに注入してシステムの対応を観察したり、興味深いパケットがないか、ネットワーク トラフィックを受動的にリッスンしたりして、情報識別を可能にすることがあります。 </p>
+  <h1 class="section">影響</h1>
+  <ul>
+    <li>暗号鍵の発見 (WEP 鍵攻撃)
+<li>送信元、宛先、タイムスタンプ、トラフィック パターン、物理的場所、ネットワーク トポロジーなどのパケットのメタデータの発見
+<li>暗号化されていないデータ – すべて暗号化されている電子メールをリッスンする攻撃でも、送信先、送信者、CC、タイムスタンプ、件名など、暗号化されていないヘッダー情報を回収できます。</li></li></li>
+  </ul>
+  <h1 class="section">脆弱性</h1>
+  <ul>
+    <li>暗号化ライブラリを利用するときの間違ったセキュリティ感覚</li>
+  </ul>
+  <h1 class="section">対策</h1>
+  <ul>
+    <li>暗号化されるものとされないものを常に把握します。
+<li>ネットワークに送信されるパケットや情報を分析することで、どのような情報が発見可能かを理解します。
+<li>統計分析攻撃により一般的に収集される情報を隠すのに役立つツールを利用することを検討します。</li></li></li>
+  </ul>
+  <h1 class="section">その他のリソース</h1>
+  <h1 class="section">関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

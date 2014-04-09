@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1720723891" Content_Hash="-154023280">
+  <Metadata>
+    <Id>7c2364b1-09a2-4851-a5cb-5073837ebe1a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>サービスを利用するクライアントを制限する必要がある場合に､NegotiateServiceCredentials を｢false｣に設定することを検討する。</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>サービスを消費するクライアントを制限する必要がある場合､negotiateServiceCredentials をFalse に設定することを検討してください｡</p>
+  <h1>状況</h1>
+  <p>サービスを消費する可能性のあるクライアントを制限したい時は､このガイドラインの使用を検討してください｡</p>
+  <h1>対策</h1>
+  <p>サービスを消費する可能性のあるクライアントを制限したい時は､negotiateServiceCredentials をFalse に設定することを検討してください。 このオプションでは、クライアントに証明書、それに加えて公開鍵付きのサービス証明書をインストールすることが強制されます。 サービス上で証明書に加えて公開鍵付きのクライアント証明書をインストールする必要があります。 サービス Credential 情報の交渉は、wsHttpBinding でのみ利用できます。 </p>
+  <p>次のバインディング構成ファイルはこのオプションの設定方法を表示します:</p>
+ <pre>&lt;binding name="BindingMessage"&gt;<br />   &lt;security mode="Message"&gt;<br />      &lt;message clientCredentialType="Windows" negotiateServiceCredential="false" /&gt;<br />   &lt;/security&gt;<br />&lt;/binding&gt;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

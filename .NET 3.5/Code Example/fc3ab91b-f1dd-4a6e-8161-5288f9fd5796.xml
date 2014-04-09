@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="448467297" Content_Hash="-265064651">
+  <Metadata>
+    <Id>fc3ab91b-f1dd-4a6e-8161-5288f9fd5796</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>データテーブル内の出力をエンコーディング</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# <li>サーバサイド<li>SQL Server</li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコードは、アプリケーション データを表示するために .NET DataTable オブジェクトを使用する場合に、安全な出力エンコーディングを実装する方法を示します。 出力エンコーディングは、出力データを同等のエスケープ文字で表すことによって、クライアント側のスクリプト脆弱性を軽減します。HTML ページの書式設定に使用される文字 (&lt;,&gt;,&,",') など、そのままではブラウザによって解釈される可能性のある値にエスケープ文字が使用されます。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>クライアント側のスクリプティング攻撃からアプリケーション ユーザーを保護する<li>入力検証ルーティンの前に実行される可能性のある、または質の悪い検証により検出されなかった悪意のあるデータが、アプリケーション出力としてレンダリングされないことを確認する</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>データ テーブルを使用して出力を提示するデータベース バック Web アプリケーション<li>データ テーブルを使用して信頼できないソースからの入力を提示するアプリケーション</li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+  <p>
+    <strong>ソリューション例 #1: DataTable を通るループ</strong>
+  </p>
+  <p>以下のコードは、DataRow オブジェクトによるルーピング、およびエンコードを希望する各出力値に対する HtmlEncode の呼び出しにより実行される、出力エンコーディングの使用を示しています。 </p>
+ <pre>
+    <br />public void LoadEncodedPeopleTableEvent(SqlDataAdapter adapter)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Build a Data Grid to house our data and add to the set of page controls<br />&nbsp;&nbsp;&nbsp;&nbsp; DataGrid dataGrid = new DataGrid();<br />&nbsp;&nbsp;&nbsp;&nbsp; this.Controls.Add(dataGrid);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp; // Create a new data table and fill our that table with names from the adapter <br />&nbsp;&nbsp;&nbsp;&nbsp; DataTable names = new DataTable();<br />&nbsp;&nbsp;&nbsp;&nbsp; adapter.Fill(names);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp; // add an event handler to our DataGrid to encode the data<br />&nbsp;&nbsp;&nbsp;&nbsp; dataGrid.ItemDataBound += new DataGridItemEventHandler(dataGrid_EncodeItem);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp; // Present the data to the user in the previously created Data Grid<br />&nbsp;&nbsp;&nbsp;&nbsp; dataGrid.DataSource = names;<br />&nbsp;&nbsp;&nbsp;&nbsp; dataGrid.DataBind();<br />}</pre>
+ <pre>
+    <br />public void dataGrid_EncodeItem(object sender, DataGridItemEventArgs e)<br />{<br />&nbsp;&nbsp;&nbsp; // Encode each actual data row presented within the Data Grid<br />&nbsp;&nbsp;&nbsp; if (e.Item.ItemType.Equals(ListItemType.Item) || <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e.Item.ItemType.Equals(ListItemType.AlternatingItem))<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e.Item.Cells[0].Text = Server.HtmlEncode(e.Item.Cells[0].Text);<br />&nbsp;&nbsp;&nbsp; }<br />}</pre>
+  <p>このアプローチには柔軟性があり、さまざまなデータ提示設定で使用できます。 上記の例のデータでは、悪意のある JavaScript を含む行は、エスケープされた HTML 出力としてエンコードされ提示されます。 </p>
+  <p>
+    <strong>ソリューション例 #2: DataGrid ItemDataBound イベントの使用</strong>
+  </p>
+  <p>以下のコードは、アプリケーション出力のレンダリングに使用される DataGrid におけるItemDataBound イベントサポート内のカスタム　エンコーディング ハンドラーを関連付けることにより実行される、出力エンコーディングの使用を示しています。 </p>
+ <pre>public void LoadEncodedPeopleTableLoop(SqlDataAdapter adapter)<br />{</pre>
+ <pre>&nbsp;&nbsp;&nbsp; // Build a Data Grid to house our data and add to the set of page controls<br />&nbsp;&nbsp;&nbsp; DataGrid dataGrid = new DataGrid();<br />&nbsp;&nbsp;&nbsp; this.Controls.Add(dataGrid);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; // Create a new data table and fill our that table with names from the adapter <br />&nbsp;&nbsp;&nbsp; DataTable names = new DataTable();<br />&nbsp;&nbsp;&nbsp; adapter.Fill(names);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; foreach (DataRow row in names.Rows)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; row["Name"] = Server.HtmlEncode((string)row["Name"]);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; row.EndEdit();<br />&nbsp;&nbsp;&nbsp; }</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; // Present the data to the user in the previously created Data Grid<br />&nbsp;&nbsp;&nbsp; dataGrid.DataSource = names;<br />&nbsp;&nbsp;&nbsp; dataGrid.DataBind();</pre>
+ <pre>}</pre>
+  <p>このソリューションは、.NET のイベント主導のアーキテクチャーを利用し、個別のデータ アイテムにアクセスするために DataTable をループするという要件を排除します。 データの提示が、データ バインディング イベントに対応する DataGrid などのオブジェクトを使用する場合、パフォーマンスおよびアーキテクチャーの整合性を理由としてこのアプローチが推奨されています。 </p>
+  <h1>問題の例</h1>
+  <p>以下の例では、DataTable を使用して、出力エンコーディングを使用せずにデータを照会しています。</p>
+ <pre>// Build a datagrid to house our data and add to the set of page controls<br />DataGrid dataGrid = new DataGrid();<br />this.Controls.Add(dataGrid);</pre>
+ <pre>
+    <br />// Create a new database connection using Integrated Security and open that connection<br />string connectionString = "Initial Catalog=snippets;Data Source=vm-win2003\\sqlexpress;Integrated Security=SSPI;";<br />SqlConnection cn = new SqlConnection(connectionString);<br />cn.Open();</pre>
+ <pre>
+    <br />// Create a new SQL Command object with a query to execute the stored procedure<br />SqlCommand cmd = new SqlCommand("exec spFullNames", cn);<br />SqlDataAdapter adapter = new SqlDataAdapter(cmd);</pre>
+ <pre>
+    <br />// Create a new data table and fill our that table with names from the adapter <br />DataTable names = new DataTable();<br />adapter.Fill(names);</pre>
+ <pre>
+    <br />// Present the data to the user in the previously created Data Grid<br />dataGrid.DataSource = names;<br />dataGrid.DataBind();</pre>
+  <ul>
+    <li>データベース クエリー出力内に存在するあらゆる HTML データは、アプリケーション HTML 出力の一部としてレンダリングされる<li>データベース クエリ出力内に存在するあらゆる Javascript データは、アプリケーション HTML 出力の一部としてレンダリングされる<li>コードは、クロスサイト スクリプティング (XSS) などのクライント側のスクリプト攻撃に対して脆弱である</li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Data;<br />using System.Data.SqlClient;<br />using System.Web;</pre>
+  <p>新しい C# ASP.NET を作成し、次の Page_Load メソッドを使用して、提供されたメソッド例をテストする (データベース コードを例に合わせて調整する)</p>
+ <pre>protected void Page_Load(object sender, EventArgs e)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; if (!Page.IsPostBack)<br />&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create a new database connection using Integrated Security and open that connection<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string connectionString = "Initial Catalog=snippets;Data Source=vm-win2003\\sqlexpress;Integrated Security=SSPI;";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlConnection cn = new SqlConnection(connectionString);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cn.Open();</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create a new SQL Command object with a query to execute the stored procedure<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlCommand cmd = new SqlCommand("exec spFullNames", cn);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlDataAdapter adapter = new SqlDataAdapter(cmd);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LoadEncodedPeopleTableEvent(adapter);<br />&nbsp;&nbsp;&nbsp;&nbsp; }<br />}</pre>
+  <h1>期待される結果</h1>
+ <pre>&lt;table cellspacing="0" rules="all" border="1" style="border-collapse:collapse;"&gt;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;td&gt;Name&lt;/td&gt;&lt;/tr&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;td&gt;Elvin Jones&lt;/td&gt;&lt;/tr&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;td&gt;Gene Krupa&lt;/td&gt;&lt;/tr&gt;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;td&gt;Tony Williams&lt;/td&gt;&lt;/tr&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;tr&gt;&lt;td&gt;&lt;script&gt;alert('XSS!');&lt;/script&gt; XSS&lt;/td&gt;&lt;/tr&gt;</pre>
+ <pre>&lt;/table&gt;</pre>
+  <h1>詳細情報</h1>
+  <ul>
+    <li>出力検証の他に、開発者は、アプリケーション ユーザーまたは外部フィードなどの信頼されないソースからの入力を必ず検証するようにしてください。 </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Anti-Cross Site Scripting Library (.NET): <a href="http://www.microsoft.com/downloads/details.aspx?familyid=051EE83C-5CCF-48ED-8463-02F56A6BFC09&displaylang=en">http://www.microsoft.com/downloads/details.aspx?familyid=051EE83C-5CCF-48ED-8463-02F56A6BFC09&displaylang=en</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

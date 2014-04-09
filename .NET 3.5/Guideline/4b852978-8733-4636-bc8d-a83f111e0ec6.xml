@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1553279434" Content_Hash="-864052134">
+  <Metadata>
+    <Id>4b852978-8733-4636-bc8d-a83f111e0ec6</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>不適切な場所への秘密の保存の禁止</Title>
+    <Category>機密のデータ</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>コードに秘密または重要な知的財産が組み込まれていますか? 設計を見直し、秘密を保存することが絶対に必要であるということを確認してください。 コードがメモリーから秘密を排除することを確認してください。</p>
+  <h1>理由</h1>
+  <p>サーバ上のコードに秘密が保存されている場合、攻撃者がそれをダウンロードできる場合があります。 秘密はバイナリー アセンブリーで見ることができます。 管理コードは簡単に逆コンパイルできます。 元のコードに極めて似ている最終実行コードからコードをリカバリできます。 いかなる秘密の知的財産およびハード コードされた秘密も、簡単に盗むことができます。 難読化ツールはこのタイプの盗難をより困難にすることができますが、完全に防止することはできません。 他のよくある問題として、情報がユーザーに表示されないと考えたうえで Hidden フィールドを使用する場合があります。 </p>
+  <h1>状況</h1>これは重要なガイドラインであり、常に従う必要があります。&nbsp; <h1>対策</h1><p>機密をコード中にハードコードしないでください。 ソースコードが Web サーバに露出されていなくても、コンパイルされた実行ファイルから文字列定数を抽出することは可能です。 設定上の脆弱性から、攻撃者が実行ファイルを取得できることがあります。</p><p>データベースの接続文字列、パスワード、鍵などの機密情報をプレーンテキストで保存しないでください。 暗号化を使用し、暗号化された文字列を保管します。</p><p>LSA は、アプリケーションがアクセスに管理特権を要求するため、使用しないでください。 これは、最小限の特権で実行するというセキュリティの中核的な原則に違反します。 また、LSA は限定されたスロット数にのみ秘密を保存できます。 より良いアプローチは、Microsoft Windows® 2000 以降のオペレーティング システムで利用可能な、DPAPI を使用することです。</p><p>データベース接続文字列またはサービス アカウント Credential 情報などの秘密を保存するには、DPAPI を使用してください。 DPAPI を使用する主な利点は、プラットフォーム システムが暗号化/復号鍵を管理し、それはアプリケーションの問題ではないということです。 DPAPI 機能に渡されるフラグに応じて、鍵は Windows ユーザー アカウントまたは特定のコンピュータに結び付けられます。</p><p>DPAPI は、たとえば故障したサーバがオペレーティング システムの再インストールを必要とするためなど、マスター キーを喪失した場合に手動で再作成可能な情報の暗号化に最適です。 プレーンテキストの値を知らないために回収できないデータ (たとえば顧客のクレジット カード情報など) は、トリプル DES の使用などの従来の対称鍵に基づく暗号化を使用する、別のアプローチを必要とします。</p><p>ウェブ アプリケーションからの DPAPI の使用の詳細については、第 10 章の「安全な ASP.NET ウェブ ページおよびコントロールを確立する」を参照してください。(<a href="http://msdn2.microsoft.com/en-us/library/aa302426.aspx">http://msdn2.microsoft.com/en-us/library/aa302426.aspx) </a></p><h1>その他のリソース</h1><ul><li>詳細については、<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a>&nbsp; の「第 4 章 - 安全なウェブ アプリケーションのための設計ガイドライン」を参照してください。 </li></ul><hr /><p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

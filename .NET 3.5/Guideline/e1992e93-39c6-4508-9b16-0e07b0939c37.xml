@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1538928176" Content_Hash="1488819275">
+  <Metadata>
+    <Id>e1992e93-39c6-4508-9b16-0e07b0939c37</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>接続文字列をセキュリティで保護する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーションのデータベース サーバのバックエンドへの Credential 情報を保護してください。</p>
+  <h1>理由</h1>
+  <p>攻撃者がアプリケーションのバックエンド データベースえの Credential 情報にアクセスしてしまうと、攻撃者はアプリケーションで提供されている全てのアクセス許可でデータベースにアクセスしてしまう可能性があります。</p>
+  <h1>状況</h1>
+  <p>アプリケーションがバックエンドのデータベースサーバを使用する場合。</p>
+  <h1>対策</h1>
+  <p>アプリケーションのデータベース Credential 情報を保護するには: </p>
+  <ol>
+    <li>
+      <p>
+        <strong>可能な限り Windows 認証を使ってデータベース サーバに接続してください。</strong> Windows 認証を使うことによって、Credential 情報を保存する必要性が完全に解消されます。</p>
+      <li>
+        <p>
+          <strong>Credential 情報は暗号化された構成ファイルに保存してください。</strong> データベース Credential 情報は自分のコードにハードコードしないでください。 その代わりに、アプリケーション構成ファイルを使い、機微データを含む部分を暗号化してください。 ASP.NET アプリケーションの場合、接続文字列&amp;#8212;の暗号化機能を提供するライブラリが２つあります。 DPAPI および RSA の 2 つがあります。 アプリケーションがウェブ ファームに展開される場合、RSA 鍵は簡単にエクスポートできるため、RSA 保護された構成プロバイダーを使用することをお勧めします。 それ以外の場合、DPAPI 保護された構成プロバイダーを使用することをお勧めします。</p>
+        <li>
+          <p>
+            <strong>構成ファイルを保護してください</strong>:</p>
+          <ul>
+            <li>
+              <strong>構成ディレクトリを選択します</strong>。アプリケーションの構成ファイルを格納する専用ディレクトリを割り当てます。 ディレクトリに Web からアクセスできないことを確認します。 これにより、ディレクトリ内のコンテンツのセキュリティ侵害を起こす可能性があるユーザーの対象範囲を制限します。 <li><strong>適切なアクセス許可を設定します</strong>。アプリケーションとその管理者のみが構成ファイルにアクセスできるように適切なファイルシステムのアクセス許可を適用します。</li></li>
+          </ul>
+          <li>
+            <p>
+              <strong>データベース サーバへの接続は暗号化してください。</strong> アプリケーションとデータベース サーバー間の接続を暗号化することで、バックエンド データベースに対して最初に認証が行われる際にデータベース資格情報が保護されます。 実装方法はデータベース サーバーのメーカーによって異なるため、このような機能を利用する方法については、サーバーのマニュアルを参照することをお勧めします。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションは web.config ファイルに次の ID エレメントを含んでいます: </p>
+ <pre>&lt;identity impersonate="true"<br />          userName="MyDomain\MyUserName"<br />          password="MySecretPassword"/&gt;</pre>
+  <p>ユーザー名とパスワードはプレーンテキストなので、サーバへのアクセスを取得する攻撃者に簡単に読み取られます。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションは次のものに似た、ID エレメントの代替となるものを web.config ファイルに持っています: </p>
+ <pre>&lt;EncryptedData&gt; <br />     &lt;CipherData&gt; <br />       &lt;CipherValue&gt; <br />          AQAAANCMnd8BFdERjHoAwE/Cl&amp;#43;sBAAAAexuI<br />          J/8oFE&amp;#43;sGTs7jBKZdgQAAAACAAAAAAADZgAA<br />          qAAAABAAAAAKms84dyaCPAeaSC1dIMIBAAAA<br />          AASAAACgAAAAEAAAAKaVI6aAOFdqhdc6w1Er<br />          3HMwAAAAcZ00MZOz1dI7kYRvkMIn/BmfrvoH<br />          NUwz6H9rcxJ6Ow41E3hwHLbh79IUWiiNp0Vq<br />          FAAAAF2sXCdb3fcKkgnagkHkILqteTXh<br />       &lt;/CipherValue&gt;<br />    &lt;/CipherData&gt;<br />&lt;/EncryptedData&gt;</pre>
+  <p>ユーザー名とパスワードは暗号化されており、サーバへのアクセスを取得した攻撃者に簡単には読み取られません。</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/c6f3e32d-57b8-44cf-818a-c346d0014c06">ガイドライン: 機微データはプレーンテキストで保存しません</a>
+      <li>
+        <a href="/article/1fe40372-6648-4496-8552-794f91ff6bbf">チェックリスト項目: 接続文字列は保護されています</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

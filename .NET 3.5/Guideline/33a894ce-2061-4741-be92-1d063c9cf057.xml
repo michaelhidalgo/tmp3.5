@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1761687591" Content_Hash="-367461352">
+  <Metadata>
+    <Id>33a894ce-2061-4741-be92-1d063c9cf057</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>未処理の例外に対するグローバル例外ハンドラの使用</Title>
+    <Category>エラー ハンドリング</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>グローバル例外ハンドラーを使用して、処理されない例外をキャッチします。 グローバル例外ハンドラは、アプリケーションの信頼性を強化し、情報漏えいのリスクを最小限に抑えます。</p>
+  <h1>理由</h1>
+  <p>未処理の例外は、アプリケーションの性能とセキュリティへの重大な障害となる可能性があります。 アプリケーションが不明なステートに移る、および/または機微な内部アプリケーションの詳細を暴露する可能性があるため、未処理の例外を避ける必要があります。 グローバル例外ハンドラーの使用は、未処理の例外を防止します。</p>
+  <h1>状況</h1>
+  <p>アプリケーションがいずれかのタイプの例外を生成する場合、このガイドラインが適用されます。 </p>
+  <h1>対策</h1>
+  <p>グローバル例外ハンドラーは、コードが別の方法で処理しない例外を捕獲します。 コードで処理されないすべての例外をキャッチするために Global.asax でアプリケーション レベルのグローバル エラー ハンドラーを定義します。 これはクライアントへ詳細なエラー情報を返すことを避けるために行います。 追跡記録目的および後日の分析のため、イベントログのすべての例外を記録しなければなりません。 下記に類似するコードを使用してください｡</p>
+ <pre>&lt;&amp;#37;&amp;#64;Application Language="C#" &amp;#37;&gt;<br />&lt;&amp;#37;&amp;#64;Import Namespace="System.Diagnostics" &amp;#37;&gt;<br /> &lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> &amp;#123;<br />     // Add the appropriate logging code<br />        Response.Write("We are sorry, but we cannot complete your request. Please try again later&amp;#33;");<br />    Server.ClearError();<br /> &amp;#125;<br /> &lt;/script&gt;</pre>
+  <h1>問題の例</h1>
+  <p>ASP.NETアプリケーションはSQLデータベースに接続されます。 ただし、アプリケーションは汎用的なエラーハンドラーを指定しません。 結果として､接続時間が切れると、例外の中にアプリケーションの詳細がクライアントへ開示されます:</p>
+  <p>
+    <strong>説明:</strong>現在のウェブ要求を実行中に発生した未処理の例外。 エラーについての詳細とコードにおける発生源については、スタックトレースを確認してください｡</p>
+  <p>
+    <strong>例外の詳細:</strong> System.Data.SqlClient.SqlException:サーバへの接続を確立中にエラーが発生しました。 SQLServer に接続する際､この失敗は初期設定は SQL Server がリモート接続を許可しなかったために引き起こされた可能性があります。 (プロバイダー:SQLネットワークインターフェイス､エラー:26、指定されたサーバ/インスタンスの特定エラー)</p>
+  <p>
+    <strong>ソースエラー: </strong>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <pre>
+            <br />Line 216:<br />Line 217:            if (conn.State &amp;#33;= ConnectionState.Open)<br />Line 218:                conn.Open();<br />Line 219:<br />Line 220:            cmd.Connection = conn;</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。 全ての未処理の例外を捕獲しログ記録するための、アプリケーションレベルのグローバルエラー･ハンドラーを定義しました。 これにより、サーバにより詳しい情報をログ記録しながら、クライアントへ汎用的なエラーメッセージを提示することができます。 </p>
+ <pre>&lt;&amp;#37;&amp;#64;Application Language="C#" &amp;#37;&gt;<br />&lt;&amp;#37;&amp;#64;Import Namespace="System.Diagnostics" &amp;#37;&gt;<br /> &lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> &amp;#123;<br />     // Add the appropriate logging code<br />     Exception ex = Server.GetLastError();<br />     if (ex.GetType().Name.Equals("SQLException"))<br />     &amp;#123; <br />        Server.Transfer("dbError.html");<br />     &amp;#125;<br />     else<br />     &amp;#123;<br />         Server.Transfer("genericError.html");<br />     &amp;#125;<br />         Server.ClearError();<br /> &amp;#125;<br /> &lt;/script&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET における customErrors エレメントに関する詳細については、 MSDN 内の<a href="http://msdn2.microsoft.com/en-us/library/h0hfz6fc.aspx">customErrors エレメント</a> のドキュメントを参照してください。 <li>ASP.NET におけるカスタム エラーの作成に関する詳細については、<a href="http://support.microsoft.com/kb/306355">カスタム エラー ページをASP.NET を使用して作成する方法</a>を参照してください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/74be8616-ad22-4d1d-a7fc-8ff3d145fc61">ガイドライン: クライアントに例外の詳細を公開しない</a>
+      <li>
+        <a href="/article/4d3f994b-3be7-4e3d-8183-e213612cf5c4">チェックリスト項目: グローバル例外ハンドラーは処理されていない例外に使用されている </a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

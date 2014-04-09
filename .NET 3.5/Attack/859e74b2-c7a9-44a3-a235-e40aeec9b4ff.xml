@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="799528816" Content_Hash="-806163302">
+  <Metadata>
+    <Id>859e74b2-c7a9-44a3-a235-e40aeec9b4ff</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>信頼されていないデータの逆シリアル化攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>C、Java、Python、Perl、C# など、&amp;#43;オブジェクト指向言語で記述されたアプリケーション。</p>
+  <h1>説明</h1>
+  <p>シリアル化は後の再構築のためにオブジェクトの状態を保存するプロセスです。 これにより、アプリケーションはメモリからオブジェクトを受け取り、それをディスク、データベース、ネットワークに送ることができます。 逆シリアル化はこの反対のプロセスです。 信頼されていないデータをメモリに読み込み、直接利用する行為は、アプリケーションを安全でない状態に置き、クラッシュのリスクにさらします。 多くの言語はプログラマーにとって重労働となるシリアル化ルーチンを組み込んでいます。 しかしながら、データの完全性を守ったり、攻撃者が機密情報を見るのを防いだりすることはありません。 そのため、タンパリングを防ぐために厳しい検証や暗号化対策を取るまでは、シリアル化されているオブジェクトの逆シリアル化は安全であると考えるべきではありません。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>可用性: 信頼されていないデータは十分に書式設定されておらず、間違った、または終わらない逆シリアル化、あるいはクラッシュを引き起こします。 <li>情報漏えい: シリアル化は機密情報を露出させます。既定ではプライベート フィールドを保護しないためです。 <li>認可: 適切な検証なしで逆シリアル化されたデータを信頼することは、プログラム ロジックの改ざんやユーザー特権の昇格を引き起こします。</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>逆シリアル化の間に信頼されていないデータを検証しなかったこと。 <li>シリアル化前にデータに暗号で署名しなかった、またはデータを符号化しなかったこと。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>シリアル化前にオブジェクトに署名する</strong>。暗号化ライブラリを利用し、シリアル化に先立ち私有鍵でデータに署名する。 この方法により、データが変更され、そのため信頼できない場合に、アプリケーションがそれを検知できます。 これはまた、送信者の認証を提供します。 <li><strong>シリアル化前にオブジェクトを暗号化する。</strong> オブジェクトに署名することのすべての長所に加えて、適切な非対称鍵暗号でオブジェクト全体を正しく暗号化すれば、信頼されていないユーザーがオブジェクトの中身を調べることを防止できます。 <li><strong>新しいオブジェクトにデータを入力する</strong>。一般的なオブジェクト シリアル化ルーチンの代わりに、クラスごとに独自のルーチンを記述します。 逆シリアル化するときは、アプリケーションで最初に作成したときと同じように新しいオブジェクトにデータを入力します。 これは、コンストラクターやその他の初期化ルーチンを利用し、既知の良好な状態を確保します。 また、各変数の検証が簡単になり、オブジェクトを全体として受け取るよりはずっと安全です。 <li><strong>適切な場合、シリアル化を明示的に回避する</strong>。まったくシリアル化しないことでプライベート データを守るときは、既定のシリアル化機能に明示的に過度の負担を与え、それから継承するクラスでシリアル化を回避します。 <li><strong>フィールドを一過性にしてシリアル化を回避する</strong>。シリアル化するべきではない特定のフィールドだけが与えられることがあります。 その場合、言語固有のキーワードを利用してフィールドを一過性にしてシリアル化を回避します。</li></li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>次の Java コードではシンプルなクラスをシリアル化してファイルにします。 その後、検証せずにファイルから逆シリアル化します。 これは深刻なを表しています。手順を含め、ファイルにあるものはすべてそれまでに改ざんされた可能性があるからです。</p>
+  <pre>import java.io.Serializable;import java.util.Date;public class Record implements Serializable&amp;#123;   private String name;   private String record;   private Date date;   public Record(String n, String r)&amp;#123;      name = n;      record = r;      date = Date();   &amp;#125;&amp;#125;// setupString filename = "record.obj";FileOutputStream fos = null;ObjectOutputStream out = null;ObjectInputStream oin = null;FileInputStream fis = null;Record record = new Record("Alice", "Is the data that lives here malicious?");// serializetry&amp;#123;   fos = new FileOutputStream(filename);   oos = new ObjectOutputStream(fos);   oos.writeObject(record);   oos.close();&amp;#125;catch(IOException ex)&amp;#123;   ex.printStackTrace();&amp;#125;// deserializerecord = null;try&amp;#123;   fis = new FileInputStream(filename);   oin = new ObjectInputStream(fis);   record = (Record)oin.readObject();   oin.close();&amp;#125;       catch(IOException ex) &amp;#123;   ex.printStackTrace();&amp;#125;       catch(ClassNotFoundException ex)&amp;#123;   ex.printStackTrace();&amp;#125;</pre>
+  <p>最良のソリューションは、独自のシリアル化メソッドを記述し、2 つの文字列と日付をプレーン テキストとしてファイルに書き込み、その後、全体を暗号化することです。 ただし、受け入れられるソリューションは次のようになります。 暗号化ライブラリを利用し、シリアル化する前にオブジェクトに署名します。それで、送信者を確認し、オブジェクトが改ざんされていないことを検証できます。</p>
+  <pre>// setup SignedObject signedobject = null;KeyPairGenerator kpg = KeyPairGenerator("SHA-1/DSA");KeyPair kp = kpg.generateKeyPair();PrivateKey privatekey = kp.getPrivate();PublicKey publickey = kp.getPublic();Signature signature = Signature.getInstance("SHA-1/DSA");      // sign objectsignedobject = new SignedObject(record, privatekey, signature);// serializetry&amp;#123;   fos = new FileOutputStream(filename);   oos = new ObjectOutputStream(fos);   oos.writeObject(signedobject);   oos.close();&amp;#125;catch(IOException ex)&amp;#123;   ex.printStackTrace();&amp;#125;// deserializerecord = null;signedobject = null;try&amp;#123;   fis = new FileInputStream(filename);   oin = new ObjectInputStream(fis);   signedobject = (SignedObject)oin.readObject();   oin.close();   boolean ok = signedobject.verify(publickey, signature);   if (ok)&amp;#123;record = (Record)signedobject.getObject();&amp;#125;   else&amp;#123;record = null;&amp;#125;&amp;#125;    catch(IOException ex) &amp;#123;   ex.printStackTrace();&amp;#125;    catch(ClassNotFoundException ex)&amp;#123;   ex.printStackTrace();&amp;#125;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>一般的なシリアル化に関する詳細は、次を参照してください。<a href="http://en.wikipedia.org/wiki/Serialization">Wikipediaのシリアル化</a><li>.NET シリアル化に関する詳細は、次を参照してください。<a href="http://msdn.microsoft.com/msdnmag/issues/02/04/net/">MSDN – 実行時シリアル化</a><li>Java シリアル化に関する詳細は、<a href="http://java.sun.com/developer/technicalArticles/ALT/serialization/">Java シリアル化参照</a>を参照してください。<li>Java シリアル化の保護に関する詳細は、<a href="http://www.javaworld.com/javaworld/jw-11-2000/jw-1117-howto.html?page=1">署名され、封印されたオブジェクトでシリアル化されたコンテンツを安全に届ける</a>を参照してください。</li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2021896502" Content_Hash="-1108534495">
+  <Metadata>
+    <Id>3d7727d0-18ca-47c3-90f6-5c6c715c4f35</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>必要な場合を除き、偽装が使用されていない</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>偽装を避けられる場合に、アプリケーションが偽装を使用していないことを確認する。</p>
+  <h1>理由</h1>
+  <p>プログラム型の偽装が適切に行われていないと、セキュリティの脆弱性を招くおそれがあります。 特にマルチスレッド アプリケーションでは、正しく行うことは困難です。 可能な限り、リソース アクセスにはカスタム ドメイン プロセス ID を使用するなど、代替方法を使用してください。 プログラム型の偽装は、以下の理由により、可能な限り避ける必要があります。</p>
+  <ul>
+    <li>スレッド偽装トークンがスレッドにわたって伝播されていない、スレッド スイッチが原因でエラーが発生しやすい。 <li>一部のプログラム手法で Credential 情報の保存が必要になるが、これは避けるべきである。 <li>一部のプログラム手法でプロセス アカウントに追加の特権の付与が必要になるが、これは避けるべきである。 例えば、Windows Server 2000 で <strong>LogonUser</strong> を呼び出す場合、またはWindows Server 2003 で偽装レベル トークンを取得するためにユーザー プリンシパル名からトークンを生成する新しい <strong>WindowsIdentity</strong> コンストラクタを使用する場合、プロセス アカウントに “オペレーティング システムの一部として機能” を付与する必要があります。 </li></li></li>
+  </ul>
+  <h1>チェック方法</h1>
+  <p>以下の手順に従って、アプリケーションが偽装の使用を最小限に抑えていることを確認します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションの要件を確認します。 </strong>アプリケーションの設計と要件を調べて、アプリケーション内で偽装が使用されている可能性のあるすべての場所を特定します。 偽装は一般的に以下のように使用されます。</p>
+      <ul>
+        <li>Forms Authentication 経由での Active Directory セキュリティの強制設定<li>特権の変更<li>システム リソースへのアクセス中におけるセキュリティの強制設定<li>外部コンポーネントとの通信中におけるユーザー ID の変更</li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>偽装の代替手段を特定します。</strong>
+        </p>
+        <ul>
+          <li>アプリケーションが偽装を使用しているすべてのインスタンスを入念に調べます。 <li><a href="http://msdn2.microsoft.com/en-us/library/aa139672.aspx">Windows 開発ドキュメント</a>を使用して、アプリケーションが偽装を使用せずにタスクを実行できるように、使用できる代替手段をすべて特定します。 <li>代替手段を特定したら、偽装が必要な場所にのみ使用されていることを確認します。</li></li></li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は、MyCorp の人事アプリケーションです。 アプリケーションの開発チームは、ユーザーがファイルをアップロードしてデータを共有できる新しい機能セットを公開します。 MyApp は ASP.NET ローカル システム アカウントで動作するため、開発者はアップロードされたファイルを作成者にマッピングするメカニズムとして偽装を使用します。これにより、アプリケーションは不要な偽装を強いられることになります。 適切に処理されないと、MyApp 内で特権の昇格の脆弱性が拡大するおそれがあります。</p>
+ <pre>WindowsIdentity winIdentity = new WindowsIdentity(username &amp;#43; "&amp;#64;NTDOMAIN");<br />WindowsImpersonationContext ctx = winIdentity.Impersonate();<br /> // Store the uploaded file</pre>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/fdb65a4c-d979-4ab7-b2fa-b88e908207fe">ガイドライン: 必要な場合を除き、偽装を使用しない</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

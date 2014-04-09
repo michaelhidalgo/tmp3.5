@@ -1,0 +1,2150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1193676570" Content_Hash="1251207828">
+  <Metadata>
+    <Id>a445a9ee-fe43-46ef-96c5-3d2210ae0629</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>XML インジェクション バグをテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>以下に適用します:</span>
+  </h1>
+  <ul>
+    <li>
+      <span>ASP、PHP、Java など、Web 言語で書かれた XML 通信プロトコルを使用する Web サービス。</span>
+      <li>
+        <span>SOAP 通信を使用する Web サービス。</span>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <b>
+      <span>
+      </span>
+    </b>&nbsp;</p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>
+    <span>XML とは拡張マークアップ言語です。<span>&nbsp; </span>これは、HTML と同様に、タグを使用して構造化されたデータを保存します。<span>&nbsp; </span>ただし、ユーザーが定義したタグに固有の要素を定義することができるため、XML は拡張可能です。</span>
+  </p>
+  <p>
+    <span>Web ソフトウェアでは、XML の最も顕著な使用方法は次の 2 つです: </span>
+  </p>
+  <ol>
+    <li>
+      <span>データベースの代用として構造化されたデータを保存する。 </span>
+      <li>
+        <span>企業間および企業とクライアント間の通信 (SOAP など) にトランザクション プロトコルを提供する。</span>
+      </li>
+    </li>
+  </ol>
+  <h3>
+    <span>
+      <em>データベースの代用として構造化されたデータを保存する</em>
+    </span>
+  </h3>
+  <p>
+    <span>サーバーは、ユーザー名、パスワード、および電子メールを<b><i>ユーザー</i></b>要素に保存します。<span>&nbsp; </span>Web フォームを使用してユーザーのデータを収集します:</span>
+  </p>
+  <p>
+    <span>
+      <img src="|image|clip_image001.png" />
+    </span>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <p>
+    <span>ユーザーは以下のデータを入力し、<i>[ユーザーの作成]</i> ボタンをクリックします:</span>
+  </p>
+ <pre>
+    <b>
+      <span>Username: JohnyC</span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>
+      </span>
+    </b>
+    <b>
+      <span>Password: qwerty</span>
+    </b>
+    <span>
+    </span>
+  </pre>
+ <pre>
+    <b>
+      <span>E-mail: johnyc@examplesite.com</span>
+    </b>
+  </pre>
+  <p>
+    <span>クライアントはこの URL をサーバー アプリケーションに送信します:</span>
+    <span>&nbsp;</span>
+  </p>
+ <pre>
+    <b>
+      <span>http://www.examplesite.com/GetProfile.php?username=JohnyC&password=qwerty &email=JohnyC@examplesite.com</span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>
+      </span>
+    </b>
+  </pre>
+  <p>
+    <span>サーバーが URL を受け取ったら、<b><i>user</i></b><i>XMLelementnode を作成します:</i><i></i><i></i></span>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+ <pre>
+    <span>&lt;user&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;username&gt;JohnyC&lt;/username&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password&gt;qwerty&lt;/password&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;userid&gt;111&lt;userid/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;mail&gt;JohnyC@examplesite.com&lt;/mail&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;/user&gt;</span>
+  </pre>
+ <pre>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>&nbsp;</pre>
+  <h3>
+    <span>
+      <em>企業間および企業とクライアント間の通信 (SOAP など) にトランザクション プロトコルを提供する</em>
+    </span>
+  </h3>
+  <p>
+    <span>2 つめの最も使用されている XML の利点は、Web サービスを統合することです。<span>&nbsp; </span>SOAP は XML Web サービスの通信プロトコルです。<span>&nbsp; </span>XML の前は、システムは Web でクロス プラットフォーム サービスを統合するのにリモート プロシージャ コール (RPC) を実装する必要がありました。<span>&nbsp; </span>その当時、COBRA または DCE が統合を達成するために最も使用されていましたが、複雑すぎました。<span>&nbsp;&nbsp; </span>SOAP はその単純さから導入された、標準的な XML 通信プロトコルを定義しました。<span>&nbsp; </span>Microsoft が SOAP をリリースした際に、 COM を SOAP に翻訳したツールキットおよび Java 関数を SOAP に翻訳したツールキットもリリースされました。<span>&nbsp;&nbsp; </span></span>
+  </p>
+  <p>
+    <span>以下のコードは、</span>
+    <b>
+      <span>sayHello </span>
+    </b>
+    <span>メソッドを SOAP サーバー<a style="mso-endnote-id: edn1" name="_ednref1" href="about:blank#_edn1" title=""><span><span><span><span>[i]</span></span></span></span></a>で呼び出す XML ベースの SOAP クライアントを示します:</span>
+  </p>
+ <pre>
+    <span>Dim x, h</span>
+  </pre>
+ <pre>
+    <span>Set x = CreateObject("MSXML2.DOMDocument")</span>
+  </pre>
+ <pre>
+    <span>x.loadXML "&lt;s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/' </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>xmlns:xsi='http://www.w3.org/1999/XMLSchema-instance' </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>xmlns:xsd='http://www.w3.org/1999/XMLSchema'&gt;&lt;s:Body&gt;&lt;m:sayHello </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>xmlns:m='urn:Example1'&gt;&lt;name xsi:type='xsd:string'&gt;James&lt;/name&gt;&lt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>/m:sayHello&gt;&lt;/s:Body&gt;&lt;/s:Envelope&gt;"</span>
+  </pre>
+ <pre>
+    <span>msgbox x.xml, , "Input SOAP Message"</span>
+  </pre>
+ <pre>
+    <span>Set h = CreateObject("Microsoft.XMLHTTP")</span>
+  </pre>
+ <pre>
+    <span>h.open "POST", "http://localhost:8080"</span>
+  </pre>
+ <pre>
+    <span>h.send (x)</span>
+  </pre>
+ <pre>
+    <span>while h.readyState &lt;&gt; 4</span>
+  </pre>
+ <pre>
+    <span>wend</span>
+  </pre>
+ <pre>
+    <span>msgbox h.responseText,,"Output SOAP Message"</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>XML Web サービスの詳細については、トピック<a style="mso-endnote-id: edn2" name="_ednref2" href="about:blank#_edn2" title=""><span><span><span><span>[ii]の MSDN 項目を参照してください。</span></span></span></span></a></span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h3>
+    <span>
+      <em>XML インジェクション バグ</em>
+    </span>
+  </h3>
+  <p>
+    <span>XML インジェクションとは、攻撃を実行するために XML ベースの Web サービスに不当に精巧なデータを入力することです。<span>&nbsp; </span>XML インジェクション攻撃は、XML ストアに余分な要素を追加して機密情報を改ざんすることから、ターゲットのブラウザで XML ストア タグを変更してクロスサイト スクリプティング コードを実行することまで、さまざまです。</span>
+  </p>
+  <p>
+    <span>XML インジェクションをテストするのに必要な手順を以下に示します:</span>
+  </p>
+  <ol>
+    <li>
+      <span>XML インジェクション攻撃シナリオを理解する。</span>
+      <li>
+        <span>ハイリスク コンポーネントを特定する。</span>
+        <li>
+          <span>テストと調査を開始する。</span>
+          <li>
+            <span>テスト ケースを調節する。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <b>
+      <span>重要: </span>
+    </b>
+    <span>
+      <span>&nbsp;&nbsp;</span>XML インジェクションを <b><i>XPATH</i></b> または <b><i>XQUERY </i></b>バグと区別する必要があります。<span>&nbsp; </span>どちらも XML に関係するという点では同じですが、それぞれの関わる論理が根本的に異なるため、個々の項目で説明していきます。</span>
+  </p>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>手順 1: <span> </span>XML インジェクション攻撃シナリオを理解する</span>
+  </h1>
+  <p>
+    <span>最初の手順では、XML インジェクション攻撃が記憶域と通信の両方で機能する方法を理解する必要があります。<span>&nbsp; </span>以下の 2 つのシナリオで、XML インジェクション攻撃について説明します:</span>
+  </p>
+  <ul>
+    <li>
+      <span>余分なタグを XML データ ストアに挿入する。</span>
+      <li>
+        <span>CDATA タグを操作することによって、クロスサイト スクリプティング攻撃を実行する。</span>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 1:<span> </span>余分なタグを XML データ ストアに挿入する</em>
+    </span>
+  </h2>
+  <p>
+    <span>ある銀行のサイトは当座預金口座を作成するための単純な Web ページを表示します。 <span>&nbsp;</span>これには、上記のような Web フォームからデータを取得し、次のような URL を構築します:</span>
+  </p>
+ <pre>
+    <b>
+      <span>http://www.examplesite.com/CreateChecking.php?username=JohnyC&password=qwerty&email=JohnyC@examplesite.com</span>
+    </b>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+    <span>銀行では URL のデータを使用してそのデータ ストアに次の XML を作成します:</span>
+  </p>
+ <pre>
+    <span>&lt;user&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;username&gt;JohnyC&lt;/username&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password&gt;qwerty&lt;/password&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;userid&gt;111&lt;userid/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;mail&gt;JohnyC@examplesite.com&lt;/mail&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;account type=”checking”&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;created&gt;02-21-2008&lt;/created&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;number&gt;1249109&lt;<span></span>/number&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;balance&gt;1201&lt;/balance&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/account&gt; </span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>&lt;/user&gt;</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>銀行では貯蓄口座を作成するための Web インターフェイスを提供していません。<span>&nbsp; </span>貯蓄口座を開くには、クライアントは銀行に行って追加の情報を提供する必要があります。<span>&nbsp; </span>銀行は、攻撃者に悪意のあるデータを Web フォームに入力させて、セキュリティの脆弱性を露呈します。<span>&nbsp; </span>攻撃者は以下の URL 要求を送信します:</span>
+  </p>
+ <pre>
+    <b>
+      <span>http://www.examplesite.com/CreateChecking.php?username=JohnyC&password=qwerty&email=JohnyC@examplesite.com&lt;<span><span>/mail&gt;&lt;account type="savings"&gt;&lt;created&gt;03-02-2008&lt;/created&gt;&lt;number&gt;12345678&lt;/number&gt;&lt;balance&gt;1000000&lt;/balance&gt;&lt;/account&gt;</span></span><span></span></span>
+    </b>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+    <span>銀行はこの要求を受け取り、余分なタグをチェックせずに、以下の要素をデータ ストアに構築します:</span>
+  </p>
+ <pre>
+    <span>&lt;user&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;username&gt;JohnyC&lt;/username&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password&gt;qwerty&lt;/password&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;userid&gt;111&lt;userid/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;mail&gt;<span>JohnyC@examplesite.com&lt;/mail&gt;</span></span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>&lt;account type=</span>
+    </span>
+    <span>"</span>
+    <span>savings</span>
+    <span>"</span>
+    <span>&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;created&gt;03-02-2008&lt;/created&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;number&gt;12345678&lt;/number&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;balance&gt;1000000&lt;/balance&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/account&gt;</span>
+    <span>
+    </span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;account type=”checking”&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;created&gt;02-21-2008&lt;/created&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;number&gt;1249109&lt;<span></span>/number&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;balance&gt;1201&lt;/balance&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;/account&gt; </span>
+  </pre>
+ <pre>
+    <span>&lt;/user&gt;</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>この銀行の Web アプリケーションのバグは、攻撃者に遠隔操作で残高が $1000000 の貯蓄口座を作成できるようにします。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 2<span> </span>CDATA タグを操作することによってクロスサイト スクリプティング攻撃を実行する</em>
+    </span>
+  </h2>
+  <p>
+    <span>XML は CDATA タグを使用して通常はマークアップとして認識されるようなテキストのブロックをエスケープします。<span>&nbsp; </span>タグの</span>
+    <b>
+      <span>"&lt;![CDATA[" </span>
+    </b>
+    <span>および </span>
+    <b>
+      <span>"]]&gt;" </span>
+    </b>
+    <span>で囲まれたすべてのデータはマークアップとして解析されません。<span>&nbsp; </span></span>
+  </p>
+  <p>
+    <span>脆弱なサーバーは scenarios.xml という名前のファイルを使用して各シナリオにタイトルとデータを保存します:</span>
+  </p>
+ <pre>
+    <span>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;scenarios&gt;</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>&lt;scenario&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;title&gt;XSS scenario&lt;/title&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;data&gt;&lt;![CDATA[this is not to be parsed &lt;!-- as XML '"&gt;&lt;]]&gt;&lt;/data&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;/scenario&gt;&nbsp;<span>&nbsp;&nbsp; </span></span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>etc…</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>&lt;/scenarios&gt;</span>
+  </pre>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <p>
+    <span>アプリケーションは、以下のコードを使用して XML ファイルから無分別にページ (scenarios.php) を構築してクライアントにページを送り返します:</span>
+  </p>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+ <pre>
+    <span>&lt;? php</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>$objDOM = new DOMDocument(); </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>$objDOM-&gt;load("scenarios.xml"); </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>$scenario = $objDOM-&gt;getElementsByTagName("scenario");</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>
+    </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>foreach( $scenario as $value )</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>{</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp; </span>$title<span>&nbsp; </span>= $value-&gt;getElementsByTagName("title")-&gt;item(0)-&gt;nodeValue;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp; </span>$data =<span>&nbsp;&nbsp; </span>$value-&gt;getElementsByTagName("data")-&gt;item(0)-&gt;nodeValue;</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp; </span>echo "$title:&lt;br&gt;$data&lt;br&gt;";</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>}</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>
+    </span>
+  </pre>
+ <pre>
+    <span>?&gt;</span>
+  </pre>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <p>
+    <span>上記のシナリオは以下の出力を生成します:</span>
+  </p>
+ <pre>
+    <span>XSS scenario:<br />this is not be parsed as XML '"&gt;&lt;</span>
+  </pre>
+  <p>
+    <b>
+      <span>
+        <span>&nbsp; </span>
+      </span>
+    </b>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>これで、攻撃者は scenarios.xml の制御を取得し、データ タグを次のように変更します:<b></b></span>
+  </p>
+ <pre>
+    <span>&lt;scenario&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;title&gt;XSS scenario&lt;/title&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;data&gt;&lt;![CDATA[<span>&lt;script&gt;alert('XSS')&lt;/script&gt;</span>]]&gt;&lt;/data&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;/scenario&gt;&nbsp;<span>&nbsp;&nbsp; </span></span>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>これにより、脆弱なアプリケーションは以下のようなページを構築してクライアントに送信します:</span>
+  </p>
+ <pre>
+    <span>&lt;html&gt;</span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>XSS scenario:<span></span></span>
+  </pre>
+ <pre>
+    <span>&lt;script&gt;alert('XSS')&lt;/script&gt;</span>
+    <span>
+    </span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>&lt;/html&gt;</span>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>これは最終的に、サーバーがクライアントに HTML として送信する前に XML 出力を検証しないため、クロスサイト スクリプティング攻撃を招きます。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 2: <span> </span>ハイリスク コンポーネントを識別する</span>
+  </h1>
+  <p>
+    <span>XML インジェクション テストの次の手順では、コードがユーザー入力から XML ステートメントを構築するすべての場所を一覧表示し、 アプリケーションがステートメントを操作する方法と場所について理解し、それらを使用してデータ ストアを変更したり、XML Web メソッドを呼び出したりする方法について理解します。<span>&nbsp; </span>最も一般的なコンポーネントを以下に示します:</span>
+  </p>
+  <ul>
+    <li>
+      <span>プロファイル関連の Web ページ。</span>
+      <li>
+        <span>電子商取引または金融口座関連ページ。</span>
+        <li>
+          <span>XML Web サービス相互作用メソッド。</span>
+          <li>
+            <span>XML ベースのシステム レベル クライアント。</span>
+            <li>
+              <span>XML バックエンドから読み込んでインターネット クライアントに無分別に応答を構築するシステム。</span>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>ハイリスク コンポーネントを識別する</em>
+    </span>
+  </h2>
+  <p>
+    <span>このサブタスクでは XML インジェクション バグにつながるコーディング エラーを識別します。<span>&nbsp; </span>XML インジェクション バグが存在する理由は 2 つあります。<span>&nbsp; </span>1 つめは、サーバー側のアプリケーションがインターネット経由で受信したユーザー指定の文字列を直接使用して XML データ ストアに追加したり、その他の XML 関連タスクを実行する場合。<span>&nbsp; </span>アプリケーションは文字列でデータ検証を何も行わないため、 XML タグのインジェクションを可能にします。<span>&nbsp; </span>2 つめのケースでは、アプリケーションが XML ストアから読み込んで無分別に HTML ページを構築してクライアントに送り返す場合は、脆弱です。</span>
+  </p>
+  <p>
+    <span>このサブタスクでは、テスト用のアプリケーションのすべての Web ページを検討して XML 相互作用について調べます。<span>&nbsp; </span>XML を使用してデータを送信するページまたはメソッドは、ハイリスク コンポーネントとしてリストに表示する必要があります。<span>&nbsp;&nbsp; </span>XML インジェクション バグのコードを確認する際に調べる必要のある一般的な例を以下に示します。</span>
+  </p>
+  <h2>
+    <span>
+      <em>XML 構文解析器 (parser) の使用を識別する</em>
+    </span>
+  </h2>
+  <p>
+    <span>サーバー側アプリケーションは、書き込まれる言語 (ASP、PHP、Java など) によって多種多様な XML 構文解析器 (parser) から選択することができます。&nbsp;<span> </span>テストしているアプリケーションがこれらの構文解析器 (parser) のいずれかを使用しているかどうかを認識することは重要です。<span>&nbsp; </span>使用している場合は、アプリケーションが XML を操作していることは明らかです。<span>&nbsp; </span></span>
+  </p>
+  <ul>
+    <li>
+      <span>SAXParser (Java)</span>
+      <li>
+        <span>MSXML (Microsoft XML DOM 構文解析器 (parser) を含む)</span>
+        <li>
+          <span>Xerces (Java、C++、Perl)</span>
+          <li>
+            <span>Oracle XML 構文解析器 (parser) </span>
+            <li>
+              <span>XML ブースタ</span>
+              <li>
+                <span>XML::構文解析器 (parser)  (Perl フォーム)</span>
+                <li>
+                  <span>XParse</span>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>この簡単なリストでは、プログラマーが XML 構文解析器 (parser) を選択する場合に異なる選択を行っていることを示します。<span>&nbsp; </span>これらのいずれかが存在しないか確認してください。<span>&nbsp; </span>さらに、アプリケーションが使用する可能性のある追加の構文解析器 (parser) については最新の XML 構文解析の技術や研究を把握するようにしてください。</span>
+  </p>
+  <h2>
+    <span>
+      <em>ユーザーが指定した入力から XML を書き込むコードを調べる</em>
+    </span>
+  </h2>
+  <p>
+    <span>ユーザーが指定した入力 (Web フォーム、URL などから) を使用するすべてのコードはハイリスクとしてマークする必要があります。<span>&nbsp; </span>以下に URL からの入力パラメータを使用して XML を構築する例を示します:</span>
+  </p>
+ <pre>
+    <span>set xmlDoc=CreateObject("Microsoft.XMLDOM")</span>
+  </pre>
+ <pre>
+    <span>xmlDoc.async="false"</span>
+  </pre>
+ <pre>
+    <span>xmlDoc.load("accounts.xml")</span>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>for each x in xmlDoc.documentElement.childNodes</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>
+    </span>
+    <span>document.write(x.nodename)</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>document.write(": ")</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>
+    </span>
+    <span>document.write(x.text)</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp; </span>document.write(<span>Request.QueryString("input")</span>)</span>
+  </pre>
+ <pre>
+    <span>next</span>
+  </pre>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>CDATA タグを使用するアプリケーションを検出する</em>
+    </span>
+  </h2>
+  <p>
+    <span>アプリケーション コードとストレージ XML ファイルの両方を調べて CDATA タグの使用を識別します。<span>&nbsp; </span>XML ドキュメント内部の CDATA タグを識別するのは簡単です。<span>&nbsp; </span>アプリケーションにあるすべての XML ドキュメントのコンテンツを検索して文字列 “CDATA” を探します。<span>&nbsp; </span>次に、この種のタグからデータ読み取りを使用するコードを突き止めます。<span>&nbsp; </span>CDATA タグのコンテンツを直接 HTML レスポンスに書き込むコンポーネントは、XML インジェクションによるクロスサイト スクリプティング攻撃に対して脆弱です:</span>
+  </p>
+ <pre>
+    <span>Response.Write(contents from CDATA tag<span></span>)<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(ASP)</span>
+  </pre>
+ <pre>
+    <span>echo contents from CDATA tag<span></span>;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(PHP)</span>
+  </pre>
+ <pre>
+    <span>print contents from CDATA tag<span></span>;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(PHP)</span>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>XML ドキュメント型定義 (DTD) に依存しないでください</em>
+    </span>
+  </h2>
+  <p>
+    <span>プログラマーは、DTD<a style="mso-endnote-id: edn3" name="_ednref3" href="about:blank#_edn3" title=""><span><span><span><span>[iii]</span></span></span></span></a> を使用して XML タグを定義すると、XML インジェクション攻撃から保護されると想定している場合があります。<span>&nbsp; </span>後で説明しますが、これは思い違いです。<span>&nbsp; </span>XML (DTD を使用しても使用しなくても) を処理するドキュメントはすべてハイリスク コンポーネントに含めます。 </span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>ハイリスク コンポーネントをエントリ ポイントと一致させる</em>
+    </span>
+  </h2>
+  <p>
+    <span>検証されていない XML データはすべてのアプリケーション エントリ ポイントから入ってくることができます。<span>&nbsp; </span>クライアントに渡される可能性のある悪意のあるデータのすべての可能性のあるソースを網羅するように確保してください。<span>&nbsp; </span>一般的なデータ ソースを以下に示します:</span>
+  </p>
+  <ul>
+    <li>
+      <span>Web フォーム</span>
+      <li>
+        <span>URL コンテンツ</span>
+        <li>
+          <span>Flash パラメータ</span>
+          <li>
+            <span>XML ストア コンテンツ</span>
+            <li>
+              <span>Web サービス データ</span>
+              <li>
+                <span>グラフィカル ユーザー インターフェイス</span>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>ハイリスク アプリケーション コンポーネント (一般的に上記のシナリオのような Web ページ) とそれらに関係のあるエントリ ポイントを一覧表示してテストに体系的に役立つようにします: </span>
+  </p>
+  <p>
+    <span>
+      <br />
+      <br />
+    </span>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>コンポーネント</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>行</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>URL</span>
+            </b>
+            <span>
+            </span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>フォーム</span>
+            </b>
+            <span>
+            </span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>Flash</span>
+            </b>
+            <span>
+            </span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>DB</span>
+            </b>
+            <span>
+            </span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>サービス</span>
+            </b>
+            <span>
+            </span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>CreateChecking.php</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>101</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>112</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>165</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>Response.php</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>1001</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>1116</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>Present.php</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>234</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>531</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>&nbsp;</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>showAccount.php</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>432</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>X</span>
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 3: <span> </span>テストと調査を開始する<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </h1>
+  <p>
+    <span>このテストの手順では、基本的な XML インジェクション ファズ文字列を送信してアプリケーションの反応を観察します。<span>&nbsp; </span>次に、前のシナリオで示したように 2 つの単純な XML インジェクション攻撃を実行します:<span>&nbsp; </span>タグ インジェクションと CDATA XSS です。<span>&nbsp; </span></span>
+  </p>
+  <p>
+    <span>この手順では、各ハイリスク コンポーネントに対して最も簡単なエントリ ポイントからすべてのテストを試行します。<span>&nbsp; </span>手順 4 では、残りのエントリ ポイントに応じてテスト ケース データを調整して異なる形式やエンコーディングを網羅します。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>単純なファジング文字列から開始する</em>
+    </span>
+  </h2>
+  <p>
+    <span>XML インジェクション テストが成功するかどうかは、最後に XML として処理される XML データをテスターが送信することができるかどうかによって決まります。 </span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>終わり引用符とタグ文字</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>一重引用符、終了タグ文字、開始タグ文字および二重引用符が含まれた単純な XML 文字列を使用してテストを開始することをお勧めします。<span>&nbsp; </span>これら 4 つの文字を別々に、および結合して試行してください:</span>
+  </p>
+  <p>
+    <span>'</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>"</span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>&gt;</span>
+    </span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    </span>
+    <span>&lt;</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    </span>
+    <span>(別々に)</span>
+  </p>
+  <p>
+    <span>または&nbsp;<span> </span></span>
+  </p>
+  <p>
+    <span>'</span>
+    <span>"&gt;&lt;</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>&gt;</span>
+    </span>
+    <span>'</span>
+    <span>"&lt;</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+      <span>&lt;&gt;</span>
+    </span>
+    <span>'</span>
+    <span>"</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    </span>
+    <span>(結合)</span>
+  </p>
+  <p>
+    <span>次に、XML ベース サーバーが応答する方法を観察します。<span>&nbsp; </span>以下に示す最初の文字列のような有効な XML タグを 2 番目の文字列に変更します。<span>&nbsp; </span>ここで、</span>
+    <b>
+      <span>$input</span>
+    </b>
+    <span> 変数を一重引用符 (</span>
+    <span>'</span>
+    <span>) に設定します:</span>
+  </p>
+ <pre>
+    <b>
+      <span>&lt;node attrib='$input'/&gt;</span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>
+      </span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>&lt;node attrib=''<span></span>'/&gt;</span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>
+      </span>
+    </b>
+  </pre>
+  <p>
+    <span>これで、<i>node</i> 要素では <i>attrib</i> 属性が </span>
+    <b>
+      <span>''' (</span>
+    </b>
+    <span>余分な一重引用符に注意) に設定されるため、無効な XML になります。<span>&nbsp; </span>サーバーからの無効な XML メッセージは、潜在的な XML インジェクション バグがサーバー アプリケーションに存在することを示す目安になります。</span>
+  </p>
+ <pre>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <b>
+      <i>
+        <span>コメント文字列</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>無効な XML を生成する別の方法は、XML コメントの開始を追加することです:</span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>xyz&lt;!--</span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>たとえば、上記の文字列を <i>username</i> として入力したとします。<span>&nbsp; </span>結果 XML は次のようになり、無効になります:</span>
+  </p>
+ <pre>
+    <span>
+    </span>
+  </pre>
+ <pre>
+    <span>&lt;user&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;username&gt;<span>xyz</span></span>
+    <span>&lt;!--</span>
+    <span>&lt;/username&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password&gt;qwerty&lt;/password&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;userid&gt;111&lt;userid/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;mail&gt;JohnyC@examplesite.com&lt;/mail&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;/user&gt;</span>
+  </pre>
+  <p>
+    <b>
+      <i>
+        <span>アンパサンド (&)</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>XML はアンパサンド文字を使用してユーザー定義の XML スキームで別のエンティティを参照します。<span>&nbsp; </span>たとえば、ユーザーが以下の文字列を <i>username</i> として渡す場合、対応する XML では以下のような結果になります:</span>
+  </p>
+ <pre>
+    <span>&amp;xyz</span>
+  </pre>
+  <p>
+    <span>結果:</span>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>&lt;user&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;username&gt;<span>&xyz</span>&lt;/username&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password&gt;qwerty&lt;/password&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;userid&gt;111&lt;userid/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;mail&gt;JohnyC@examplesite.com&lt;/mail&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;/user&gt;</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>これは、XML ドキュメントの </span>
+    <b>
+      <span>&xyz</span>
+    </b>
+    <span> エンティティを参照するように試行します。<span>&nbsp;&nbsp; </span>ドキュメントにこのエンティティが含まれていない場合、新しく構築された上記のタグは無効な XML ドキュメントになります。</span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>エラー メッセージから学習して実際に攻撃を実施する</em>
+    </span>
+  </h2>
+  <p>
+    <span>無効な XML ドキュメントを作成する目的は、生成されるエラー メッセージに基づいて潜在的な XML 形式に関する情報を取得できるようにするためです。 <span>&nbsp; </span>たとえば、入力フィールドに以下のファズ文字列 (<span>‘</span>) を挿入し、サーバーが以下のエラー メッセージで応答したとします:</span>
+  </p>
+ <pre>
+    <span>Invalid XML:</span>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>&lt;user name=''<span></span>'/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;id ='1232'/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;realname='tester'&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password='ind3$truct'/&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;user&gt;</span>
+  </pre>
+  <p>
+    <span>ここで、元の XML ドキュメントの構造と形式を保持しつつ、この情報を利用して追加の有効なユーザーを作成する方法を考えます:</span>
+  </p>
+ <pre>
+    <b>
+      <span>$input = attacker'&gt;&lt;<span>id ='1234'/&gt;&lt;realname='hacker'&gt;&lt;password='qwerty'/&gt;&lt;/user&gt;</span></span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>&lt;user name ='real_user</span>
+    </b>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>結果としてサーバーは追加の要素を作成します:</span>
+  </p>
+ <pre>
+    <span>&lt;user name='attacker'/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;id ='1234'/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;realname='hacker'&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password='ind3$truct'/&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;/user&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;user name='real_user</span>
+    <span>'/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;id ='1232'/&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;realname='tester'&gt;</span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&lt;password='ind3$truct'/&gt;</span>
+  </pre>
+ <pre>
+    <span>&lt;/user&gt;</span>
+  </pre>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>クロスサイト スクリプティング (XSS) 攻撃で CDATA タグを悪用してみる</em>
+    </span>
+  </h2>
+  <p>
+    <span>この手順を終了するには、CDATA タグのコンテンツを悪用してみて XSS 攻撃を実行できるかどうかを確認します。<span>&nbsp; </span>このテストはかなり単純で、 XML 構文解析器 (parser) がタグ</span>
+    <b>
+      <span>"&lt;![CDATA[" </span>
+    </b>
+    <span>および </span>
+    <b>
+      <span>"]]&gt;" </span>
+    </b>
+    <span>に囲まれたすべてのデータを抽出して新しい文字列を形成するということを覚えるだけです。<span>&nbsp; </span>例:</span>
+  </p>
+ <pre>
+    <span>&lt;![CDATA[xyz]]&gt;</span>
+  </pre>
+  <p>
+    <span>は、</span>
+  </p>
+ <pre>
+    <span>xyz</span>
+  </pre>
+  <p>
+    <span>同様に:</span>
+  </p>
+ <pre>
+    <span>&lt;![CDATA[&lt;]]&gt;script&lt;![CDATA[&gt;]]&gt;</span>
+  </pre>
+  <p>
+    <span>は、</span>
+  </p>
+ <pre>
+    <span>&lt;script&gt;</span>
+  </pre>
+  <p>
+    <span>最終的に</span>
+    <span>:</span>
+  </p>
+ <pre>
+    <span>&lt;![CDATA[&lt;<span>script&gt;alert('XSS')&lt;/script&gt;</span>]]&gt;<span>&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>は、</span>
+  </p>
+ <pre>
+    <span>&lt;script&gt;alert('XSS')&lt;/script&gt;</span>
+    <span>
+    </span>
+  </pre>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+  <h1>
+    <span>手順 4: <span> </span>テスト ケースの調整</span>
+    <span>
+    </span>
+  </h1>
+  <p>
+    <span>この手順では、テスト ケース データを修正してそれぞれの固有のエントリ ポイントの形式に基づいてすべてのエントリ ポイントを網羅する必要があります。<span>&nbsp; </span>さらに、追加の XML インジェクション ペイロードを実行するには、テスト ケース データを調整する必要があります。 </span>
+    <span>
+    </span>
+  </p>
+  <h2>
+    <span>
+      <em>エントリ ポイントに応じて文字列の書式とエンコーディングを考慮する</em>
+    </span>
+  </h2>
+  <p>
+    <b>
+      <i>
+        <span>Web フォーム</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+    <span>Web フォームでは一般的にほとんどの文字列を使用できるため、最も簡単にテストを行うことができます。<span>&nbsp; </span>攻撃者は、この文字列を以下のような Web フォームの入力フィールドに入力しようと試みます:</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>
+      <img src="|image|clip_image001.png" />
+    </span>
+  </p>
+  <p>
+    <span>
+    </span>
+    <span>攻撃者はこの文字列を電子メールのテキスト フィールドに入力して XML インジェクション攻撃を実行しようとします:</span>
+  </p>
+ <pre>
+    <span>JohnyC@examplesite.com&lt;/mail&gt;&lt;account type=</span>
+    <span>"</span>
+    <span>savings</span>
+    <span>"</span>
+    <span>&gt;&lt;created&gt;03-02-2008&lt;/created&gt;&lt;number&gt;12345678&lt;/number&gt;&lt;balance&gt;1000000&lt;/balance&gt;&lt;/account&gt;</span>
+  </pre>
+  <p>
+    <span>このテキスト フィールドのコンテンツを有効な電子メール形式に一致させるクライアント側のチェックが存在する可能性があります。<span>&nbsp; </span>しかし、クライアント側のチェックは攻撃者の終端で削除されることにより、容易に回避されます。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>URL コンテンツ</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+    <span>
+      <br />URL の形式はその他の入力フィールドの形式に比べてより複雑である傾向にあります。<span>&nbsp; </span>これは、URL にスペース、疑問符、一重引用符、大なり/小なり (&lt;/&gt;) 記号、およびアンパサンドなどの特殊文字や予約文字を URL ディレクティブではなく、データとして含める必要があるためです。<span>&nbsp; </span>クライアントは URL を<i>エンコード</i>してサーバーに送信します。サーバーは特殊文字をデータとして処理できるようにデコードします。</span>
+  </p>
+  <p>
+    <span>エンコーディングとデコードが行われる方法は、使用しているプログラミング言語によって異なります。<span>&nbsp; </span>たとえば、エンコーディング関数は空白スペースをプラス (+) 記号または %20 の文字で置換する場合があるため、次のようになります:</span>
+  </p>
+ <pre>
+    <span>Joseph Cohen</span>
+  </pre>
+  <p>
+    <span>は、</span>
+  </p>
+ <pre>
+    <span>Joseph+<span></span>Cohen<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </pre>
+  <p>
+    <span>または</span>
+    <b>
+      <span>
+      </span>
+    </b>
+  </p>
+ <pre>
+    <span>Joseph%20<span></span>Cohen</span>
+  </pre>
+  <p>
+    <span>最も一般的な URL エンコーディング スキームでは、特殊文字や予約文字をパーセント記号と 16 進数の値に置換します (例: </span>
+    <b>
+      <span>%HH</span>
+    </b>
+    <span>)。&nbsp;<span> </span>このエンコーディング スキームを使用して以下に表示されている URL は次のように翻訳されます:</span>
+  </p>
+ <pre>
+    <b>
+      <span>http://www.examplesite.com/CreateChecking.php?username=JohnyC&password=qwerty&email=JohnyC@examplesite.com&lt;/mail&gt;&lt;<span>account type="savings"&gt;&lt;created&gt;03-02-2008&lt;/created&gt;&lt;number&gt;12345678&lt;/number&gt;&lt;balance&gt;1000000&lt;/balance&gt;&lt;/account&gt;</span><span></span></span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>
+      </span>
+    </b>
+  </pre>
+ <pre>
+    <span>to: </span>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <b>
+      <span>http://www.examplesite.com/CreateChecking.php?username=JohnyC&password=qwerty&email=JohnyC%40examplesite.com%3c%2fmail%3e%3caccount%20type%3d%22savings%22%3e%3ccreated%3e03-02-2008%3c%2fcreated%3e%3cnumber%3e12345678%3c %2fnumber%3e%3cbalance%3e1000000%3c%2fbalance%3e%3c%2faccount%3e<span></span></span>
+    </b>
+  </pre>
+ <pre>
+    <b>
+      <span>
+      </span>
+    </b>
+  </pre>
+  <p>
+    <span>これは、以下の文字が 16 進数のエンコーディングで次のように翻訳されるからです:</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <p>
+              <b>
+                <span>スペース</span>
+              </b>
+              <span>
+              </span>
+            </p>
+          </td>
+          <td>
+            <p>
+              <span>@</span>
+              <span>
+              </span>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>&lt;</span>
+                <span>&nbsp;</span>
+              </b>
+            </p>
+          </td>
+          <td>
+            <p>
+              <span>/</span>
+              <span>
+              </span>
+            </p>
+          </td>
+          <td>
+            <p>
+              <span>&gt;</span>
+              <span>&nbsp;</span>
+            </p>
+          </td>
+          <td>
+            <p>
+              <span>=</span>
+              <span>
+              </span>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>"</span>
+              </b>
+              <span>
+              </span>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p>
+              <b>
+                <span>%20</span>
+              </b>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>%40</span>
+              </b>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>%3c</span>
+              </b>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>%2f</span>
+              </b>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>%3e</span>
+              </b>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>%3d</span>
+              </b>
+            </p>
+          </td>
+          <td>
+            <p>
+              <b>
+                <span>%22</span>
+              </b>
+            </p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>Flash パラメータ</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>Flash は、HTML 埋め込みオブジェクトから </span>
+    <b>
+      <span>FlashVars </span>
+    </b>
+    <span>パラメータ タグを使用してユーザー入力を収集します:</span>
+    <b>
+      <span>
+      </span>
+    </b>
+  </p>
+ <pre>
+    <span>&lt;object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"</span>
+  </pre>
+ <pre>
+    <span> codebase=""http://macromedia.com/cabs/swflash.cab#version=6,0,0,0""</span>
+  </pre>
+ <pre>
+    <span> width="250" height="250" id="flaMovie1" align="center"&gt;</span>
+  </pre>
+ <pre>
+    <span> &lt;param name=movie value="flaMovie1.swf"&gt;</span>
+  </pre>
+ <pre>
+    <span> &lt;param name=FlashVars value="input=userInput<span></span>"&gt; </span>
+  </pre>
+ <pre>
+    <span>
+      <span>&nbsp;</span>&lt;param name=quality value=high&gt; </span>
+  </pre>
+ <pre>
+    <span>&lt;/object&gt;</span>
+  </pre>
+ <pre>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </pre>
+  <p>
+    <span></span>
+    <b>
+      <span>FlashVars </span>
+    </b>
+    <span>をテストする場合は、</span>
+    <b>
+      <span>userInput </span>
+    </b>
+    <span>値を XML インジェクション文字列に置換する必要があります。<span>&nbsp; </span></span>
+  </p>
+  <p>
+    <span>注意: このエントリ ポイントをテストする場合は、異なるエンコーディングでも試行してください。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>XML ストア コンテンツ</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>XML ファイル内で CDATA タグを変更して適切な XSS 攻撃を実行する場合は、テスト ケース データも調整する必要があります。<span>&nbsp; </span>たとえば、アプリケーションによっては以下の文字列が含まれた入力をすべてブラックリストに表示するにもかかわらず、それを XML データ ストアに配置させない場合があります:</span>
+    <span>&nbsp;</span>
+  </p>
+ <pre>
+    <span>&lt;script&gt; </span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>ここで、追加の CDATA タグを追加することによって、スクリプト タグを非表示にするように攻撃データを微調整する必要がある場合があります</span>
+    <b>
+      <i>
+        <span>:&nbsp;</span>
+      </i>
+    </b>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+ <pre>
+    <span>&lt;data&gt;&lt;<span>[CDATA[</span><span>&lt;sc</span><span>]]&gt;&lt;![CDATA[</span><span>ript&gt;alert('XSS')&lt;/sc</span><span>]]&gt;&lt;![CDATA[</span><span>ript&gt;</span><span>]]&gt;</span>&lt;/data&gt;</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>CDATA タグ内のコンテンツの最後で、連結して有効な &lt;スクリプト&gt; タグを構築します。<span>&nbsp; </span>これにより、最後の連結の前の <b>&lt;スクリプト&gt;</b> で実施されるすべてのチェックを回避します。</span>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>&nbsp;</p>
+  <p>
+    <b>
+      <i>
+        <span>追加のエントリ ポイント</span>
+      </i>
+    </b>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <span>各アプリケーションには、ユーザー、ファイル、サービス、およびその他のソフトウェア エンティティからの入力をさまざまに処理する方法があります。<span>&nbsp; </span>各ハイリスク コンポーネントに対し、各エントリ ポイントの形式を理解していることと、各エントリ ポイントの異なる形式を網羅していることを確認してください。</span>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>追加のペイロードを試行する</em>
+    </span>
+  </h2>
+  <p>
+    <span>これまでに、2 つのペイロードを実行する方法について学習してきました:</span>
+  </p>
+  <ul>
+    <li>
+      <span>タグ インジェクション。</span>
+      <li>
+        <span>CDATA タグからのクロスサイト スクリプティング</span>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>次に示すようなその他のペイロードを試行することができます:</span>
+  </p>
+  <ul>
+    <li>
+      <span>過剰なタグで余分なメモリーを消費させる DoS 攻撃</span>
+      <li>
+        <span>再帰的な要素によってリソースを消耗させる DoS 攻撃</span>
+        <li>
+          <span>XML 外部エンティティを使用した情報漏えい攻撃 (XEE) <a style="mso-endnote-id: edn4" name="_ednref4" href="about:blank#_edn4" title=""><span><span><span><span>[iv]</span></span></span></span></a></span>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>各ペイロードでは XML 攻撃データを微調整する必要があり、シナリオに新しいエントリ ポイントを追加する場合があります。<span>&nbsp; </span>しかしながら、XML インジェクションに関係のある最新の攻撃技術の情報を収集し、それらを一連のセキュリティ テストに含めることは不可欠です。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>結論</span>
+    <span>
+    </span>
+  </h1>
+  <p>
+    <span>XML インジェクションのテストでは、テスト用のアプリケーションが XML をどのように使用するのかを理解する必要があります。<span>&nbsp; </span>シナリオには、システムが XML を入力として使用する場合からシステムが XML を HTML 出力として応答する場合まで、さまざまなシナリオがあります。<span>&nbsp; </span>XML インジェクションのテストを成功させるには、これらの異なるシナリオを理解する必要があります。<span>&nbsp; </span>次に、潜在的な危険性のあるコードおよびハイリスク コンポーネントの特徴を把握します。<span>&nbsp; </span>ハイリスク コンポーネントをさまざまなエントリ ポイントに一致させるテスト計画を作成します。<span>&nbsp; </span>次に、単純なテスト文字列でテストを開始し、アプリケーションの応答方法を観察します。<span>&nbsp; </span>最後に、対象範囲を最大化するために、攻撃データを調整してすべてのエントリ ポイントのすべての形式を確実に網羅できるようにし、さまざまな最新のペイロードを試行します。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <div>
+    <br />
+  </div>
+  <div>
+    <hr />
+  </div>
+  <p>
+    <a style="mso-endnote-id: edn1" name="_edn1" href="about:blank#_ednref1" title="">
+      <span>
+        <span>
+          <span>[i]</span>
+        </span>
+      </span>
+    </a>
+    <span>
+    </span>
+    <span>Programming Web Services with SOAP</span>
+    <span> に追加コマンドを注入できます。<span> </span>James Snell、Doug Tidwell および Pavel Kulchenko。<span>&nbsp; </span></span>
+    <span>
+      <a href="http://www.topxml.com/soap/articles/webservices/default.asp">
+        <span>http://www.topxml.com/soap/articles/webservices/default.asp</span>
+      </a>
+    </span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <a style="mso-endnote-id: edn2" name="_edn2" href="about:blank#_ednref2" title="">
+      <span>
+        <span>
+          <span>
+            <span>
+              <span>[ii]</span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </a>
+    <span> XML Web サービスの基礎<span>&nbsp; </span>Roger Wolter<span>&nbsp; </span>Microsoft Corporation<span>&nbsp; </span><a href="http://msdn2.microsoft.com/en-us/library/ms996507.aspx">http://msdn2.microsoft.com/en-us/library/ms996507.aspx</a></span>
+  </p>
+  <p>
+    <a style="mso-endnote-id: edn3" name="_edn3" href="about:blank#_ednref3" title="">
+      <span>
+        <span>
+          <span>
+            <span>
+              <span>[iii]</span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </a>
+    <span> Document Type Definition<span>&nbsp; </span>Wikipedia<span>&nbsp; </span><a href="http://en.wikipedia.org/wiki/Document_Type_Definition">http://en.wikipedia.org/wiki/Document_Type_Definition</a></span>
+  </p>
+  <p>
+    <a style="mso-endnote-id: edn4" name="_edn4" href="about:blank#_ednref4" title="">
+      <span>
+        <span>
+          <span>
+            <span>
+              <span>[iv]</span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </a>
+    <span> Testing for XML Injection (OWASP) <a href="http://www.owasp.org/index.php/Testing_for_XML_Injection">http://www.owasp.org/index.php/Testing_for_XML_Injection</a></span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

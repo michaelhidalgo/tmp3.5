@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1642520064" Content_Hash="-808585436">
+  <Metadata>
+    <Id>5685287c-c516-481b-9a14-42f55fb180ff</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>MSADC 仮想ディレクトリ（RDS）は削除されたか、またはセキュアである。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>MSADC 仮想ディレクトリ（RDS）が削除されたか、またはセキュアであることをチェックします。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>Remote Data Services（RDS）は、IIS を経由して&nbsp;リモート データ リソースへ制御されたインターネット アクセスをすることを可能にするコンポーネントです。 RDS インターフェイスは、program files\common files\system\Msadc ディレクトリにある Msadcs.dll によって提供されます。</p>
+  <h3>RDS の削除</h3>
+  <p>アプリケーションが RDS を使用していない場合は、RDS を削除します。</p>
+  <p>
+    <b>RDS サポートを削除するには</b>
+  </p>
+  <ol>
+    <li>IIS から /MSADC 仮想ディレクトリ マッピングを削除します。 
+<li>下記の場所にあるRDS ファイルとサブディレクトリを削除します。
+<p>\Program Files\Common Files\System\Msadc</p><li>下記のレジストリキーを削除します。
+<p>HKLM\System\CurrentControlSet\Services\W3SVC\Parameters\ADCLaunch</p></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;IISLockdown は、MSADC 仮想ディレクトリを削除するオプションを提供します。 なお、IISLockdown で削除されるのは仮想ディレクトリだけで、ファイルやレジストリキーは削除されません。</blockquote>
+  <h3>RDS のセキュリティ保護</h3>
+  <p>アプリケーションに RDS が必要な場合は、RDS をセキュアにします。</p>
+  <p>
+    <b>RDS をセキュアにするには</b>
+  </p>
+  <ol>
+    <li>下記の場所にあるサンプルを削除します。
+<p>\Progam Files\Common Files\System\Msadc\Samples</p><li>下記のレジストリキーを削除します。
+<p><b>HKLM\System\CurrentControlSet\Services\W3SVC\Parameters\ADCLaunch\VbBusObj.VbBusObjCls</b></p><li>IIS 内の MSADC 仮想ディレクトリへの匿名アクセスを無効にします。 
+<li>下記の場所に <b>HandlerRequired</b>レジストリキーを作成します。
+<p><b>HKLM\Software\Microsoft\DataFactory\HandlerInfo\</b></p><li>新しい DWORD 値を作成して<b>1</b> に設定します。（1 はセーフ モードを、0 は非セーフ モードを表します。） </li></li></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;レジストリ スクリプト ファイル Handsafe.reg を使用してレジストリキーを変更することができます。 スクリプト ファイルは、msadc ディレクトリ \Program Files\Common Files\System\msadc にあります。</blockquote>
+  <h1>その他のリソース</h1>
+  <p>RDS のセキュアに関する詳細情報は、以下を参照してください。</p>
+  <ul>
+    <li>MS99-025 Microsoft セキュリティ プログラム：RDS を使用した ODBC データ アクセスによる IIS サーバへの認可されていないアクセス（<a href="http://www.microsoft.com/technet/security/bulletin/ms99-025.mspx">http://www.microsoft.com/technet/security/bulletin/ms99-025.mspx</a>）。
+<li>MS98-004 Microsoft セキュリティ プログラム：Microsoft セキュリティ情報：RDS と IIS を使用した認可されていないODBC データ アクセス（<a href="http://www.microsoft.com/technet/security/bulletin/ms98-004.mspx">http://www.microsoft.com/technet/security/bulletin/ms98-004.mspx</a>）。
+<li>Microsoftナレッジ ベース記事184375、「[IIS]PRB:RDS 1.5, IIS 3.0, 4.0,および ODBC のセキュリティについて」。</li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

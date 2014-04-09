@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1595284995" Content_Hash="619806165">
+  <Metadata>
+    <Id>dffb5d33-3dca-4cea-999c-60f0a5deff63</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>通信リンクが暗号化されている</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ネットワーク上で他のソフトウェアとやりとりする際に、通信リンクが暗号化されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>通信リンクを暗号化することで、アプリケーションが送信されるデータの機密性と完全性を保持できます。</p>
+  <h1>チェック方法</h1>
+  <p>次のステップを使用して、アプリケーションの通信リンクが暗号化されていることを確認してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機微データの送信に使用される通信を確認します。 </strong>さまざまなエンティティ間のすべての接続を列挙してください。 ネットワーク上で送信される機微データ、およびそのような通信に使用される個別の接続を識別してください。</p>
+      <p>ネットワーク接続を識別する一般的な方法には次が含まれます:</p>
+      <ul>
+        <li>
+          <p>web.config 内の <strong>connectionStrings</strong> エレメントの中で識別されるすべての接続文字列の列挙。 各々の接続文字列名を使用することで、接続文字列が使用されているアプリケーション内の場所を識別してください:</p>
+ <pre>&lt;configuration&gt;  &lt;connectionStrings&gt;    ...</pre>
+          <li>
+            <p>ウェブ サービスに行われるすべての要求の識別。 例: </p>
+            <blockquote>
+ <pre>[System.Web.Services.Protocols.SoapDocumentMethodAttribute(<br />       "https://serv02.example.com/myapp/GetJobState",<br />        RequestNamespace="https://serv02.example.com/myapp/",<br />        ResponseNamespace="https://serv02.example.com/myapp/",<br />        Use=System.Web.Services.Description.SoapBindingUse.Literal,<br />        ParameterStyle=System.Web.Services.Protocols.SoapParameterStyle.Wrapped)]<br /><br />public JobState GetJobState(string jobID)<br /> {<br />    object[] results = this.Invoke("GetJobState", new object[] { jobID });<br />    return ((JobState)(results[0]));<br /> }</pre>
+            </blockquote>
+            <li>
+              <p>次の一般的な .NET クラスのすべてに対する、すべての使用箇所の識別:</p>
+              <ul>
+                <li>System.Data.Common.DbConnection<li>System.Data.Odbc.OdbcConnection<li>System.Data.OleDb.OleDbConnection <li>System.Data.OracleClient.OracleConnection<li>System.Data.SqlClient.SqlConnection <li>System.Data.SqlServerCe.SqlCeConnection <li>System.Net.HttpListener <li>System.Net.HttpWebRequest <li>System.Net.WebClient <li>System.Net.WebRequest <li>System.Net.Sockets.Socket <li>System.Net.Sockets.TcpClient <li>System.Net.Sockets.TcpListener <li>System.Net.Sockets.UdpClient</li></li></li></li></li></li></li></li></li></li></li></li></li></li>
+              </ul>
+              <li>
+                <p>DCOM または RPC のすべての使用の列挙。 アプリケーション要件と設計を調査し、DCOM の使用が必要とされるインスタンスを識別してください。 システム資料を調査し、アプリケーションがリンクしているオブジェクトに注目してください。</p>
+              </li>
+            </li>
+          </li>
+        </li>
+      </ul>
+      <li>
+        <p>
+          <strong>接続が保護されていることを確認します。 </strong>アプリケーションが、通信リンクを確保するための IPSec、 TLS/SSL、およびセキュアな 　SMB/DCOM のような標準的な暗号化技術を使用することを検証してください。 次にネットワーク スニッファを使用して、アプリケーションがIPSec、 TLS/SSL、または暗号化された SMB/DCOM を適切に利用していることを検証してください。</p>
+      </li>
+      <ul>
+        <li>
+          <p>
+            <strong>IPSec: </strong>すべての接続エンドポイントの構成を調査し、すべての関連する接続に IPSecを要求し、セキュリティを低下させることなくフェイルするように構成されていることを確認してください。 特定のホスト間でスニッフィングされたトラフィックからのすべてのパケットが、IP ヘッダーの後に認証ヘッダー (AH) およびカプセル化 セキュリティ ペイロード (ESP) のフィールドを含んでいるかどうかチェックしてください。 ペイロードが暗号化されていることを確認してください。 暗号化なしでサービスへの接続を試み、暗号化されていない接続が拒絶されることを確認してください。 IPSec の使用はホスト レベルの構成なので、その使用はコード ベース内からは決定できませんが、展開中のセキュリティ検証用に WMI 経由で自動チェックをスクリプト化できます。</p>
+          <li>
+            <p>
+              <strong>TLS/SSL: </strong>すべてのエンドポイントが、適切な強度のアルゴリズムを使用して SSL 経由で接続されるように構成されていることを確認してください。 特定のホスト間でスニッフィングされたトラフィックが SSL ハンドシェイクを含むかどうかチェックしてください。 ペイロードが暗号化されていることを検証してください。 サーバが SSL を使用しない接続を拒絶することと、プロトコルが不適切に弱い暗号にまで強制的に低下させられないことを確認してください。 コードに着目して、通信に使用されるすべての URL およびプロトコルが SSL を使用するように指定されることを確認してください。 これは完全にアプリケーション内で強制されるので、バイナリのみのサード パーティのコンポーネントを;除いて、コード 検査だけを経由して検証できます。 理想的には、構成できる URL が使用されるときはいつでも、SSL が接続に使用され、プレーンテキストの接続を行うことを拒絶するようコードが確認を行うことをお勧めします。 アプリケーションで SSL の使用状況を確認する際は、以下の考慮事項に注意してください。</p>
+            <ul>
+              <li>
+                <p>
+                  <strong>証明書の有効性</strong>: アプリケーションの SSL 証明書の有効期限が切れていないことを確認します。 </p>
+                <li>
+                  <p>
+                    <strong>証明書のバージョン</strong>: アプリケーションで SSL バージョン 3.0 の証明書が使用されていることを確認します。 </p>
+                  <li>
+                    <p>
+                      <strong>ドメイン名</strong>: アプリケーションの管理インターフェイスのドメイン名が、SSL 証明書に記載されているドメイン名と同じであることを確認します。 </p>
+                    <li>
+                      <p>
+                        <strong>信頼の連鎖</strong>: アプリケーションのユーザーが、ブラウザーに保存されているroot証明書に基づいて、アプリケーションの SSL 証明書を確認できることを確認します。 アプリケーションが自己署名の SSL 証明書を使用する場合、企業の root 証明書がユーザーのブラウザへ安全にインポートされることを確認してください。</p>
+                      <li>
+                        <p />
+                        <strong>Web サーバ構成</strong>:アプリケーションの環境が HTTPS を有効にしたことを検証してください。 機微な特質を持つトランザクションが、HTTPS 接続のみを介して送信されることを確認します。 アプリケーションの適切な箇所で SSL を要求するように、IISが構成されていることを確認してください。<ol><li><p> <strong>IIS管理コンソール</strong> を開始します。これを行うには、 <strong>コンソールパネル</strong> -&gt; <strong>管理ツール</strong> -&gt; <strong>インターネット情報サービス</strong>をクリックします。 </p><li><p>SSL を要求するリソースを右クリックしてください。 </p><li><p><strong>Directory Security</strong> タブを選択してください。 リソースがファイルの場合、<strong>File Security</strong> を選択してください。</p><li><p><strong>Secure communications</strong> セクションを見つけ、<strong>Edit</strong> をクリックしてください。</p><li><p><strong>Require secure channel (SSL)</strong> にチェックが入っていることを検証してください。 </p><li><p>ステップ 2 から 5までを、SSL を必要とするすべてのリソースについて繰り返してください。</p></li></li></li></li></li></li></ol></li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </ul>
+            <li>
+              <p>
+                <strong>Windows Networking (SMB/DCOM): </strong> HTTP 内の DCOM、 RPC、 SMB、または NTLM 認証が通信に使用される場合、SMB プロトコルがセキュアな暗号化されたモードで稼動していることを確認してください。 すべてのエンドポイントでの設定をチェックし、匿名ユーザーへ情報が公開されないこと、適切な強度のアルゴリズムが使用されていること、強力な鍵が要求されていること、および認証レベルとセッション セキュリティが利用できる最大限の設定にセットされていることを確認してください。 ホスト間でスニッフィングされたトラフィックが暗号化された SMB トラフィックのみを含んでいることを確かめ、システムがリモート のクライアント要求に基づいてセキュリティ レベルを低下させないことを確認してください。 SMB/DCOM セキュリティはホスト レベルの構成なので、コード ベース内からは使用を決定できませんが、展開する間にセキュリティを検証するために WMI 経由で自動チェックをスクリプト化できます。</p>
+            </li>
+          </li>
+        </li>
+      </ul>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコード スニペットは、暗号化を使用せずにリモート ホストへの接続を確立します。 結果として、攻撃者は接続を傍受し、転送中の任意の機微データを盗むことができます。 </p>
+  <pre>public NetworkStream Connect(String remoteHost, int remotePort)<br />{<br />    TcpClient client = new TcpClient (remoteHost, remotePort);<br />    NetworkStream stream = client.GetStream();<br />    return stream;<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>TLS の詳細は、<a href="http://www.faqs.org/rfcs/rfc2246.html">RFC2246 - TLS プロトコルバージョン 1.0</a> を参照してください。<li>IPSec の簡単な概要については、<a href="http://www.digisafe.com/products/pdf/IPSec_Primer.pdf">IPSec プライマー</a> にある記事を参照してください。<li>サーバ ファームでの IPSec の使用の詳細は、<a href="http://msdn2.microsoft.com/en-us/library/aa302413.aspx">ハウツー: IPSec を使用して 2 つのサーバ間の通信をセキュアにする</a> を参照してください。<li>オープン接続を簡単に列挙するには、Microsoft の SysInternals から <a href="http://www.microsoft.com/technet/sysinternals/Networking/TcpView.mspx">TCPView v3.02</a> を使用してください。 <li>ネットワーク トラフィックを調査するには、<a href="http://www.wireshark.org/">WireShark</a> を使用してください。</li></li></li></li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

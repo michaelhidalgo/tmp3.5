@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-997215159" Content_Hash="1632553163">
+  <Metadata>
+    <Id>bc10306c-f37c-4780-a096-847070ae67da</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構造化例外処理が使用されている</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>エラー条件をキャッチするために構造化例外処理が使用されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>例外処理を使用することでアプリケーションをDoS 攻撃から保護することができ、またそれを&nbsp; フェイル セーフのために使用 することができます。　&nbsp;例えば、偽装の使用時にエラーが生じたら、例外処理を使用して、より低い特権レベルに戻ることができます。&nbsp;例外処理は &nbsp; アプリケーション コードを単純化およびデクラスターして、それにより堅牢性も向上します。</p>
+  <h1>チェック方法</h1>
+  <p>エラーが発生する可能性のあるアプリケーション内のコードはすべて &nbsp; Try/Catch/Finally ブロックで密閉するか、グローバル例外ハンドラーでキャッチすることをお勧めします。&nbsp; 処理できない例外は キャッチ するべきではない一方で、ソースに近い例外をキャッチすることはユーザー エクスペリエンスとデバッグ目的の両方からエラー メッセージを改善できます。&nbsp;&nbsp;</p>
+  <p>エラーが発生する可能性のあるコードは次のようなTry ステートメントで密封することをお勧めします：</p>
+  <p />
+ <pre>Try<br />{<br />    //error prone code<br />}</pre>
+  <p />
+  <p>エラー状態、またフェイル セーフのためのあらゆる作業に必要なリソース クリーンアップを含むエラー処理コードを実行したい場合に、Catch ブロックがTry ブロックに続く場合があります。&nbsp; Catch ブロックは例外のログ記録を行う適切な箇所で、&nbsp; 既存の例外に加えて多くの情報を追加します。&nbsp; ほとんどの場合、コードの上の例外ハンドラーが適切に反応できるように、例外を再スローする必要があります。&nbsp;エラーを完璧に処理できる場合は、例外を消滅させるのみです。</p>
+  <p />
+ <pre>Catch(SomeExceptionClass e)<br />{<br />    //error handling code<br />}</pre>
+  <p />
+  <p>特に、例外を処理できず、クリーンアップ コードを実行できることだけを確認する必要がある場合に、Catch ブロックなしにTry/Finally を使用することもできます。&nbsp; 次にクリーンアップ、またはコード エラーが発生するか否かにかかわらず起こるはずのその他の操作を実行する、 Finally ブロックを作成することをお勧めします。</p>
+  <p />
+ <pre>Finally<br />{<br />    //resource cleanup code<br />}</pre>
+  <h1>修正方法</h1>
+  <p> Try/Catch/Finally ブロックを使用して、コードによってスローされた、エラーが発生する可能性がある例外をキャッチします。&nbsp; エラー状態にかかわらず、Try/Finallyを使用して、リソースが適切に破棄されることを確認します。 グローバル エラー ハンドラを使用して、コードで直接キャッチされなかった例外をキャッチします。</p>
+  <h1>問題の例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp; しかし、コードは例外ハンドラによってラップされず、接続がタイムアウトするとアプリケーションはフェイルし、ユーザーに機微な SQL データベース情報を含む例外の詳細を表示します。</p>
+ <pre>  protected void Page_Load(object sender, EventArgs e)<br />  {<br />      using (SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["MyDbConn"].ToString()))<br />      {<br />          SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM authors", cn);<br />          cn.Open();<br />          SqlDataReader rdr = cmd.ExecuteReader(CommandBehavior.CloseConnection);<br />          rdr.Read();<br />          Response.Write(rdr[0].ToString());<br />	 //read a value<br />      }<br />  }&nbsp;</pre>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp; コードは例外ハンドラでラップされ、接続がタイムアウトすると、アプリケーションがエラーを処理します。</p>
+ <pre>using System.Data.SqlClient;<br />using System.Security;<br />SqlConnection conn = new SqlConnection("...");<br />try{<br />    conn.Open();<br />    // Do some operation that might cause an exception.<br />    // Calling Close as early as possible.<br />    conn.Close();<br />    // ... other potentially long operations.<br />}<br />finally{<br />    if (conn.State==ConnectionState.Open)<br />        conn.Close();<br />  // ensure that the connection is closed.<br />}</pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/2e16a65a-25d2-4ea9-a513-e020d2408241">グローバル エラー ハンドラを使用して処理されていない例外をキャッチする</a>
+      <li>
+        <a href="/article/9557bf26-cc8e-4bcc-8588-3e07d127b4fc">構造化例外処理を使用する</a>
+        <li>
+          <a href="/article/33a894ce-2061-4741-be92-1d063c9cf057">未処理の例外にはグローバル例外ハンドラーを使用する</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

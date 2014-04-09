@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-463083924" Content_Hash="-483360">
+  <Metadata>
+    <Id>24e081c4-0c62-4c93-a91a-42a96892d74d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ロール ストア ルックアップにコストがかかりすぎる場合はロール キャッシングを使用する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ロール ストア ルックアップにコストがかかりすぎる場合は、ロール キャッシングを使用します。 </p>
+  <h1>理由</h1>
+  <p>ロール ルックアップの性能上のオーバーヘッドが大きすぎる場合（たとえばデータ アクセスの遅さ、もしくはロールの数の多さが原因となっている）、ロール キャッシングは性能を向上させるための 1 つの方法となります。&nbsp; ロール Cookie が適切に保護されている場合、この変更によってアプリケーションの Attack Surface (攻撃対象領域) は拡大するものの、直接システム セキュリティを脆弱にすることはありません。 </p>
+  <h1>状況</h1>
+  <p>ロール ストア ルックアップに関連して性能上の問題が発生するアプリケーションでは、ロール キャッシングを検討すべきです。&nbsp; ロール キャッシングはアプリケーションの Attack Surface (攻撃対象領域)を拡大し、脆弱性が入り込まないようにするために一定の対応が必要となるので、ロール キャッシングは必要な場合にのみ使用されるべきです。 </p>
+  <h1>対策</h1>
+  <p>Web.config ファイル内で以下のように <b>cacheRolesInCookie</b> 属性を <b>true</b> に設定することで、ロール Cookie 内のロール キャッシングを有効にしてください。 </p>
+ <pre>&lt;roleManager enabled="true"              <br />	cacheRolesInCookie="true"      ... &gt;<br />&lt;/roleManager&gt;</pre>
+  <p>ロール チェックが実行されると、ロール プロバイダーを呼び出してデータ ソース内のロールのリストをチェックする前にロール Cookie がチェックされます。 これにより、パフォーマンスが改善されます。&nbsp; Cookie は動的に更新され、最新の有効なロール名をキャッシュします。&nbsp; ユーザーのロール情報が長すぎて Cookie に保存できない場合、ASP.NET は最後に使用されたロール情報のみを Cookie に保存し、必要に応じてデータ ソース内の追加のロール情報を検索します。&nbsp; 最後に参照されたロールが Cookie にキャッシュされることになります。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

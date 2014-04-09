@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-221507449" Content_Hash="-1964738556">
+  <Metadata>
+    <Id>f7a14513-050a-43c1-a1ef-b823bee0fc41</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データをネットワーク上で保護する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>メッセージまたはトランスポート セキュリティを使用してメッセージを暗号化し、機微な情報がネットワークからスニッフィングされないようにします。 メッセージ セキュリティは各個別メッセージを暗号化して、機微データを保護します。 トランスポート セキュリティは、エンド ツー エンドのネットワーク接続のセキュリティを保護してネットワーク トラフィックを守ります。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、<a href="http://msdn.microsoft.com/en-us/library/ms733043.aspx">http://msdn.microsoft.com/en-us/library/ms733043.aspx の「トランスポート セキュリティ」を参照してください。</a><li>詳細については、<a href="http://msdn.microsoft.com/en-us/library/ms733137.aspx">http://msdn.microsoft.com/en-us/library/ms733137.aspx の「メッセージ セキュリティ」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

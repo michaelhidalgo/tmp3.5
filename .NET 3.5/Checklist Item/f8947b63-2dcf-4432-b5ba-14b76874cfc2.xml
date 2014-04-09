@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="437980654" Content_Hash="252614780">
+  <Metadata>
+    <Id>f8947b63-2dcf-4432-b5ba-14b76874cfc2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>派生することを意図しないベース クラスはシールされる。</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>設計</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションの設計が、そこから派生することを意図しないベース クラスがシールされていることを確認します。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>クラスおよびメソッドレベルで <b>sealed</b> キーワードを使うことができます。 Visual Basic .NET では、クラスレベルで <b>NotInheritable</b> キーワードを、あるいはメソッド レベルで <b>NotOverridable</b> を使用することができます。 ベース クラスを誰にも拡張されたくない場合は、それを <b>sealed</b> キーワードで示す必要があります。</p>
+  <p><b>sealed</b> キーワードをクラス レベルで使用する前に、慎重に拡張性要件を評価する必要があります。 次の状況ではクラスをシールすることが特に重要です：</p>
+  <ul>
+    <li>クラスが、保護された API を介してアクセス可能なパスワードなどのセキュリティ上の秘密を含んでいる。 <li>クラスにシールできない多くの仮想メンバーが含まれていて、タイプはサード パーティが拡張できるようには設計されていない。 </li></li>
+  </ul>
+  <p>また、クラス内の個々のメソッドとプロパティをシールすることもできます。 例えば、仮想メンバーを持つベース クラスから派生していて、派生クラスの機能をだれにも拡張してほしくない場合、派生クラスで仮想メンバーをシールすることを検討できます。 仮想メソッドをシールすることは、仮想メソッドをインライン化およびその他のコンパイラ最適化の候補とするため、パフォーマンス上の利点があります。</p>
+  <p>次の例を考えてみます。</p>
+  <div>
+ <pre>public class MyClass{<br />   protected virtual void SomeMethod()<br /> { ... }<br /> }  </pre>
+  </div>
+  <p>次のように、派生クラスでメソッドをオーバーライドしてシールすることができます。</p>
+  <div>
+ <pre>public class DerivedClass : MyClass<br /> {<br />   protected override sealed void SomeMethod (){ ... } <br />}  </pre>
+  </div>
+  <p>このコードは、仮想オーバーライドのチェーンを終了し、 <b>DerivedClass.SomeMethod</b> をインライン化の候補にします。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;クラスのシールはコンパイル時にのみ適用されます。 悪意のあるコードが完全に信頼された環境で実行されるとき、この制約をバイパスするために反射またはアンマネージ ポインターを使用することができます。<b></b></blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

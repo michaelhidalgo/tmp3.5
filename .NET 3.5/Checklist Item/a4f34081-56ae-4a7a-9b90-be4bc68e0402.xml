@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1704129618" Content_Hash="533948809">
+  <Metadata>
+    <Id>a4f34081-56ae-4a7a-9b90-be4bc68e0402</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>URL 認可をページおよびディレクトリ アクセス制御に使用する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>URL 認可を使用して、特定のページまたはアプリケーション本体にどのユーザーおよびユーザーのグループがアクセスできるかを制御するようにする。</p>
+  <h1>理由</h1>
+  <p>ページをパスワード保護する代わりに、URL 認可を使用することで、ページ アクセスをユーザー アカウントまたはロールに関連付けることができます。&nbsp;&nbsp;</p>
+  <h1>チェック方法</h1>
+  <p>次のステップを使用して、アプリケーションが URL 認可を使用しているかをチェックします。</p>
+  <ol>
+    <li>
+      <div>アプリケーションの Web.config ファイル中に &lt;<b>authorization</b>&gt; エレメント があるかをチェックします。</div>
+      <li>
+        <div>&lt;<b>authorization</b>&gt; エレメントに挙げられているユーザー、ロール、およびアクセス権がアプリケーションの要件に一致している ことを確認します。</div>
+      </li>
+    </li>
+  </ol>
+  <p>以下は、指定され少数のユーザーおよびロール以外のすべてのユーザーへのアクセスを拒否するように構成された &lt;<b>authorization</b>&gt;  エレメントの例です。</p>
+ <pre>&lt;authorization&gt;<br />&nbsp; &lt;allow users="DomainName\Bob, DomainName\Mary" /&gt;<br />&nbsp; &lt;allow roles="BUILTIN\Administrators, DomainName\Manager" /&gt;<br />&nbsp; &lt;deny users="*" /&gt;<br />&lt;/authorization&gt;<br /></pre>
+  <h1>修正方法</h1>
+  <p />URL 認可を構成するには､Web.config ファイル中の &lt;<b>authorization</b>&gt; エレメントを使用して、 どのユーザーおよび (または) ロール名にたいして、現在のディレクトリまたは指定されたディレクトリやファイルへのアクセスを許可するかを指定します。 Windows Server 2003 またはそれ以降の ASP.NET ではすべてのファイルが保護されています。その中には、.html、 .gif、.jpg の各ファイルを含む、ASP.NET にマップされていないファイルが含まれます。 <p />Web.config ファイル中の認可設定は、現在のディレクトリとすべてのサブディレクトリにあるすべてのファイルを参照します。ただし、サブディレクトリに &lt;<b>authorization</b>&gt; エレメントを含む独自のWeb.config ファイルがある場合を除きます。 element. その場合､親ディレクトリの設定がサブディレクトリの設定によってオーバーライドされます。 <p />URL 認可は、Forms Authentication とWindows 認証 の両方に使用できます。 Windows 認証の場合､ユーザー名は"DomainName\WindowsUserName"、ロール名は "DomainName\WindowsGroupName"の形式になります。 ローカルの管理者グループは、"BUILTIN\Administrators" として参照されます。 ローカルのユーザー グループは、"BUILTIN\Users" として参照されます。 <p />次の例は、Windows ユーザーと Windows ロールを示しています。<pre>&lt;authorization&gt;<br />  &lt;allow users="DomainName\Bob, DomainName\Mary" /&gt;<br />  &lt;allow roles="BUILTIN\Administrators, DomainName\Manager" /&gt;<br />  &lt;deny users="*" /&gt;<br />&lt;/authorization&gt;  </pre><p />次の例ではカスタム ロールを使用しています。<pre>&lt;authorization&gt;<br />  &lt;allow roles="Manager"/&gt;<br />  &lt;deny users="*"/&gt;<br />&lt;/authorization&gt;  </pre><p />特定のファイルまたはフォルダに認可ルールを適用するには､この例に示すように、&lt;<b>location</b>&gt; エレメントの内部に  &lt;<b>authorization</b>&gt; 。<pre>&lt;location path="Secure" &gt;<br />  &lt;system.web&gt;<br />    &lt;authorization&gt;<br />      &lt;deny users="?" /&gt;<br />    &lt;/authorization&gt;<br />  &lt;/system.web&gt;<br />&lt;/location&gt;  </pre><p />この例では、未認証のユーザーへのアクセスを拒否し､&lt;<b>forms</b>&gt; エレメントで指定したログイン ページへのリダイレクトを強制します。 element. <p />次の例は､特定のファイル (Page.aspx) に認可を適用する方法を示しています。 <pre>&lt;location path="page.aspx"&gt;<br />    &lt;authorization&gt;<br />        ...<br />    &lt;/authorization&gt;<br />&lt;/location&gt;  </pre><p>必要に応じて､識別子 (または一般的には呼び出し元のロール メンバーシップ) に基づいて、別個の &lt;location&gt; エレメント内で複数の &lt;<b>authorization</b>&gt; エレメントを使用して、 別個のページにさまざまな認可ルールを<b> </b>  適用できます。 </p><h1>関連する項目</h1><ul><li><div><a href="/article/3a62f823-e567-400f-96aa-b1e9374266bd">ガイドライン: ページおよびディレクトリのアクセス制御に URL 認可を使用する</a></div></li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

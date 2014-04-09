@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1256039298" Content_Hash="-77239805">
+  <Metadata>
+    <Id>dcc5e5c7-971f-4ae7-87ef-757f49ec211d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアント ステート管理オプションに依存しない</Title>
+    <Category>セッション管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>表示ステータス、 Cookie 、クエリ文字列または Hidden フィールドのようなクライアント側の状態管理オプションを使用して機微データを保存することは避けてください。 </p>
+  <h1>理由</h1>
+  <p>クライアント側で保存される情報はクライアントにより改ざんされてしまう可能性があります。 機微情報をクライアント側で保存するとアプリケーションのデータの完全性および機密性に障害を来たします。 </p>
+  <h1>状況</h1>
+  <p>機微情報が保存されている所はどこでも一様に適用して状態を維持してください。 </p>
+  <h1>対策</h1>
+  <p>クライアント状態管理の使用を検討する場合は次のステップを実施してください: </p>
+  <ol>
+    <li>
+      <p>
+        <strong>機密情報を識別します。 </strong>機微データとは、秘密に保たれており、認可されている当事者にのみ開示するべき情報のことです。 機微データの典型的な例として、以下に限定されませんが、顧客名、政府発行のID番号、クレジット カードまたその他の財務情報、パスワード、および私有鍵などが含まれます｡ ヘルス ケアや銀行など一部の業界では、機密情報を定義する規制基準を設けています。 アプリケーションに規制要件が適用される場合、規制要件に従って機微データを識別します。 機微データは次のように定義されます:</p>
+      <ul>
+        <li>Personally Identifiable Informationが含まれるか、またはPersonally Identifiable Informationの導出に使用できる、他者と共有すべきでない情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。</li></li></li>
+      </ul>
+      <strong>
+      </strong>
+      <li>
+        <p>
+          <strong>使用目的を判断します。</strong> 機微データの使用用途を特定してください。 特定の機微データを処理する上でクライアントの状態管理を実施する必要があるかどうか判断するためには、アプリケーションの機能条件およびセキュリティ ドキュメントを参照してください。 </p>
+        <li>
+          <p>
+            <strong>適切な管理オプションを選択してください。</strong> 機微データは常にサーバ側のデータベースのような状態管理オプションに保存してください。 アプリケーションのドキュメントがクライアントの状態管理を必要としている場合は、強度な暗号化が適用されるようにしてください。</p>
+          <li>
+            <p>
+              <strong>適切な管理オプションを適用してください。</strong> 全ての機微データの使用用途を特定してください。 適切な管理オプションが適用されているようにしてください。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次の抜粋では、現在のユーザーを Cookie を使って監視するアプリケーションを示しています。 残念なことに、攻撃者は Cookie のユーザー ID 値を変更して別のユーザーの偽装をすることができてしまいます。</p>
+ <pre>Response.Cookies["userID"].Value = "joe";</pre>
+  <h1>ソリューションの例</h1>
+  <p>次の抜粋では、現在のユーザーをサーバ側セッションを使って監視するアプリケーションを示しています。 攻撃者にはユーザー ID の値を変更して他のユーザーの偽装をすることができません。</p>
+ <pre>Session["userID"] = "joe";</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>パラメーターの操作とパラメーターを保護する方法の詳細については、「<a href="http://www.cgisecurity.com/owasp/html/ch11s04.html">Parameter Manipulation</a>」を参照してください。 <li>セッション管理の詳細については、「<a href="http://www.securityfocus.com/infocus/1774">Basic Web Session Impersonation</a>」を参照してください。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

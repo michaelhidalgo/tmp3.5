@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1596348147" Content_Hash="79787844">
+  <Metadata>
+    <Id>c08719b2-68b1-49fd-94cd-e89deaee30a7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>スキーマを使用したメッセージ インスペクターを用いて Message Contract を検証する方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>次のステップを使用して、WCF での演算に渡されるメッセージ コントラクトを検証してください。</p>
+  <ol>
+    <li>メッセージ インスペクタを作成して、スキーマ検証を実行してください。 
+<li>スキーマ ファイルの内容からメッセージ コントラクトのフィールドを検証するためのスキーマ ファイルを作成してください。 </li></li>
+  </ol>
+  <p>メッセージ コントラクト CustomerData （顧客データ）が CustomeN および CustIDLimitor で検証されている次の例を参照してください。 この例では、整数が 5 以上の値を持たないように制限され、文字列が 5 文字より長くならないようになっています。</p>
+ <pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;<br />&lt;xs:schema elementFormDefault="qualified" targetNamespace="<a href="http://Microsoft.PatternPractices.WCFGuide">http://Microsoft.PatternPractices.WCFGuide</a>" xmlns:xs="<a href="http://www.w3.org/2001/XMLSchema">http://www.w3.org/2001/XMLSchema</a>" xmlns:tns="<a href="http://Microsoft.PatternPractices.WCFGuide">http://Microsoft.PatternPractices.WCFGuide</a>"&gt;<br />  &lt;xs:element name="GetData"&gt;<br />    &lt;xs:complexType&gt;<br />      &lt;xs:sequence&gt;<br />        &lt;xs:element minOccurs="1" name="CustomerInfo" nillable="false" type="tns:MessageData" /&gt;<br />      &lt;/xs:sequence&gt;<br />    &lt;/xs:complexType&gt;<br />  &lt;/xs:element&gt;<br />  &lt;xs:complexType name="CustomerData"&gt;<br />    &lt;xs:sequence&gt;<br />      &lt;xs:element name="CustomerID" type="tns:CustIDLimitor"&gt;<br />      &lt;/xs:element&gt;<br />      &lt;xs:element name="text" type="tns:CustomerN"&gt;<br />      &lt;/xs:element&gt;<br />    &lt;/xs:sequence&gt;<br />  &lt;/xs:complexType&gt;<br />  &lt;xs:simpleType name="CustomerN"&gt;<br />    &lt;xs:restriction base="xs:string"&gt;<br />      &lt;xs:minLength value="1" /&gt;<br />      &lt;xs:maxLength value="5" /&gt;<br />    &lt;/xs:restriction&gt;<br />  &lt;/xs:simpleType&gt;<br />  &lt;xs:simpleType name="CustIDLimitor"&gt;<br />    &lt;xs:restriction base="xs:int"&gt;<br />      &lt;xs:minInclusive value="1" /&gt;<br />      &lt;xs:maxInclusive value="5" /&gt;<br />    &lt;/xs:restriction&gt;<br />  &lt;/xs:simpleType&gt;<br />  &lt;xs:element name="GetDataResponse"&gt;<br />    &lt;xs:complexType&gt;<br />      &lt;xs:sequence&gt;<br />        &lt;xs:element minOccurs="1" name="GetDataResult" nillable="false" type="tns:CustomerData" /&gt;<br />      &lt;/xs:sequence&gt;<br />    &lt;/xs:complexType&gt;<br />  &lt;/xs:element&gt;<br />&lt;/xs:schema&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/aa717047.aspx">http://msdn.microsoft.com/en-us/library/aa717047.aspx にある「メッセージ インスペクタ」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

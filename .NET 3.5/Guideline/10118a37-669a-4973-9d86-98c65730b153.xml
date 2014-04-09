@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1106526564" Content_Hash="-391436889">
+  <Metadata>
+    <Id>10118a37-669a-4973-9d86-98c65730b153</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>未処理の例外を捕らえるためにグローバル エラー ハンドラーを使用する</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>行うべき事柄</h1>
+  <p>Global.asax におけるアプリケーション レベルのグローバル エラー ハンドラーを定義し、コードで処理されない例外をキャッチします。 </p>
+  <h1>理由</h1>
+  <p>構造化例外処理が使用されても、すべてのアプリケーション コードが Try/Catch/Finally ブロックにラッピングされるわけではありません。&nbsp; グローバル例外ハンドラーは、これらの非処理例外により、内部のアプリケーション詳細を公開するエラー メッセージをクライアントに送信する、という結果を引き起こさないことを保証します。</p>
+  <h1>状況</h1>
+  <p>このガイドラインは、任意の種類の例外を生成できるアプリケーション ページがある場合は&nbsp;いつでも適用できます。 </p>
+  <h1>対策</h1>
+  <p>Global.asax におけるアプリケーション レベルのグローバル エラー ハンドラーを定義し、コードで処理されない例外をキャッチします。 これは、詳しいエラー情報を誤ってクライアントに返さないために実行します。 例外はすべてイベント ログに保存し、トラッキングや後の分析のために記録します。 下記に類似するコードを使用してください｡</p>
+ <pre>&lt;%@ Application Language="C#" %&gt; <br />&lt;%@ Import Namespace="System.Diagnostics" %&gt;   <br />&lt;script language="C#" runat="server"&gt; <br />void Application_Error(object sender, EventArgs e) <br />{    <br />	//get reference to the source of the exception chain     <br />	Exception ex = Server.GetLastError().GetBaseException();     <br />	// log the details of the exception and page state to the     <br />	// event log.    <br />	EventLog.WriteEntry("My Web Application",       <br />				"MESSAGE: " + ex.Message +        <br />				"\nSOURCE: " + ex.Source,        <br />				EventLogEntryType.Error);     <br />				// Optional e-mail or other notification here... <br />}<br />&lt;/script&gt;</pre>
+  <h1>問題の例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp; ただし、アプリケーションは汎用的なエラーハンドラーを指定しません。&nbsp; その結果、接続が時間切れになると、アプリケーションの詳細情報が例外としてクライアントに公開されます。</p>
+  <p>
+    <strong>説明: </strong>現在の Web 要求の実行中に処理されない例外が発生しました。 エラーについての詳細とコードにおける発生源については、スタックトレースを確認してください｡ <br /><br /><b>例外の詳細: </b>System.Data.SqlClient.SqlException: サーバへの接続中にエラーが発生しました。 &nbsp;SQLServer に接続する際､この失敗は初期設定は SQL Server がリモート接続を許可しなかったために引き起こされた可能性があります。 (プロバイダー:SQLネットワークインターフェイス､エラー:26、指定されたサーバ/インスタンスの特定エラー)<br /><br /><b>ソース エラー:</b><br /><br /><table><tbody><tr><td><pre><br />Line 216:<br />Line 217:     if (conn.State != ConnectionState.Open)<br />Line 218:                conn.Open();<br />Line 219:<br />Line 220:            cmd.Connection = conn;</pre></td></tr></tbody></table></p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NETアプリケーションにはSQLデータベースに接続するコードがあります。&nbsp; それは、&nbsp;アプリケーション レベルのグローバル エラー ハンドラーがすべての非処理例外をトラップおよび記録するよう定義しました。&nbsp; これにより、サーバにより詳しい情報をログ記録しながら、クライアントへ汎用的なエラーメッセージを提示することができます。</p>
+ <pre>&lt;%@ Application Language="C#" %&gt; <br />&lt;%@ Import Namespace="System.Diagnostics" %&gt;   <br />&lt;script language="C#" runat="server"&gt; <br />void Application_Error(object sender, EventArgs e) <br />{    <br />	//get reference to the source of the exception chain     <br />	Exception ex = Server.GetLastError().GetBaseException();     <br />	// log the details of the exception and page state to the     <br />	// event log.    <br />	EventLog.WriteEntry("My Web Application",       <br />				"MESSAGE: " + ex.Message +        <br />				"\nSOURCE: " + ex.Source,        <br />				EventLogEntryType.Error);     <br />	// Optional e-mail or other notification here... }<br />&lt;/script&gt;</pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>ガイドライン: customErrors のモード属性を On に設定して、詳細なエラーメッセージが呼び出し元に表示されること防ぐ<li>ガイドライン:構造化例外処理が使用される<li>ガイドライン:無害なメッセージを持つ一般的なエラー ページがクライアントへ返される<li>チェックリスト項目:グローバル エラー ハンドラーを使用して未処理の例外を捕らえる</li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

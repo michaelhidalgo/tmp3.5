@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1791280793" Content_Hash="-224957704">
+  <Metadata>
+    <Id>f75a5171-660b-49d5-be73-3c7d5a066fe7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アセンブリを動的に読み込む場合、フル アセンブリ名を使用する</Title>
+    <Category>リフレクション</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>コードがアセンブリのダイナミック ローディングをサポートしている場合は、<b>Activator.CreateInstance</b> を呼び出してアセンブリをロードする際は､必ず強力な名前を使用してアセンブリを参照します。 </p>
+  <h1>理由</h1>
+  <p>これにより、アプリケーションが正当なアセンブリと同一の名前を持つ悪意のあるアセンブリを偶発的に読み込むことを防止できます。</p>
+  <h1>状況</h1>
+  <p>コードがアセンブリの動的読み込みをサポートする場合。</p>
+  <h1>対策</h1>
+  <p>アセンブリの強力な名前には､アセンブリに署名として付けた公開鍵トークンが含まれ､鍵作成者の証跡を提供します。</p>
+  <p>次の例は､アセンブリに強力な名前が付けられているかを検証する方法を示しています。</p>
+ <pre>public static StrongName GetStrongName(Assembly assembly)<br />{<br />&nbsp;&nbsp;&nbsp; if(assembly == null)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new ArgumentNullException("assembly");</pre>
+ <pre>&nbsp;&nbsp;&nbsp; AssemblyName assemblyName = assembly.GetName();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; // get the public key blob<br />&nbsp;&nbsp;&nbsp; byte[] publicKey = assemblyName.GetPublicKey();<br />&nbsp;&nbsp;&nbsp; if(publicKey == null || publicKey.Length == 0)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new InvalidOperationException(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; String.Format("{0} is not strongly named", <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; assembly));<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; StrongNamePublicKeyBlob keyBlob = <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new StrongNamePublicKeyBlob(publicKey);</pre>
+ <pre>&nbsp;&nbsp;&nbsp; // create the StrongName<br />&nbsp;&nbsp;&nbsp; return new StrongName(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keyBlob, assemblyName.Name, assemblyName.Version);<br />}</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

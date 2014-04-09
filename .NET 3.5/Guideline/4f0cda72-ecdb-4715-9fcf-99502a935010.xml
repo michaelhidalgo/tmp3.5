@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-493489228" Content_Hash="1207809383">
+  <Metadata>
+    <Id>4f0cda72-ecdb-4715-9fcf-99502a935010</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>宣言型の偽装を行う場合は、宣言型の偽装を必要とする操作でのみ偽装を行う</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>宣言型偽装はそれを必要とする演算のみ偽装します。</p>
+  <h1>理由</h1>
+  <p>追加の特権を必要としない演算を偽装すると、Attack Surface (攻撃対象領域)を広げ、エクスプロイトによる潜在的影響を大きくすることになります。  </p>
+  <h1>状況</h1>
+  <p>偽装を使用する場合はこのガイドラインの使用を検討してください。</p>
+  <h1>対策</h1>
+  <p>偽装はそれを必要とする演算のみでします。 偽装はコストの高い演算なので、通常は高特権の呼び出し元の場合のみに使用します。 潜在的なAttack Surface (攻撃対象領域)を減らすためには偽装を選択的に使用してください。 次のコード例で示されているように、宣言型偽装は OperationBehaviorAttribute （演算動作属性）促成をクライアント偽装を必要とするどの演算にでも適用することができます：</p>
+ <pre>[OperationBehavior(Impersonation = ImpersonationOption.Required)]<br />public string GetData(int value)<br />{<br />   return “test”;<br />}<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>偽装と委任の Q&A （質疑応答）については<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Homeにある「WCF 3.5 Questions and Answers」（WCF 3.5 質疑応答）の「Impersonation/Delegation」（偽装/委任）の節を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

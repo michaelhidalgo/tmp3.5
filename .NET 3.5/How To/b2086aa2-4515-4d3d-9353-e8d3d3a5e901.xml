@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="187680007" Content_Hash="153281722">
+  <Metadata>
+    <Id>b2086aa2-4515-4d3d-9353-e8d3d3a5e901</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>FxCop を使用する方法</Title>
+    <Category>コード解析</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>FxCop は今では Visual Studio に統合されています。 </p>
+  <p>
+    <b>FxCop を使ったコード解析を有効にする:</b>
+  </p>
+  <ol>
+    <li>プロジェクトの<b>プロパティ</b> シートを開き、<b>コード解析</b>タブをクリックしてください。 <li><b>コード解析</b> タブでは<b>Enable CodeAnalysis</b><b></b>（コート解析を有効にする）チェックボックスを選択してください。 <li>オプションとしては、<b>ルール</b>セクションで様々なデザイン ガイドライン ルールを除外したり、特定のデザイン ガイドラインの警告およびエラー状況を変更してください。</li></li></li>
+  </ol>
+  <p>コード解析を有効にすると、FxCop が生成するソース コードの警告はエラー リストに掲載されます。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

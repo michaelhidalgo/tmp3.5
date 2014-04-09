@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1910095507" Content_Hash="-806901187">
+  <Metadata>
+    <Id>29e3d723-354f-4d82-ac7b-b004dc759c2f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>選択平文攻撃</Title>
+    <Category>暗号化</Category>
+    <Phase>設計</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>暗号化を利用するアプリケーション</p>
+  <h1>説明</h1>
+  <p>選択平文攻撃 (CPA) は<a href="http://en.wikipedia.org/wiki/Cryptanalysis">暗号解読</a>の一種で、攻撃者はあるデバイスにアクセスできて、その結果、暗号化する任意のプレーン テキストを選び、それに対応する暗号文を入手できることを前提とします。</p>
+  <p>このような行為が可能な攻撃者は選択したプレーン テキストを暗号化し、生成された暗号文を分析して、暗号化スキームのセキュリティを下げるような情報をさらに入手しようとします。 最悪の場合には、選択平文攻撃でスキームの秘密鍵を暴露できます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>機微データの開示</li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>アルゴリズムのカスタム実装。 <li>弱い鍵 (鍵の長さが短いなど) の利用。 <li>不必要に暗号文を露出させること。 <li>暗号化のために攻撃者が任意のデータを送信することを許可すること。</li></li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>よく知られている暗号アルゴリズムのよく知られている実装を利用します。 <li>暗号化で生成した無作為の鍵を利用します。 <li>大きな鍵 (128 ビットの対称鍵または 1024 ビットの非対称鍵) を利用します。 <li>秘密鍵を保管するためにプラットフォームが提供する機能を利用します。 <li>最小限の特権原則に従い、秘密鍵へのアクセスを最小限にとどめます。 <li>鍵をアプリケーション ドメインの外で保存します (たとえば、Web サーバの場合、鍵は Webrootの外に置きます)。 <li>対称鍵暗号を利用する場合、一意の無作為 IV を利用し、根底にあるプレーン テキストの文字パターンを隠し、連鎖モードにより暗号文の個々のブロックが置換されることを防ぎます。 <li>暗号化ハッシュ アルゴリズムを利用する場合、暗号ハッシュ値に一意の無作為ビット ストリーム (ソルト) を付けます。</li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>この攻撃に関する詳細は、次を参照してください。<a href="http://en.wikipedia.org/wiki/Chosen_plaintext_attack">http://en.wikipedia.org/wiki/Chosen_plaintext_attack </a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/de3e4477-e2b0-40a5-91f6-b3dab65667fb">ガイドライン: パスワードを安全に保存する</a>
+      <li>
+        <a href="/article/b070122f-f1d1-47da-a378-57f845d5db61">ガイドライン: 通信リンクを暗号化する</a>
+        <li>
+          <a href="/article/cd4ccbbb-be9c-4ff4-8b20-d116819b634b">ガイドライン: 安全な鍵の保管場所を使用する</a>
+        </li>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

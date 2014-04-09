@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-539530118" Content_Hash="-1096655536">
+  <Metadata>
+    <Id>1918c913-f825-459b-8f9a-6ed538dc349a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ヌル セッション（匿名ログオン）が無効になっている。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>攻撃者が匿名で（認証されないまま）サーバ&nbsp;に接続するのを防ぐため、ヌル セッション&nbsp;が無効になっていることをチェックします。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>匿名アクセスを防ぐため、ヌル セッションを無効にします。 このセッションは、2 つのコンピュータの間で確立される未承認もしくは匿名のセッションです。 ヌル セッションを無効にしないと、攻撃者は匿名で（承認されないまま）サーバに接続することができます。</p>
+  <p>攻撃者がヌル セッションを確立すると、攻撃者は、のちの攻撃に大いに役立つ情報となるようなシステム関連の情報を収集するのに使用できる列挙手法など、ターゲットのコンピュータに対しさまざまな攻撃を実行することができます。 ヌル セッションで返される情報の種類としては、ドメインや信頼の詳細、共有、ユーザー情報（グループ、ユーザー権限を含む）、レジストリキーなどがあります。</p>
+  <p>レジストリ内の下記のサブキーにある <b>RestrictAnonymous</b> を <b>1</b> に設定してヌル セッションを制限します。</p>
+  <p>
+    <b>HKLM\System\CurrentControlSet\Control\LSA\RestrictAnonymous=1</b>
+  </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細情報は、Microsoft ナレッジ ベース記事 246261、「Windows 2000 でレジストリ値 RestrictAnonymous を使用する方法」（<a href="http://support.microsoft.com/kb/246261">http://support.microsoft.com/kb/246261）を参照してください。</a></li>
+  </ul>
+  <p>
+    <b>
+    </b>&nbsp;</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-366295226" Content_Hash="-1888146721">
+  <Metadata>
+    <Id>09de683c-a05e-49c9-865f-764f120e3972</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ストアド プロシージャをセキュア データベース アクセスに使用する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>C# <li>サーバサイド<li>SQL Server</li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、.NET アプリケーションのデータベース操作に追加のセキュリティを付加するために、ストアド プロシージャを使用してデータベース クエリを構築する方法を説明することです。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>データベース操作の実装時にクエリ ロジックを定義し修正する<li>潜在的な SQL インジェクション攻撃から保護</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーションのデータベース操作は、コンパイル/展開時に定義し実装できます<li>アプリケーションは、データベース クエリで任意のフォームのユーザー入力を利用する必要があります<li>アプリケーションは、データベース クエリで他のデータベースやコード操作からの出力を使用する必要があります</li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>static void StoredProcedureDBQuery()<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create a new database connection using Integrated Security<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string connectionString = "Initial Catalog=snippets;Data Source=vm-win2003<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="file://sqlexpress;Integrated/">\\sqlexpress;Integrated</a> Security=SSPI;";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlConnection cn = new SqlConnection(connectionString);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Create a new SQL Command object with a query to execute the stored procedure<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlCommand sqlCommand = new SqlCommand("exec spFullNames", cn);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Open connection to the server and execute query, returning a data reader<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cn.Open();</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SqlDataReader reader = sqlCommand.ExecuteReader();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; while (reader.Read())<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Result: " + reader.GetString(0));</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Close Reader and Connection.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; reader.Close();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cn.Close();</pre>
+ <pre>
+    <br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下の例では、文字列結合を使用して、動的にデータベース クエリを作成しています。 </p>
+ <pre>string sParam = Request["first_name"];<br /><br />// Create a new database connection using Integrated Security<br />string connectionString = "Initial Catalog=snippets;Data Source=vm-win2003<br />	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="file://sqlexpress;Integrated/">\\sqlexpress;Integrated</a> Security=SSPI;";<br />SqlConnection cn = new SqlConnection(connectionString);<br /><br />// Create a new SQL Command object with our query<br />// Dynamically generate SQL query using passed parameter<br />SqlCommand sqlCommand = new SqlCommand("SELECT first, last FROM people WHERE first = '" + sParam + "'", cn);<br /><br />// Open connection to the server and execute query, returning a data reader<br />cn.Open();<br />SqlDataReader reader = sqlCommand.ExecuteReader();<br /><br />while (reader.Read())<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("Result: " + reader.GetString(0) + " " + reader.GetString(1));<br /><br />// Close Reader and Connection.<br />reader.Close();<br />cn.Close();</pre>
+  <ul>
+    <li>コードは、データベース クエリに組み込む前に "first_name" の CGI データを最初に検証しません<li>SqlCommand オブジェクトは、ユーザー入力を含む動的に生成された文字列を利用するため、この操作はSQL インジェクションに対して脆弱です。 たとえば、次の sParam 値はアプリケーション データベース全体を環境から削除する結果になりかねません。</li></li>
+  </ul>
+ <pre>abcxyz'; drop database snippets; -- </pre>
+  <ul>
+    <li>この例は、インライン SELECT ステートメントを示しています。 上記のように、ユーザー入力が動的に組み込まれている場合、ストアド プロシージャが使用されていても SQL インジェクションを受ける可能性があるかもしれません<li>インライン SQL コードは、特定の企業の情報セキュリティ ポリシーに違反する可能性があります</li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Data;<br />using System.Data.SqlClient;</pre>
+  <p>テストケースは次の3つのステップの実施を必要とします：</p>
+  <ol>
+    <li>
+      <p>このクエリで使用される "people" テーブルを SQL Server に追加するために、つぎの CREATE テーブルコマンドを実行します。</p>
+ <pre>CREATE TABLE [dbo].[People](<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [first] [varchar](50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [last] [varchar](50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [email] [varchar](max) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [phone] [nchar](15) COLLATE SQL_Latin1_General_CP1_CI_AS NULL<br /></pre>
+      <li>
+        <p>People テーブルから名前をクエリするには、この例で使用されるストアド プロシージャを作成します。</p>
+ <pre>CREATE PROCEDURE spFullNames AS<br />BEGIN<br />        SELECT first + ' ' + last FROM people ORDER BY last<br />END<br />GO</pre>
+        <li>
+          <p>以下のテスト ケース コードを実行します。 </p>
+ <pre>static void Main(string[] args){<br />        StoredProcedureDBQuery();<br />}</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>期待される結果</h1>
+ <pre>Result: Elvin Jones<br />Result: Gene Krupa<br />Result: Tony Williams</pre>
+  <h1>詳細情報</h1>
+  <ul>
+    <li>ユーザー入力は、常に ”汚染” されていると考える必要があります。データベース クエリを含むあらゆる種類の操作を行うためにアプリケーションによって受け入れられる前に、既知の、および想定されている値または文字のセットと比較して検証しなければなりません。 </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>セキュリティ ガイドライン（ASP.NET データ アクセス）: <a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGGuidelines0001.asp?frame=true#pagguidelines0001_dataaccess">http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGGuidelines0001.asp?frame=true#pagguidelines0001_dataaccess</a><li>セキュリティ ガイドライン（ADO.NET SQL インジェクション）： <a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGGuidelines0002.asp?frame=true#pagguidelines0002_sqlinjection">http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGGuidelines0002.asp?frame=true#pagguidelines0002_sqlinjection</a><li>セキュリティ ガイドライン（.NET データ アクセス）: <a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGGuidelines0003.asp?frame=true#pagguidelines0003_dataaccess">http://msdn.microsoft.com/library/en-us/dnpag2/html/PAGGuidelines0003.asp?frame=true#pagguidelines0003_dataaccess</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1254069726" Content_Hash="1381158198">
+  <Metadata>
+    <Id>c496b051-72f3-48f2-aaea-2edf7745e9c7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Credential 情報の保管へのアクセスが制限されている</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>Credential 情報ストアへのすべてのアクセス (通常の認証以外) が、アプリケーションと正しい特権を持つ管理者に制限されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>Credential 情報の保存への認可されていないアクセスは、ユーザーの Credential 情報が上書きされたり、または攻撃者が、攻撃を仕掛ける前に Credential 情報を得ることなくアプリケーション リソースへアクセスすることを許すことになる可能性があります。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順に従って、Credential 情報ストアが適切に保護されていることを確認してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションの認証プロバイダーを特定します。 </strong>アプリケーションが使用するメンバーシップ プロバイダーを特定します。 アプリケーションのメンバーシップ プロバイダーを探すには、アプリケーションのweb.config内で次の事項を調べます。</p>
+ <pre>&lt;configuration&gt;<br />&lt;system.web&gt;    <br />&lt;membership&gt;      <br />&lt;providers&gt;        <br />&lt;add/&gt;</pre>
+      <p>一般的な ASP.NET メンバーシップ プロバイダーは次です:</p>
+      <ul>
+        <li>SqlMembershipProvider<li>ActiveDirectoryMembershipProvider</li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>接続文字列が暗号化されていることを確認します。 </strong>アプリケーションの web.config 内でconnectionStrings エレメントを調べます。 すべての接続文字列が暗号化されていることを確認します。 例: </p>
+ <pre>&lt;connectionStrings configProtectionProvider="DataProtectionConfigurationProvider"&gt;  <br />  &lt;EncryptedData&gt;    <br />    &lt;CipherData&gt;      <br />      &lt;CipherValue&gt;AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAACQKi74w6kku2MCd3KtVZNAQAAAACAAAAAAADZgAAqAAA        <br />      ...        <br />      8UCEwJFr3bcxihMDPpGoD536kGj5hYI7OTr9vlIdiuUqFAAAAGSs5s96JSi8XAxlgFtBQy/kehZq      <br />      &lt;/CipherValue&gt;    <br />    &lt;/CipherData&gt;  <br />  &lt;/EncryptedData&gt;<br />&lt;/connectionStrings&gt;</pre>
+        <li>
+          <p />
+          <p>
+            <strong>プロバイダーのストアへのアクセスが制限されていることを確認します。 </strong>以下に対して適切なセキュリティ対策が行われていることを確認してください。</p>
+          <ul>
+            <li>
+              <p>
+                <strong>ファイル システムとレジストリ: </strong> Credential 情報ストアに関連付けられているすべてのローカル ファイルとレジストリ キーが適切なファイルシステム アクセス許可を持っていることを確認します。 アプリケーションを除くすべてのエンティティが、プロバイダーのCredential 情報ストアへのアクセスを禁止されている必要があります。 </p>
+              <li>
+                <p>
+                  <strong>データベース: </strong> アプリケーションがCredential 情報ストアとしてデータベースを使用する場合は、適切なデータベース セキュリティが適用されていることを確認してください。 アプリケーションを除くすべてのエンティティが、プロバイダーのCredential 情報ストアへのアクセスを禁止されている必要があります。</p>
+              </li>
+            </li>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードでは、資格情報に基づいてユーザーの認証が行われます。 コードがユーザーデータベースへのCredential 情報を開示するため、アプリケーションのweb.configへのアクセスを持つ人はCredential 情報保存へのアクセスを持つことになります。</p>
+  <blockquote>
+ <pre>&lt;connectionStrings&gt;  <br />  &lt;add name="MyLocalSQLServer"<br />      connectionString="Server=serv03.example.com;Database=MyAppCredStore;Integrated Security=SSPI;" <br />      providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;  <br /><br /><br />&lt;membership defaultProvider="MySqlMembershipProvider"&gt;  <br />  &lt;providers&gt;    <br />    &lt;add name="MySqlMembershipProvider" <br />      connectionStringName="MyLocalSQLServer" <br />      applicationName="MyApp".../&gt;  <br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  </blockquote>
+  <h1>修正方法</h1>
+  <p>アクセス権をアプリケーションのアカウントのみに制限することを検討してください。 Credential 情報ストアを特定するために使用される接続文字列が暗号化されていることを確認してください。</p>
+  <p>また、Credential 情報データベースをウェブ サーバから物理的に離れたサーバに保存することも検討してください。 これにより、攻撃者が ウェブ サーバの制御を奪おうとしても、Credential 情報ストアに不正アクセスすることが困難になります。</p>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

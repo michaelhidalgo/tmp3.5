@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="377293933" Content_Hash="1314429224">
+  <Metadata>
+    <Id>ebc7a550-8cc5-472c-a04d-c0094b26e15c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF サービスが委任について信頼できない場合、LogonUser API の使用を検討する</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>委任するためにはWCFサービスが信頼できない場合、LogonUser APIの使用を検討してください。</p>
+  <h1>対策</h1>
+  <p>このオプションはユーザー名およびパスワードをWCFサービスに保存してしまうため、委任レベルの偽装トークンを作成するためには、WCFサービスが委任に信頼できない場合のみ、Win32 LogonUser API (P/Invoke経由)を使用します。</p>
+  <p>Basic 認証モードを使用して、オリジナルユーザーの偽装トークンを得ると、ユーザー名およびパスワードにアクセスできます。 そしてLogonUser APIを使用して偽装トークンを取得できます。 サービスアカウントはユーザー名およびパスワードを安全に保存する必要があり、その後LogonUser APIを使用して偽装トークンを得ます。</p>
+  <p>次のコード例は偽装にLogonUser APIがどのように使用されるかを示します。</p>
+ <pre>using System.Runtime.InteropServices;<br />…<br />// Declare the logon types as constants<br />const long LOGON32_LOGON_NETWORK = 3;</pre>
+ <pre>// Declare the logon providers as constants<br />const long LOGON32_PROVIDER_DEFAULT = 0;<br /><br />[DllImport("advapi32.dll",EntryPoint = "LogonUser")]<br />private static extern bool LogonUser(<br />           string lpszUsername,<br />           string lpszDomain,<br />           string lpszPassword,<br />           int dwLogonType,<br />           int dwLogonProvider,<br />           ref IntPtr phToken);<br />[DllImport("kernel32.dll", CharSet=CharSet.Auto)]<br />public extern static bool CloseHandle(IntPtr handle);</pre>
+ <pre>private void ImpersonateAndUse(string Username,<br />                                        string Password,<br />                                        string Domain)<br />{<br />  IntPtr token = new IntPtr(0);<br />  token = IntPtr.Zero;<br />  // Call LogonUser to obtain a handle to an access token.<br />  bool returnValue = LogonUser(Username, Domain,Password,<br />                                 (int)LOGON32_LOGON_NETWORK,<br />                                 (int)LOGON32_PROVIDER_DEFAULT,<br />                                 ref token);<br />  if (false == returnValue)<br />  {<br />     int ret = Marshal.GetLastWin32Error();<br />     string strErr = String.Format("LogonUser failed with error code : {0}", ret);<br />     throw new ApplicationException(strErr, null);<br />  }<br />  WindowsIdentity newId = new WindowsIdentity(token);<br />  WindowsImpersonationContext impersonatedUser = newId.Impersonate();<br />  try<br />  {<br />     // do the operations using original user security context<br />  }<br />  finally<br />  {<br />     // stop impersonating<br />     impersonatedUser.Undo();<br />     CloseHandle(token);<br />  }<br />}<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>LogonUser APIに関する詳細は、<a href="http://support.microsoft.com/kb/q180548/">http://support.microsoft.com/kb/q180548/から「ユーザー Credential 情報をMicrosoft オペレーションシステムで有効化する方法」をご覧ください。</a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspx の「WCF を使用した委任と偽装」を参照してください。</a><li>偽装と委任 Q&A は、下記サイトから「WCF 3.5 Q&A」の「偽装/委任」セクションをご覧ください: <a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home"></a><br /></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1453517875" Content_Hash="1283140473">
+  <Metadata>
+    <Id>679ac42e-d3b7-4bc8-b7e1-e8d84b6a7fe9</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SSL の使用が不可能な場合は、SlidingExpiration 属性が False に設定され、制限付き認証 Cookie タイムアウトが使用される</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>お使いのアプリケーションでSSL の使用が不可能な場合は、slidingExpiration 属性が false に設定され、制限付き認証 Cookie タイムアウトが使用されることを確認してください。 </p>
+  <h1>修正方法</h1>
+  <p>SSL を使用できない場合は、 Cookie の寿命を制限することで、攻撃者が取得した Cookie を使用し、スプーフィングした ID を用いてアプリケーションにアクセスできる時間ウィンドウを短縮してください。 認証Cookieの初期設定タイムアウトは30分です。 この時間ウィンドウを以下のように 10 分に短縮することを検討してください。</p>
+  <div>
+ <pre>&lt;forms timeout="00:10:00" slidingExpiration="true" ... /&gt;  </pre>
+  </div>
+  <p><b>slidingExpiration="true"</b> の設定をすると、Web 要求の都度、有効期限がリセットされます。 上記の構成では、操作が行われないまま 10 分経過すると Cookie がタイムアウトになります。</p>
+  <p>Cookie のハイジャックが懸念されるシナリオが発生している場合は、タイムアウトを短縮して <b>slidingExpiration</b>=<b>"false"</b> を設定することを検討してください。スライド式有効期限がオフになっている場合は、ユーザーがアクティブか否かにかかわらず、タイムアウト期間の経過後に認証 Cookie の有効期限が切れます。 タイムアウト期間の経過後に、ユーザーは再認証されなければいけません。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

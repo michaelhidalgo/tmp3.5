@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-928515245" Content_Hash="896648431">
+  <Metadata>
+    <Id>576e329e-2528-4189-94c6-db64d4b99640</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>テスト インターフェイスが削除されている</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>テストに単独で使用するすべてのパブリックインターフェイスは、アプリケーションが削除されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>テスト インターフェイスでは、リリースされるアプリケーション用ではないエクストラ ファンクショナリティが追加されます。 これらのインターフェイスは、情報を取得するためや攻撃者の手に渡ると危険な機能を実行するためにテスト チームが使用します。</p>
+  <h1>チェック方法</h1>
+  <p>以下を実施することで、すべてのテストインターフェイスが消去されていることを確認します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>すべてのテスト API を判断します</strong>。すべてのパブリック API を一覧にします。 アプリケーションで使用するための API と、テストで使用するための API をそれぞれ確認します。 サポートとして文書や仕様を使用する。</p>
+      <li>
+        <p>
+          <strong>全てのテスト コードがコード ベースから削除されていることを検証します</strong>: 識別されたテスト コードの実装場所を見つけます。 アプリケーションから分離されていることを確認します。</p>
+        <li>
+          <p>
+            <strong>アプリケーションがリリース フラグでコンパイルされていることを確認します</strong>: アプリケーション用のプロジェクトを Visual Studio で開きます。 <strong>Build</strong> メニューから <strong>Configuration Manager</strong> を選択します。<strong>active solution configuration</strong> が <strong>Release</strong> に設定されていることを確認します。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>異なるバージョンのビルドを扱う場合、リリース時または後のデバッグ時のビルドであるか判断するのは困難（可能ではあるが）であるため、生産時にリリースのビルドのみが使用されるように気をつけます。</p>
+  <h1>問題の例</h1>
+  <p>以下のコードは、アプリケーションのユーザー管理システムを示しています。 クラスにテスト API が含まれているため、悪意のあるユーザーが、テストされていないコードを実行し、脆弱性をエクスプロイトすることができます。</p>
+  <p />
+ <pre>public sealed class UserManager<br />{<br />      public UserManager()<br />      {<br />            ...<br />      }<br />      public boolean AddUser(User user, char[] pass, char[] verifyPass)<br />      {<br />            ...<br />      }<br />      public boolean RemoveUser(User user)<br />      {<br />            ...<br />      }<br />      public boolean ModifyUser(User user)<br />      {<br />            ...<br />      }<br />      public boolean ChangePass(User user, char[] oldPass, char[] pass, char[] verifyPass)<br />      {<br />            ...<br />      }<br />      // The class contains test APIs<br />      public void AddTestUsers()<br />      {<br />            ...<br />      }<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>デバックおよびリリースのコンフィグレーションを使用したアプリケーションのコンパイルについては、MSDN の <a href="http://msdn2.microsoft.com/en-us/library/wx0123s5(vs.80).aspx">How to: Set Debug and Release Configurations</a> を参照してください。in MSDN.</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

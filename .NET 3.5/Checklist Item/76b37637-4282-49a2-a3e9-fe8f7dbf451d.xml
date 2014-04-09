@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-39747409" Content_Hash="335534759">
+  <Metadata>
+    <Id>76b37637-4282-49a2-a3e9-fe8f7dbf451d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>管理者アカウントが名前変更されていて強力なパスワードを持っている。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>セキュリティを改善するために、管理者アカウントが名前変更されていて強力なパスワードを持っていることを確認してください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>デフォルトのローカル管理者アカウントは、そのコンピュータ上での特権が昇格されているため、悪用のターゲットです。 セキュリティを改善するために、デフォルト管理者アカウントの名前を変更して、それに強力なパスワードを割り当てます。</p>
+  <p>ローカル管理の実行を意図する場合は、ネットワーク ログオン権限を拒否するようにアカウントを構成し、管理者がインタラクティブにログオンすることを要求します。 そうすることにより、ユーザー (善意を持とうが持たまいが) が管理者アカウントを使用してリモートの場所からサーバーにログオンすることを防ぎます。 ローカル管理のポリシーの柔軟性が足りない場合は、セキュアなリモート管理ソリューションを実装します。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

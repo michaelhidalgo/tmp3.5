@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="600879807" Content_Hash="-862078373">
+  <Metadata>
+    <Id>ed64300c-6963-4f9d-b3db-6e65acc8c481</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>タイミング分析攻撃</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>暗号化を使用するか、ネットワークを使用して機微データを送受信するアプリケーション。</p>
+  <h1>説明</h1>
+  <p>特定の暗号化されたシステムが特定の私有鍵を実行するための時間を厳密に監視することで、攻撃者は使用されているアルゴリズムに関する情報を識別し、固定のDiffie-Hellman指数を発見して、RSA 鍵を分解し、その他の暗号システムを解読できます。 また、一部のプロトコルはその他の経路によりセキュリティ関連の情報を漏えいします。 たとえば、ユーザーの一覧をチェックしているとき、何人かはローカルで認証され、何人かは特別な特権が与えられリモート認証サーバで認証されている場合、攻撃者はパスワードのチェックにかかる時間を記録することで、特別な特権を持つアカウントを割り出すことができます。</p>
+  <p>タイミング分析を利用し、その他のネットワーク上での対話に関する情報を識別することもできます。 たとえば、SSH 対話セッションの間にネットワークで送信されるパケットの頻度を分析することで、ユーザーのパスワードの長さを導き出すことができます。SSH がキーストロークごとにメッセージを送信するためです。 </p>
+  <h1>影響</h1>
+  <ul>
+    <li>情報漏えい<li>私有鍵情報をリカバリする能力<li>ネットワーク上で送信される情報の品質に関する情報を識別する能力</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>暗号化されたシステムを不適切に信用すること<li>タイミング攻撃を適切に防止しなかったこと<li>ネットワーク上で機微データを送信するとき、タイミングの示唆することを考慮しないこと</li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>入力に関係なく、一定の時間をかける暗号化実装を利用してください。 <li>機微データの送信で無作為化係数を導入します。 <li>機密情報の送信をひとつにまとめます。/LI&gt;</li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <strong>論理実行時間に基づく RSA タイミング攻撃</strong>
+      <a href="http://www.mit.bme.hu/events/minisy2004/papers/ms04_csilla_ENDRODI.pdf">http://www.mit.bme.hu/events/minisy2004/papers/ms04_csilla_ENDRODI.pdf</a>
+      <li>
+        <strong>ディフィー-ヘルマン、RSA、DSS、その他のシステムの実装に対するタイミング攻撃</strong>
+        <a href="http://www.fit.vutbr.cz/~cvrcek/cards/timingattack/timingat.htm">http://www.fit.vutbr.cz/~cvrcek/cards/timingattack/timingat.htm</a>
+        <li>
+          <strong>ネットワーク トラフィック分析</strong>
+          <a href="http://en.wikipedia.org/wiki/Traffic_analysis">http://en.wikipedia.org/wiki/Traffic_analysis</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

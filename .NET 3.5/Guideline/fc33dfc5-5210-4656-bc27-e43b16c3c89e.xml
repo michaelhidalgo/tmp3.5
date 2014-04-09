@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1282108777" Content_Hash="1973262182">
+  <Metadata>
+    <Id>fc33dfc5-5210-4656-bc27-e43b16c3c89e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログ スロットルを検討する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーションの性能を低下させる恐れがあるイベントおよびアクティビティのロギングにスロットルを利用します。 </p>
+  <h1>理由</h1>
+  <p>速すぎるロギングまたは大量データのロギングは、DoS攻撃やログ済み入力の喪失が非常に起こりやすい状態です。 ある操作を繰り返し実行してログを汚染することで、攻撃者はログ メカニズムを過負荷状態にし、侵入を隠すことができます。 </p>
+  <h1>状況</h1>
+  <p>ユーザーまたは信頼のないコンポーネントがロギングの量や速度に影響する場合、イベントロギングが減速されることを確認します。 アプリケーション サーバのイベントは、リソース(ハードウェア、ネットワーク帯域)が行える場合は必ず、別のマシンにログ記録されなければなりません。</p>
+  <h1>対策</h1>
+  <p>ログ調整を実行するには:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ログ調整の必要性を確認します。</strong> 所定のセキュリティ イベントを限られた時間内に何度でも実行できる場合に、ログ調整を使用する必要があります。 イベントの発生毎にログ記録することにより、攻撃者は重要な入力を上書きすることでアプリケーションのログを不正操作します。</p>
+      <li>
+        <p>
+          <strong>ログ調整メカニズムを設定します。 </strong>どのセキュリティ イベントを調整するか決定します。 重要なセキュリティ オペレーションをスロットルまたは飛ばすことがないようにしてください。 調整ポリシーを設定し、それに基づいて調整メカニズムを設計します。 </p>
+        <p>アプリケーションが ロギングを行う目的でASP.NET ヘルス モニタリング システムを使用する場合はバッファ モードを使用します。 バッファ モードは<strong>System.Web.Management.BufferedWebEventProvider</strong>から引き継いだプロバイダーのバッファ プロパティを定義するために使用します。これには現在<strong>MailWebEventProvider</strong> および<strong>SqlWebEventProvider</strong>が含まれます。ベース クラスからカスタムウェブイベント プロバイダーを導き出して、バッファ モードを使用することも可能です。</p>
+        <p>ヘルス モニタリング システムのバッファを構成し、性能への影響と記録イベントのオーバーヘッドを最小限にとどめます。 &lt;<strong>bufferModes</strong>&gt;エレメントを使用して、イベントがプロバイダーに書き込まれる前にどれだけの間がバッファされるかを定義し、緊急または重大なイベントと標準のイベントとを区別することができます。<strong></strong> 機会レベルのWeb.config.defaultファイルに構成されたデフォルトのバッファ モード（Critical Notification（重大通知）、Notification（通知）、Analysis （分析）または Logging（ログ）のいずれかを使用するか、カスタマイズされたバッファ モードを構成することもできます。</p>
+        <p>
+          <strong>注記: </strong>バッファーリングを有効にするには、プロバイダー構成で<strong>buffer="true"</strong> に設定する必要があります。 特定のバッファ構成を引用するためには、以下のコードの例で示されているようなプロバイダーの定義にある<strong>bufferMode</strong>属性</p>
+ <pre>&lt;providers&gt;<br />  &lt;add name="providerName" buffer="true" bufferMode="bufferModeName" ... /&gt;<br />&lt;/providers&gt;</pre>
+        <p>web.config ファイルの<strong>healthMonitoring</strong> セクション内で&lt;bufferModes&gt; タグを宣言することで、パフォーマンスへの影響と記録イベントのオーバーヘッドを最小化するようにバッファーリングを構成します。</p>
+ <pre>&lt;healthMonitoring&gt;<br />  &lt;bufferModes&gt;<br />    &lt;add name="Extra Critical Notification"<br />      maxBufferSize="10"<br />      maxFlushSize="5"<br />      urgentFlushThreshold="1"<br />      regularFlushInterval="Infinite"<br />      urgentFlushInterval="00:01:00"<br />      maxBufferThreads="1"/&gt;<br />  &lt;/bufferModes&gt;&lt;/healthMonitoring&gt;</pre>
+        <ul>
+          <li>
+            <strong>name</strong> 属性は、他のエレメントから参照するために用いられるバッファ モードの名前です。 例えば、&lt;provider&gt;エレメントはそのbufferMode（バッファ モード）属性を引用することによって特定のバッファ モード構成を引用します。 <li><strong>maxBufferSize</strong> は、フラッシュしストアに書き込む前に、プロバイダーによってバッファ格納できるイベントの最大数です。 <li><strong>maxFlushSize</strong> はフラッシュ毎のイベント最大数です。 その値は１とmaxBufferSize（最大バッファ サイズ）の間のものです。 <li><strong>urgentFlushThreshold</strong>はその数に到達したらフラッシュされるイベントの最大数です。 その値は maxBufferSize の値以下でなければなりません。 <li><strong>regularFlushInterval</strong>はフラッシュ毎の時間間隔です。 ゼロの値はありません。 <li><strong>urgentFlushInterval</strong>はフラッシュ間の最小時間です。 その値は０とregularFlushInterval（通常フラッシュ間隔）の間でなければなりません。 <li><strong>maxBufferThreads</strong>はフラッシュに使用されるThreadの最大数です。</li></li></li></li></li></li></li>
+        </ul>
+        <li>
+          <strong>ログ調整メカニズムを適用します。</strong> アプリケーション内で、ログ調整を適用する必要がある適切な場所を見つけます。 設定したメカニズムに従って、ログ調整を実装します。 たとえば、ショッピングカートに商品を入れるといった、ユーザーが同じアクションを無制限の回数行える場合にスマートスロットル メカニズムを適用します。</li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションはヘルス モニタリングを使用せず、通常の SQL  Server データベースを介して多くのイベントをログ記録します。 アプリケーション ユーザーが実施するオペレーションのいくつかは、ログボリューム生成を行えます。 攻撃者はオペレーションを何度も実行します。 ログはすぐに一杯になってしまい、サーバが入ってくる要求に応える能力に著しい影響を及ぼし、その結果アプリケーション ユーザーに対するDoS状況に陥ります。 さらに、ログが抜け落ち始めることから、ハッキングの試みを示すイベントがシステムからフラッシュされるまでログを溢れさせ、ハッカーは過去の攻撃の証拠を隠すことができます。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションは多くのイベントを通常のSQL  Server データベースを介してログ記録します。 開発者はアプリケーションが DoS 攻撃にさらされるかもしれないことを気づき、web.config ファイル内の<strong>BufferModes </strong>エレメントを設定することでヘルス モニタリングのログ スロットル ログ記録を構成します。</p>
+ <pre>&lt;healthMonitoring&gt;<br />  &lt;bufferModes&gt;<br />    &lt;add name="Extra Critical Notification"<br />      maxBufferSize="10"<br />      maxFlushSize="5"<br />      urgentFlushThreshold="3"<br />      regularFlushInterval="00:03:00"<br />      urgentFlushInterval="00:01:00"<br />      maxBufferThreads="1"/&gt;<br />  &lt;/bufferModes&gt;<br />&lt;/healthMonitoring&gt;</pre>
+  <p>アプリケーションのロギング機能により、達成できるアプリケーションへの接続回数に関係なく攻撃者が1分間に6回のログ入力を生成できるようになります。 目的はログが落とされないように、攻撃者が絶対に maxBufferSize（最高バッファ サイズ）を超えることができないようにするためです。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>セキュリティ イベントの監視に関する詳細については、次を参照してください:<a href="http://technet.microsoft.com/en-us/library/cc738320(WS.10).aspx">セキュリティ イベントの監視の概念</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

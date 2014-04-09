@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="490519237" Content_Hash="-1686854077">
+  <Metadata>
+    <Id>4f516756-cca0-4b52-a70f-cdc234fa246d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>攻撃者がログを制圧できないようにログを調整する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>悪意のあるアクティビティによる過剰なログ記録によりアプリケーションが掌握されないかチェックしてください｡</p>
+  <h1>理由</h1>
+  <p>攻撃者がログ バッファを制圧できる場合､次のような状況が発生する可能性があります。</p>
+  <ul>
+    <li>顧客へのサービスを提供が不能となるほどにアプリケーションの性能が低下する (DoS攻撃)<li>アプリケーションによりログが削除され、攻撃の証拠は隠蔽されている</li></li>
+  </ul>
+  <h1>チェック方法</h1>
+  <p>以下の手順で、この問題がないかチェックしてください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>無分別なログ記録を行うコードを見直してください。 </strong>アプリケーションは、異常なアクティビティが発生しているか否か見極めることができるように、適切に設計されていなければなりません。&nbsp; しかし、容易にログ記録を要する大量のイベントを攻撃者が発生できないようにしてください。&nbsp; たとえば､予期しないパラメータ値を受け取るたびにイベントをログ記録すると､攻撃者は大量の要求を送信して大量のログ エントリを迅速に作成するかもしれません。</p>
+      <li>
+        <p>
+          <strong>構成ファイルのログバッファを見直してください。 </strong>初期設定ではASP.NETは Health Monitoring に以下のバッファ設定を行います｡</p>
+ <pre>&lt;bufferModes&gt;     <br />&lt;add name="Critical Notification" maxBufferSize="100" maxFlushSize="20"           <br />	urgentFlushThreshold="1" regularFlushInterval="Infinite" urgentFlushInterval="00:01:00"<br />           maxBufferThreads="1" /&gt;     <br />&lt;add name="Notification" maxBufferSize="300" maxFlushSize="20"          <br />	urgentFlushThreshold="1" regularFlushInterval="Infinite" urgentFlushInterval="00:01:00" <br />          maxBufferThreads="1" /&gt;     <br />&lt;add name="Analysis" maxBufferSize="1000" maxFlushSize="100" urgentFlushThreshold="100"           <br />	regularFlushInterval="00:05:00" urgentFlushInterval="00:01:00" maxBufferThreads="1" /&gt;     <br />&lt;add name="Logging" maxBufferSize="1000" maxFlushSize="200" urgentFlushThreshold="800"           <br />	regularFlushInterval="00:30:00" urgentFlushInterval="00:05:00" maxBufferThreads="1" /&gt;<br />&lt;/bufferModes&gt;</pre>
+        <p>これらの初期設定では、ほとんどのアプリケーションに適切な、パフォーマンスとバッファサイズの合理的なバランスが取れています。&nbsp; しかし、maxBufferSize と urgentFlushInterval に特に注意する必要があります。&nbsp; 攻撃者が urgentFlushInterval で指定された制限時間までに maxBufferSize を操作してバッファの最大サイズに達してしまえば､ログがイベント ログに送信されて記録される前にバッファから削除されてしまいます。</p>
+        <p>また、設定が初期設定から変更されたか否か、また新規のルールが追加イベントプロバイダー用に追加されたか否かにも特別な注意を払ってください。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>攻撃者が大量のログ入力を駆動し、それによってサーバの過剰なリソースを消費することができると判断した場合､以下のように対処できます:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>Profilesエレメントを使ってログのしきい値を制御してください｡ </strong>&lt;<b>profiles</b>&gt; を使用します。 イベントを構成する際に使用するパラメータのセットを指定してください。 これらパラメータは、その後イベントがログ記録されなければならない最小数のインスタンス、インスタンスの最大数､2つの類似イベントをログ記録する最小間隔を示します｡ しきい値を設定することで、いつ監視が開始し、いつ終了するかを指定できるので、このエレメントは生成される情報量を制御するために不可欠なものです。 </p>
+      <p>このエレメントを使用してイベントの発生を調整できます。 イベントシステムそれ自体、およびSQL Server やイベントログのようなイベント･シンクに対する攻撃を防止するのに役立ちます。 マシンレベルの Web.configファイルの初期設定を見直すことができます。 次のコードの例は、マシンレベルの Web.config.default ファイルのデフォルト設定を示しています。</p>
+ <pre>&lt;profiles&gt;  <br />&lt;add name="Default" minInstances="1" maxLimit="Infinite" minInterval="00:01:00" custom="" /&gt;  <br />&lt;add name="Critical" minInstances="1" maxLimit="Infinite" minInterval="00:00:00"  custom="" /&gt;<br />&lt;/profiles&gt;</pre>
+      <p>初期設定のプロファイルを独自のヘルスモニタリングの構成に使用できますし、新たに作成したプロファイルも使用できます。 </p>
+      <li>
+        <p>
+          <strong>別個のサーバへログします。 </strong>別個のサーバへログ記録ことは、アプリケーション サーバへの負荷を減らすだけでなく、攻撃者がログ エントリを盗んだり改変したりすることを難しくすることにもなります。&nbsp;</p>
+        <p>別個のサーバへログ記録には、ログ記録ホスト上に SQL Server をセットアップして <b>SqlWebEventProvider</b> として指定します。ログ記録するマシンには、Attack Surface (攻撃対象領域) を最小限に抑えるために、他のサービスやロールを割り当ててはなりません。&nbsp; できれば統合された認証を使用して、安全にSQL server に接続されているか確認してください｡&nbsp; また、データベースに接続するアカウントが、必要なストアド プロシージャに対してのみアクセス許可を与えられ、直接のテーブルアクセスを含めた他の許可が与えられてないことを確認してください｡&nbsp;</p>
+        <li>
+          <p>
+            <strong>コードのカスタムイベントの使用を変更してください｡ </strong>カスタムイベントを定義しそれを使用する場合､攻撃者がイベントが発生する頻度を制御できないようにコードを変更してください｡&nbsp; 例えば､アプリケーションが不正な形式のパラメータを受け取るたびにカスタムイベントを発生させる場合､このコードを変更し、過去60秒間に受け取った不正形式のパラメータの数のみをログ記録するようにできます。</p>
+          <li>
+            <p>
+              <strong>バッファモードを変更してください｡ </strong>maxBufferSize および urgentFlushInterval 属性値を変更して、urgentFlushInterval に指定された時間内に最大サイズに達することを不可とします。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NETアプリケーションは以下のバッファモード･エレメントを追加して、SQLイベントプロバイダーへのログ記録のバッファを制御します。</p>
+ <pre>&lt;bufferModes&gt;    <br />&lt;add name="Analysis" maxBufferSize="1000" maxFlushSize="100" urgentFlushThreshold="100"<br />	regularFlushInterval="00:05:00" urgentFlushInterval="00:01:00" maxBufferThreads="1" /&gt;  <br />&lt;/bufferModes&gt;</pre>
+  <p>しかしながら、攻撃者が5 分以内に 1000 件以上のログを生成できる場合､ログの一部が削除されてしまいます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://msdn.microsoft.com/en-us/library/ms178708(VS.80).aspx">Buffering ASP.NET ヘルス モニタリング Events</a>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>チェックリスト項目: ログ記録と監査にヘルス モニタリングを使用する<li>ガイドライン: ログ記録の調整</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

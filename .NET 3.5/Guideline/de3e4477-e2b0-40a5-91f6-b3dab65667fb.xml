@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1841877979" Content_Hash="211458761">
+  <Metadata>
+    <Id>de3e4477-e2b0-40a5-91f6-b3dab65667fb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パスワードを安全に保存する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>パスワードは、プレーン テキストではなく、または解読されやすい暗号化あるいは難読化スキームを使用することなく、安全な方法で保存してください。</p>
+  <h1>理由</h1>
+  <p>プレーン テキストで、または脆弱な暗号化を使用してパスワードを保存すると、攻撃者がパスワードを盗みやすくなる可能性があります。 不正に入手したパスワードで、攻撃者は機微データへのアクセス、変更、削除を行う可能性があります。</p>
+  <h1>状況</h1>
+  <p>アプリケーションがパスワードの保存を求める場合にのみ、本ガイドラインに従うことをお勧めします。 たとえば、あるポイントでアプリケーションが元のパスワードを取り込む必要がある場合に、これが必要である場合があります。</p>
+  <h1>対策</h1>
+  <p>パスワードを安全に保存するには、以下の手順を行ってください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>Generate a machineKey</strong>: <strong>web.config</strong> 内の &lt;machineKey&gt; エレメントは ASP.NET がパスワードを暗号化/ハッシュ化する際に使用するエントロピーです。 アプリケーションの&lt;machineKey&gt; （マシン鍵）エレメントの作成方法については<a href="http://support.microsoft.com/kb/312906"> Forms Authentication で使用する鍵の作成方法</a>にアクセスしてください。例: </p>
+ <pre>&lt;system.web&gt;   &lt;machineKey validationKey="..." decryptionKey="..." validation="SHA1" /&gt;</pre>
+      <li>
+        <p>
+          <strong>メンバーシップ プロバイダーの選択</strong>: アプリケーションの要件と設計のドキュメントを確認してください。 アプリケーションの要件に最も適合するメンバーシップ プロバイダーを特定します。 ASP.NET は、以下のメンバーシップ プロバイダーを提供します。</p>
+        <ul>
+          <li>
+            <strong>ActiveDirectoryMembershipProvider</strong>: アプリケーションの Forms Authentication を組織の Active Directory に統合する場合はこのプロバイダーを使用してください。 <li><strong>SqlMembershipProvider</strong>:アプリケーションがバックエンドで Forms Authentication に SQL データベースを使用している場合はこのプロバイダーを使用してください。</li></li>
+        </ul>
+        <li>
+          <p>
+            <strong>アプリケーションのメンバーシップ プロバイダーを設定します。</strong>
+          </p>
+          <ul>
+            <li>
+              <p>
+                <strong>ActiveDirectoryMembershipProvider</strong>: アプリケーションの ActiveDirectoryMembershipProvider を構成する場合は次のステップを使用してください。</p>
+              <ol>
+                <li>
+                  <p>
+                    <strong>接続文字列の作成</strong>: 所属する組織の Active Directory と相互処理するために接続文字列を作成します。 例: </p>
+ <pre>&lt;connectionStrings&gt;<br />    &lt;add name="MyAppADConnection" connectionString="LDAP://NTDomainServer/" /&gt;</pre>
+                  <li>
+                    <p>
+                      <strong>メンバーシッププロバイダーの追加</strong>: アプリケーションの　web.config　のメンバーシップ プロバイダーの一覧にActiveDirectoryMembershipProvider を追加します。 前の手順の Active Directory 接続文字列を使用するよう設定します。 ActiveDirectoryMembershipProvider をアプリケーションのデフォルトのメンバーシップ プロバイダーに設定します。 例: </p>
+ <pre>&lt;system.web&gt;<br />  &lt;membership defaultProvider="MyAppADMembershipProvider"&gt;<br />    &lt;providers&gt;<br />      &lt;add name="MyAppADMembershipProvider"<br />            type="System.Web.Security.ActiveDirectoryMembershipProvider"<br />            connectionStringName="MyAppADConnection"<br />           .../&gt;</pre>
+                  </li>
+                </li>
+              </ol>
+              <li>
+                <p>
+                  <strong>SqlMembershipProvider</strong>: アプリケーションの SqlMembershipProvider を構成する場合は次のステップを使用してください。</p>
+                <ol>
+                  <li>
+                    <p>
+                      <strong>接続文字列の作成</strong>: バックエンド SQL サーバと相互処理するために接続文字列を作成します。 例: </p>
+ <pre>&lt;connectionStrings&gt;<br />  &lt;add name="MyAppSqlConnection"<br />        connectionString="Server=serv02.example.com; Database=myapp; Integrated Security=SSPI;"<br />         providerName="System.Data.SqlClient"/&gt;</pre>
+                    <li>
+                      <p>
+                        <strong>SQL データベースの作成</strong>: ASP.NET SqlMembershipProvider でアプリケーションのバックエンド SQL Server を使用するためには aspnet_regsql.exe ユーティリティを使用して構成します。 例: </p>
+ <pre>aspnet_regsql -A m -C &lt;connection string&gt;</pre>
+                      <li>
+                        <p>
+                          <strong>メンバーシッププロバイダーの追加</strong>: アプリケーションの web.config のメンバーシップ プロバイダーの一覧に SqlMembershipProvider を追加します。 手順 1 の SQL 接続文字列を使用するよう設定します。 SqlMembershipProvider をアプリケーションのデフォルトのメンバーシップ プロバイダーに設定します。 例: </p>
+ <pre>&lt;system.web&gt;<br />  &lt;membership defaultProvider="MyAppSqlMembershipProvider"&gt;<br />    &lt;providers&gt;<br />      &lt;add name="MyAppSqlMembershipProvider"<br />            type="System.Web.Security.SqlMembershipProvider"<br />            connectionStringName="MyAppSqlConnection"<br />           .../&gt;</pre>
+                      </li>
+                    </li>
+                  </li>
+                </ol>
+              </li>
+            </li>
+          </ul>
+          <li>
+            <p>
+              <strong>暗号化パスワードフォーマットの使用</strong>: <strong>passwordFormat</strong>（パスワード フォーマット）属性を確実に <strong>encrypted</strong>（暗号化）に設定するようにしてください。指定されていない限り、使用されるデフォルトのハッシュ化関数は SHA-1 になります。 例: </p>
+ <pre>&lt;system.web&gt;<br />  &lt;membership defaultProvider="MyAppSqlMembershipProvider"&gt;<br />    &lt;providers&gt;<br />      &lt;add name="MyAppSqlMembershipProvider"<br />            type="System.Web.Security.SqlMembershipProvider"<br />            connectionStringName="MyAppSqlConnection"<br /><strong>           passwordFormat="Encrypted"<br /></strong>           .../&gt;</pre>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>標準 .NET メンバーシップ プロバイダーは、ユーザー パスワードを、不変でありアプリケーションのユーザー アカウントを暴露する可能性のある System.string オブジェクトとして処理することご承知ください。 更なる詳細については、 <a href="/article/2120b3fe-34c6-47bf-be83-d9756e512d02">メモリにパスワードを残さない </a> ガイドランを参照してください。</p>
+  <p>注記: クライアント側にはユーザー Credential 情報またはその暗号化された値（例えば Cookie 、隠しフィールド、他）を保存しないでください。ユーザーや暗号化された Credential 情報を監視する必要がある場合は、セッションを使用してください。 詳細については、「セッション管理」セクションを参照してください。</p>
+  <h1>問題の例</h1>
+  <p>以下のコードは、ユーザー名とパスワードに基づいてユーザーを認証します。 提供された資格情報が、バックエンド データベースに格納されている資格情報と比較されます。 残念ながら、データベース内の Credential 情報はプレーン テキストで、データベースが侵害された場合は盗まれる可能性があります。</p>
+ <pre>&lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="30"&gt;<br />  &lt;providers&gt;<br />    &lt;add name="MyAppMembershipProvider"<br />      type="System.Web.Security.SqlMembershipProvider"<br />      connectionStringName="MyAppMembershipDatabase"<br />      enablePasswordRetrieval="true"<br />      enablePasswordReset="true"<br />      requiresQuestionAndAnswer="true"<br />      applicationName="MyApp" /&gt;<br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>以下のコードでは、特定のユーザー名およびパスワードに基づいてユーザーが検証されます。 ユーザーの有効なメール アドレスとランダムなソルトを使用して、ユーザーのパスワードを暗号化します。 次に、ユーザー名と生成されたダイジェストを、バックエンド データベース内に保存されているデータと比較します。 このため、パスワードはデータベース内に暗号化されて保存されます。</p>
+ <pre>&lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="30"&gt;<br />  &lt;providers&gt;<br />    &lt;add name="MyAppMembershipProvider"<br />      type="System.Web.Security.SqlMembershipProvider"<br />      connectionStringName="MyAppMembershipDatabase"<br />      enablePasswordRetrieval="true"<br />      enablePasswordReset="true"<br />      requiresQuestionAndAnswer="true"<br /><strong>passwordFormat="Encrypted"<br /></strong>      applicationName="MyApp" /&gt;<br />  &lt;/providers&gt;<br />&lt;/membership&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li> SqlMembershipProvider's PasswordFormat （パスワード フォーマット）属性に関する更なる情報は: MSDN の <a href="http://msdn2.microsoft.com/en-us/library/system.web.security.sqlmembershipprovider.passwordformat(vs.80).aspx">SqlMembershipProvider.PasswordFormat Property</a> ドキュメントにアクセスしてください。 <li>ActiveDirectoryMembershipProvider クラスに関する更なる情報は: MSDN の<a href="http://msdn2.microsoft.com/en-us/library/system.web.security.activedirectorymembershipprovider(vs.80).aspx">ActiveDirectoryMembershipProvider Class</a>ドキュメントにアクセスしてください。 <li>SqlMembershipProvider クラスに関する更なる情報は: MSDN の <a href="http://msdn2.microsoft.com/en-us/library/system.web.security.sqlmembershipprovider(vs.80).aspx">SqlMembershipProvider Class</a> ドキュメントにアクセスしてください。 <li>Forms Authentication で使用する鍵の作成に関する更なる情報は: <a href="http://support.microsoft.com/kb/312906">フォーム認証で使用する鍵の作成方法 </a>にアクセスしてください。</li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/2120b3fe-34c6-47bf-be83-d9756e512d02">ガイドライン: パスワードはメモリに残さないでください</a>
+      <li>
+        <a href="/article/23c21386-b64a-4872-8727-714977ba84a4">使用しなくなった機微データはメモリーから消去してください</a>
+        <li>
+          <a href="/article/1b9bf857-319c-43ce-9bf8-251a7ab3a777">チェック アイテム: パスワードは安全に保存します</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

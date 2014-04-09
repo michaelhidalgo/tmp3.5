@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="347763797" Content_Hash="387292259">
+  <Metadata>
+    <Id>4068ad23-5683-4667-9ac5-f0a7471ca5f1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>詳細なエラーメッセージをログに記録する</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>例外の詳細がウェブアプリケーションからクライアントへ戻って伝播しないようにしてください。 悪意のあるユーザーは、システム レベルの診断情報を使用して、アプリケーションについて学習し、将来的な攻撃において悪用できるような弱点を探すことができます。</p>
+  <h1>理由</h1>
+  <p>すべての例外は、後で分析できるようにイベントログにログ記録されなくてはなりません。</p>
+  <h1>状況</h1>
+  <p>アプリケーションでエラーが起こる毎に例外の詳細をログ記録しなければなりません。</p>
+  <h1>対策</h1>
+  <p>エラー ログに詳細なエラー メッセージを送信します。 サービスやアプリケーションのコンシューマーには、一般的なエラーメッセージと、後でイベント ログ内の詳細なメッセージに対応付けできるカスタム エラー ログ ID などの、最小限の情報を送信します。 パスワードその他の機微データをログに記録していないことを確認します。</p>
+  <p>
+    <strong>一般的なエラーページをクライアントに返します</strong>
+  </p>
+  <p> <b>&lt;customErrors&gt;</b> エレメントは、アプリケーション例外状況のイベントにおいて、クライアントに返されるカスタムの、一般的なエラーメッセージの構成に使用されます。 エラーページは、相応の一般的なエラーメッセージ、オプションのサポート詳細が含まれます。 このエレメントを使用して、例外状況に応じて、他のエラーページを返すことができます。</p>
+  <p>モード属性が「<b>オン</b>」に設定されていること、以下のようにデフォルトのリダイレクト ページを指定していることを確かめてください。</p>
+  <div>
+    <div>
+ <pre>&lt;customErrors mode="On" defaultRedirect="YourErrorPage.htm" /&gt;</pre>
+    </div>
+  </div>
+  <p> <b>defaultRedirect</b>属性は、アプリケーション用に、たとえばサポートの問合せ詳細が記載されるカスタムエラーページを使用できるようにします。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp; <b>mode="Off"</b>は使用しないでください。これを使用すると、クライアントに返されるシステムレベル情報を含む詳細なエラーページの原因となります。</blockquote>
+  <p>異なるタイプのエラーごとにエラーページを分けたい場合、1つまたはそれ以上の<b>&lt;error&gt;</b>エレメントを下記のように使用します。 この例では、「404 (見つかりません)」エラーは1つのページにリダイレクトされ、「500 (内部システムエラー)」は他のページにダイレクトされ、その他すべてのエラーは、<b>defaultRedirect</b> 属性で指定されたページにダイレクトされます。</p>
+  <div>
+    <div>
+    </div>
+    <div>
+ <pre>&lt;customErrors mode="On" defaultRedirect="YourErrorPage.htm"&gt;<br />&nbsp;&nbsp; &lt;error statusCode="404" redirect="YourNotFoundPage.htm"/&gt;<br />&nbsp;&nbsp; &lt;error statusCode="500" redirect="YourInternalErrorPage.htm"/&gt;<br />&lt;/customErrors&gt;<br />&nbsp;</pre>
+    </div>
+    <p>
+      <strong>グローバル エラーハンドラーを使用してハンドルされない例外を捕えます。</strong>
+    </p>
+    <p>コード内の処理されない例外を捕えるため、コードにアプリケーションレベルのグローバル エラー ハンドラーがGlobal.asax内で含まれていることを確認します。 これにより、うっかり詳細なエラー情報をクライアントに返してしまうことを防ぎます。 追跡と将来の分析のために、コードはイベントログにすべての例外をログ記録しなければなりません。</p>
+    <p>アプリケーションは次のようなコードを含んでいます。</p>
+    <div>
+      <div>
+      </div>
+      <div>
+ <pre>&lt;%@ Application Language="C#" %&gt;<br />&lt;%@ Import Namespace="System.Diagnostics" %&gt;<br /><br />&lt;script language="C#" runat="server"&gt;<br />void Application_Error(object sender, EventArgs e)<br />{<br />&nbsp; // Get reference to the source of the exception chain<br />&nbsp; Exception ex = Server.GetLastError().GetBaseException();<br /><br />&nbsp; // log the details of the exception and page state to the<br />&nbsp; // event log.<br />&nbsp; EventLog.WriteEntry( "My Web Application",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "MESSAGE: " + ex.Message + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "\nSOURCE: " + ex.Source, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EventLogEntryType.Error);<br />&nbsp; // Optional e-mail or other notification here...<br />}<br />&lt;/script&gt;</pre>
+      </div>
+    </div>
+  </div>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」(<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a>) を参照してください。&nbsp;&nbsp; </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

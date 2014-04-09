@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-878028235" Content_Hash="-576093726">
+  <Metadata>
+    <Id>c8ae222b-ed2e-4621-a46b-3671f82f5a03</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>フィッシング攻撃</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>サービスを利用するユーザーにログインを要求する Web アプリケーション。</li>
+  </ul>
+  <h1>説明</h1>
+  <p>フィッシングは、攻撃者が正当なユーザーをだまして、その個人情報を攻撃者の Web サイトに入力させようとする行為です。 攻撃者は一般的に、正当な Web サイトと同じに見える Web サイトを構築します。ただし、データは違法な Web サイトに投稿されます。 </p>
+  <p>多くの場合、攻撃者は大量の電子メールを多数のユーザーに送信し、違法な Web サイトで情報を更新するように要求します。 攻撃者は、オリジナルの Web サイトから集めたロゴを用意し、正当に見せかけます。過去の正当な通信からのテキストが使われることもあります。 攻撃者は次に、悪意のある Web サイトへのリンクを貼ります。このサイトは正当なサイトのあらゆる面を模倣して作られています。 攻撃者は、URL リダイレクトや電子メール クライアントまたはブラウザーの既知の脆弱性といった、多くの手法を駆使して、URL の本質を隠します。 被害者が悪意のある Web サイトを閲覧し、そのサイトに情報を送信すると、攻撃者は情報を保管し、正当なサイトのログイン サイトにユーザーをリダイレクトします。 悪意のある Web ページはユーザー名、パスワード、社会保障番号、電話番号、母親の旧姓、住所、電子メール アドレスなど、さまざまな機密情報をユーザーに要求します。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>機密性:</strong> 攻撃者はこの攻撃を利用し、被害者となるユーザーに関する機密情報を取得します。 <li><strong>認証:</strong> この攻撃で取得された機密情報 (ユーザー名、パスワード) は、別のユーザーとしてログインし、銀行口座詳細など他の情報にアクセスするために利用されます。</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>Web ブラウザーが Web サイトのセキュリティ証明書を検証しなかったこと。 <li>このような情報の要求に対するポリシーがないこと。 <li>最新のアンチフィッシング手法を利用しなかったこと。 <li>ユーザーへの教育がないこと。 <li>同じサイト内のコンテンツをホスティングするために複数のドメインを使用することで、実質的に、現在どのドメインと通信しているかを無視するようにユーザーを仕向けている</li></li></li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>SSL を実装し、使用する:</strong> 信頼されているCA (認証局) から SSL で使用する証明書を取得すれば、ユーザーはサーバが正当であることを検証できます。 <li><strong>ポリシーを作る:</strong> 会社では、情報更新のためのリンクを電子メールに貼って送ることは決してないと公に発表します。 Web サイトには手動で移動するようにユーザーに要請します。 <li><strong>追加のセキュリティ対策を使用する:</strong> 新しいアンチフィッシング メカニズムでは、ユーザーは個人の画像やテーマを選択するように要求されます。 最初に、ユーザーはユーザー名またはCookie (ゆるい形態の ID) を送信します。次にサーバは、ユーザーがアカウント作成時に選択した画像またはテーマをユーザーに見せることで応答します。最後に、画像またはテーマが、ユーザーが選択した記憶のある画像またはテーマに一致すれば、ユーザーのログインが完了します。 <li><strong>モダン ブラウザーのみをサポートする:</strong> モダン Web ブラウザーは、閲覧中の Web サイトの正当性をユーザーが検証できるような、基本的なアンチフィッシング メカニズムを備えています。 ブラウザー ソフトウェアを最新版にアップグレードするようにユーザーに働きかけます。 <li><strong>アプリケーションのすべての部分に単一のドメインを使用する:</strong> この方法により、攻撃者が偽のサイトを作ってユーザー情報を集めようとしても、すべてのページが同じ URL から来ることを想定するようにユーザーを指導できます。</li></li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>攻撃者は正当な Web サイト アドレスの次のようなバリエーションを利用します。</p>
+  <ul>
+    <li>
+      <strong>サブドメイン</strong>: http://www.abcbank.com.attack.com/<li><strong>似たようなドメイン</strong>: http://www.abcbank-security.com/<li><strong>ひとつずれた URL</strong>: http://www.abcbonk.com/  <li><strong>異なる言語またはエンコーディング</strong>: http://www.abcb&amp;#224;nk.com <li><strong>目立たない URL の機能</strong>: 一部のブラウザーでは、ユーザーはアドレス バーに Credential 情報を提供できます。 その際、Credential 情報と &amp;#64; (at) 記号の前に本物のアドレスを置きます。次のようになります。: http://www.abcbank.com&amp;#64;attacker.com. <p>この例では、ユーザーは www.abcbank.com という認証情報で attacker.com に誘導され、攻撃者の Web サイトでは Credential 情報は簡単に無視されます。</p><h1>その他のリソース</h1><ul><li>フィッシング: <a href="http://en.wikipedia.org/wiki/Phishing">http://en.wikipedia.org/wiki/Phishing</a><li>フィッシング: <a href="http://www.webopedia.com/DidYouKnow/Internet/2005/phishing.asp">http://www.webopedia.com/DidYouKnow/Internet/2005/phishing.asp</a><li>URL リダイレクト: <a href="http://en.wikipedia.org/wiki/URL_redirection">http://en.wikipedia.org/wiki/URL_redirection</a></li></li></li></ul><h1>関連する項目</h1><ul></ul></li></li></li></li></li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

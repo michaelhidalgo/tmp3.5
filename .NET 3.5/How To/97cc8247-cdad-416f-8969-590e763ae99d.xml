@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1432963947" Content_Hash="1134950286">
+  <Metadata>
+    <Id>97cc8247-cdad-416f-8969-590e763ae99d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュリティの透過性を使用する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アセンブリがいかなるクリティカル コードも含まずまたいかなる仕方でもコール スタックの特権を昇格させないことを示すためにアセンブリ全体を透明にする必要がある場合は、次の属性を使用してアセンブリに明示的に透明性を追加できます:</p>
+ <pre> [assembly: SecurityTransparent]   </pre>
+  <p>同一のアセンブリにクリティカルなコードと透明なコードを混合させる必要がある場合、ここに表示されるようにアセンブリがクリティカル コードを含む可能性があることを示すため、 <b>System.Security.SecurityCriticalAttribute</b> 属性を使用してアセンブリにマーキングする<i> </i>ことから始めてください。 </p>
+ <pre> [assembly: SecurityCritical]   </pre>
+  <p>セキュリティ クリティカルな操作を実行したい場合、次のコード例に表示されるように、別の <b>SecurityCritical</b> 属性を使用してクリティカルな操作を実行するコードに明示的にマークを付ける必要があります。 </p>
+ <pre> [assembly: SecurityCritical]public&nbsp;class A<br />{<br />    [SecurityCritical]    public void Critical()<br />    {<br />        // critical<br />    }<br />    public int SomeProp<br />    {<br />        get {/* transparent */&nbsp;}<br />        set {/* transparent */&nbsp;}<br />    }<br />}<br />public class B{<br />        internal string SomeOtherProp<br />    {<br />        get { /* transparent */&nbsp;}<br />        set { /* transparent */&nbsp;}<br />    }<br />}  </pre>
+  <p>クリティカルと明示的にマークされている <b>Critical</b> メソッドを除き、上記のコードは透明です(アセンブリ レベルの <b>SecurityCritical</b> 属性があっても、これがデフォルト設定です)。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

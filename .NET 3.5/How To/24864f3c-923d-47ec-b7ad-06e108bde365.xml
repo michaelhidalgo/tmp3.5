@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-463747588" Content_Hash="-1885731347">
+  <Metadata>
+    <Id>24864f3c-923d-47ec-b7ad-06e108bde365</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>危険なアンマネージ API がないかどうか検査する方法</Title>
+    <Category>アンマネージ コード</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>すべての Win32 API コールの使用を正当化できなければなりません。 安全でない API には、<b>CreateThread</b>、<b>RevertToSelf</b> などのセキュリティ コンテキストを切り替えるスレッディング機能や、アクセス トークン機能が含まれています。アクセス トークン機能を使うとトークンの作成、セキュリティ トークンに関する情報の修正または公開ができます。 これらには、<b>AdjustTokenGroups</b>、<b>AdjustTokenPrivileges</b>、<b>SetTokenInformation</b>、<b> および GetTokenInformation</b> が含まれています。その他の安全でない API には、<b>LogonUser</b> および <b>LogonUserEx</b> などのトークンを作成する機能を含む Credential 情報管理機能、私有鍵を解読してそれにアクセスできる暗号 API 機能、メモリの読み取りやメモリへの書き込みが可能なメモリ管理機能、および機微なシステム データにアクセス可能なローカル セキュリティ 権限 (LSA) 機能が含まれています。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

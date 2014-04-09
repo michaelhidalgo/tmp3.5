@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1763920339" Content_Hash="177960461">
+  <Metadata>
+    <Id>6c5997b7-9d26-4d82-9a66-ce30f9797c65</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>脅威モデルを作成する</Title>
+    <Category>セキュリティ工学</Category>
+    <Phase>設計</Phase>
+    <Technology> 任意</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションで脅威モデルが作成されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>Threat Modeling は、リソースが要求される (または正当化される) 時と場所を特定して、リスクを減らすために実行されます。 多数の脆弱性、脅威、攻撃が潜在的に存在していますが、アプリケーションでそのすべてが発生する可能性は高くはありません。 社内でそのすべてに対処する必要もありません。 脅威モデルは、組織が労力を費やす必要がある箇所を特定するのに有効です。</p>
+  <h1>チェック方法</h1>
+  <p>プロジェクト文書を調べて、アプリケーションで脅威モデルが作成されていることを確認します。</p>
+  <h1>修正方法</h1>
+  <p>次の手順を実行して、アプリケーションで脅威モデルを作成します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>セキュリティの目的を特定します。</strong> 目的を明確にすることにより、脅威モデルのアクティビティに注目して、後続の手順にどの程度労力を費やす必要があるかを判断できます。</p>
+      <li>
+        <p>
+          <strong>アプリケーション概要を作成します。</strong> アプリケーションの重要な特性と動作者を項目別に分類しておくと、ステップ 4 で行う関連する脅威の特定に役に立ちます。</p>
+        <li>
+          <p>
+            <strong>アプリケーションを分解します。</strong> アプリケーションの構造を詳細に把握することにより、脅威の関連性と詳細を簡単に解明できます。</p>
+          <li>
+            <p>
+              <strong>脅威を特定します。</strong> ステップ 2 と 3 で得られた詳細な情報を使用して、アプリケーションのシナリオとコンテキストに関連する脅威を特定します。</p>
+            <li>
+              <p>
+                <strong>脆弱性を特定します。</strong> アプリケーション レイヤーをレビューして、脅威に対する弱点を特定します。 脆弱性のカテゴリを使用して、間違いが最も発生しやすい領域に注目します。</p>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Threat Modeling に関する詳細については、次を参照してください。<a href="http://msdn.com/threatmodeling">http://msdn.com/threatmodeling </a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/1c4dca1f-73cf-4826-a6f8-467c4be0f5ac">脅威モデルを作成する<br /></a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

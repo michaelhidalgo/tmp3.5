@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1871737710" Content_Hash="-1333517152">
+  <Metadata>
+    <Id>507399c7-820f-4313-a1d9-62a65503fc9c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>偽装とのトレードオフを知る</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>擬装 ID を使用してダウンストリーム データベースにアクセスする場合、接続プールの効率的な使用が妨げられることに注意します。 </p>
+  <h1>理由</h1>
+  <p>これはアプリケーションのスケーラビリティに影響を与えます。 更に、偽装の使用は、特に ASP.NET ウェブ アプリケーションのようなマルチスレッド アプリケーションで他のセキュリティ脆弱性を招くことになる場合があります。 </p>
+  <h1>状況</h1>
+  <p>次のような場合に、偽装が必要となります。</p>
+  <ul>
+    <li>本来の呼び出し元のセキュリティ コンテキストを、Web アプリケーションの中間層やデータ層に送り、微細な (ユーザー毎の) 認可をサポートする。 <li>本来の呼び出し元のセキュリティ コンテキストを、ダウンストリーム階層に送り、オペレーティング システム レベルの監査をサポートする。 <li>特定の ID を使用して、特定のネットワーク リソースにアクセスする。&amp;nbsp;&amp;nbsp;</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/97dfd32f-deb6-4016-b3ff-24147a959521">ログオン ユーザー API は使用しないでください</a>
+      <li>
+        <a href="/article/fdb65a4c-d979-4ab7-b2fa-b88e908207fe">必要でない場合は偽装は使用しないでください</a>
+        <li>
+          <a href="/article/9ea813b5-e1a1-4439-b569-de1c6812b7cb">偽装を使用する場合にはスレッド化の内容を検討します</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1118508499" Content_Hash="1985416068">
+  <Metadata>
+    <Id>d190e4a5-6f18-409a-9c0d-a06156c47e6e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>整数アンダーフロー攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>限界を自動的にチェックしない言語で記述されたアプリケーション。</p>
+  <h1>説明</h1>
+  <p>整数アンダーフローは、整数が、そのデータ型が保持できる限界以下にデクリメントされるときに発生します。 整数アンダーフローの最も一般的な結果は、結果的に生成される値がより小さくなるのではなく、データ構造が「ラップ」し、データ型が保持できる最大値になります。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>DoS攻撃: ほとんどの場合、整数アンダーフローはメモリアドレスの間接参照後にアプリケーションのクラッシュを引き起こします。 <li>データ破壊: 結果がファイルの読み込りまたは書き込み操作で利用される場合、アプリケーションはディスクまたはメモリの間違った場所から読込や書込を行い、その結果データが破壊されます。 <li>リモート コード実行: 一部の例では、計算結果がメモリ管理やバッファへのインデックスに利用される場合、リモート コードが実行されることがあります。 </li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>不適切な計算<li>整数の入力を検証しなかったこと<li>バッファのサイズ決定に整数の計算や代入を使用すること<li>不適切な限界チェックと符号を考慮しなかったこと<li>整数の値について仮定をするプログラム ロジック</li></li></li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>計算チェック: </strong> 2 つの数字を引き算するときは、結果がいずれの被演算子よりも小さくなることを確認します。 データ型の最大または最小に近い値の算術演算を行うときは特に注意します。 <li><strong>整数をチェックする言語やフレームワークを利用する:</strong> .net や java のようなフレームワークでは、整数のオーバーフローやアンダーフローを自動チェックするように設定できます。 (例：C# の CheckForOverflowUnderflow や VB.NET. の RemoveIntegerChecks)<li><strong>入力を検証する:</strong> 信頼されていない入力に対して上限、下限、符号を常にチェックします。<li><strong>ロジックを検証する:</strong> 整数のすべてのロジックが、あらゆる場合に、受け入れられる限度に対して適切に動作するようにします。</li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>次のコード セグメントが示す簡単なメソッドは、文字列から最後の文字とヌル ターミネーターを取り去り、新しい文字配列に結果を返すジョブを実行します。</p>
+ <pre>char&amp;#42; stripString(char&amp;#42; sentence)&amp;#123;    if (&amp;#33;sentence) return 0;    //need one less, since we're stripping last character    unsigned int newLength = strlen(sentence) - 1;    char&amp;#42; newBuffer = (char&amp;#42;) malloc (newLength);    if (newBuffer &amp;#33;= NULL)&amp;#123;&amp;#9;strncpy (newBuffer, sentence, newLength);    &amp;#125;    return newBuffer;&amp;#125;</pre>
+  <p>文字列のセンテンスの長さがゼロのとき、何が起こるでしょうか。 strlen() 呼び出しは 0 を返します。 データ型が符号なしの整数の場合、0 から 1 を引き算すると値が 4GB までラップ アラウンドします。 そこで、このコードでは、次の行で 4 ギガバイトのバッファを割り当てようとします。</p>
+  <p>ちょっとした配慮で問題を回避できます。 次の修正されたコードを見てください。</p>
+ <pre>char&amp;#42; stripString(char&amp;#42; sentence)&amp;#123;   char&amp;#42; newBuffer = NULL;   unsigned int strLength = 0;       if (&amp;#33;sentence) return 0;   strLength = strlen(sentence);   if (strLength &gt; 0)&amp;#123;       unsigned int newLength = strLength - 1;       newBuffer = (char&amp;#42;) malloc (newLength);       if (newBuffer &amp;#33;= NULL)&amp;#123;          strncpy (newBuffer, sentence, newLength);       &amp;#125;   &amp;#125;   return newBuffer;&amp;#125;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://en.wikipedia.org/wiki/Arithmetic_underflow">http://en.wikipedia.org/wiki/Arithmetic_underflow</a>
+      <li>
+        <a href="http://www.unix.org.ua/orelly/java/langref/ch03_01.htm">http://www.unix.org.ua/orelly/java/langref/ch03_01.htm</a>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

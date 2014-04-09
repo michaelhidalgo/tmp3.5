@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1664379680" Content_Hash="-1324653369">
+  <Metadata>
+    <Id>880d6dff-ebeb-40b9-9bc2-d41997813dee</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>テスト インターフェイスを削除する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーションのテストのためだけに使用されていたすべての公開インターフェイスを消去します。</p>
+  <h1>理由</h1>
+  <p>テスト インターフェイスでは、リリースされるアプリケーション用ではないエクストラ ファンクショナリティが追加されます。 これらのインターフェイスは、情報を取得するためや攻撃者の手に渡ると危険な機能を実行するためにテスト チームが使用します。</p>
+  <h1>状況</h1>
+  <p>アプリケーションにテスト インターフェイスが含まれている場合、アプリケーションを配置する前に削除します。</p>
+  <h1>対策</h1>
+  <p>すべてのテスト インターフェイスを削除するには:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>すべてのテスト API を判断します</strong>。すべてのパブリック API を一覧にします。 アプリケーションで使用するための API と、テストで使用するための API をそれぞれ確認します。 理想的にこれらのインターフェイスは、テストインターフェイスとして記述されており、仕様から判断できます。</p>
+      <li>
+        <p>
+          <strong>テスト インターフェイスを削除します</strong>。コードの削除は直接的な手段です。 テスト コードを確認したら、アプリケーションから切り離し、コード ベースから削除してください。 これは、テストコードがない状態でもシステムが想定通りに機能することを確認するために、最終の機能および統合テスト前に行います。</p>
+        <li>
+          <p>
+            <strong>リリースフラグと共にアプリケーションをコンパイルします</strong>。 出荷前に必ずアプリケーションをリリースフラグと共にコンパイルします。 これにより、アプリケーションのアセンブリに余計なデバッグ情報が含まれていないことを確認できます。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードは、アプリケーションのユーザー管理システムを示しています。 クラスにテストAPIが含まれていると、悪意のあるユーザーが未試験のコードを実行し、そこに含まれる脆弱性を悪用する可能性があるためです。</p>
+ <pre>public sealed class UserManager<br />&amp;#123;<br />      public UserManager()<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      public boolean AddUser(User user, char&amp;#91;&amp;#93;pass, char&amp;#91;&amp;#93;verifyPass)<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      public boolean RemoveUser(User user)<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      public boolean ModifyUser(User user)<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      public boolean ChangePass(User user, char&amp;#91;&amp;#93;oldPass, char&amp;#91;&amp;#93;pass, char&amp;#91;&amp;#93;verifyPass)<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      // The class contains test APIs<br />      public void AddTestUsers()<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />&amp;#125;</pre>
+  <h1>ソリューションの例</h1>
+  <p>以下のコードは、アプリケーションのユーザー管理システムを示しています。 テストAPIがクラスから削除されたため、悪意のあるユーザーが攻撃できる未試験のコードはありません。</p>
+ <pre>// The class contains no test APIs<br />public sealed class UserManager<br />&amp;#123;<br />      public UserManager()<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      public boolean AddUser(User user, char&amp;#91;&amp;#93;pass, char&amp;#91;&amp;#93;verifyPass)<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      public boolean RemoveUser(User user)<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />      public boolean ModifyUser(User user)<br />      &amp;#123;<br />            ...<br />      &amp;#125; <br />      public boolean ChangePass(User user, char&amp;#91;&amp;#93;oldPass, char&amp;#91;&amp;#93;pass, char&amp;#91;&amp;#93;verifyPass)<br />      &amp;#123;<br />            ...<br />      &amp;#125;<br />&amp;#125;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>デバッグとリリースの構成が含まれるアプリケーションのコンパイルの詳細は、<a href="http://msdn2.microsoft.com/en-us/library/wx0123s5(vs.80).aspx">ハウツー: デバッグとリリース構成の設定</a> を参照してください｡</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/576e329e-2528-4189-94c6-db64d4b99640">チェックリスト項目:テスト用インターフェイスが削除される</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

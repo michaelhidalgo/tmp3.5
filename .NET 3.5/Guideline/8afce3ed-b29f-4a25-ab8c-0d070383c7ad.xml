@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1846053554" Content_Hash="-1036893497">
+  <Metadata>
+    <Id>8afce3ed-b29f-4a25-ab8c-0d070383c7ad</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>信頼されていないサーバ アプリケーション間で SSL を使用する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>暗号化された通信チャンネルを使用してサーバ間で送信されるデータを保護してください。&nbsp;セキュア ソケット レイヤー (SSL) プロトコルを使用してサーバ間&nbsp;の通信リンクをセキュアにできます。&nbsp;&nbsp; </p>
+  <h1>理由</h1>
+  <p>サーバが安全な環境で共存することは希です。&nbsp;2 つ以上のエンティティがパブリック インターネットおよびLAN のような信頼できないメディア上で通信する必要がある時、傍受およびスプーフィングは脅威となります。 SSL を使用することで、&nbsp;攻撃者がプレーンテキストで認証 Credential 情報を取得しようするためにネットワーク接続を監視することを&nbsp;防止します。 SSL を使用しない場合は､攻撃者が&nbsp;認証 Cookie をキャプチャし&nbsp;、ネットワーク上でデータを送信する任意のアプリケーションへのスプーフィングしたアクセスを取得できるようになる可能性があります。</p>
+  <h1>状況</h1>
+  <p>通信サーバが、ネットワーク盗聴の脅威を無視できる物理的に安全なデータ センター内にない場合､サーバ間で送信されるデータを保護するために暗号化された通信チャンネルを使用することが&nbsp; 重要です&nbsp;。 アプリケーションがサーバ上の他のアプリケーションを信頼しない時､SSL が使用されます。  すべてのアプリケーションおよびサービス用ではなく、サーバ上で実行される特定のアプリケーション用に対し粒度別のチャンネル保護が必要な時は、SSL を使用してください。 固定 IP アドレスが利用できない時の適切な選択でもあります。 SSL は、TCP/IP 通信プロトコルおよび名前付きパイプとのみ作動します。</p>
+  <p>IPSec を使用して、2 つのサーバ間の通信チャンネルを保護し、どのコンピュータがお互いに通信できるかを制限してください。 例えば､アプリケーションまたはWeb サーバのような信頼済みのクライアントのコンピュータからの要求のみを許可するポリシーを確立することにより、データベース サーバを保護する役に立てることができます。 特定の IP プロトコル や TCP/UDP ポートに通信を制限することもできます。</p>
+  <h1>対策</h1>
+  <p>サーバ間の通信を保護する&nbsp;ために &nbsp;SSL を使用する方法はここです:</p>
+  <ol>
+    <li>
+      <p>サーバ上にサーバ認証証明書をインストールしてください｡ </p>
+      <li>
+        <p>2 つの通信アプリケーションが SSL 接続をネゴシエート&nbsp;できるように&nbsp; 発行CA の証明書をインストールしてください。&nbsp;</p>
+        <li>
+          <p>コード中に "https://" 接続プロトコルを使用して、2 つのサーバ アプリケーション間のトラフィックが暗号化されていることを確認してください｡</p>
+          <li>
+            <p>通信が暗号化されていることを検証してください｡ Network Monitor を使用して、アプリケーション サーバと データベース サーバ間で送信されるデータが暗号化されていることを検証してください｡ データを平分フォームで送信し始め、次にまずサーバを構成し、次いでクライアントを構成して暗号化を有効にしてください。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NETに書き込まれた電子商取引のアプリケーションにより、顧客は統一したブローカー経由で請求書の支払いをオンラインで行うことができます。 アプリケーションの Web コンポーネットは、別のサーバに居住する独立の&nbsp;アカウント管理システムに依存しています。 Web &nbsp;コンポーネントは、SQL&nbsp;ソケット接続を使用してアカウント管理システムと通信します。&nbsp; 2 つのサーバ&nbsp;は価格競争力のあるデータ センターにあり、多数の顧客が常時その&nbsp;建物にアクセスできる&nbsp;状態です。 悪意のあるユーザー&nbsp;は、その会社でホスティング サービスを購入し、ホスティング環境を探索した後&nbsp;、ホストされるアカウントがネットワーク スプーフィングを可能とする、共有&nbsp;バス トポロジー&nbsp;を使用してネットワーク化されることを知ります｡ 攻撃者は、SQL 接続がデフォルトでは暗号化されていないため、スニッファを設定して、アカウント管理コンポーネントと Web コンポーネント間の通信のすべてをキャプチャできます。 攻撃者はこれでアカウント管理サーバ上の&nbsp;正当なユーザーとしてログインし、恣意的に変更を行うことができます。&nbsp;&nbsp;</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NETに書き込まれた電子商取引のアプリケーションにより、顧客は統一したブローカー経由で請求書の支払いをオンラインで行うことができます。 アプリケーションの Web コンポーネットは、別のサーバに居住する独立の&nbsp;アカウント管理システムに依存しています。 Web &nbsp;コンポーネントは、SQL&nbsp;ソケット接続を使用してアカウント管理システムと通信します。 2 つのサーバ&nbsp;は価格競争力のあるデータ センターにあり、多数の顧客が常時その&nbsp;建物にアクセスできる&nbsp;状態です。 アプリケーション設定の開発者は、アカウント管理コンポーネントをホストするマシン上にサーバ認証証明書をインストールすることにより SSL トラフィックを暗号化し、Web コンポーネントをホストするサーバ上に発行 CAの証明書をインストールしました。 &nbsp;コンポーネントがOLE-DB を使用して通信するので、開発者はWeb.config ファイルに次の構成命令を挿入しました。</p>
+ <pre>"Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security <br />&nbsp; Info=False;Initial Catalog=Northwind;Data Source=sql01;使用対象<br />&nbsp; Encryption for Data=True"</pre>
+  <p>次に開発者は、以下の呼び出しを使用して、データ暗号化用の SSL トンネルを通してデータベースに接続します。</p>
+ <pre>// Replace the server name in the following connection string with the name of your database <br />serverSqlConnection conn = new SqlConnection("server='sql01';<br />	database=NorthWind;IntegratedSecurity='SSPI'");</pre>
+  <p>2 つのコンポーネント間のトラフィックが暗号化される&nbsp;ので、2 つのコンポーネントのセキュアに通信を行う能力へ送信メディアが影響を与える&nbsp;可能性は&nbsp;低く&nbsp;なります。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>セキュア ソケット レイヤー(SSL)の使用 <a href="http://msdn2.microsoft.com/en-us/library/ds8bxk2a.aspx">http://msdn2.microsoft.com/en-us/library/ds8bxk2a.aspx</a><li>インターネット プロトコル バージョン 6 <a href="http://msdn2.microsoft.com/en-us/library/3x7ak53z(VS.80).aspx">http://msdn2.microsoft.com/en-us/library/3x7ak53z(VS.80).aspx</a>&nbsp; <li>Wikipedia SSL encyclopedia のエントリ <a href="http://en.wikipedia.org/wiki/Secure_Sockets_Layer">http://en.wikipedia.org/wiki/Secure_Sockets_Layer</a></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ecfc4c67-2a6c-443e-844e-8a3051fe54f3">IPSsec を使用してサーバ間のトラフィックを暗号化する</a>
+      <li>
+        <a href="/article/8afce3ed-b29f-4a25-ab8c-0d070383c7ad">信用されないサーバ アプリケーション間でSSLを使用する</a>
+        <li>
+          <a href="/article/00b37bcb-5a47-41ca-9e84-a9e8edb15272">ページが暗号化する必要がある時Web ブラウザとWeb サーバ間にSSL を使用する</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

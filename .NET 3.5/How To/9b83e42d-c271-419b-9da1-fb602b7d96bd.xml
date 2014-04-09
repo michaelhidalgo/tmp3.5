@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="9031201" Content_Hash="-1930701518">
+  <Metadata>
+    <Id>9b83e42d-c271-419b-9da1-fb602b7d96bd</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内にネットワーク Credential 情報のスニッフィング バグがないかどうかテストする方法</Title>
+    <Category>認証</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>要約</span>
+  </h1>
+  <p>ネットワーク Credential 情報のスニッフィング攻撃は、攻撃者の目標がユーザー名とパスワードのような認証スキームに使用される可能性のあるデータを暴露するために認証パケットをキャプチャにある、ネットワーク盗聴攻撃のことです。<span>&nbsp;&nbsp;&nbsp;&nbsp; </span>クライアントの Credential情報を有線または発信する前に暗号化するために必要な手順を踏まない、または認証手順を踏まない接続を実施するようなアプリケーションはこのような攻撃を受けやすくなります。</p>
+  <p>ASP.NET におけるネットワーク Credential情報スニッフィング バグを検査するためには次の手順を実施してください。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する</li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 1: 攻撃のシナリオを理解する</span>
+  </h1>
+  <p>最初にネットワーク Credential情報スニッフィング バグの攻撃には異なるシナリオが存在することを理解する必要があります。 </p>
+  <p>ネットワーク Credential 情報のスニッフィング攻撃は、ASP.NET アプリケーションを持つ犠牲クライアントを攻撃者が選択し、ネットワーク上でユーザー名とパスワードを提供することから始まります。<span>&nbsp; </span>次のステップでは、ログイン中にクライアントとアプリケーションの間で交換される認証パケットを監視またはスニッフするために攻撃者がネットワーク通信を傍受します。<span>&nbsp; </span>攻撃者は、攻撃者のターゲット ネットワークへのアクセスおよびターゲット ネットワーク (ハブ ベースまたはスイッチ ベースなど)の種類に応じて特定のネットワーク盗聴攻撃を選択します。<span>&nbsp; </span>ネットワーク盗聴攻撃には次のものが含まれるが、これらに限定されるものではありません。</p>
+  <ul>
+    <li>プロミスキャス モード スニッフィングといったハブベースのネットワーク <li>ARP ポイズニングまたは DHCP スプーフィングといったスイッチベースのネットワーク <li>WLAN に対する攻撃にはワイヤレス鍵の漏洩が必要なものも含まれます。<li>BGP ルーターの攻撃といった、攻撃者がインターネットでパケットのスニッフィングを行う攻撃 </li></li></li></li>
+  </ul>
+  <p>Credential 情報のスニッフィング攻撃は、ネットワーク盗聴攻撃の拡張であることに留意してください。<span>&nbsp;&nbsp; </span>したがって、ここに説明される攻撃シナリオおよびテスト セクションのテスト ケースでは、ネットワーク盗聴攻撃については詳しい説明をしません。<span>&nbsp; </span>ネットワーク盗聴攻撃の実行方法についてはチーム メンターの<i>ネットワーク盗聴バグの検査方法の論説を参照してください。</i></p>
+  <p>ターゲットのクライアントの接続を傍受しながら、攻撃者はネットワーク監視ツールを使用して認証パケットをキャプチャし読み取ります。<span>&nbsp; </span>アプリケーションが接続を適切に暗号化しない場合、攻撃者はクライアントの Credential情報を平文のテキストまたは後ほど解読が可能な弱い暗号がかかった状態で回収することができます。 </p>
+  <p>詳細: </p>
+  <ol>
+    <li>攻撃者は、ターゲット クライアントを選択します。<li>攻撃者が目的のクライアントと ASP アプリケーションの接続に対してネットワーク盗聴攻撃をかけます。<li>攻撃者がパケット監視ツールを使って認証パケットを捕らえます。<li>アプリケーションが脆弱な場合、攻撃者は Credential情報を平文のテキストまたは後ほど容易に解読が可能で平文のテキストにすることができる弱い暗号化がかかった状態でリカバリして解読することができます。</li></li></li></li>
+  </ol>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 2: 原因と対策の分析</span>
+  </h1>
+  <p>次に、Credential 情報のスニッフィング攻撃を可能にしている原因およびどのように防御するかを分析する必要があります。<span>&nbsp;&nbsp; </span></p>
+  <h2>
+    <span>
+      <em>認証スキーム</em>
+    </span>
+  </h2>
+  <p>ASP.NET アプリケーションには利用できる様々な認証スキームがあります。<span>&nbsp; &nbsp; </span>Basic またはダイジェスト認証のような弱い認証スキームを選択するアプリケーションは、ネットワーク Credential 情報 のスニッフィングを受ける傾向があります。<span> &nbsp; </span>利用できる通常の認証スキームには、Basic、ダイジェスト、Web フォームおよびSSL/TLS または IPSec のような安全なチャンネルを使用した認証があります。<span>&nbsp; </span></p>
+  <p>Basic 認証は、攻撃者により自明にデコーディングできる、 64 ベースでエンコードされた値としてパスワードを送信します。<span>&nbsp; </span>大部分のASP.NET Web 認証は、リモート クライアントのためにはこの認証スキームを使用しません。 しかし、アプリケーションはローカル ネットワーク ユーザーに Basic 認証の使用を選択する可能性があります。<span>&nbsp; </span>ダイジェスト認証では、回線で送信する前にパスワードが MD5 ハッシュと nonce (1 回のみ使用される番号) を使用して暗号化されるため、よりセキュアです。 けれども、ダイジェスト認証は、適切に構成された場合にのみ安全で、認証パッケージを妨害している攻撃者がクライアントに Basic 認証またはレガシー ダイジェスト認証の使用を命じることができるような中間者攻撃(MitM)の犠牲になる可能性があります。<span>&nbsp;&nbsp; </span><span>&nbsp;</span></p>
+  <p>Web アプリケーションは、通常の HTML Web フォームを使用して認証を実装することもできます。<span>&nbsp; </span>ここで、開発者はクライアントのユーザー名とパスワードを尋ね、また、フォームが送信された後アプリケーションに要求を送るために必要なコードをアプリケーションに追加する必要があります。<span>&nbsp;&nbsp; </span>ユーザー名およびパスワード<span>&nbsp; </span>は、アプリケーションがサーバへ送信する前にパスワードを暗号化しない限り、または、認証パケットがSSL/TLS のような安全な接続上で送信される場合、平文で送られます。<span>&nbsp;&nbsp; </span>ネットワーク Credential 情報のスニッフィング攻撃から適切に保護するため、アプリケーションはセキュアなチャンネル経由で認証を実施する必要があります。<span>&nbsp;&nbsp; </span>つまり、クライアントとサーバ間で認証パケットが交換される前に、クライアントとサーバはSSL/TLS、HTTPSのようなデジタル証明書を使用し、または Kerberos 認証(IIS 経由の統合 Windows 認証)経由で、公開鍵暗号化をされたチャンネルを確立する必要があるということです。<span>&nbsp;&nbsp; </span></p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>ASP.NET および IIS 認証</em>
+    </span>
+  </h2>
+  <p>ASP.NET Web アプリケーションは、2 つの異なるレベルで認証を使用できます。<span>&nbsp; </span>まず、開発者は Microsoft Windows Internet Information Services (IIS) を使用して、ASP.NET Web ページ用の認証および仮想ディレクトリを設定できます。<span>&nbsp; </span>IIS は、Windows <i>Internet Information Services Manager</i> を使用して設定できる上記で紹介したすべての認証メソッドをサポートします。<span>&nbsp;&nbsp; </span>しかし、開発者は IIS Manager を使用した Web アプリケーションの認証設定は推奨しません。このコンフィグレーションではコードでキャプチャされず、サーバから別のサーバへ ASP.NET アプリケーションを移動するときに非アクティブとなる可能性があるからです。<span>&nbsp; </span>ASP.NET 開発者の第 2 のオプションは、アプリケーション構成とソース コード ファイルを変更することによりASP.NET アプリケーション内に認証を設定することです。<span>&nbsp;&nbsp; </span>具体的に、開発者は認証フラグを<i>web.config</i> ファイルに以下の通りにたてる必要があります。</p>
+ <pre>
+    <span>// web.config file<br />&lt;authentication mode = "[Windows/Forms/Passport/None]"&gt;<br />&lt;/authentication&gt;</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>ASP.NET 認証は、フォーム、Windows、および Passport (Microsoft サポートサービス経由の認証)をサポートしますが、一方基本およびダイジェストはこの環境内ではサポートされていないことに留意してください。<span>&nbsp;&nbsp; </span></p>
+  <p>ネットワーク Credential 情報のスニッフィング攻撃から適切に保護するには、アプリケーションは上記に紹介したメソッドのひとつを選択する必要があります。<span>&nbsp; </span>通常のWeb アプリケーション用には、様々なプロバイダーと統合し、強力なパスワードのような追加セキュリティオプションをサポートするという理由でForms Authentication が推奨されています。<span>&nbsp;&nbsp; </span>しかしながら、Credential 情報はそれでも平文で送信されるので、Forms Authenticationを選択するだけでは十分でありません。<span>&nbsp; </span>APS.NET 開発者は認証ウェブ ページを SSL 必須とマーキングする必要があります。</p>
+ <pre>
+    <span>&lt;authentication mode="Forms"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;forms requireSSL="true" /&gt;<br />&lt;/authentication&gt;</span>&nbsp;</pre>
+  <p>証明書は、Microsoft Windows Certificate Manager を使用して発行できます。<span>&nbsp; </span>しかし、ASP.NET アプリケーションで SSL/TLS を実装するためには、適切な IIS コンフィグレーションを設定する必要があります。<span>&nbsp; </span>ASP.NET 認証オプションならびに SSL/TLS および IIS との統合に関する詳細情報については MSDN セキュリティの論説: <i>ASP.NET での認証 </i>(<a href="http://msdn.microsoft.com/en-us/library/ms978378.aspx">http://msdn.microsoft.com/en-us/library/ms978378.aspx</a>)を参照してください。</p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>ネットワーク レイヤーにおける防御</em>
+    </span>
+  </h2>
+  <p>ネットワーク Credential 情報のスニッフィング 攻撃が可能になっているのは、攻撃者がターゲット クライアントと ASP.NET アプリケーション間の接続を傍受できるからです。<span>&nbsp; </span>傍受攻撃のリスクを軽減するため、ネットワーク管理者はネットワーク層にセキュリティ防御を展開できます。<span>&nbsp; </span>例えば IPSec を適切に導入して構成することによって攻撃者は接続内容の傍受をすることができなくなります。 <span>&nbsp;</span>無作為検出モードのスニッフィングから防御するため管理者はでたらめモードで実行されるネットワーク インターフェイスをチェックするツールを実行できるか、または切り替えネットワークでの ARP ポイズニング攻撃から保護するため Xarp のようなクライアント アプリケーションを実行できます。<span>&nbsp;&nbsp; </span>ネットワーク盗聴攻撃に対する更なる防御メカニズムについてはチーム メンターの論説 <i>ネットワーク盗聴バグの検査方法</i>を参照してください。<b><i><span></span></i></b></p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>ステップ 3: テストケースを実行</span>
+  </h2>
+  <p>ネットワーク Credential情報スニッフィング バグに関する論理的側面を学んだところで、手元のアプリケーションが脆弱でないかどうか確認するために次の検査例を実行する必要がある。</p>
+  <h2>
+    <span>
+      <em>ネットワーク Credential情報スニッフィング用検査</em>
+    </span>
+  </h2>
+  <p>ASP.NET アプリケーションにおけるネットワーク Credential情報スニッフィングを検査するには次の手順を実施します。</p>
+  <ol>
+    <li>目的のクライアントを選択します<li>クライアントと ASP.NET アプリケーションの間で傍受攻撃を実行してください。<span>&nbsp; </span>傍受攻撃の詳細については、Team Mentor の<i>ネットワーク盗聴バグのテスト方法</i>の記事を参照してください。<li>ネットワーク監視ツールを使用して Credential 情報が平文で送信されるかどうかテストしてください。</li></li></li>
+  </ol>
+  <p>予測される結果:<span>&nbsp; </span>Credential 情報が平文でかまたは弱い暗号化を使用している場合は、脆弱性があります。</p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>&nbsp;</p>
+  <h2>
+    <span>
+      <em>トランスポート レイヤーの安全性検査</em>
+    </span>
+  </h2>
+  <p>ネットワーク Credential 情報のスニッフィングテストに関連する追加テストでは、SSL/TLS または HTTPSのようなセキュアなトランスポート層上で認証が発生するかどうかチェックします。<span>&nbsp; </span><span>&nbsp;</span>接続が安全な状態である場合、そのほとんどの場合においてはウェブ ブラウザが南京錠（または同じような視覚的表示）をブラウザのウィンドウに表示します。 ただし、ロックが表示されない場合は、テストの実施者が認証パケットを監視して、接続が実際に HTTP を介して行われているかを確認する必要があります。</p>
+  <p>セキュアなトランスポート層に対する適切なテストは、OWASP により提案されている、HTTP プロキシ ツールを使用して、認証リクエストの URL を調べるという方法で行うことができます[i]。 <span>&nbsp;</span>トランスポート レイヤーの安全性を検査するためには次の手順を実行します。</p>
+  <ol>
+    <li>OWASP の WebScarab や Burp Proxy といった HTTP プロキシ ツールをダウンロードして実行します。<li>Web ブラウザーを開きます。<li>HTTP プロキシを使用するように、Web ブラウザーの接続オプションを設定します。<li>ASP.NET アプリケーション ログインおよび認証ページへナビゲートしてください。<li>HTTP プロキシで、傍受用のオプションを有効にします。<li>ウェブ ブラウザ上でユーザー名およびパスワードを入力して要求を実行します。<li>HTTP プロキシで、認証が URL を要求するかどうかチェックしてください。</li></li></li></li></li></li></li>
+  </ol>
+  <p>予測される結果:<span>&nbsp; </span>要求 URLが プレーンな HTTP でかつ HTTPS 上にない場合、アプリケーションには脆弱性があります。<span>&nbsp; </span>アプリケーションが単純な HTTP を使っている場合、認証要求の URL の始まりは<i>http</i>です。</p>
+ <pre>POST <strong>http://www.example.com/login.aspx</strong> HTTP/1.1<br />Host: www.example.com<br />User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.14) Gecko/20080404<br />Accept: text/xml,application/xml,application/xhtml+xml,text/html<br />Accept-Language: it-it,it;q=0.8,en-us;q=0.5,en;q=0.3<br />Accept-Encoding: gzip,deflate<br />Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7<br />Keep-Alive: 300<br />Connection: keep-alive<br />Cookie: language=English; <br />Content-Type: application/x-www-form-urlencoded<br />Content-length: 27<br />&nbsp;<br />username=test&password=test</pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>要求 URL が HTTPS 上にある場合アプリケーションは安全です。<span>&nbsp; </span>アプリケーションで HTTPS が使用されている場合、認証リクエストの URL の接頭辞は <i>https </i> となり、HTTPS/SSL で使用されているネットワーク ポート (デフォルトでは <i>443</i>) が含まれます。</p>
+ <pre>
+    <span>POST <strong>https://www.example.com:443/login.aspx</strong> HTTP/1.1<br />Host: www.example.com<br />User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; it; rv:1.8.1.14) Gecko/20080404<br />Accept: text/xml,application/xml,application/xhtml+xml,text/html<br />Accept-Language: it-it,it;q=0.8,en-us;q=0.5,en;q=0.3<br />Accept-Encoding: gzip,deflate<br />Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7<br />Keep-Alive: 300<br />Connection: keep-alive<br />Referer: https://www.example.com/login.aspx<br />Cookie: language=English; <br />Content-Type: application/x-www-form-urlencoded<br />Content-length: 27<br />&nbsp;<br />username=test&password=test<br /></span>&nbsp;</pre>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>ネットワークでの Credential 情報の送信に強力な暗号化または安全なチャンネルを使用しない ASP.NET アプリケーションは、Credential 情報のスニッフィング攻撃に対し脆弱性があります。<span>&nbsp;&nbsp; </span>この脆弱性のテストをするには、関連する様々な攻撃シナリオおよびバグ発生の原因と対策に精通しておくことをお勧めします。<span>&nbsp;&nbsp; </span>次にスニッファのようなネットワーク監視ツールやネットワーク盗聴攻撃を実行するのに必要なツールを使用して実際的なテストケースを実行する必要があります。<span>&nbsp;&nbsp; </span>HTTP クライアント プロキシ ツールを使用して認証パケットを中断して調査することによりセキュアなチャンネルの使用をダブルチェックすることもお勧めします。<span>&nbsp; </span>暗号化されていない HTTP トラヒックの場合、テスト担当者は Shark のような監視ツールを使用することができます。</p>
+  <p>&nbsp;<br />[i] <b> Credential情報送信検査</b>。(OWASP) <a href="http://www.owasp.org/index.php/Testing_for_credentials_transport">http://www.owasp.org/index.php/Testing_for_credentials_transport</a></p>
+  <div>
+    <div>
+      <p>&nbsp;</p>
+    </div>
+  </div>]]></Data>
+  </Content>
+</TeamMentor_Article>

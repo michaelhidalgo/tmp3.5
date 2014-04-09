@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1128948965" Content_Hash="1329816580">
+  <Metadata>
+    <Id>28bdd98c-1f30-48a0-81d5-2f7da77ce1c0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>スキーマにおける正規表現の使用方法、フォーマット、範囲および長さの検証方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>スキーマにおいて正規表現を使用して、フォーマット、範囲または長さを検証します。 これにより、コードを実装することなく複雑な検証ロジックを使用できるようになります。 また、それはビジネス ロジックから検証ロジックを分離できるようになります。 下のスキーマの例は、1 から 5 までの整数値、長さ 5 の文字列および適切なフォーマットの社会保障番号および郵便番号の検証です。</p>
+ <pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;<br />&lt;xs:schema elementFormDefault="qualified" targetNamespace="<a href="http://Microsoft.PatternPractices.WCFGuide">http://Microsoft.PatternPractices.WCFGuide</a>" xmlns:xs="<a href="http://www.w3.org/2001/XMLSchema">http://www.w3.org/2001/XMLSchema</a>" xmlns:tns="<a href="http://Microsoft.PatternPractices.WCFGuide">http://Microsoft.PatternPractices.WCFGuide</a>"&gt;<br />  &lt;xs:element name="GetData"&gt;<br />    &lt;xs:complexType&gt;<br />      &lt;xs:sequence&gt;<br />        &lt;xs:element minOccurs="1" name="CustomerInfo" nillable="false" type="tns:CustomerData" /&gt;<br />      &lt;/xs:sequence&gt;<br />    &lt;/xs:complexType&gt;<br />  &lt;/xs:element&gt;<br />  &lt;xs:complexType name="CustomerData"&gt;<br />    &lt;xs:sequence&gt;<br />      &lt;xs:element name="CustomerID" type="tns:CustIDLimitor"&gt;<br />      &lt;/xs:element&gt;<br />      &lt;xs:element name="text" type="tns:CustomerN"&gt;<br />      &lt;/xs:element&gt;<br />      &lt;xs:element name="socialSecurity" type="tns:SSN"&gt;<br />      &lt;/xs:element&gt;      <br />      &lt;xs:element name="custZipCode" type="tns:CustomerN"&gt;<br />      &lt;/xs:element&gt;           <br />    &lt;/xs:sequence&gt;<br />  &lt;/xs:complexType&gt;<br />  &lt;xs:simpleType name="CustomerN"&gt;<br />    &lt;xs:restriction base="xs:string"&gt;<br />      &lt;xs:minLength value="1" /&gt;<br />      &lt;xs:maxLength value="5" /&gt;<br />    &lt;/xs:restriction&gt;<br />  &lt;/xs:simpleType&gt;<br />  &lt;xs:simpleType name="CustIDLimitor"&gt;<br />    &lt;xs:restriction base="xs:int"&gt;<br />      &lt;xs:minInclusive value="1" /&gt;<br />      &lt;xs:maxInclusive value="5" /&gt;<br />    &lt;/xs:restriction&gt;<br />  &lt;/xs:simpleType&gt;<br />  &lt;xs:simpleType name="SSN"&gt;<br />    &lt;xs:restriction base="xs:token"&gt;<br />      &lt;xs:pattern value="[0-9]{3}-[0-9]{2}-[0-9]{4}"/&gt;<br />    &lt;/xs:restriction&gt;<br />  &lt;/xs:simpleType&gt;<br />  &lt;xs:simpleType name="us-zipcode"&gt;<br />    &lt;xs:restriction base="xs:string"&gt;<br />      &lt;xs:pattern value="[0-9]{5}(-[0-9]{4})?"/&gt;<br />    &lt;/xs:restriction&gt;<br />  &lt;/xs:simpleType&gt;<br />  &lt;xs:element name="GetDataResponse"&gt;<br />    &lt;xs:complexType&gt;<br />      &lt;xs:sequence&gt;<br />        &lt;xs:element minOccurs="1" name="GetDataResult" nillable="false" type="tns:CustomerData" /&gt;<br />      &lt;/xs:sequence&gt;<br />    &lt;/xs:complexType&gt;<br />  &lt;/xs:element&gt;<br />&lt;/xs:schema&gt;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

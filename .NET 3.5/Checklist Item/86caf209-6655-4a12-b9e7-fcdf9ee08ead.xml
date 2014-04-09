@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2054471074" Content_Hash="645149297">
+  <Metadata>
+    <Id>86caf209-6655-4a12-b9e7-fcdf9ee08ead</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションは、ホストされた環境で中程度信頼を使用して分離される。</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが、共有ホスティング環境では中程度信頼を使用していることを確認します。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>ASP.NET バージョン 1.1 では、中程度信頼に構成された Web アプリケーションは SQL Server データベースにアクセスできませんでした。 ASP.NET では、SQL Server 管理データプロバイダーがもはや完全信頼を要求しないため、SQL Server データベースへのアクセスは中程度信頼のアプリケーションで利用できます。 共有サーバ上にある複数のアプリケーションを互いに分離し、共有システム リソースからも分離する必要がある場合は、Medium 信頼を使用してください。 サーバ上にあるすべての Web アプリケーションで Medium 信頼を強制するには、マシン レベルの Web.config ファイルで次の構成を使用してください。 </p>
+  <div>
+ <pre>&lt;location allowOverride="false"&gt;  &lt;system.web&gt;   &lt;trust level="Medium" originUrl="" /&gt;  &lt;/system.web&gt; &lt;/location&gt;  </pre>
+  </div>
+  <p><b>allowOverride="false"</b> を設定することで、個別の開発者はアプリケーションの Web.config ファイル内で Medium 信頼ポリシーの設定を無効にすることができなくなります。</p>
+  <p>中程度信頼は、アプリケーションの分離を提供します。それは、アプリケーション独自の仮想ディレクトリ階層にファイル システムがアクセスするのを制限するからであり、また、HTTP Web リソースへのアクセスを、定義されたアドレスまたは&lt;trust&gt; エレメントの　originUrl 属性により特定された一連のアドレスに制限するからです。  それはまた、Windows イベント ログやレジストリなどの共有システム リソースへのアクセスを防ぎます。 さらに、中程度信頼アプリケーションでは、リフレクションを使用することも、SQL Server 以外の OLE DB データソースにアクセスすることもできません。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

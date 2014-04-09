@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-364851773" Content_Hash="607821481">
+  <Metadata>
+    <Id>66a3ee42-7c75-4867-902f-0449a79bd9f3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>読み取り専用のプロパティを適切に使用する</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>呼び出し元が変更を加える必要がある場合を除いて、プロパティは読み取り専用に指定してください。 </p>
+  <h1>理由</h1>
+  <p>これで呼び出し元が誤ってフィールドに変更を加えてしまうようなことを防げます。</p>
+  <h1>状況</h1>
+  <p>これは重要なガイドラインであり、常に従う必要があります。 絶対に必要な場合を除いて、フィールドを呼び出し元が変更できる状態にさらさないでください。 </p>
+  <h1>対策</h1>
+  <p>呼び出し元が変更を加える必要がある場合を除いて、プロパティは読み取り専用に指定してください。 </p>
+  <p>
+    <strong>注意</strong>: &nbsp;&nbsp;読み取り専用のプロパティがコンパイル時にのみ強制されます。 悪意のあるコードが完全に信頼できる環境で実行すると、これらの可視性の制限を回避するためにリフレクションまたはアンマネージポインターが使用されることがあります。</p>
+  <p>これが読み取り専用プロパティの例で、 employeeName （従業員名）がクラスのコンストラクターか初期化の段階で設定できるようになっています。</p>
+ <pre>public class Employee<br />{<br />&nbsp;&nbsp;&nbsp; private readonly string employeeName;<br />&nbsp;&nbsp;&nbsp; public string Name<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return this.employeeName; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; }<br />}</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

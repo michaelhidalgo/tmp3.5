@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1681979725" Content_Hash="-954954202">
+  <Metadata>
+    <Id>23a9e627-2247-4e96-aa72-947e62aeb329</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>認可マネージャー ロール プロバイダーを使用して ADAM に対してユーザーを認可する方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>アプリケーションが ADAM の認可マネージャー (AzMan) ポリシー ストアにロール情報を格納する場合、認可マネージャー ロール プロバイダーを使用します。 認可マネージャは、Microsoft Management Console (MMC) スナップ インを提供して、ロールを作成および管理､またユーザー用のロール メンバーシップを管理します。</p>
+  <p>以下のステップを使用して ADAM を備えたディレクトリ サービスを認証します、</p>
+  <ol>
+    <li>認可マネージャー (AzMan) を使用して ADAM ポリシー ストアにロールを格納します。 現在、Windows 2003 内においてのみ ADAM ストアを作成できます。<ul><li>[スタート]-&gt;[起動] メニュー アイテムから Azman.msc を起動します。<li>Azman 内で、[Authorization Manager] を右クリックして [New Authorization Store] を選択します。 [Active Directory] を選択して名前を入力し、ADAM ストアを作成します。<li>今作成した Active Directory ストアの <strong>[Groups]</strong> フォルダーを右クリックし、[New Application Group…] を選択して作成するグループの名前を入力します。 必要な数のグループを作成するまでこのステップを繰り返します。<li>作成した AzMan グループに Windows ユーザーを追加します。 作成した各グループをダブルクリックし、[members] タブを使用してユーザーを追加します。</li></li></li></li></ul><li>Web.config または app.config ファイルを構成して ADAM ストアを使用します。 <li>認可を必要とする各サービス メソッドの上に <strong>PrincipalPermission</strong> 属性を追加することにより、ユーザーを宣言的に認可します。  [Role] フィールドでメソッドにアクセスするために必要な Windows ユーザー グループを指定します。<ol><pre>[PrincipalPermission(SecurityAction.Demand, Role = "accounting")]<br />public double Add(double a, double b)<br />{<br />return a + b;<br />}</pre></ol><li>クライアントにより提供されるユーザー名/パスワードの組み合わせは、WCF サービスにより Windows ユーザー アカウントにマップされます。 ユーザーが正常に承認されると、次にシステムはユーザーが <strong>PrinciplePermission</strong> ロールを宣言されたグループに属しているかどうかを確認します。 ユーザーがそのロールに属している場合、メソッド アクセスが認められます。</li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認可マネージャーの詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms998336.aspx">http://msdn2.microsoft.com/en-us/library/ms998336.aspx の「ASP.NET 2.0 で認可マネージャー (AzMan) を使用する方法」を参照してください。</a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx にある 「認可」を参照してください。</a><li>認可の Q&A については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home で、「WCF 3.5 質問と答」の認可セクションを参照してください。</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

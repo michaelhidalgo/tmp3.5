@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="29323823" Content_Hash="987187463">
+  <Metadata>
+    <Id>ff506058-cd04-4702-9811-9636347607f3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>S4U Kerberos 拡張を使用して最初の呼び出し元をデリゲートする方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>以下の手順を実行して、S4U Kerberos 拡張を使用して元の呼び出し元をデリゲートします。</p>
+  <ol>
+    <li>WCF プロセス アカウントに <strong>Act as part of the operating system</strong> ユーザー権利を付与してください。 デフォルトではこの権利を持っていますが、ネットワーク サービス アカウントを使用して実行している場合、 <li>指定したサービスへのデリゲーションのみについて、このコンピュータを信頼する WCF プロセス ID を構成し、<strong>[あらゆる認証プロトコルを使用する] のオプションを選択します。</strong><li>元の呼び出し元用に名前を取得し、次の <strong>username@FullyQualifiedDomainName.com フォーマットのようにユーザー用に UPN を作成してください。</strong><li><strong>WindowsIdentity</strong> コンストラクターを使用して UPN 文字列をパラメーターとして渡し、WindowsIdentity トークンを取得して元の呼び出し元を偽装します。<ol><pre>   String username = “username@FullyQualifiedDomainName.com”;<br />   WindowsIdentity winId = new WindowsIdentity(userName);<br />   using (winId.Impersonate())<br />   {<br />       // access the remote resources on behalf of the original caller        <br />   }</pre></ol><li>偽装は必ず取り消すようにしてください、上の例ではステートメントを使用すればこれは自動的に行われます。</li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>詳細については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Use%20Protocol%20Transition%20for%20Impersonating%20and%20Delegating%20Original%20Caller%20in%20WCF&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Use%20Protocol%20Transition%20for%20Impersonating%20and%20Delegating%20Original%20Caller%20in%20WCF&referringTitle=Home</a> の「WCF で元の呼び出し元を偽装およびデリゲートするためにプロトコル移行を使用する方法」を参照してください。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

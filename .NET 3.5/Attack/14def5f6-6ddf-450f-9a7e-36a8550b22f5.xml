@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-532793930" Content_Hash="985290407">
+  <Metadata>
+    <Id>14def5f6-6ddf-450f-9a7e-36a8550b22f5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>AJAX インジェクション攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>AJAX の実装を使用している Web アプリケーション</p>
+  <h1>説明</h1>
+  <p>AJAX (非同期 JavaScript および XML) テクノロジーは、Web ページにおいて、ページ全体を更新しなくても、シーンの背後にある特定のコンテンツを動的に更新することを可能にします。 AJAX ページのコンテンツを継続的に更新する機能は、Web サーバーに HTTP リクエストを送信するために、JavaScript によってXmlHttpRequest 
+ (XHR) オブジェクトを呼び出すことによって実現されています。 これらのリクエストは通常、データを XML または JSON (JavaScript オブジェクト表記法) の形式で送信します。
+</p>
+  <p>AJAX インジェクションは<a href="/article/61f8ac64-c4e1-4c31-9521-f20a1a64b6fd">
+クロス サイト スクリプティング攻撃</a> (XSS) の一種で、クライアント ブラウザーへの入力としてXML またはJSON の形式を利用するものです。 JSON は特に人気があります。JSON オブジェクトは eval() 関数に渡すだけで簡単にパースできるからです。 残念なことに、eval() の使用は
+ アプリケーションのエクスプロイトも同様に容易にします。 悪意のある JavaScript を含む巧妙な書式文字列は、検証が弱い場合、サーバーにコンテンツとして保存されることがあります。またはスプーフィングや中間者攻撃によってクライアント ブラウザーに直接送信されることもあります。 その後この JavaScript は
+ パースされ、クライアントの気づかないうちにクライアントのブラウザーで実行されます。 残念なことにこの攻撃は、セッション クッキーを盗むため、被害者の代わりに電子メールを送信するために使用されることがあります。または XSS 攻撃で利用できる他の影響をもたらします。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>機密性:</strong> コードは信頼済みのサイトと同じドメインで実行されるので、クッキーや他の機密のサイトデータが悪意のある AJAX コードに読み取られます。
+</li>
+    <li>
+      <strong>JavaScript コード インジェクション:</strong>XMLHttpRequest オブジェクトを使用することにより、攻撃者は JavaScript コード モジュールをダウンロードしてインストールし、ローカルのブラウザーで動的に実行して、被害者の気づかないうちにコンピュータから情報を送信することができます。</li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>入力が Web ページにエコー バックできるときに、ユーザー入力にスクリプト タグが含まれているか検証しないこと。
+</li>
+    <li>データを表示する際にユーザーが指定した入力をエンコードしないこと</li>
+    <li>共有データストアから取得したデータを信頼すること。</li>
+  </ul>
+  <h1>対策</h1>
+  <p>
+    <strong>入力を制約します:</strong>ユーザー入力をユーザーのブラウザーに反映する前に、強力なホワイトリスト スタイルのチェックを使用してください。
+</p>
+  <p>
+    <strong>表示するすべてのユーザー 入力に対して HTMLEncodeを適用します:</strong> 悪意を含む可能性のあるすべての文字は、ユーザーにエコー バックする前に、ホワイトリスト スタイルの HTMLEncoding ライブラリを使用してエンコードしてください。それが元々のページの一部としてロードされたものであったか、
+ それとも後ほど XMLHttpRequest でロードされたものであったかにはかかわりなく、そうします。</p>
+  <h1>例</h1>
+  <p>AJAX ベースの Web メール クライアントを使用しているとします。 今日は Web 2.0 の時代なので、メール クライアントはお気に入りの連絡先のリストを表示して、相手のステータスを知らせます。 デフォルトではこのステータスは "Online" (オンライン) または "Away" (離席中) に設定されていますが、連絡先ごとにカスタムのメッセージを
+ 設定して、クライアントに反映させることもできます。 このことを行うために、Web ページは定期的に、サーバーから連絡先のリストにリクエストを送って、このステータス リストを更新します。 サーバーはクライアントに対し、この情報を次のような、
+ JSON オブジェクトとして返します。</p>
+  <pre>{<br />   "numberOnline": "3",<br />   "nameAndStatus": [<br />   "Alice, Online",<br />   "Bob, Online",<br />   "Mallory, Away" ]<br />}</pre>
+  <p>次のコードは、上記のオブジェクトをリクエストして DOM を更新するため定期的に呼び出されるクライアント Javascript を示しています。</p>
+  <pre>var contactStatusList;<br />var http_request = new XMLHttpRequest();<br />http_request.open("GET", url, true);<br />http_request.onreadystatechange = function ()<br /> {<br />    if (http_request.readyState == 4)<br /> {<br />        if (http_request.status == 200)<br /> {<br />            contactStatusList = eval("(" &amp;#43; http_request.responseText &amp;#43; ")");<br />        }        http_request = null;    }};http_request.send(null);</pre>
+  <p>ここで、Mallory のステータスがカスタム値に設定されていたとします。 このステータスは、Mallory 自身が変更したか、あるいは第三者の攻撃者が変更した可能性があります。 どちらにせよ、メール クライアントにデータを供給するサーバーが貧弱な検証しか行っていないため、このステータス値は
+ 巧妙に書式設定された悪意のある Javascriptを含むように変更されます。 "Away" の代わりに値が次のように変更されたとしてください。</p>
+  <pre>Away"});alert("Gotcha!");//</pre>
+  <p>最初に考えるべきなのは、連絡先のステータス リストを表す JSON オブジェクトは、有効な JavaScript であるということです。 そのため、これを評価するために eval() を使用することができます。 上記のコードはステータス オブジェクトを完成させて、追加の JavaScript を挿入し、
+ 行の残りをコメント アウトします。 コードが eval() に渡されると、追加の JavaScript が実行されます。 "alert("Gotcha!")" は、悪意のある JavaScript に変更できること、そしてそれがクライアントのブラウザーで実行されることに注意してください。 上記のコードは
+ 例なので、アラート メッセージ ウィンドウが表示されます。 しかし一般には、JavaScript はユーザーの知らないうちにダウンロードされ、実行されます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>テクノロジーに関連した共通の脆弱性を含む、AJAX についての詳細は「Ajax のセキュリティの基本」 を参照してください。
+<a href="http://www.securityfocus.com/infocus/1868">http://www.securityfocus.com/infocus/1868</a></li>
+  </ul>
+  <ul>
+    <li>AJAX 攻撃および JavaScript ハイジャックについての詳細は、「JavaScript ハイジャック」を参照してください。
+<a href="http://www.net-security.org/dl/articles/JavaScript_Hijacking.pdf">http://www.net-security.org/dl/articles/JavaScript_Hijacking.pdf</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/d6ae90bf-1b44-4a89-b22e-55ea97e52ba5">ガイドライン: すべての出力データをエンコードする
+</a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

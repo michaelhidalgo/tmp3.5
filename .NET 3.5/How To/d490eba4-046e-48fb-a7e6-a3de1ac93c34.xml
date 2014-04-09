@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1232276823" Content_Hash="551791010">
+  <Metadata>
+    <Id>d490eba4-046e-48fb-a7e6-a3de1ac93c34</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切な鍵サイズを選択する方法</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>暗号鍵または鍵ペアを生成する際は、アルゴリズムが対応できる最大鍵サイズを使用します。 アルゴリズムがよりセキュアになるわけではありませんが、総当たり攻撃（Brute Force Attack)を行うためには非常に時間がかかるようになります。 次のコード例は、特定のアルゴリズムに対して最大の鍵サイズを見つける方法を示します。 </p>
+ <pre>private int GetLargestSymKeySize(SymmetricAlgorithm symAlg)<br />{<br />&nbsp;&nbsp;&nbsp; KeySizes[] sizes = symAlg.LegalKeySizes;<br />&nbsp;&nbsp;&nbsp; return sizes[sizes.Length - 1].MaxSize;<br />}<br />private int GetLargestAsymKeySize(AsymmetricAlgorithm asymAlg)<br />{<br />&nbsp;&nbsp;&nbsp; KeySizes[] sizes = asymAlg.LegalKeySizes;<br />&nbsp;&nbsp;&nbsp; return sizes[sizes.Length - 1].MaxSize;<br />}</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

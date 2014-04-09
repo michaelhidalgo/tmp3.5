@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="556530103" Content_Hash="1094211620">
+  <Metadata>
+    <Id>e1513c61-11a4-42f0-80ef-a64a558758a8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>データへの脅威を検討する</Title>
+    <Category>暗号化</Category>
+    <Phase>設計</Phase>
+    <Technology> 任意</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>データへの脅威を検討します。</p>
+  <h1>理由</h1>
+  <p>保管データへの脅威を考慮し、保管されているデータの暗号化方法を決めるのに役立てます。</p>
+  <h1>対策</h1>
+  <p>保管されたデータへの脅威について、以下を実行します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機微データを識別します。</strong> 暗号化で保護する必要のあるアセットのリストを作成します。</p>
+      <li>
+        <p>
+          <strong>機微データへの脅威を特定します。</strong> 保存された機微データへの脅威の種類のリストを作成します。 例えば、内部関係者からの攻撃、外部からの攻撃、組織犯罪、産業スパイなどです。</p>
+        <li>
+          <p>
+            <strong>ソリューションを特定します。</strong> 暗号化で保護する必要のある各アセットについて、高度な暗号化を提供するソフトウェア ソリューションを特定します。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <h1>関連チェックリスト</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

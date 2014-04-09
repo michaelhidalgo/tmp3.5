@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="727115136" Content_Hash="1241589535">
+  <Metadata>
+    <Id>857f780b-5e35-48ec-b8a8-7fecb958be5a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>DCOM から移行する場合､NetTcpBinding の使用を検討してください｡</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>DCOM から移行する場合､NetTcpBinding の使用を検討してください｡</p>
+  <h1>理由</h1>
+  <p>netTcpBinding は、バイナリエンコーディングおよび TCP プロトコルを使用し、.NET ツー .NET クロス マシン通信に対し最高の性能を提供します｡</p>
+  <h1>状況</h1>
+  <p>DCOM から移行する場合､netTcpBinding を検討してください｡ </p>
+  <h1>対策</h1>
+  <p>netTcpBinding を選ぶ時､以下を検討してください:</p>
+  <ul>
+    <li>トランザクションおよび信頼できるメッセージングをサポートします。 
+<li>広範囲の認証スキームをサポートします。 
+<li>トランスポート セキュリティ モードを使用する場合､Windows および 証明書の認証を使用できます。 
+<li>メッセージまたは混合モードのセキュリティを使用する場合､Windows を使用し、トークン、ユーザー名および証明書認証を使用できます。 
+<li>IIS 7.0 または Windows サービスでホストできます。 IIS 6.0 でもホストできますが、サービスを使用する前にホストW3wp プロセスをまずアクティブ化する必要があります。</li></li></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

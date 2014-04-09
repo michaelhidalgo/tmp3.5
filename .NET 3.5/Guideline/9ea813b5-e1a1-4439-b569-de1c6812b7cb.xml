@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-616208049" Content_Hash="-1057433259">
+  <Metadata>
+    <Id>9ea813b5-e1a1-4439-b569-de1c6812b7cb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>偽装を使用する場合、スレッド化の問題を考慮する</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>偽装が使用される場合にスレッド化の問題を考慮します。 </p>
+  <h1>理由</h1>
+  <p>スレッド スイッチが原因で偽装したセキュリティ コンテキストが失われることは、よくある脆弱性です。 </p>
+  <h1>状況</h1>
+  <p>共通言語ランタイム (CLR) では、非同期デリゲートの Thread.Start  や QueueUserWorkItem  等のマネージ型スレッド化手法のいずれかを使用して作成した偽装トークンが、スレッドに自動的に伝播します。 しかし、スレッド化モデルに互換性がないコンポーネントを COM 相互運用に使用した場合や、Win32 CreateThread API 等の新規スレッドを作成するためにアンマネージの手法を使用した場合、スレッドの偽装トークンを落としやすくなります。 </p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/507399c7-820f-4313-a1d9-62a65503fc9c">偽装とのトレードオフを把握する</a>
+    </li>
+    <li>
+      <a href="/article/a5498075-d530-437d-9cc1-11697b3be564">偽装を使用する場合はスレッド化の問題が考慮されるべきである</a>
+    </li>
+    <li>
+      <a href="/article/9ea813b5-e1a1-4439-b569-de1c6812b7cb">偽装を使用する場合にはスレッド化の内容を検討します</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1398581346" Content_Hash="540251937">
+  <Metadata>
+    <Id>83124492-cd34-49a8-98ad-ad828b1edeef</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET と認可マネージャ (AzMan) を併用する方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>認可マネージャ (AzMan)<li>Microsoft Windows Server 2003 以降の&nbsp;オペレーティング システム<li>Microsoft Windows XP Professional オペレーティング システム</li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、ASP.NET ロール マネージャ API と 認可マネージャ (AzMan) を併用することで、ロールの管理、ユーザー ロール メンバーシップのチェック、および、AzMan ポリシー ストアに対する特定の操作の実行をロールに認可する方法について説明します。 また、AzMan COM API を通してタスクと操作の Authorization Manager の認可モデルを使用する方法についても説明します。 </p>
+  <p>AzMan を使用する場合のメリットは、操作を定義し、それをグループ分けしてタスクにまとめ、特定のタスクの実行をロールに認可することが可能になる点にあります。 また、ロール、タスク、操作、ユーザーを管理するための管理者コンソールが提供されます。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  AzMan のインストール</div>
+            <li>
+              <div>手順 2:  AzMan のポリシー ストアを作成する</div>
+              <li>
+                <div>手順 3:  タスクと操作を定義する</div>
+                <li>
+                  <div>手順 4:  ロールを作成して AzMan にユーザーを割り当てる</div>
+                  <li>
+                    <div>手順 5。 ASP.NET アプリケーションを構成して AuthorizationStoreRoleProvider を使用する</div>
+                    <li>
+                      <div>手順 6。 ロール マネージャを使用してロール チェックを実行する</div>
+                      <li>
+                        <div>ステップ 7 AzMan の API を使用して操作を承認する</div>
+                        <li>
+                          <div>ASP.NET ウェブ サイト構成ツール</div>
+                          <li>
+                            <div>セキュリティに関する考慮事項</div>
+                            <li>
+                              <div>ADAM に関する考慮事項</div>
+                              <li>
+                                <div>その他のリソース</div>
+                              </li>
+                            </li>
+                          </li>
+                        </li>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>認可マネージャ（AzMan）をいつ使用するかを確認する。 <li>AzMan を使用して、ポリシー ストアを作成し、タスク、操作、ロールの割り当てを定義する。 <li>Web アプリケーションで <b>AuthorizationStoreRoleProvider</b> を使用するための構成を行います。<li>AzMan の API を使用して操作を承認する。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>認可マネージャ (AzMan) を使用して、個々の操作を定義することができます。それらの操作をグループに分けてまとめることで、タスクが形成されます。 ついで、ロールに特定のタスクおよび個別の操作を実行する権限を承認することができます。 AzMan では、ロール、タスク、操作、およびユーザーを管理するための管理ツールが、Microsoft Management Console (MMC) スナップインとして用意されています。 AzMan ポリシー ストアの構成は、XML ファイル、Active Directory、または Active Directory Application Mode (ADAM) ストア内で行うことができます。</p>
+  <p>ASP.NET バージョン 2.0 のロール管理機能には、アプリケーション ロールとユーザーのロール メンバーシップを管理するための API が用意されています。 ASP.NET ロール マネージャで <b>AuthorizationStoreRoleProvider</b> を使用するための構成を行うことによって、AzMan ポリシー ストアに対してロール管理 API を使用することができます。</p>
+  <p>認可チェックの拡張スクリプトである AzMan のビジネスルール ("BizRules") は、<b>AuthorizationStoreRoleProvider</b> ではサポートされていません。これは、現在のロール マネージャ実装に、拡張されたデータを認可チェック中に引き渡すことができるという概念がないためです。 AzMan BizRules を使用するには、COM 相互運用を使用する必要があります。</p>
+  <h2>ロール API vs 認可マネージャ</h2>
+  <p>ASP.NET のロール マネージャでは、アプリケーション ロールの管理、ロールへのユーザーの追加と削除、ロール メンバーシップのチェックをすることができる API が提供されますが、ユーザーが指示されたタスクや操作を実行する権限を承認されているかどうかを問い合わせることはできません。 AzMan では、個々の操作を定義して、それらをまとめてタスクにすることができます。 AzMan を使用すれば、ロール チェックに加えて、ユーザーがタスクを実行できるかどうかもチェックすることができます。 ロールの割り当てとタスクの認可は、アプリケーションの外部で構成することも、アプリケーションの内部でプログラムとして実行することもできます。 AzMan 管理 MMC スナップインによって、管理者は、ロールがランタイムに実行できるタスクの変更や、各ユーザーのロール メンバーシップの管理を行うことができます。</p>
+  <p>実行時に、ASP.NET のロール API を使用する場合は、ユーザーのロール メンバーシップをプログラム上で問い合わせます。 AzMan COM API と <b>AccessCheck</b> 関数を使用して、ユーザーが指定されたタスクを実行する認可を得ているかどうかを問い合わせます。</p>
+  <p>より粒度別なロールベース認可アプローチを操作やタスクに関して設計したい場合や、実行時にロールに割り当てられるアクセス許可を管理者が作成、削除、および管理することができるように柔軟性を高めたい場合、AzMan を使用してロールベース認可を設計、実装してください。</p>
+  <h1>手順の概要</h1>
+  <p>ASP.NET ロール マネージャを使用して認可マネージャ ポリシー ストア内のユーザー ロール メンバーシップをチェックするには、以下のステップを実行します。</p>
+  <ul>
+    <li>手順 1:  AzMan をインストールします。 <li>手順 2:  AzMan のポリシー ストアを作成する。 <li>手順 3:  タスクと操作を定義する。 <li>手順 4:  ロールを作成して AzManでユーザーを割り当てる。 <li>手順 5。 ASP.NET アプリケーションを構成して AuthorizationStoreRoleProvider を使用する。 <li>手順 6。 ロール マネージャを使用してロール チェックを実行する。 <li>ステップ 7 AzMan の API を使用して操作を承認する。 </li></li></li></li></li></li></li>
+  </ul>
+  <h1>手順 1:  AzMan のインストール</h1>
+  <p>AzMan は、Windows Server 2003、Windows XP Professional、および Windows 2000 Server でサポートされています。</p>
+  <p>
+    <b>Windows Server 2003 に AzMan をインストールするには</b>
+  </p>
+  <p>AzMan は Windows 2003 の SP1 およびそれ以降に付属しているので、このバージョンのオペレーティング システムをインストールすれば、AzMan を手に入れることができます。 Windows 2003 , SP1 以降は <a href="http://windowsupdate.microsoft.com/">http://windowsupdate.microsoft.com</a> からダウンロードすることができます。</p>
+  <p>
+    <b>Windows XP Professional に AzMan をインストールするには</b>
+  </p>
+  <p>Windows Server 2003 Administration Tools Pack をインストールします。これは、<a href="http://www.microsoft.com/downloads/details.aspx?familyid=e487f885-f0c7-436a-a392-25793a25bad7&displaylang=en">http://www.microsoft.com/downloads/details.aspx?FamilyID=e487f885-f0c7-436a-a392-25793a25bad7&DisplayLang=en</a> からダウンロードすることができます。このツールパックを使用すれば、Windows Server 2003 のリモート サーバ管理が可能になります。また、AzMan も組み込まれています。 </p>
+  <p>Windows XP サービス パック 2 またはそれ以降を実行している場合、Windows Server 2003 Administration Tools Pack のサービス パック 1 またはそれ以降をもインストールする必要がありますので注意してください。</p>
+  <p>
+    <b>Windows 2000 に AzMan をインストールするには</b>
+  </p>
+  <p><a href="http://www.microsoft.com/downloads/details.aspx?familyid=7edde11f-bcea-4773-a292-84525f23baf7&displaylang=en">http://www.microsoft.com/downloads/details.aspx?FamilyID=7edde11f-bcea-4773-a292-84525f23baf7&DisplayLang=en</a> からダウンロードできる Windows 2000 認可マネージャ ランタイムをインストールします。Windows 2000 Server サービス パック 4 またはそれ以降が稼働していなければいけません。 また、MSXML 4.0 またはそれ以降をインストールする必要もあります。</p>
+  <p>この場合、ランタイム コンポーネントだけがインストールされることに注意してください。 AzMan 管理 MMC スナップインはインストールされません。 ただし、Windows Server 2003 システムや、システムに Windows Server 2003 Administration Tools Pack がインストール済みの Windows XP システムであれば、MMC スナップインを使用して、Windows 2000 Server 上の AzMan をリモート管理することはできます。</p>
+  <p>Windows XP および Windows 2000 の場合、AzMan ストアと ASP.NET  <b>AuthorizationStoreRoleProvider</b> を併用できるようにするには、事前に AzMan COM オブジェクトのプライマリ相互運用アセンブリをグローバル アセンブリ キャッシュにインストールしておく必要があります。 Windows Server 2003 システムの場合、このアセンブリはすでにグローバル アセンブリ キャッシュにインストールされています。</p>
+  <p>
+    <b>Windows 2000 にプライマリ相互運用アセンブリをインストールするには</b>
+  </p>
+  <p>Windows 2000 認可マネージャ ランタイム用のインストーラーを実行すると、2 つのサブディレクトリが作成されます。 一方には、認可マネージャ 用のセットアップ ファイルが収められ、<b>\pia</b> という名前の もう一方のサブディレクトリには、プライマリ相互運用アセンブリが収められます。 </p>
+  <ol>
+    <li>Windows のコントロール パネルから、Microsoft .NET Framework 構成ツールを実行します。 [<b>Manage Assembly Cache</b>] オプションを開きます。 <li>[<b>Add an Assembly to the Assembly Cache</b>] オプションを使用して <i>認可マネージャ ランタイムのインストール ディレクトリ</i><b>\pia</b> フォルダーにナビゲートしてから、Microsoft.Interop.Security.AzRoles.dll アセンブリをキャッシュに追加します。 </li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>\pia</b> フォルダーには、プライマリ相互運用アセンブリの 2 つのバージョンが収められています。 AzMan バージョン 1.0 用のプライマリ相互運用アセンブリは、<b>\pia</b> フォルダーに、AzMan バージョン 1.2 のプライマリ相互運用アセンブリは、<b>\pia\1.2</b> フォルダーに入っています。 バージョン 1.2 の AzMan COM オブジェクトは、経験を積んだ AzMan ユーザーには興味深いと思われるさらに別のインターフェイスを公開していますが、ASP.NET ロール管理 API のユーザー向けの追加機能は用意されていません。<b></b></blockquote>
+  <p>
+    <b>Windows XP Professional にプライマリ相互運用アセンブリをインストールするには</b>
+  </p>
+  <ol>
+    <li>Windows XP を実行しているコンピュータに AzMan をインストールするには、Windows Server 2003 Administration Tools Pack を上記の説明に従ってインストールします。 ただし、このツール パックをダウンロードしても、AzMan のプライマリ相互運用アセンブリは入っていません。 <li>プライマリ相互運用アセンブリをインストールするには、Windows 2000 認可マネージャ ランタイムをダウンロードして、インストーラーを実行し、コンポーネント ファイルを抽出します。このランタイムに、プライマリ相互運用アセンブリが入っています。 上述の Windows 2000 の場合の手順を実行してください。 </li></li>
+  </ol>
+  <h1>
+    <br />手順 2:  AzMan のポリシー ストアを作成する</h1>
+  <p>XML ファイル、Active Directory、または ADAM 内に、AzMan ポリシー ストアを作成することができます。 このステップでは、XML ファイル内に AzMan ポリシー ストアを作成します。</p>
+  <p>
+    <b>AzMan のポリシー ストアを作成するには</b>
+  </p>
+  <ol>
+    <li>Windows コマンド プロンプトに "<b>azman.msc</b>" と入力し、認可マネージャ MMC スナップインを開きます。 <li>[<b>Action</b>] メニューで[<b>Options</b>] をクリックしてから、[<b>Developer mode</b>] をクリックします。[Developer mode] には、Administrator モードでは使用できない、ストアの作成などのオプションが示されています。 <li>[<b>Action</b>] メニューで、[<b>New Authorization Store</b>] をクリックします。認可ストア型を <b>XML File</b> に設定します。<li>たとえば、「<b>C:\RolesData\AzManStore.xml</b>」のように、ストアの完全な名を入力します。[<b>Locations</b>] ボタンをクリックして、AzMan ストアに移動することができ、その保管先のフォルダーを作成することもできます。 <li><b>AzManStore.xml</b> を右クリックしてから、[<b>Properties</b>] をクリックします。プロパティ ウィンドウで、[<b>Security</b>] タブをクリックします。 <li>[<b> Authorization Manager user role</b>] の下で、[<b>Administrator</b>] を選択します。[<b>Add</b>] ボタンをクリックして、ASP.NET が使用するアカウント (ネットワーク サービス アカウント) をこのロールに追加します。 </li></li></li></li></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;最初の呼び出し元または固定 ID を偽装するために ASP.NET アプリケーションで偽装機能を使用する場合や、別のカスタム アカウントのもとでこのアプリケーションを実行する場合、該当するアクセス レベルに従って、偽装アカウントまたはカスタム アカウントを Administrator または Reader として追加する必要があります。</blockquote>
+  <p>
+    <b>AzMan のアプリケーションを作成するには</b>
+  </p>
+  <ol>
+    <li>コンソール ツリーで <b>AzManStore.xml</b> が選択されていることを確認します。 [<b>Actions</b>] メニューで [<b>New Application</b>] をクリックします。<li>アプリケーションの名前を入力します。 この例では、<b>AzManDemo</b> を [<b>Application Name</b>] ボックスに入力し、[<b>Description</b>] および [<b>Version Info</b>] のボックスを空のままにします。 </li></li>
+  </ol>
+  <h1>
+    <br />手順 3:  タスクと操作を定義する</h1>
+  <p>以下の手順を実行してタスクと操作を定義します。 ASP.NET ロール マネージャ API だけを使用する予定の場合は、このステップを実行する必要はありませんのでご注意ください。この API では、ロールのメンバーシップに関するユーザー認可のみが可能です。 この API では、アプリケーションのタスクや操作ごとにユーザーに権限を承認することはできません。 AzMan COM API を使用してタスクまたは操作別の認可を行う場合は、以下のステップを実行してください。</p>
+  <p>
+    <b>タスクを定義するには</b>
+  </p>
+  <ol>
+    <li>コンソール ツリーで、[<b>AzManDemo</b>] を展開表示してから、[<b>Definitions</b>] を展開表示します。<li>[<b>Task Definitions</b>] を右クリックしてから、[<b>New Task Definition</b>] をクリックします。<li>[<b>Name</b>] ボックスに "<b>Privileged Task</b>" と入力し、[<b>OK</b>] をクリックします。</li></li></li>
+  </ol>
+  <p>
+    <b>操作を定義するには</b>
+  </p>
+  <ol>
+    <li>コンソール ツリーで、[<b>AzManDemo</b>] を展開表示してから、[<b>Definitions</b>] を展開表示します。<li>[<b>Operation Definitions</b>] を右クリックしてから、[<b>New Operation Definition</b>] をクリックします。<li>[<b>Name</b>] ボックスに " <b>Do Sensitive Operation</b>" と入力し、[<b>Operation number</b>] ボックスに "<b>1</b>" と入力してから、[<b>OK</b>] をクリックします。</li></li></li>
+  </ol>
+  <p>
+    <b>操作をタスクに関連付けるには</b>
+  </p>
+  <ol>
+    <li>[<b>Task Definitions</b>] フォルダーで、先に作成した [<b>Privileged Task</b>] をダブルクリックします。 <li>[<b>Definition</b>] タブをクリックしてから、[<b>Add</b>] をクリックします。<li>[<b>Add Definition</b>] ダイアログ ボックスで、[<b>Operations</b>] タブをクリックし、[<b>Do Sensitive Operation</b>] チッェク ボックスを選択します。 [<b>OK</b>] をクリックしてから、もう一度 [<b>OK</b>] をクリックします。 これで、新たに作成した操作が、[<b>Privileged Task</b>] という名前のタスクに割り当てられます。<blockquote><b>注意</b>: &nbsp;&nbsp;AzMan タスクは、オプションの抽象であるため、アプリケーションで少数の操作しか定義しない場合、操作だけを使用するのが妥当と思われます。</blockquote></li></li></li>
+  </ol>
+  <h1>手順 4:  ロールを作成して AzMan にユーザーを割り当てる</h1>
+  <p>このステップでは、AzMan 管理 MMC スナップインを使用して <b>Manager</b> というロールを作成します。ついで、前の手順で作成したタスクをロールに割り当てます。</p>
+  <p>
+    <b>AzMan の管理用 MMC スナップインでロールを定義するには</b>
+  </p>
+  <ol>
+    <li>Windows コマンド プロンプトに "<b>azman.msc</b>" と入力し、認可マネージャ MMC スナップインを開きます。 <li>[<b>Action</b>] メニューで、[<b>Options</b>] をクリックしてから、[<b>Administrator mode</b>] をクリックします。管理者モードで表示されるオプションは開発者モードよりも数が少なく、ロールへのタスク割り当てやロールへのユーザー割り当てなど、ランタイムに変更できる構成オプションのみが表示されます。 <li>AzMan 管理コンソール ツリーで、[<b>AzManDemo</b>] を展開表示し、[<b>Definitions</b>] を展開表示します。<li>[<b>Role Definitions</b>] を右クリックしてから、[<b>New Role Definition</b>] をクリックします。<li>[<b>Name</b>] ボックスに "<b>Manager</b>" と入力し、[<b>OK</b>] をクリックします。</li></li></li></li></li>
+  </ol>
+  <p>
+    <b>管理 UI でユーザーをロールに割り当てるには</b>
+  </p>
+  <ol>
+    <li>[<b>Role Assignments </b>] フォルダーを右クリックしてから、[<b>Assign Roles</b>] をクリックします。<li>表示されたダイアログ ボックスで、[<b>Manager</b>] チェック ボックスをクリックしてから、次に [<b>OK</b>] をクリックします。<li>コンソール ツリーの [<b>Role Assignments</b>] フォルダーの後にリストされている [<b>Manager</b>] ロールを右クリックしてから、[<b>Assign Windows Users and Groups</b>] をクリックします。<li>ログオンのときに使用した Windows ユーザー アカウントの名前を入力し、[<b>Check Names</b>] をクリックしてから、[<b>OK</b>] をクリックします。これで、そのユーザー アカウントは <b>Manager</b> ロールに割り当てられます。 </li></li></li></li>
+  </ol>
+  <p>
+    <b>タスクをロールに割り当てるには</b>
+  </p>
+  <ol>
+    <li>[<b>Role Definitions</b>] フォルダーで、上記で作成した <b>Manager</b> ロールをダブルクリックします。 <li>[<b>Definition</b>] タブをクリックしてから、[<b>Add</b>] をクリックします。<li>[<b>Add Definition</b>] ダイアログ ボックスで、[<b>Tasks</b>] タブをクリックし、次に [<b>Privileged Task</b>] チェック ボックス (これは前のステップで作成したタスクです) をクリックします。 [<b>OK</b>] を 2 回クリックします。 これで、[<b>Privileged Task</b>] タスクが <b>Manager</b> ロールに割り当てられます。 </li></li></li>
+  </ol>
+  <h1>
+    <br />手順 5。 ASP.NET アプリケーションを構成して AuthorizationStoreRoleProvider を使用する</h1>
+  <p>この手順では、ASP.NET アプリケーションでロール管理を構成して AzMan ストアを使用します。</p>
+  <p>
+    <b>AzMan ストアに接続するには</b>
+  </p>
+  <ol>
+    <li><b>AzManRoles</b> という新規のASP.NET Web サイトを作成します。<li>AzMan ポリシー ストアへの接続文字列を<b> </b>、 Web.config ファイルの &lt;connectionStrings&gt; エレメント内に定義します。 たとえば、「C:\RolesData\AzManStore.xml 」への接続文字列を作成するには、次のような構成を使用します。 <div><pre>&lt;configuration&gt;<br />&nbsp; &lt;connectionStrings&gt; <br />&nbsp;&nbsp;&nbsp; &lt;add name="LocalPolicyStore" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="msxml://c:/RolesData/azmanstore.xml" /&gt;<br />&nbsp; &lt;/connectionStrings&gt; <br />&lt;/configuration&gt;   </pre></div><li>&lt;<b>system.web</b>&gt; エレメントの子として以下のエレメントを追加して、アプリケーションでロール プロバイダーを使用するための構成を行います。 element. <div><pre>&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; &lt;roleManager <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enabled="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cacheRolesInCookie="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultProvider="RoleManagerAzManProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieName=".ASPXROLES" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookiePath="/" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieTimeout="30" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieRequireSSL="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieSlidingExpiration="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; createPersistentCookie="false" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieProtection="All"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;add name="RoleManagerAzManProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.AuthorizationStoreRoleProvider, System.Web, Version=2.0.0.0, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Culture=neutral, publicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="LocalPolicyStore" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="AzManDemo"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/roleManager&gt;<br />&lt;/system.web&gt;   </pre></div></li></li></li>
+  </ol>
+  <p>上記の構成ファイルの断片では<b> </b>、  <b>AuthorizationStoreRoleProvider</b> を使用する&lt;providers&gt; エレメントを定義しています。この場合、<b>connectionStringName</b> 属性を、前のステップで定義した接続文字列に設定します。また、<b>applicationName</b> 属性を、AzMan ストアで作成した AzMan アプリケーションの名前に設定しなければいけません。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>cookieName</b> および <b>cookiePath</b> の属性を一意の値にすることで、複数のアプリケーションを同一サーバ上でホストする場合に発生する可能性のある問題を未然に防止することができます。 このベスト プラクティスを使用すると、あるサイト上のユーザーは同じサーバ上でホストされている別のサイトでロール Cookieを使用することができません。</blockquote>
+  <h1>
+    <br />手順 6。 ロール マネージャを使用してロール チェックを実行する</h1>
+  <p>実行時に、ロールを使用して 2 つの方法でアクセスを承認することができます。</p>
+  <ul>
+    <li>ロール認可を使用してページやフォルダへのアクセスを規制する。 <li>ロール API を使用してロール メンバーシップがあるかどうかをプログラム上で確認する。 </li></li>
+  </ul>
+  <h2>ロール認可</h2>
+  <p>ロールの一般的な使用法は、ページやフォルダへのアクセスを許可または拒否する規則を確立することです。 Web.config ファイルの&lt;<b>authorization</b>&gt; セクションでそのようなアクセス ルールを 設定できます。 次の例では､メンバーのロール中のユーザーが<b>memberPages</b> という名のフォルダのページを表示でき、他の誰へのアクセスも拒否します。</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp;&nbsp; &lt;location path="memberPages"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;allow roles="Manager" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;deny users="*" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/location&gt;<br />&nbsp;&nbsp; &lt;!-- other configuration settings here --&gt;<br />&lt;/configuration&gt;  </pre>
+  </div>
+  <h2>ロール API</h2>
+  <p>アプリケーションで Windows 認証を使用している場合や、ASP.NET のメンバーシップ機能を指定して Forms Authentication を使用している場合、認証を受けた現在のユーザーのロール メンバーシップがあるかどうかをテストするための <b>Roles.IsUserInRole("roleName")</b> や、そのユーザーのすべてのロールの文字列配列を返すための <b>Roles.GetRolesForUser()</b> といったロール API メソッドを使用することができます。 </p>
+  <p><b>Roles.IsUserInRole("username", "roleName")</b> を使用して、指定されたユーザーのロール メンバーシップがあるかどうかをテストすることができます。 </p>
+  <h1>ステップ 7 AzMan の API を使用して操作を承認する</h1>
+  <p>AzMan では、ある特定の操作へのアクセス権を判別する基本メカニズムは <b>AccessCheck</b> API です。 このステップでは、ASP.NET アプリケーションで 認可マネージャ API を使用して、タスク内の操作をクエリし、現在のユーザーがその操作を実行する認可を得ているかどうかを判別します。 操作またはタスクを実行する認可に関して問い合わせを行える AzMan API の機能は、ロール メンバーシップ チェックのみをサポートする ASP.NET ロール管理 API の機能をしのいでいます。</p>
+  <p>
+    <b>AzMan ストアに接続するには</b>
+  </p>
+  <ol>
+    <li><b>AccessingTasks</b> という新規の C# ASP.NET Web サイトを作成します。<li>AzMan COM ライブラリへの参照を追加します。 [<b>Add Reference</b>] ダイアログ ボックスで、[<b>COM</b>] をタブをクリックしてから、[<b>azroles 1.0 Type Library</b>] を選択します。 <b>OK</b> をクリックします。<li>以下の using ステートメントを Default.aspx ページのコード ページに追加します。 <div><pre>using AZROLESLib;<br />using System.Collections.Specialized;<br />using System.Security.Principal;   </pre></div><li>AzMan ポリシー ストアを開くには、以下のコードを追加します。 手順 5 の冒頭で定義したのと同じ接続文字列を使用します。 <div><pre>AzAuthorizationStoreClass AzManStore = new AzAuthorizationStoreClass();<br />AzManStore.Initialize(0, ConfigurationManager.ConnectionStrings<br />            ["LocalPolicyStore"].ConnectionString, null);<br />IAzApplication azApp = AzManStore.OpenApplication("AzManDemo", null);  </pre></div></li></li></li></li>
+  </ol>
+  <p>ユーザーが操作を実行する権限を承認されているかどうかを確認します。 以下のプロシージャ内のサンプル コードは、認証されたユーザーが操作を実行する権限を承認されているかどうかをチェックするものです。</p>
+  <p>
+    <b>ユーザーが操作を実行する権限を承認されているかどうかをチェックするには</b>
+  </p>
+  <ol>
+    <li>クライアントのセキュリティ コンテキストの表現を構築します。 コンテキストは、ユーザーのロール マッピングをキャッシュする点でトークンに似ています。 クライアントのコンテキスト オブジェクトを作成するには、以下の操作を実行します。<ol><li>アプリケーションで Windows 認証を使用している (アプリケーションの Web.config ファイルに <b>authentication mode='Windows'</b> が指定され、Microsoft インターネット インフォメーション サービス (IIS) で統合 Windows 認証を必須にする構成になっている) 場合、クライアント コンテキストを以下のように構成します。 <div><pre>    // Get the current user context <br />&nbsp;&nbsp;&nbsp; IPrincipal userPrincipal = HttpContext.Current.User;<br />&nbsp;&nbsp;&nbsp; WindowsIdentity userIdentity = userPrincipal.Identity as WindowsIdentity;<br />&nbsp;&nbsp;&nbsp; IAzClientContext clientContext =<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; azApp.InitializeClientContextFromToken(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (ulong)userIdentity.Token, null);  </pre></div><li>アプリケーションが使用している認証メカニズムが、最初の呼び出し元のユーザー名のみが使用できてパスワードがない場合、次の例に示すようにクライアント コンテキストを構築することができます。 <div><pre>IAzClientContext clientContext =<br />   azApp.InitializeClientContextFromName(name, domain, null);  </pre></div></li></li></ol><li>クライアント コンテキスト オブジェクトと AzMan を使用して、そのユーザーが操作を実行する認可を得ているかどうかを判別します。 <p>実際は整数の配列であるオブジェクト配列が、要求トした操作ごとに 1 つずつ、<b>AccessCheck</b> メソッドから返されます。 いずれかの整数がゼロ以外の場合、ユーザーは操作配列内の対応する操作を実行する権限が承認されていません。 </p><div><pre>    // Create an object array describing the operation IDs to query<br />&nbsp; <br />&nbsp;&nbsp;&nbsp; // In this simple example, query for the single operation called<br />&nbsp;&nbsp;&nbsp; // 'Do Sensitive Operation' which has an ID of 1.<br />&nbsp;&nbsp;&nbsp; object[] operationIds = new object[] {1};<br />&nbsp;&nbsp;&nbsp; // Check if user has access to the operations<br />&nbsp;&nbsp;&nbsp; // The first argument, "Auditstring", is a string that is used if you <br />&nbsp;&nbsp;&nbsp; // have run-time auditing turned on<br />&nbsp;&nbsp;&nbsp; object[] result = (object[])clientContext.AccessCheck("Auditstring",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new object[1], operationIds, null, null, null, null, null);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; // Test the integer array we got back to see which operations are<br />&nbsp;&nbsp;&nbsp; // authorized<br />&nbsp;&nbsp;&nbsp; int accessAllowed = (int)result[0];<br />&nbsp;&nbsp;&nbsp; if (accessAllowed != 0)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // current user not authorized to perform operation<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("User not authorized for operation: " +<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Do Sensitive Operation" + "&lt;br /&gt;");<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // current user authorized to perform operation<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("User authorized for operation " +<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Do Sensitive Operation" + "&lt;br /&gt;");<br />&nbsp;&nbsp;&nbsp; }      </pre></div></li></li>
+  </ol>
+  <p>このコードを保存して実行すると、生成されるページで現在のユーザーが操作を実行する権限を承認されているかどうかが報告されます。</p>
+  <h1>ASP.NET ウェブ サイト構成ツール</h1>
+  <p>ASP.NET ウェブ サイト構成ツールは Visual Studio に組み込まれています。 このツールを使用してユーザーをロールに割り当てることができますが、この操作はアプリケーションでForms Authenticationが使用されている場合にのみ行うことができます。Windows 認証を使用している場合は、このツールでユーザー管理が無効になるためです。</p>
+  <p>
+    <b> ASP.NET ウェブ サイト構成ツールでユーザーをロールに割り当てるには</b>
+  </p>
+  <ol>
+    <li><b>Website</b> メニューで、<b>ASP.NET Configuration</b> をクリックしてください。<li>［<b>セキュリティ</b> ］タブをクリックします。 <li>［ <b>ロールの作成または管理］をクリックします。</b><li>ロールのテーブルで、ユーザーを追加したいロールの横にある［<b>管理</b>］をクリックします。 <li>ご希望のユーザーを検索して、<b>ロールの追加</b>］をクリックします。</li></li></li></li></li>
+  </ol>
+  <h1>セキュリティに関する考慮事項</h1>
+  <p>XML のポリシー ストアが使用される場合、アクセス権限は NTFS ACL によって制御されます。 ポリシー ストアを閲覧するには読み取りアクセスが必要です。 ポリシー ストアの書き込みには読み取りと書き込みアクセスの両方が必要です。 XML ファイルにアクセスする権限を持っていたアカウントは、ファイル内の全アプリケーションと全対象範囲にアクセスする権限を持っています。 デリゲートされた権限に対しては、XML のポリシー ストアのサポートはありません。</p>
+  <p>Active Directory または ADAM のポリシー ストアが使用される場合、権限はストアで定義されたロールによって表現されます。 AzMan MMC を使用して、ポリシー ストア、アプリケーション、または対象範囲上で閲覧者および管理者のロールにドメイン アカウント（ドメイン ユーザーまたはコンピュータ アカウントのいずれか）を追加することができます。 デリゲートされた権限に対してはActive Directory のポリシー ストアのサポートがあります。</p>
+  <h1>ADAM に関する考慮事項</h1>
+  <p>この「方法」は XML ファイルに AzMan po ポリシー ストアを構成する方法を説明します。 AzMan ストアを Active Directory または ADAM に作成することもできます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://www.microsoft.com/technet/prodtechnol/windowsserver2003/technologies/management/athmanwp.mspx">Microsoft TechNet での認可マネージャーを使用した多層アプリケーションのロール ベースのアクセス制御</a> <li><a href="http://msdn2.microsoft.com/en-us/library/ms974546.aspx">MSDN での ADAM の概要</a>マダム、私が ADAMです <li>「AUTHORIZE IT：認可マネージャにより中間階層 .NET アプリケーションでロールベースのセキュリティを使用する」<i>（MSDN Magazine）</i></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

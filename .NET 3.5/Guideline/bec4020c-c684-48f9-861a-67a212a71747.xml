@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1449736641" Content_Hash="1499703071">
+  <Metadata>
+    <Id>bec4020c-c684-48f9-861a-67a212a71747</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構成ファイルの機微データを保護する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>暗号化することによって、構成ファイル内の SQL 接続文字列などの機微データを保護します。&nbsp;</p>
+  <h1>理由</h1>
+  <p>サーバに害を与える攻撃者が接続文字列を読み取れるため、プレーン テキストで保存される接続文字列は危険です。 マシンが危険にさらされていない場合でも、プレーンテキストで格納される接続文字列は、ホストマシンおよび/または Windows ドメイン上の十分な特権を持つ、管理者等のユーザーがアクセスできます。</p>
+  <h1>対策</h1>
+  <p>WCFサーバ マシン上の構成ファイルにある機微データを暗号化するには DPAPI を使用します。 マシン鍵保存（デフォルト構成）のDPAPI プロバイダーを使って&lt;connectionStrings&gt; を暗号化するためには、次のコマンドをコマンド ウィンドウから実行します：</p>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</pre>
+  <p>aspnet_regiisオプションは次のとおりです:</p>
+  <ul>
+    <li>-pe - 暗号化する構成セクションを指定します。</li>
+    <li>-app - Web アプリケーションの仮想パスを指定します。 アプリケーションがネストされている場合は､たとえば、"/test/aspnet/MachineDPAPI" のように、 root ディレクトリからのネストされたパスを指定する必要があります。</li>
+    <li>-prov - プロバイダー名を指定します。<br /></li>
+  </ul>
+  <p>Webファーム内の複数サーバ上で構成ファイル データを暗号化する必要がある場合は、RSA鍵コンテナが容易にエクスポートできるため、RSAで保護された構成プロバイダーを使用します。<br /></p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>DPAPI の使用方法の詳細は､<a href="http://msdn2.microsoft.com/en-us/library/ms998280.aspx">http://msdn2.microsoft.com/en-us/library/ms998280.aspx にある｢DPAPI を使用して ASP.NET 2.0 の構成セクションを暗号化する方法｣を参照してください｡</a><li>RSA の使用方法の詳細は､<a href="http://msdn2.microsoft.com/en-us/library/ms998283.aspx">http://msdn2.microsoft.com/en-us/library/ms998283.aspx にある｢RSA を使用して ASP.NET 2.0 の構成セクションを暗号化する方法｣を参照してください｡</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

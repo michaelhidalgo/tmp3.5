@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1502526708" Content_Hash="157349458">
+  <Metadata>
+    <Id>ec06b8da-24a1-4e5c-873c-64b40b78bf99</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL メンバーシッププロバイダーに対してユーザーを認証する方法。</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>ユーザーの情報がすでにSQLメンバーシップデータベースに保存されている場合、またはインターネット向けWCFアプリケーションを最初から構築する場合、SQLメンバーシップ プロバイダーを使用してWCFサービスクライアントの認証が行えます。 メンバーシップ プロバイダーは入ってくる全てのクライアント Credential 情報を SQL データベースに保存されている Credential 情報と照し合せて認証します。 メンバーシップ機能はカスタマイズされたコードを作成したり管理することなくユーザー名認証を実施できる良い選択です。 </p>
+  <p>WCFアプリケーションでUserName認証を行うSQLメンバーシッププロバイダーを構築するには、次の手順に従います。</p>
+  <ol>
+    <li>VS2008コマンドプロンプトから、メンバーシップ用の SQL Server データベースを構成し、次のコマンドを実行します。<pre>aspnet_regsql -S .\SQLExpress -E -A m -d &lt;&lt;YourDatabaseName&gt;&gt;</pre><ul>このコマンドでは：<ul><li>-S がサーバを指定します。この例では（\SQLExpress) です。<li>-E は、SQL Server への接続にWindows 認証を使用することを指定します。<li>-A m はメンバーシップ機能だけを追加することを指定します。 SQL Server ユーザー ストアへの簡易認証の場合、必要なのはメンバーシップ機能のみとなります。<li>-d はSQL Server のデータベース名を指定します。 このオプションが使用されない場合、デフォルトのデータベースaspnetdbが作成されます。<li>コマンドの完全なリストには、Aspnet_regsql /? を実行します。</li></li></li></li></li></ul></ul><li>次のセクションを追加して、WCF サービス内のWeb.configファイルを変更します。<pre><br />&lt;connectionStrings&gt;<br />  &lt;add name="MyLocalSQLServer"<br />       connectionString="Initial Catalog=&lt;&lt;YourDatabaseName&gt;&gt;;<br />      data source=.\sqlexpress;Integrated Security=SSPI;" /&gt;<br />&lt;/connectionStrings&gt;</pre><ol><pre>…<br />&lt;system.web&gt;<br />  ...<br />  &lt;membership defaultProvider="MySqlMembershipProvider" &gt;<br />    &lt;providers&gt;<br />      &lt;clear/&gt;<br />      &lt;add name="MySqlMembershipProvider"<br />           connectionStringName="MyLocalSQLServer"<br />           applicationName="MyAppName"<br />           type="System.Web.Security.SqlMembershipProvider" /&gt;<br />    &lt;/providers&gt;<br />  &lt;/membership&gt;<br />&lt;/system.web&gt;<br />…</pre></ol><li>Username 認証を使用するようにサービスを構成します。<ol><pre>…<br />&lt;bindings&gt;<br />  &lt;wsHttpBinding&gt;<br />    &lt;binding name="wsHttpEndpointBinding"&gt;<br />      &lt;security&gt;<br />        &lt;message clientCredentialType="UserName" /&gt;<br />      &lt;/security&gt;<br />    &lt;/binding&gt;<br />  &lt;/wsHttpBinding&gt;<br />&lt;/bindings&gt;</pre></ol><li>メンバーシップ プロバイダーを使用するようにサービスを構成します。<ol><pre>&lt;behaviors&gt;<br />  &lt;serviceBehaviors&gt;<br />    &lt;behavior name="ServiceBehavior"&gt;</pre><pre>      &lt;serviceCredentials&gt;<br />        &lt;userNameAuthentication userNamePasswordValidationMode="MembershipProvider"<br />          membershipProviderName="MySqlMembershipProvider" /&gt;<br />      &lt;/serviceCredentials&gt;</pre><pre>    &lt;/behavior&gt;<br />  &lt;/serviceBehaviors&gt;<br />&lt;/behaviors&gt;<br />…<br /></pre></ol></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>さらに詳細な情報は、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Use%20Username%20Authentication%20with%20the%20SQL%20Membership%20Provider%20and%20Message%20Security%20in%20WCF%20from%20Windows%20Forms&referringTitle=How%20Tos">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Use%20Username%20Authentication%20with%20the%20SQL%20Membership%20Provider%20and%20Message%20Security%20in%20WCF%20from%20Windows%20Forms&referringTitle=How%20Tosから、「ユーザー名認証にSQL Server のメンバーシップ プロバイダーおよびWindows フォームからWCFのメッセージセキュリティを使用する方法」をご覧ください。</a><li>さらに詳細な情報は、 <a href="http://msdn.microsoft.com/en-us/library/ms731049.aspx">http://msdn.microsoft.com/en-us/library/ms731049.aspxから「方法：ASP.NET メンバーシップ プロバイダーを使用する」をご覧ください。</a><br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

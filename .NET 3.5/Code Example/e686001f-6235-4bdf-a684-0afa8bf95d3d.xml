@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2016421689" Content_Hash="1195088203">
+  <Metadata>
+    <Id>e686001f-6235-4bdf-a684-0afa8bf95d3d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>対称暗号鍵および初期化ベクトルを作成および安全に格納する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード サンプルの目的は、データ ブロックの暗号化と復号化に使用される対称暗号鍵および初期化ベクトルの安全な作成と保存を示すことです。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>対称暗号化で使用されるランダム暗号鍵を作成する。 <li>追加の暗号化操作を実装したり、ファイル システムまたはデータベース セキュリティに依存したりすることなく、対称暗号鍵を安全に保存する。 <li>初期化ベクトルの使用と配布について説明する。</li></li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーションで、機微データを暗号化された形式で保存する必要がある。<li>クライアント/サーバまたはクライアント/クライアント アーキテクチャ内の 2 つのエンティティは、暗号化された形式でデータを伝送する必要がある。<li>アプリケーション開発者は、実働暗号鍵へのアクセス権を持ってはいけない。 製品サポート グループは、実働暗号鍵を設定するためのソリューションコードを含むユーティリティを使用してもよい。</li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>public static void GenerateAndStoreSymmetricAESKey()<br /> {<br />    // The .NET framework supports several symmetric or block ciphers including: Rijndael (AES),<br />     // DES, 3DES, RC2, etc.<br />     // Symmetric (secret key) encryption algorithms assume that both parties know the secret<br />     // key and initialization vector or IV (when using a chained mode for the crypto<br />    // operation). Protecting the secret key by both recipients is vital to the protection<br />    // of data transmitted or stored by both parties.<br />    // Symmetric ciphers are often well suited to protecting large blocks of data between two<br />    // or more parties when the secret key has been negotiated in a secure manner.<br />    // There exist many block ciphers today, however perhaps the most popular is AES, the<br />    // current encryption standard approved by the National Institute of Standards and Technology<br />    // (NIST). The AES algorithm was created by two Belgian cryptographers and commonly<br />     // referred to as Rijndael as is the case in the .NET framework.<br />    // The following call will create a Rijndael (AES) Crypto Provider with a cryptographically<br />    // random key and initialization vector. This crypto provider defaults to a key size<br />    // of 256 bits and considered extremely secure even by today's computing standards.<br />    Rijndael rij = Rijndael.Create();<br />    // The following method demonstrates the ability to generate a new key from the<br />     // given crypto provider.  Typically this method need not be called unless<br />     // it is desired to "re-key".  Re-keying may be performed in some communication protocols<br />    // to mitigate the likelihood of an adversary having compromised a secret key used<br />    // to protect the session.<br />    // By default in the .NET framework a call to Rijndael.Create() constructor will<br />    // automatically generate a key and associated it with the object created (stored in the<br />     // Key member).<br />    rij.GenerateKey();<br />    // Encryption keys should be protected in storage. The .NET framework provides a method<br />    // to securely protect secrets such as encryption keys and passwords known as the<br />     // data protection api (DPAPI). For further details please refer to:<br />    //   <a href="http://msdn.microsoft.com/library/en-us/dnpag2/html/paght000005.asp">http://msdn.microsoft.com/library/en-us/dnpag2/html/paght000005.asp</a><br />    // The following method demonstrates the generation of a new initialization vector.<br />    // Initialization vectors (IV) are used to ensure that encrypted blocks of data are "chained".<br />    // When using a chaining encryption mode such as CBC, CFB, OFB, a random initialization<br />    // vector should be chosen with which the first block of plaintext data is XOR by the<br />     // cipher.  Subsequent blocks of the plaintext message are XORed with the output<br />     // (crypted text) of the previous block.<br />    //<br />     // When using a random initialization vector for each communication, an eavesdropper<br />     // who observes traffic between Alice and Bob may not be able to detect<br />     // repititious blocks of data even if the same message is sent multiple times.<br />    // We don't actually store this value but it's contained here to demonstrate how it<br />     // should be called during subsequent encryption operations<br />    rij.GenerateIV();<br />    // The IV need not be protected, as an intermediary who intercepts an encrypted<br />     // communications still needs the secret key to decrypt the message. However,<br />    // the recipient of the encrypted data needs the IV to successfully decrypt the<br />     // message. It is common for an encrypted text (ciphertext) to be preceeded by the<br />    // IV used in the chaining of the encryption routine.  Because the IV is a fixed<br />    // length (as determined by the encryption cipher), the recipient of the encrypted<br />    // text must remove the IV from the beginning of the message and use this value in<br />    // conjunction with the shared secret key to decrypt the message.<br />    // Upon subsequent encrypt routines the application should generate a new Initialization<br />    // vector each time.<br />    // Store the AES symmetric (shared secret) key to a byte array<br />     // encrypt and stored in the registry by using the DPAPI ProtectedData class.<br />     // We're using the CurrentUser scope instead of the MachineKey scope so that other,<br />     // users or applications which may become compromised cannot access this key in the<br />     // registry and decrypt. This provides additional security but sacrifices interoperability<br />     // with other applications. Consider using the MachineKey scope if you have a need to<br />     // share keys between applications.<br />    byte[] encryptedKeyPair = ProtectedData.Protect(<br />                    rij.Key,<br />                    null,<br />                    DataProtectionScope.CurrentUser);<br /><br />    // Create a security context for a new key that we will use to store<br />     // our shared key. The security context will restrict access to only<br />     // our user.<br />    string user = Environment.UserDomainName + "\\" + Environment.UserName;<br />    RegistrySecurity security = new RegistrySecurity();<br />    RegistryAccessRule rule = new RegistryAccessRule(user,<br />                    RegistryRights.FullControl,<br />                    InheritanceFlags.ContainerInherit,<br />                    PropagationFlags.None,<br />                    AccessControlType.Allow);<br />    security.AddAccessRule(rule);<br />    // Actually create the new registry key and apply the security context<br />     // we just came up with.<br />    Registry.CurrentUser.CreateSubKey("AESSymmetricKey",<br />        RegistryKeyPermissionCheck.ReadWriteSubTree,<br />        security);<br />    // Write the encrypted connection string into the registry<br />    Registry.SetValue(@"HKEY_CURRENT_USER\AESSymmetricKey",<br />        "KeyData",<br />        encryptedKeyPair);<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下のコードの例は多くの開発者にとって共通の落とし穴である、ハードコードされた暗号鍵および初期化ベクトルを示しています。</p>
+ <pre>Rijndael rijndaelAlg = Rijndael.Create();<br />//Set secret key for the AES algorithm.<br />rijndaelAlg.Key = ASCIIEncoding.ASCII.GetBytes("_A_SAMPLE_KEY_WE_USE_TO_ENCRYPT_");<br />// Hardcode our IVrijndaelAlg.IV = ASCIIEncoding.ASCII.GetBytes("SAMPLEIV");</pre>
+  <ul>
+    <li>未許可ユーザーがアプリケーション ソース コードまたはコンパイルされたコードへのアクセス権を取得すると、鍵を抽出でき、それ以降のすべての通信で復号化を行うことができてしまいます。 <li>ハードコードされた初期化ベクトルは、メッセージの完全な機密性を提供しません。すべての同等のプレーンテキスト メッセージの暗号化値が同じになり、攻撃者に対して共通のメッセージについての知識を与えてしまうためです。</li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Security;<br />using System.Security.AccessControl;<br />using System.Security.Cryptography;<br />using Microsoft.Win32;</pre>
+  <p>以下のコードを実行して [regedit] を開き、"HKEY_CURRENT_USER\AESSymmetricKey" キーの下にあるレジストリを調べて、DPAPI を通してレジストリに暗号化される AES 共有秘密鍵を確認してください。</p>
+ <pre>static void Main(string[] args){<br />  // Generate an AES encryption key and store in the registry<br />  // using DPAPI  GenerateAndStoreSymmetricAESKey();<br />}</pre>
+  <h1>期待される結果</h1>
+  <p>AES 鍵は DPAPI を使用して暗号化され、"HKEY_CURRENT_USER\AESSymmetricKey" レジストリ キーに格納されます。</p>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>アプリケーションで、機微データを暗号化された形式で保存する必要がある。<li>クライアント/サーバまたはクライアント/クライアント アーキテクチャ内の 2 つのエンティティは、暗号化された形式でデータを伝送する必要がある。<li>アプリケーション開発者は、実働暗号鍵へのアクセス権を持ってはいけない。 製品サポート グループは、実働暗号鍵を設定するためのソリューションコードを含むユーティリティを使用してもよい。</li></li></li>
+  </ul>
+  <h1>詳細情報</h1>
+  <p>対称 (秘密鍵) 暗号化アルゴリズムでは、両者が秘密鍵と初期化ベクトルまたは IV を知っていることを想定しています (暗号操作にチェーン モードが使用されている場合は、初期化ベクトルが必要です)。 両方の受信者によって秘密鍵を保護することは、両者が送信または保存するデータの保護には不可欠です。 対称鍵暗号は、秘密鍵が安全な方法で受け渡しされた場合、二者以上の間で大規模なデータ ブロックを保護するのに最適です。 最近は多くのブロック暗号が存在しますが、おそらく最もよく使われているのは、米国の国立標準技術研究所 (NIST) によって承認されている現在の暗号化標準である AES です。 AES アルゴリズムは、2 人のベルギー人の暗号研究者によって作成され、.NET Framework のケースでは Rijndael という名前で記述されています。</p>
+  <p>暗号鍵はストレージ内で保護されている必要がありますが、IV は保護されている必要はありません。暗号化された通信の傍受者がメッセージを復号化するにはさらに秘密鍵が必要になるためです。 ただし、暗号化されたデータの受信者には、メッセージを正常に復号化するための IV が必要です。&nbsp; 暗号化されたテキスト (暗号文) の前には、暗号化ルーチンのチェーンで使用される IV が付加されるのが一般的です。 IV は固定長 (暗号方式によって決定される) であるため、暗号化テキストの受信者は、メッセージの先頭から IV を削除して、この値を共有秘密鍵と組み合わせて使用して、メッセージを復号化する必要があります。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>.NET での簡略化された暗号化: <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/cryptosimplified.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnnetsec/html/cryptosimplified.asp</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1300556522" Content_Hash="-569826946">
+  <Metadata>
+    <Id>4372db21-bc39-456b-a911-4a4603464358</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザー入力のリダイレクトでマッピング値を使用する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>OWASP</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ユーザー入力に基づいたリダイレクトまたはフォワードを実行するにはマッピング値を使用します。</p>
+  <h1>理由</h1>
+  <p>リダイレクトとフォワードの実行にマッピング値を使用すると、悪意のあるユーザーが、リダイレクトまたはフォワードを使用して、アプリケーションの設計で意図された以外のページを指すハイパーリングを作成するのを防止できます。</p>
+  <h1>状況</h1>
+  <p>リダイレクトやフォワードを使用するウェブ アプリケーションを作成する際は本ガイドラインを使用します。 ウェブ アプリケーションでのリダイレクトやフォワードの使用は、可能な限り避けます。</p>
+  <h1>対策</h1>
+  <p>マッピング値に基づいたリダイレクトとフォワードの宛先を計算するために、次のアクションを実行します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>リダイレクトと転送を特定します。</strong> コードをレビューして、リダイレクトと転送をすべて見つけます。</p>
+      <li>
+        <p>
+          <strong>宛先を列挙します。</strong> リダイレクトとフォワードによって指示される宛先すべてのリストを作成します。</p>
+        <li>
+          <p>
+            <strong>マッピング値を定義します。</strong> リダイレクトと転送で使用されるすべての宛先にマッピング値を定義します。 マッピング値は、リソースを象徴的に表している、識別用の短い文字列です。</p>
+          <li>
+            <p>
+              <strong>リダイレクトとフォワードを書き直します。</strong> 入力としてマッピング値を使用して、リダイレクトまたは転送の最終的な宛先を計算するようにリダイレクトと転送を書き換えます。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次に、リダイレクトが安全ではないオンライン バンキング アプリケーションについて考えてみます。</p>
+ <pre>http://www.onlinebank.com/redirect.asp?url=[destination]</pre>
+  <p>フィッシング詐欺の実行者は、自分のサイトに向けた次のようなハイパーリンクを作成し、それをスパム メッセージを利用して、何百万という人々に送信します。</p>
+ <pre>http://www.onlinebank.com/redirect.asp?url=www.phisher.com</pre>
+  <p>ユーザーは、電子メールのメッセージの中に、自分の銀行 (onlinebank.com) を示していると思われるリンクを発見し、そのリンクをクリックします。そうすると、自分の銀行のサイトとまったく同じように見える Web サイトが表示されますが、実際は認証 Credential 情報を盗むために作成されたフィッシング Web サイトなのです。 ユーザーは、自分の口座番号と PIN をその Web ページに入力します。そうすると、エラー メッセージが表示され、再度入力するように指示されます。そして、銀行の本物のサイトにリダイレクトされます。 再度 Credential 情報を入力すると、ユーザーのアカウントが正常に表示されます。 ただし、フィッシング詐欺の実行者は、すでにこのユーザーのオンライン バンキング情報を手に入れているのです。</p>
+  <h1>ソリューションの例</h1>
+  <p>最も単純なソリューションはリダイレクトを完全に排除することですが、アプリケーションの設計上必要な場合は、この脆弱性を緩和するためにマッピング値が使用されます。 たとえば、balance.asp にリダイレクトするためにアプリケーションが redirect.asp を使用している場合、balance.asp を示すために「balance」と呼ばれるマッピング値を作成します。 次に、redirect.asp ページは URL ではなくマッピング値を入力として受け入れるように書き直します。 これで、次の URL は balance.asp にリダイレクトされます。</p>
+ <pre>http://www.onlinebank.com/redirect.asp?map=balance</pre>
+  <p>しかし、次の悪意のあるハイパーリンクはもう機能しません。この入力は、アプリケーションで定義されたどのマッピング値にも一致しないからです。</p>
+ <pre>http://www.onlinebank.com/redirect.asp?url=www.phisher.com</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>リダイレクトまたはフォワードの無効化に関する詳細は、次を参照してください。<a href="http://www.owasp.org/index.php/Top_10_2010-A10-Unvalidated_Redirects_and_Forwards">http://www.owasp.org/index.php/Top_10_2010-A10-Unvalidated_Redirects_and_Forwards</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/32c35abe-a470-4a9c-8bb6-54c1461d3295">URL リダイレクション攻撃</a>
+      <li>
+        <a href="/article/d4612e8e-78c6-444e-a252-45ab97616a0b">URL リダイレクション バグのテスト方法</a>
+        <li>
+          <a href="/article/c8ae222b-ed2e-4621-a46b-3671f82f5a03">フィッシング攻撃<br /></a>
+        </li>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

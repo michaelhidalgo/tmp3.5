@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-991188871" Content_Hash="429225135">
+  <Metadata>
+    <Id>ab7fc92b-43b2-4d8a-a0c0-369d8d6995d4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>代替データ ストリームのバグが ASP.NET 内にないかどうかテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<p>
+    <b>
+    </b>
+  </p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>NTFS ファイル システム内で実行されている ASP.NET アプリケーションは、データおよび実行可能プログラムの隠ぺいやASP アプリケーションのソース コードの盗難を目的とした、攻撃者によるファイル ストリームへのアクセスを可能にする、代替データ ストリーム (ADS) バグに対して脆弱な可能性があります。<span>&nbsp; </span></p>
+  <p>これらの手順に従ってASP.NETでのADSバグを検査することを推奨します｡</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する<li>ステップ 4: テスト ケース データを微調整する</li></li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 1: 攻撃のシナリオを理解する</span>
+  </h1>
+  <p>代替データストリームバグの検査方法を学習する最初の手順は､関連する様々な攻撃シナリオを理解することです:</p>
+  <ul>
+    <li>攻撃者のデータを隠す <li>アプリケーションのソース コードを漏えいする</li></li>
+  </ul>
+  <h2>
+    <span>
+      <em>シナリオ 1:<span> </span>攻撃者のデータを隠す</em>
+    </span>
+  </h2>
+  <p>ASP.NET アプリケーションでは、代替データ ストリーム (ADS) を含むファイルの作成は許可されていません。これは、この種類のファイルの作成はサポートされていないためです。<span>&nbsp; </span>ただし、ASP.NET アプリケーションでは、Win32 ダイナミック リンク ライブラリ (DLL) を呼び出してこのタスクを遂行することができます。<span>&nbsp;&nbsp; </span><span>&nbsp;</span>アプリケーションは作成する新規ファイルを指定し、また新規作成されたファイルにコンテンツを書き込むためにURLパラメータを使用する場合があります:</p>
+ <pre>
+    <span>http://some_site/example/createFile.aspx?filename=test.txt&contents=any</span>
+  </pre>
+  <p>Windows の <i>dir </i>コマンドを使用すると、作成されるファイルを確認できます。</p>
+ <pre>
+    <span>C:\user_files&gt;dir /r<br />&nbsp;<br />12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp; &lt;DIR&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; . <br />12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp; &lt;DIR&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ..<br />12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3 test.txt</span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>しかしながら、攻撃者は代替データ ストリームを使用して上の URL をエクスプロイトし、秘密の攻撃データを格納するためのファイルを作成できます。</p>
+ <pre>
+    <span>http://some_site/example/createFile?filename=test.txt:hidden.txt&contents=attack_data<span></span></span>
+  </pre>
+  <p>Windowsの<i>dir </i>コマンドは<i>test.txt.と表示するだけです｡<span>&nbsp; </span></i><span>&nbsp;</span></p>
+ <pre>C:\user_files&gt;dir<br />&nbsp;<br />12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp; &lt;DIR&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; . <br />12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp; &lt;DIR&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ..<br />12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3 test.txt</pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>ただし、再帰的なフラグを使用すると、ADS が存在するかどうかが hidden.txt という名前で表示されます。<i> </i></p>
+ <pre>
+    <span>C:\user_files&gt;<strong>dir /r</strong></span>
+    <span>&nbsp;</span>
+  </pre>
+ <pre>
+    <span>12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp; &lt;DIR&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; . <br />12/02/2008&nbsp; 01:08 PM&nbsp;&nbsp;&nbsp; &lt;DIR&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ..<br />12/02/2008&nbsp; 01:10 PM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 3 test.txt<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>11 test.txt:hidden.txt:$DATA</strong></span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>さらに、代替データ ストリームはメモ帳を使用して開くことができます。</p>
+ <pre>
+    <span>C:\user_files&gt;notepad test.txt:hidden.txt</span>
+  </pre>
+  <p>攻撃シナリオの詳細な手順は以下のとおりです。</p>
+  <ol>
+    <li>攻撃者は､アプリケーションが新規ファイルを作成するためにクライアントが供給した入力を使用するアプリケーションの機能を見つけます｡<li>攻撃者は､代替データストリームファイルのファイル名を渡してADS隠しストリームを作成します｡<li>攻撃者は ADS 隠しストリームにデータを書き込みます。</li></li></li>
+  </ol>
+  <h2>
+    <span>
+      <em>
+      </em>
+    </span>&nbsp;</h2>
+  <h2>
+    <span>
+      <em>シナリオ 2: アプリケーションのソース コードを漏えいする</em>
+    </span>
+  </h2>
+  <p>古いバージョンの Windows で稼働し、かつインターネット インフォメーション サービス (IIS) でホストされている ASP.NET アプリケーションは、ソース コードの開示に対して脆弱です。<span>&nbsp; </span>攻撃者は､WindowsがすべてのNTFSファイルに作成する、<i>Windows:DATA</i>代替データストリーム(ADS)を使用してアプリケーションのソースコードにアクセスできます｡</p>
+  <p>古いバージョンの IIS では <i>:$DATA</i> 代替データ ストリームへの直接アクセスを防止できないため、攻撃が可能になります。<span>&nbsp; </span>例えば､IISはURLからアクセスされた<i>.asp</i>拡張子付きのファイルを正しく防止しました:</p>
+ <pre>
+    <span>http://some_site/default.asp</span>
+  </pre>
+  <p>しかしながら、攻撃者が <i>:$DATA</i> ADS を使用して、ソース コード ファイルのコンテンツにアクセスすることは許可しています。</p>
+ <pre>http://some_site/<strong>default.asp<span>::$DATA</span></strong></pre>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 2：原因と対抗手段を分析する</span>
+  </h1>
+  <p>ADS 攻撃かどうかをテストする方法を学習するうえでの次のステップは、異なる攻撃の種類の原因とその防御方法を理解することです。<span>&nbsp; </span>この知識は､コード化されたADSバグを識別し、必要なテストケースの実施を準備するために役立ちます｡</p>
+  <p>&nbsp;</p>
+  <h2>
+    <em>クライアントによる入力の検証とサニタイズ</em>
+  </h2>
+  <p>1 つ目のシナリオは、アプリケーションでクライアントから提供された入力をファイル名に使用して新規ファイルを作成するもので、明らかに不適切な入力検証と無害化が行われているケースです。<span>&nbsp; </span>上記のケースでは、ASP.NET アプリケーションで、入力がファイル名に使用できる安全なものかどうかのチェックを行わずに、テキスト ファイルの作成に URL パラメータが直接使用されます。<span>&nbsp;&nbsp; </span>コードが適切な入力検証を行っていませんので､アプリケーションは攻撃者が攻撃データを隠すために代替データストリームを作成できるようにしています｡</p>
+  <p>この攻撃の種類を防御するには、新規ファイルの作成に使用するすべてのパラメータを、<i>ホワイト リスト</i> アプローチを使用して検証することが推奨されます。<span>&nbsp;&nbsp;&nbsp; </span>ホワイト リストは、新規ファイルの作成時に使用されるすべての許可ファイル名およびコンストラクトから構成され、正規表現または文字列一致関数として実装することができます。<span>&nbsp;&nbsp; </span>アプリケーションで、ファイルを作成する前に、ファイル作成に使用するパラメータがホワイト リストに含まれているか、または一致するかどうかをチェックする必要があります。<span>&nbsp; </span>ホワイト リストに含まれていないパラメータや一致しないパラメータは拒否する必要があります。<span>&nbsp; </span></p>
+  <p>
+    <b>&nbsp;</b>
+  </p>
+  <h2>
+    <em>NT IIS バージョン</em>
+  </h2>
+  <p>上記のソース コード開示のシナリオは、NT 4.0、95、および 98 などの古いバージョンの Windows 内にある NT IIS バグが原因となって引き起こされます。<span>&nbsp; </span>この種類を防御するには、管理者は Microsoft の適切なパッチをインストールするか、または Windows および IIS を最新バージョンに更新する必要があります。<span>&nbsp;&nbsp; </span>脆弱な Windows バージョン、およびパッチのダウンロード ページの詳細については、Security Focus の発生事案ページ (<a href="http://www.securityfocus.com/bid/149">http://www.securityfocus.com/bid/149</a>) を参照してください。</p>
+  <p>
+    <b>&nbsp;</b>
+  </p>
+  <h1>
+    <span>ステップ 3：テスト ケースを実行する</span>
+  </h1>
+  <p>ASPおよびASP.NETでのADSバグの理論面を検討しましたので､適切なテストケースを実施してアプリケーションが危険にさらされているかチェックする必要があります｡</p>
+  <h2>
+    <span>
+      <em>攻撃データを隠すことで発生する ADS バグのテスト</em>
+    </span>
+  </h2>
+  <p>以下の手順を実行します。</p>
+  <ol>
+    <li>クライアントによる入力を使用して、ファイルの作成とファイルへの書き込みを行うアプリケーションの機能を見つけます。<li>入力として、ADS ストリームを含むファイル名 (<i>test.txt:hidden.txt</i> など) をアプリケーションに提供します。 <li>dir /r を実行して、ADS を使用してアプリケーションでファイルが作成されたかどうかを確認します。<i> </i></li></li></li>
+  </ol>
+  <p>予想される結果：<span>&nbsp; </span>アプリケーションで、クライアントによって提供された入力からの代替データ ストリームの作成が可能な場合、アプリケーションに脆弱性があります。</p>
+  <p>&nbsp;</p>
+  <h2>
+    <span>
+      <em>ADS ソース コード漏えいバグのテスト</em>
+    </span>
+  </h2>
+  <p>以下の手順を実行します。</p>
+  <ol>
+    <li>Web ブラウザーを開きます。<li>一般的なURLを供給してASPのページへナビゲートしてください:<ul><li><pre><span>http://some_site/default.asp</span></pre></li></ul><li>ASPファイルのWindows:DATAストリームにアクセスを試みるURLをアドレスバーに入力してください:<ul><li><pre><span>http://some_site/default.asp::%DATA</span></pre></li></ul><li>ブラウザが<i>default.asp.のソースコードを表示するか確認してください｡</i></li></li></li></li>
+  </ol>
+  <p>予想される結果：<span>&nbsp; </span><i>default.asp に収められているソース コードが開示される場合、アプリケーションに脆弱性があります。</i></p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>ステップ 4：テスト ケース データを微調整する</span>
+  </h1>
+  <p>最後に、テスト ケース データを修正して、異なる URL エンコーディングおよびダブル エンコーディングのシナリオを可能にすることが推奨されます。<span>&nbsp;&nbsp; </span>コロン (:) など、ADS の追加挿入に必要な文字には、ASCII の書式ではアプリケーションによって拒否されますが、その他のエンコーディングでは許可されるものがあります。<span>&nbsp;&nbsp; </span>攻撃ストリームに対して、以下を含むさまざまなエンコーディングを試してみます。</p>
+  <p>&nbsp;<span><table><tbody><tr><td><p><span><strong>テスト事例データ</strong></span></p></td><td><p><span><strong>エンコードされたテスト事例データ</strong></span></p></td><td><p><span><strong>エンコーディング</strong></span></p></td></tr><tr><td><span>test.txt:hidden.txt</span></td><td><p><span>test.txt%3Ahidden.txt</span></p></td><td><p><span>Hex/URL エンコーディング</span></p></td></tr><tr><td><span>test.txt:hidden.txt</span></td><td><p><span>test.txt%253Ahidden.txt</span></p></td><td><p><span>ダブル･エンコーディング</span></p></td></tr><tr><td><span>default.asp::%DATA</span></td><td><p><span>default.asp</span><span>%3A%3A%25</span><span> DATA</span></p></td><td><p><span>Hex/URL エンコーディング</span></p></td></tr><tr><td><span>default.asp::%DATA</span></td><td><p><span>default.asp</span><span>%253A%253A%2525</span><span>DATA</span></p></td><td><p><span>ダブル･エンコーディング</span></p></td></tr></tbody></table></span></p>
+  <p />
+  <span>
+    <p>
+      <span>
+      </span>
+    </p>
+  </span>追加のエンコーディング / デコーディング スキームが使用される場合もありますのでご注意ください。<span>&nbsp; </span>テストケースのデータを適切に微調整するために、アプリケーションが使用する具体的なエンコーディングスキームを常に調査することは有効です｡<p /><p><b><i><span>&nbsp;</span></i></b></p><h1><span>結論</span></h1><p>代替データ ストリーム バグは、NTFS で稼働するアプリケーションに影響し、攻撃者による攻撃データの隠ぺいやアプリケーションのソース データの開示を可能にする可能性があります。<span>&nbsp; </span>ADS バグがないかどうかテストするには、実行される攻撃シナリオ、およびその原因と防御方法の理解から始めることが推奨されます。<span>&nbsp; </span>次いで、攻撃データの隠ぺいやアプリケーションのソース コードへのアクセスを狙いとして、代替データ ストリームを含む入力を送信することで、必要なテスト ケースを実行しなければいけません。<span>&nbsp;&nbsp; </span>最後に､追加のエンコーディングシナリオにも対処できるようにテストケースを微調整する必要があります｡</p><p><b>&nbsp;</b></p>]]></Data>
+  </Content>
+</TeamMentor_Article>

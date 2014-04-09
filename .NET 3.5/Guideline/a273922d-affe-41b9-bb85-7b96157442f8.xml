@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1787855332" Content_Hash="-1558692763">
+  <Metadata>
+    <Id>a273922d-affe-41b9-bb85-7b96157442f8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>AfterReceiveRequest メソッドを実装して受信メッセージをサービス上で検証する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>受信メッセージのサービスについて検証を行う必要がある場合は、メッセージ インスペクターのインターフェイスである IDispatchMessageInspector の AfterReceiveRequest を実装します。</p>
+  <h1>理由</h1>
+  <p>こうすることで、クライアント要求が到着した後、およびサービス運用の呼び出しおよびデシリアライズの前に、メッセージの検証が行われます。</p>
+  <h1>状況</h1>
+  <p>メッセージを検証したい場合は、メッセージがクライアントによって受信されたときに受信メッセージの検証が必要となります。サービス内での運用の呼び出し前に検証が行われます。 </p>
+  <h1>対策</h1>
+  <p>入力データの検証は、お使いの WCF アプリケーションを保護するうえで 1 つの防御ラインとなります。 WCF サービスの運用で公開された全パラメータを検証して、悪意のあるクライアントによる攻撃から サービスを保護してください。</p>
+  <p>次の例に、AfterReceiveRequest メソッドを実装する方法を示します。</p>
+ <pre>object IDispatchMessageInspector.AfterReceiveRequest(ref System.ServiceModel.Channels.Message request, System.ServiceModel.IClientChannel channel, System.ServiceModel.InstanceContext instanceContext)<br />{<br />    try<br />    {<br />        validateMessage(ref request);<br />    }      <br />    catch (FaultException e)<br />    {<br />        throw new FaultException&lt;string&gt;(e.Message);<br />    }<br />    return null;<br /><br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733104.aspx">http://msdn2.microsoft.com/en-us/library/ms733104.aspx にある 「ハウツー: サービスのメッセージを検査し修正する」 を参照してください。</a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733747.aspx">http://msdn2.microsoft.com/en-us/library/ms733747.aspx にある「ハウツー: パラメータを検査し修正する」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

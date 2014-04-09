@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-685111845" Content_Hash="-1379174866">
+  <Metadata>
+    <Id>9c7ebe5e-6f53-4b79-8692-d8965d1c6e0c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構成ファイルの構成データを暗号化する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>ASP.NET アプリケーションで、Web.config ファイルに機微データを保存する場合、ASP.NET IIS 登録ツール(Aspnet_regiis.exe) を使用して、DPAPI または RSA 暗号化を使用することにより構成ファイルを暗号化することができます。 このツールは、.NET Framework の保護された構成プロバイダーを使用します。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Web ファームでは、RSA 暗号化をすると暗号鍵をエクスポートしやすいので RSA 暗号化の使用をお勧めします。<b></b></blockquote>
+  <p>Windows アプリケーションの構成ファイルにはデータを暗号化するツールがありません。 そこで、次のコード例に表示されるように、保護された構成 API を使用する必要があります。 この例では、DPAPI 保護構成プロバイダーを使用することによりアプリケーションの App.config ファイルの <b> connectionStrings</b> のセクションを暗号化します。 </p>
+ <pre>Using System.Configuration;<br />ExeConfigurationFileMap filemap = new ExeConfigurationFileMap();<br />filemap.ExeConfigFilename = @"c:\Samples\SampleApp\App.config";<br />Configuration testConfig = ConfigurationManager.OpenMappedExeConfiguration(<br />                                     filemap, ConfigurationUserLevel.None);<br />ConfigurationSection configSection = testConfig.GetSection(<br />                                                "connectionStrings");<br />if (configSection.SectionInformation.IsProtected)<br />    configSection.SectionInformation.UnprotectSection();<br />else<br />    // This example uses the DPAPI protected configuration provider<br />    configSection.SectionInformation.ProtectSection(<br />                                    "DataProtectionConfigurationProvider");<br />testConfig.Save();</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

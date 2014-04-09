@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-562146809" Content_Hash="-2004910152">
+  <Metadata>
+    <Id>cc96ef03-62f7-4cd2-a108-dc7f942dbd0d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>X509 証明書を使用して XML データを暗号化する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>デジタル証明書を使用している場合、<b>System.Security.Cryptography.X509Certificates</b> ネームスペースにあるX.509 証明書サポートを使って XML データを暗号化することができます。 </p>
+  <p>X.509 証明書を使用するには、証明書格納にアクセスして<b>EncryptedXml</b> クラスの新しいインスタンスを作成し、その <b>Encrypt</b> （暗号化）メソッドを呼び出して証明書を渡します。 そして最後に XML エレメントの平文を <b>EncrytedData</b> （暗号化データ）エレメントで置き換えます。 </p>
+  <p>データの復号化を可能にするためには、X.509 証明書の公開鍵に関連した私有鍵を保有している必要があります。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

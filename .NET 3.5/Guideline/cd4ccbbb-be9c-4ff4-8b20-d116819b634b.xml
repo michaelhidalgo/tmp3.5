@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2052918912" Content_Hash="-58942218">
+  <Metadata>
+    <Id>cd4ccbbb-be9c-4ff4-8b20-d116819b634b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュアな鍵格納場所を使用する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーション鍵は、アプリケーションのweb.configの暗号化されたセクション、Windows レジストリ内に暗号化されるなど、確実に定義された場所に保存されなければなりません。 ハードコーディングや、構成ファイル内にプレーンテキストとして保存しないでください。</p>
+  <h1>理由</h1>
+  <p>侵入者は、暗号化で防御された場合、最も脆弱な面である鍵管理を攻撃します。 鍵は機微データを保護する暗号の生成に使用されるため、鍵自体が、保護を必要とする機微なデータになります。 </p>
+  <h1>状況</h1>
+  <p>アプリケーションが暗号化および暗号鍵を使用する場合。</p>
+  <h1>対策</h1>
+  <p>鍵ストレージの位置を検討する際はこれら手順に従ってください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>鍵ストアが必要であるかどうかを判断します。</strong> アプリケーションは機微データを暗号化および復号化する際にのみ鍵ストアを使用しなければなりません。 鍵ストアの使用を必要とする典型的なコンポーネントには次が含まれます:</p>
+      <ul>
+        <li>機微データを他のシステムと交換するために使用される暗号鍵の保存。<li>他のシステムに認証するために使用される鍵または証明書の保存｡<li>文書に署名するために使用される鍵の保存。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>暗号鍵を処理する適切なメカニズムを選択してください｡</strong> アプリケーションの暗号鍵を処理する適切なメカニズムを慎重に選択してください。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>Windowsレジストリ</strong>:アプリケーションの暗号鍵をWindowsレジストリに保存する場合､ProtectDataクラスを通じて利用できるDPAPIが保護するために使用されるか確認してください｡ 例: </p>
+ <pre>encKey = ProtectedData.Protect(encKey, salt, DataProtectionScope.CurrentUser);<br />RegistryKey rk = Registry.LocalMachine.OpenSubKey("SOFTWARE\\MyApp\\KeyStore", true);<br />rk.SetValue("encKey", wBuff, RegistryValueKind.Binary);</pre>
+            <li>
+              <p>
+                <strong>web.config</strong>:アプリケーションの暗号鍵をweb.configに保存する場合、<strong>appSettings</strong>セクションに保存されるか確認してください｡ さらに、<strong>appSettings</strong>セクションが暗号化されているか確認するために<strong>aspnet_regiis</strong>ユーティリティを使用してください。 例: </p>
+ <pre>aspnet_regiis -pe "appSettings" -app "/&lt; your application's name &gt;"<br />  -prov "DataProtectionConfigurationProvider"</pre>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>鍵ストアを保護します。</strong>
+          </p>
+          <ul>
+            <li>
+              <strong>適切なアクセス許可を設定します</strong>。アプリケーションとその管理者のみが構成ファイルにアクセスできるように適切なファイルシステムのアクセス許可を適用します。 <li><strong>IIS メタベース</strong>: IIS メタベースに対し、必要なユーザーのアクセスのみを許可します。 これらのユーザーは管理者およびASP.NETアカウントのみでなければなりません。 詳細は<a href="http://support.microsoft.com/kb/326902">Microsoftのサポート技術情報記事 326902</a>を参照してください。</li></li>
+          </ul>
+          <li>
+            <p>
+              <strong>一般的なミスを避けます。</strong>
+            </p>
+            <ul>
+              <li>
+                <strong>鍵をアプリケーションにハードコードしないでください</strong>。暗号化鍵をソース コード内にハードコードするというのは、攻撃者がアプリケーションをリバース エンジニアリングしないことを期待するという、隠蔽によるセキュリティでしかありません。 決意の固い攻撃者は通常そのようなメカニズムを打ち負かす方法を見つけます｡ <li><strong>構成ファイルに鍵を設定しない</strong>: 暗号鍵を難読化してそれらを web.config ファイル以外の構成ファイルに設定することは、難解性を利用したセキュリティです。 決意の固い攻撃者は通常そのようなメカニズムを打ち負かす方法を見つけます｡ <li><strong>鍵を使用後にメモリから消去します</strong>。暗号化鍵を最後に使用した後でメモリに残したままにすると、オペレーティング システムによって暗号化鍵がメモリからハード ドライブにページングできる状態になってしまいます。 決意の固い攻撃者は、オペレーティングシステムのページファイルから暗号鍵を取得する方法を見つけることができます。</li></li></li>
+            </ul>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードでは、アプリケーション内にハードコードされた暗号化鍵を示しています。 攻撃者は、その気になれば、ソース コードにアクセスして鍵を侵害できます。</p>
+ <pre>byte&amp;#91;&amp;#93;salt = MyApp.Crypto.GenerateSalt();string secretString = "application's encryption key";<br />HMACSHA512 md = new HMACSHA512(salt);md.Initialize();<br />byte&amp;#91;&amp;#93;rawKey = md.ComputeHash(Encoding.ASCII.GetBytes(secretString));md.Clear();<br />Rijndael encMD = Rijndael.Create();encMD.Key = rawKey;<br />encMD.IV = salt;ICryptoTransform encCT = encMD.CreateEncryptor();</pre>
+  <h1>ソリューションの例</h1>
+  <p>以下のコードは暗号鍵を安全に保存するアプリケーションを示しています｡ 鍵は Windows レジストリに格納されて ASP.NET の DPAPI 暗号鍵により保護されるため、攻撃者は ASP.NET ローカル システム アカウントに関連するパスワードを取得することなく実際の鍵を盗むことはできません。</p>
+ <pre>byte&amp;#91;&amp;#93;salt = MyApp.Crypto.GenerateSalt(); <br />RegistryKey regKey = Registry.LocalMachine.OpenSubKey("SOFTWARE\\MyApp\\KeyStore", true);<br />byte&amp;#91;&amp;#93;rawKey = (byte&amp;#91;&amp;#93;)regKey.GetValue("encKey", null);<br />rawKey = ProtectedData.Unprotect(rawKey, salt, DataProtectionScope.CurrentUser); <br />Rijndael encMD = Rijndael.Create();<br />encMD.Key = rawKey;encMD.IV = salt;<br />ICryptoTransform encCT = encMD.CreateEncryptor();</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メタベースへのアクセスの制限に関する詳細については、<a href="http://support.microsoft.com/kb/326902">KB 326902 を参照してください。</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/c6f3e32d-57b8-44cf-818a-c346d0014c06">ガイドライン: プレーンテキストの機微データを格納しない</a>
+      <li>
+        <a href="/article/23c21386-b64a-4872-8727-714977ba84a4">ガイドライン: 使用しなくなった機微データはメモリーから消去する</a>
+        <li>
+          <a href="/article/faada3f5-3f50-42fc-b863-5058e3d848cb">ガイドライン：構成ファイル内の機微データを保護する</a>
+          <li>
+            <a href="/article/29e3d723-354f-4d82-ac7b-b004dc759c2f">攻撃: 選択平文攻撃</a>
+            <li>
+              <a href="/article/350d9e10-d3d2-4e15-af89-f6ea84c01320">攻撃: 鍵の総当たり攻撃</a>
+              <li>
+                <a href="/article/6223be91-b703-41cb-83db-ceb4afb98c78">攻撃: 弱い鍵ストア保護攻撃</a>
+                <li>
+                  <a href="/article/340f0d7d-6226-4948-9934-84a07b3064bf">攻撃: 選択暗号文攻撃</a>
+                  <li>
+                    <a href="/article/f45de1f9-3801-4677-966e-433241bfdd91">チェックリスト アイテム: 安全な鍵格納場所が使用されている</a>
+                    <hr />
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

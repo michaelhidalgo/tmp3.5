@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1089686936" Content_Hash="-1840552903">
+  <Metadata>
+    <Id>59fc326e-fdd7-4c2a-a116-66a807f56535</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションをセキュアに展開する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アプリケーションを展開する際、セキュリティ開発レビューを実行し、不適切な設定によって生じる可能性のあるセキュリティ脆弱性を特定します。 接続文字列を必ず暗号化してください。保護された構成を使用してください。 アカウント Credential 情報等の機微データが含まれている可能性のあるその他の構成ファイルエレメントを確認し、機微データが含まれている場合はそのセクションを必ず暗号化してください。 トレースとデバッグを必ず無効してください。 アプリケーションがデータベースへアクセスする場合は、必ずデータベースには制限付きアクセス許可のあるログインをするようにしてください。 アプリケーションで ActiveDirectoryMembershipProvider クラスを使用している場合、その構成セクションに接続 Credential 情報が含まれている場合は接続セクションを暗号化してください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

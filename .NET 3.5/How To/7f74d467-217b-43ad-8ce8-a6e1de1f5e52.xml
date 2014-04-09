@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1468274302" Content_Hash="-1251128499">
+  <Metadata>
+    <Id>7f74d467-217b-43ad-8ce8-a6e1de1f5e52</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>DPAPI を使用して機微データを保護する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>DPAPI を使って構成ファイル内の機微データを暗号化するには、 <b>DataProtectionConfigurationProvider </b> クラスを使用します。 ASP.NET Web.config ファイルの DPAPIで機微データを暗号化するには、Aspnet_regiis.exeを使用します。 Windows アプリケーションでは、保護された構成 API を使用します。 </p>
+  <p>レジストリなど他の場所でデータを暗号化するのにDPAPIを使用するには、<b>ProtectedData</b> クラスを使用します。 </p>
+ <pre>using System.Security.Cryptography;<br />// Define an entropy value (use of entropy is optional).<br />byte[] entropy = new byte[] { 0x23, 0x06, 0x08, 0x09, 0x22, 0x03, 0x25 };<br />// Get the original data in a byte array.<br />byte[] toEncrypt = UnicodeEncoding.ASCII.GetBytes(<br />                   "The secret data to be encrypted");<br />// Encrypt the data by the using ProtectedData class. This example uses<br />// the local machine key store.<br />byte[] encryptedData = ProtectedData.Protect(toEncrypt, entropy,<br />                       DataProtectionScope.LocalMachine);</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

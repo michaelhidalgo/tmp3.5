@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2067316452" Content_Hash="1933175556">
+  <Metadata>
+    <Id>8e0aea9c-322b-4b3f-9c61-a670c1fcd3e3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Page.ViewStateUserKey を使用してクロスサイト リクエスト フォージェリ攻撃に対抗する</Title>
+    <Category>パラメータ操作</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ユーザーごとに Page.ViewStateUserKey の値を一意に設定します。</p>
+  <h1>理由</h1>
+  <p>
+    <strong>ViewState </strong> は、本来HTTP フォームの一部としてポストバックされないサーバ制御状態の値を追跡するために、ASP.NET によって使用されるメカニズムです。 それは ASP.NET ページ フレームワークによって管理される Hidden フィールドであり、ページ上の制御値のエンコードされた集合体です。 表示ステータスは、ASP.NET ではデフォルトで有効になっており、config ファイルで<strong>EnableViewState</strong> プロパティを 'false' または 'true' に設定することにより、マシン、アプリケーション、ページおよび制御レベルで無効化または再有効化することができます。</p>
+  <p>デフォルトでは、特定のユーザーにそのコンテンツを結びつけるものは表示ステータスに何もありません。 攻撃者は得た表示ステータスを簡単に再利用することが可能で、別のユーザーに代わって偽の要求を構築するためにページへ合法的にアクセスします。 <strong>ViewStateUserKey</strong> が有用であるゆえんです。</p>
+  <p><strong>ViewStateUserKey</strong> プロパティはユーザー個別の情報を表示ステータスに追加します。 <strong>Page_Init</strong> イベント ハンドラ内にページの <strong>ViewStateUserKey</strong> プロパティを設定することは、提出されたあらゆるフォーム情報が元のページを要求したのと同じユーザーに由来していることを確認することにより、クロスサイト リクエスト フォージェリ攻撃を防ぐのに役立ちます。 <strong>ViewState</strong> 変数のコンテンツを個別のユーザーに関連付けることで、悪意のあるユーザーが攻撃を仕掛けるために変数を使えなくなります。</p>
+  <p>これは、攻撃者が別のユーザーのコンテキスト内でViewState を使用しようとするか、さもなければフォーム データを別のユーザーであるかのようにポストしようとする、 <a href="/article/6ae71499-095c-49bd-bed0-4e08303a4324">クロスサイト リクエスト フォージェリ</a> 攻撃を防ぎます<strong> </strong>。 これらの攻撃は、ワンクリック攻撃とも呼ばれています。</p>
+  <h1>状況</h1>
+  <p><strong>ViewStateUserKey </strong> プロパティは、ユーザーが特定のアクションを承認する必要なしに、認証または信頼されたユーザーからのアプリケーションの状態を変更する入力を Web アプリケーションが受け付ける場合に使用されるべきです。 アプリケーションの状態を変更するアクションは、データベースの内容を変更する、ユーザー アカウントの状態を変更する、他のシステムにデータを送信することなどが含まれますが、これらに限定されません。このような Web アプリケーションは、単に情報を提供するものよりもリスクが高いので、ユーザーが悪意を持って状態を変更することが不可能であることを確認するために、<strong>ViewStateUserKey</strong> を使用する必要があります。 </p>
+    <strong>ViewStateUserKey </strong> プロパティは、ユーザーが特定のアクションを承認する必要なしに、認証または信頼されたユーザーからのアプリケーションの状態を変更する入力を Web アプリケーションが受け付ける場合に使用されるべきです。 アプリケーションの状態を変更するアクションは、データベースの内容を変更する、ユーザー アカウントの状態を変更する、他のシステムにデータを送信することなどが含まれますが、これらに限定されません。このような Web アプリケーションは、単に情報を提供するものよりもリスクが高いので、ユーザーが悪意を持って状態を変更することが不可能であることを確認するために、<strong>ViewStateUserKey</strong> を使用する必要があります。 </p>
+  <h1>対策</h1>
+  <p><strong>ViewStateUserKey</strong> プロパティを、ユーザー名やユーザー ID、または次に示すセッション ID のような一意であることが分かっている値をユーザーごとに設定します。</p>
+ <pre>void Page_Init (object sender, EventArgs e)&amp;#123;   ViewStateUserKey = Session.SessionID;&amp;#125;</pre>
+  <p>予測できない、タイムアウトする、そしてユーザーごとに変化するセッション ID は、特に優れています。</p>
+  <h1>問題の例</h1>
+  <p>Web アプリケーションは、Page_Init イベント ハンドラ内で<strong>ViewStateUserKey</strong> プロパティを設定しません。 ユーザーが 1 回の要求でアプリケーションの状態を変更することをこのアプリケーションが許可する場合は、クロスサイト リクエスト フォージェリ（CSRF）攻撃を受ける可能性があります。 </p>
+  <p>例えば、ログインした管理者が単一の GET 要求を送信する新規ユーザーの作成を許可するような Web アプリケーションは検討します。</p>
+  <p>GET リクエストは次のようになります。</p>
+ <pre>GET http://teammentorexample.com/adduser.aspx?username=joe&amp;password=1234&amp;usertype=user HTTP/1.1</pre>
+  <p>攻撃者は、この要求が新規ユーザーを作成することをかぎつけ、自分の要求を作成してそれを次のイメージ タグで電子メールに埋め込みます：</p>
+ <pre>&lt;img src=&amp;#8221; http://teammentorexample.com/adduser.aspx?username=HACKER&amp;password=TEST&amp;usertype=admin&amp;#8221; /&gt;</pre>
+  <p>被害者の犠牲者（この場合は管理者）の電子メールクライアントが上記ソースにある画像をダウンロードしようと試行するとき、要求は犠牲者が知らないまま行われます。 </p>
+  <p>Webページには、すでにViewState データが入った__VIEWSTATE という名のHidden フィールドが含まれます。 ViewStateは、攻撃者が前もってアプリケーションに作成した有効な要求から再使用されます。 ViewState のコンテンツは、サーバ上ではチェックされないか、あるいはタンパリングに照らしてのみチェックされます。攻撃者は、疑いを持たないユーザーに悪意のある URL を含む電子メールを開くよう誘惑し、ViewState が有効であるサーバに要求が送信されるように仕向けます。 サーバは、攻撃者からのViewStateであることがまったく分かりません。 ViewState が有効であり、被害を受けるユーザーのセキュリティ コンテキストでページが実行されるため、ViewState検証はこの種の攻撃の対策になりません。</p>
+  <h1>ソリューションの例</h1>
+  <p>Web アプリケーションは、次のように Page_Init イベント ハンドラに ViewStateUserKey プロパティを正しく設定します：</p>
+ <pre>void Page_Init (object sender, EventArgs e)&amp;#123;   ViewStateUserKey = m_username;&amp;#125;</pre>
+  <p>ここで、攻撃者が すでに ViewState データで満ちた __VIEWSTATE という Hidden フィールドを含む Web ページを作成し、疑いを持たないユーザーをページの閲覧に誘い込むとき、サーバは、ViewState が犠牲者に属しておらず攻撃者から発信されたものであることを知っており、攻撃は成功しません。 </p>
+  <p>たとえば、攻撃者が画像タグ</p>
+ <pre>&lt;img src=&amp;#8221;http://teammentorexample.com/adduser.aspx?username=HACKER&amp;password=TEST&amp;usertype=admin&amp;#8221; /&gt;</pre>
+  <p>を含む画像を犠牲者（管理者）に電子メールし、犠牲者の知らない内に "add user" 要求がなされると、その要求がログインしたユーザーから来ているかのように見えるが属していないことを検出するため、サーバは要求を拒否します。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ViewState の詳細については以下を参照してください: <a href="http://msdn2.microsoft.com/en-us/library/ms972427.aspx">Taking a Bite Out of ASP.NET ViewState（ASP.NET の ViewState 早わかり）</a>、<a href="http://www.aspnetresources.com/articles/ViewState.aspx">ASP.NET State Management: 表示ステータス（ASP.NET の状態管理：表示ステータス）</a>、および <a href="http://www.asp101.com/lessons/viewstate.asp">Form Viewstate（ViewState の形成）</a>。<li>ASP.NET のセキュリティ機能の詳細については、以下を参照してください: <a href="http://msdn2.microsoft.com/en-us/library/ms972969.aspx">Take Advantage of ASP.NET Built-in Features to Fend Off Web Attacks（Web攻撃をかわすために ASP.NET 内蔵機能を利用する）</a>。<li>ASP.NETのViewStateUserKey プロパティの詳細については、MSDNの<a href="http://msdn2.microsoft.com/en-us/library/system.web.ui.page.viewstateuserkey.aspx">Page.ViewStateUserKey</a> に関する文書をご覧ください。</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

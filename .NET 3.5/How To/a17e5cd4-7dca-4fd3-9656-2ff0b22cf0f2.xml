@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="466910996" Content_Hash="-338994787">
+  <Metadata>
+    <Id>a17e5cd4-7dca-4fd3-9656-2ff0b22cf0f2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows 認証 を使用せずに元の呼び出し元を偽装する方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>証明書認証またはユーザー名認証のような非 Windows 認証を使用しているとき、元の呼び出し元 (Windows アカウントがある場合) またはサービス アカウントを偽装する必要がある場合、次の 2 つのオプションがあります</p>
+  <ol>
+    <li>S4U Kerberos 拡張子の使用。このためには、プロセス アカウントに「オペレーション システムの一部として機能する」ユーザー権利を付与する必要があります。<li> <strong>LogonUser </strong> windows API の使用。これには、WCF サービスでのユーザー Credential 情報維持のセキュリティのリスクが増えますが、ユーザー Credential 情報 (ユーザー名とパスワード) へのアクセスが必要です。</li></li>
+  </ol>
+  <p>
+    <strong>注意</strong>: S4U Kerberos 拡張子はWeb サーバの信頼済みコンピューティング ベース(TCB)内にプロセスを置きます、これにより Web サーバ プロセスの特権は非常に高まります。 何らかの方法でコードを挿入しWeb アプリケーションをコンプロマイズさせた攻撃者はローカル コンピュータ上で無制限な能力を得ることになるので、できる限りこの権限を与えないようにしてください。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>偽装と委任のQ&A については、<a href="http://www.codeplex.com/WCFSecurityGuide">http://www.codeplex.com/WCFSecurityGuide にある「WCF 3.5 質疑応答」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

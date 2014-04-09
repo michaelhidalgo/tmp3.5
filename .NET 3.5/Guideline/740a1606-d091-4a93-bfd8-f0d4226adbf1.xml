@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="235563839" Content_Hash="-685556687">
+  <Metadata>
+    <Id>740a1606-d091-4a93-bfd8-f0d4226adbf1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>重要な機能の実行時に再認証を強制する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>パスワード変更、アカウント編集、重要なトランザクションなどといったセキュリティ クリティカルな機能を実行する時、ユーザーに再認証を行うことを要求します。</p>
+  <h1>理由</h1>
+  <p>ユーザーが再認証するように強制することは、特定機能を実行するというユーザーの決定を確認し、セッション ハイジャックを介してユーザーのアカウントが危険にさらされた場合に、アプリケーションの完全性を保護します。</p>
+  <h1>状況</h1>
+  <p>セキュリティが重要になる機能の実行時に再認証を強制します。</p>
+  <h1>対策</h1>
+  <p>再認証を強制する際には、以下の手順に従います。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>重要な機能の特定:</strong> アプリケーションの設計および要件を評価し、組織のビジネス モデルまたはアプリケーションのセキュリティ アーキテクチャにとって極めて重要な、アプリケーションのパートおよびリソースを決定してください。 これには、金融取引やユーザー パスワードのリセットなどのアクティビティが含まれることがあります。 アプリケーションによって、コードにおけるこれらの点で再認証を実行させる必要があります。 </p>
+      <li>
+        <p>
+          <strong>再認証メカニズムの導入:</strong> ユーザーに認証を確認するよう求めるメカニズムを確立してください。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>現在のパスワード:</strong> ユーザーは現在のパスワードを使用して ID を確します。 このテクニックは、そのユーザーが実行するアクション、およびそれを実行する責任を持つことを認識するように保証します。 </p>
+            <li>
+              <p>
+                <strong>CAPTCHA:</strong> CAPTCHA は、自動スクリプトではなく人間がシステムを使用していることを確認するよう設計されたメカニズムです。 CAPTCHA の使用は、このような状況でパスワードの代わりとなる方法ではなく、それを補強する方法の 1 つとして見なす必要があります。 多くの CAPTCHA システムは、変形させた文字や数字を表示される画像に埋め込み、ユーザーはそれを入力する必要があります。 多くの CAPTCHA システムにはいくつかの問題あるため、それには大きく頼らない必要があります。 まず、多くのグラフィカル CAPTCHA は光学文字認識システムによって簡単に解読され、実際のユーザーの失敗率を高くせずに、確実に CAPTCHA を十分に強力にすることは困難です。 CAPTCHA が再使用される場合、攻撃者は単に既知の値を持つ CAPTCHA のセッション ID を記録し、それらを再現することができます。 CAPTCHA は、画像が保存されて攻撃者が管理する別のサイトに転送されるという中間者手法を使用して破られる可能性があります。 疑いを持たないそのサイトのユーザーが CAPTCHA を解き、攻撃者が答えを被害サイトに転送します。 CAPTCHA は、ユーザーにアクセシビリティの問題も生じさせます。盲目の個人、およびときには色覚異常の個人ですら解決が不可能であると感じる場合があります。 CAPTCHA の実装を選択する場合、関与するトレードオフについて認識し、予期される攻撃に対してご使用のシステムが適切に保護されることを確認してください。</p>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>再認証メカニズムの実施:</strong> 重要な機能が特定され、再認証メカニズムが確立されたら、コード内の適切な場所で再認証メカニズムを実施してください。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコードは支払いトランザクションを処理します。 残念ながら、ユーザーがトランザクションを認識していることを確認せずにコードが支払いを実行します。</p>
+ <pre>public void ProcessPayment(PaymentInfo paymentInfo)<br />&amp;#123;     <br />  // Prepare and execute the transaction<br />&amp;#125;</pre>
+  <h1>ソリューションの例</h1>
+  <p>次のコードは支払いトランザクションを処理します。 支払いを実行する前に、ユーザーが再認証することによりトランザクションを認識していることをコードが確認します。</p>
+ <pre>public void ProcessPayment(PaymentInfo paymentInfo, string username, string password)<br />&amp;#123;     <br />  MembershipProvider membershipProvider = Membership.Provider;     <br />  if (membershipProvider.ValidateUser(username, password))     <br />  &amp;#123;         <br />    // Prepare and execute the transaction     <br />  &amp;#125;<br />&amp;#125;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認証のベスト プラクティスの詳細については、OWASP から提供されている「<a href="http://www.owasp.org/index.php/Guide_to_Authentication">Guide to Authentication</a>」を参照してください。 <li>CAPTCHA の詳細については、Wikipedia の「<a href="http://en.wikipedia.org/wiki/Captcha">CAPTCHA</a>」および CAPTCHA の<a href="http://www.captcha.net/">公式サイト</a>を参照してください。 <li>CAPTCHA の実装の課題およびそれを解決する方法の詳細については、「<a href="http://www.15seconds.com/issue/040202.htm">Fighting Spambots with .NET and AI</a>」および「<a href="http://www.pcmag.com/article2/0,4149,1306805,00.asp">CAPTCHA-ing the Spammer</a>」を参照してください。<li>CAPTCHA の実装方法については <a href="http://www.aspnetworld.com/articles/2004030101.aspx">ハウツー：ASP.NET で CAPTCHA を実装する</a> および <a href="http://www.codeproject.com/aspnet/CaptchaImage.asp">CAPTCHA Image</a> を参照してください。</li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/fc7f567f-bbfc-434c-aaa5-23d79b458605">ガイドライン：メイン アプリケーション インターフェイスからアカウント管理を分離する</a>
+      <li>
+        <a href="/article/4b441912-33f8-43cc-b0c3-663c74700c99">チェックリスト項目：重要機能を実行するときに再認証が強制される </a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

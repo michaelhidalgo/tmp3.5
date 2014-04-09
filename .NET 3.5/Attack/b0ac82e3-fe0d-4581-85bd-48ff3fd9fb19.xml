@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1591783464" Content_Hash="91549264">
+  <Metadata>
+    <Id>b0ac82e3-fe0d-4581-85bd-48ff3fd9fb19</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>弱いパスワード攻撃</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>認証を提供するすべてのアプリケーション。</p>
+  <h1>説明</h1>
+  <p>攻撃者はハッシュ値の膨大なテーブルを生成することで弱いパスワードを解読できます。 このテーブルは「レインボー テーブル」と呼ばれ、 プレーン テキスト値をハッシュ値にマッピングするものです。そのため、ハッカーがユーザー名とハッシュされたパスワードのテーブルを発見すると、簡単な検索だけでプレーン テキストのパスワードを発見できます。 レインボー テーブルを構築するには非常に費用がかかり、生成には数週間または数カ月かかり、非常に大容量のハード ディスク領域を消費することが多いです。 そのため、通常、攻撃ごとにレインボー テーブルが生成されることはなく、1 度生成されて何回も再利用されます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>Credential 情報の漏えい<li>情報漏えい</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>
+      <strong>弱いハッシュ化アルゴリズム</strong>: これまでに、多くのハッシュ化アルゴリズムが解読され、パスワードを簡単に入手されてしまいました。 安全が証明されていないハッシュ化アルゴリズムは、攻撃者に元のソースがない場合でも簡単に解読されます。そのため、独自のハッシュ化アルゴリズムを記述することはお勧めしません。 <li><strong>ソルトの欠如</strong>: 事前に計算されたレインボー テーブルが利用できないように、無作為の値をパスワードのプレーン テキストに追加できます。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>強力なハッシュ化アルゴリズムを利用する</strong>:現時点でのハッシュ化アルゴリズムのベスト プラクティスを調査します。現在のところ、SHA256 がベスト プラクティスです。 <li><strong>ソルトでプレーン テキスト パスワードを暗号化する</strong>: ソルトは無作為の値をパスワードに追加するので、事前に計算されたレインボー テーブルが利用できなくなります。 チャレンジ パスワードを検証するためにソルトを保存しなければなりません。 <li><strong>1 方向だけのハッシュ化アルゴリズムを使用する</strong>: 1 方向のハッシング アルゴリズムを使用すれば、ハッシュが適切に使用されます。 チャレンジ パスワードをハッシュし、計算されたハッシュと保存されているハッシュを比較します。 これにより、プレーン テキスト パスワードがメモリに保存される時間が最小限に抑えられます。 <li><strong>パスワード ポリシーを作成する</strong>: アプリケーションで必要なパスワードやパスフレーズの強度レベルを決定し、それをポリシーに明記します。 システムがポリシーを自動的に強制するようにして、ユーザーが偶発的または意図的に弱いパスワードを選択することを防止します。 <li><strong>定期的なパスワード変更を要求する</strong>: 定期的なパスワード変更は、潜在的に弱いパスワードを持つアカウントが露出される期間を減らし、パスワード クラック攻撃に使用できる時間を減らします。</li></li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>レインボー テーブルには、辞書にあり良く使われるすべてのパスワード、文字の部分集合から作られるすべてのパスワード、または特定のパスワード長のすべてのハッシュが含まれます。 レインボー テーブルはまた、ハッシュ化アルゴリズム別に生成する必要があります (SHA、MD5、MD4 など)。典型的なレインボー テーブルは次のようになります。</p>
+  <p>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+ <pre>Plaintext</pre>
+          </td>
+          <td>
+ <pre>SHA1 Hash</pre>
+          </td>
+        </tr>
+        <tr>
+          <td>
+ <pre>Test</pre>
+          </td>
+          <td>
+ <pre>640AB2BAE07BEDC4C163F679A746F7AB7FB5D1FA</pre>
+          </td>
+        </tr>
+        <tr>
+          <td>
+ <pre>Demo</pre>
+          </td>
+          <td>
+ <pre>E52C854D5631EEC7468BA4727B4C77EB745F2965</pre>
+          </td>
+        </tr>
+        <tr>
+          <td>
+ <pre>Password</pre>
+          </td>
+          <td>
+ <pre>8BE3C943B1609FFFBFC51AAD666D0A04ADF83C9D</pre>
+          </td>
+        </tr>
+        <tr>
+          <td>
+ <pre>password</pre>
+          </td>
+          <td>
+ <pre>5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8</pre>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <pre>Admin</pre>
+          </td>
+          <td>
+ <pre>4E7AFEBCFBAE000B22C7C85E5560F89A2A0280B4</pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://en.wikipedia.org/wiki/Hash_function">http://en.wikipedia.org/wiki/Hash_function</a>
+      <li>
+        <a href="http://en.wikipedia.org/wiki/Salt_&amp;#37;28cryptography&amp;#37;29">http://en.wikipedia.org/wiki/Salt_&amp;#37;28cryptography&amp;#37;29</a>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/63e628e0-c4bb-42c5-a549-7cd112cad81e">ガイドライン: 屈強な SQL パスワードを強制する</a>
+      <li>
+        <a href="/article/485a8261-d637-4a47-8643-de094828bf56">ガイドライン: パスワード更新を強制する</a>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

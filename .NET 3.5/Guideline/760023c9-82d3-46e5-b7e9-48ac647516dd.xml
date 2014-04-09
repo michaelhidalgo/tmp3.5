@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1026929008" Content_Hash="-341865984">
+  <Metadata>
+    <Id>760023c9-82d3-46e5-b7e9-48ac647516dd</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>最小限の特権付きのアカウントでサービスを実行する</Title>
+    <Category>ホスティング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>お使いの WCF サービスを Windows サービスまたは IIS サービスでホストしている場合は、最小限の特権付きサービス アカウントを使用してお使いのサービスを実行してください。 </p>
+  <h1>理由</h1>
+  <p>こうすることで、Attack Surface (攻撃対象領域) が縮小され、悪意のある攻撃による影響を制限することができます。 </p>
+  <h1>対策</h1>
+  <p>IIS は、デフォルトで ASPNET (IIS5 の場合)　または NetworkService アカウント (IIS6 の場合) のもとで実行されます。&nbsp; </p>
+  <p>カスタム ドメイン アカウントを使用することで、お使いのサービスを個別に監査および認可することができ、お使いのサービスが System アカウント内の特権およびアクセス許可の変更から保護されます。 お使いのアカウントで、サービスの実行の許可に必要な最小限の特権を使用するための構成を行ってください。 </p>
+  <p>以下の手順は、最小限の特権付きカスタム ドメイン アカウントを使用する方法の概要を示したものです。</p>
+  <ol>
+    <li>Windows アカウントを作成します。<li>次の aspnet_regiis.exe コマンドを実行して、関連する ASP.NET アクセス許可をアカウントに割り当てます。<br />aspnet_regiis.exe -ga machineName\userName&nbsp;<br /><strong>注記</strong>：この手順は、お使いのアプリケーションを ASP.NET 互換性モードで実行する必要がある場合にのみ必要となります。<li>[ローカル セキュリティ ポリシー] ツールを使用して、Windows アカウントに「ローカルでログオンを拒否する」というユーザー権限を付与します。 こうすることで、アカウントの特権が減少し、すべてのユーザーがこのアカウントを用いてローカルで Windows にログオンすることができなくなります。 &nbsp; <li>お使いのサービスが Windows サービスでホストされている場合は、Windows サービスでアカウント ID を用いて実行するための構成を行ってください。WCF サービスは Windows サービスのセキュリティ コンテキストのもとで実行されます。<li>お使いのサービスが IIS 6.0 でホストされている場合は、IIS マネージャを使用して、アカウント ID として実行されるアプリケーション プールを作成してください。 IIS マネージャを使用して、お使いの WCF サービスをそのアプリケーション プールに割り当ててください。<br /></li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ホスティングの詳細については、「ホスティング」 (<a href="http://msdn2.microsoft.com/en-us/library/ms729846.aspx">http://msdn2.microsoft.com/en-us/library/ms729846.aspx) を参照してください。</a><li>IIS を最小限の特権付きサービス アカウントのもとで実行する方法の詳細については、「ハウツー: ASP.NET 2.0 アプリケーション用のサービス アカウントを作成する方法」 (<a href="http://msdn2.microsoft.com/en-us/library/ms998297.aspx">http://msdn.microsoft.com/ja-jp/library/ms998297.aspx) を参照してください。</a><li>ホスティングに関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home) のホスティングのセクションを参照してください。</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

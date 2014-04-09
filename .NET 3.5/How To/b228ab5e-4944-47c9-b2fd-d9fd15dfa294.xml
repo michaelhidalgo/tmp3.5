@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1758579171" Content_Hash="441434919">
+  <Metadata>
+    <Id>b228ab5e-4944-47c9-b2fd-d9fd15dfa294</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でメンバーシップを使用する方法</Title>
+    <Category>Forms Authentication</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft Active Directory ディレクトリ サービス<li>Microsoft SQL Server </li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、ASP.NET アプリケーションでメンバーシップ機能を使用する方法を示しています。 ２つの種類のメンバーシップ プロバイダーの使用方法を表示します:  <b>ActiveDirectoryMembershipProvider</b> （ActiveDirevtory メンバーシップ プロバイダー）および<b>SqlMembershipProvider</b>.（SQL メンバーシップ プロバイダー）。メンバーシップ機能を使用すると、ウェブ サイトでユーザーを認証するために記述しなければならないコード量を大幅に削減することができます。 <b>ActiveDirectoryMembership</b> provider（ActiveDirectory メンバーシップ プロバイダー）は Microsoft Active Directory ディレクトリ サービスを使用し、<b>SqlMembershipProvider</b>（SQL メンバーシップ プロバイダー）は SQL Server データベースにユーザー詳細を保存します。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>ActiveDirectoryMembershipProvider を使用する</div>
+          <li>
+            <div>SQLMembershipProvider を使用する</div>
+            <li>
+              <div>ActiveDirectoryMembershipProvider のコンフィグレーション属性</div>
+              <li>
+                <div>SqlMembershipProvider のコンフィグレーション属性</div>
+                <li>
+                  <div>メンバーシップ API </div>
+                  <li>
+                    <div>追加考慮事項</div>
+                    <li>
+                      <div>その他のリソース</div>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>Forms Authenticationでのメンバーシップの使用を学習する。 <li><b>ActiveDirectory メンバーシップ プロバイダー</b>をForms Authentication 用に構成します。 <li><b>ActiveDirectory メンバーシップ プロバイダー</b>を使ってユーザーを作成および認証します。<li>Forms Authentication で使用するために<b> SQL メンバーシップ プロバイダー</b>を構成します。 <li>SQL Server メンバーシップ データベースをセットアップする。 <li><b>SQL メンバーシップ プロバイダー</b>でユーザーを作成および認証します。<b></b></li></li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET メンバーシップ機能は、アプリケーション ユーザーに安全な Credential 情報のストレージを提供します。 また、Forms Authenticationの使用時に、ユーザーの Credential 情報の検証タスクを簡便化するメンバーシップ API を提供しています。 メンバーシップ プロバイダーは、ユーザーの Credential 情報の保持に使用する基本ストアを抽象化したものです。 APS.NET には、次のプロバイダーが用意されています。</p>
+  <ul>
+    <li>
+      <b>ActiveDirectoryMembershipProvider。</b> このプロバイダーは、Active Directory または Active Directory Application Mode (ADAM) ユーザー ストアのいずれかを使用します。 <li><b>SqlMembershipProvider。</b> このプロバイダーは、 SQL Server ユーザー ストアを使用します。 </li></li>
+  </ul>
+  <p>メンバーシップ アーキテクチャはプラガブルであるため、独自のユーザー ストアにサポートを追加することもできます。 たとえば、他の Lightweight Directory Access Protocol (LDAP) ディレクトリや企業の既存 ID ストア等のサポートを追加することができます。 そのためには、<b>メンバーシップ プロバイダー</b> のアブストラクト クラスを使用するカスタム プロバイダーを作成します。</p>
+  <p>ほとんどの場合、ユーザー ストアには、ユーザー名およびパスワードなどのユーザーの Credential 情報が格納されていますが、パーソナライゼーション情報が格納されている場合もあります。 パーソナライゼーションと認証は混在させないようにしてください。 ユーザーを一意に特定しなければならない理由が、パーソナライゼーションのみである場合は、Cookie内のユーザー名だけでも十分です。 ただし、ウェブ サイトの異なるエリアや 機能へのアクセスを制限/制御したい場合や他のユーザーによる操作を監査する必要がある場合は、認証アクセスやForms Authenticationを使用する必要があります。</p>
+  <h1>ActiveDirectoryMembershipProvider を使用する</h1>
+  <p>ユーザー情報が Active Directory に保存されている場合は、Forms Authentication に<b> ActiveDirectory メンバーシップ プロバイダー</b>を使用します。 通常、これに該当するのは、イントラネット アプリケーションを使用していて、ファイアウォールの存在や異なる種類のブラウザに対応する必要性などの理由で統合 Windows 認証を使用できない場合です。</p>
+  <h2>手順の概要</h2>
+  <p>次のステップを実施してForms Authentication を使用する ASP.NET アプリケーションで使用するために<b> ActiveDirectory メンバーシップ プロバイダー</b>を構成して、使用してください。 </p>
+  <ul>
+    <li>手順 1:  Forms Authenticationを設定する。 <li>手順 2:  ActiveDirectoryMembershipProvider を設定する。 <li>手順 3:  ユーザーを作成する。 <li>手順 4:  ユーザーを認証する。 </li></li></li></li>
+  </ul>
+  <h3>手順 1:  Forms Authenticationを設定する</h3>
+  <p>Forms Authentication を構成するためには、&lt;<b>認証</b>&gt; エレメントの<b>mode（モード）</b> 属性を（フォーム）に設定して、<b> </b>アプリケーションの Web.config ファイルを下記の例のように構成してください。</p>
+  <div>
+ <pre>&lt;authentication mode="Forms"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;forms loginUrl="Login.aspx" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; protection="All" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeout="30" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="AppNameCookie" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path="/FormsAuth" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="false" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; slidingExpiration="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultUrl="default.aspx"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieless="UseCookies"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enableCrossAppRedirects="false"/&gt;<br />&lt;/authentication&gt;   </pre>
+  </div>
+  <p>以下は設定内容の詳細です。</p>
+  <ul>
+    <li>
+      <b>loginUrl</b> はログイン ページを示します。 このページは、アクセスに Secure Sockets Layer (SSL) を必要とするフォルダーを配置する必要があります。 <li><b>フォームと認証チケットのプライバシーおよび完全性を指定するために保護</b>を<b>"All"（全て）</b> に設定します。 <li><b>timeout</b> は制限されたセッションのライフタイムの指定に使用します。 <li><b>name</b> および <b>path</b> には、現在のアプリケーションを示す一意の値を設定します。 <li><b>requireSSL（SSL 必要）</b>を<b>"false"（偽）</b>に設定します。このコンフィグレーションは、認証 Cookieが SSL で保護されていないチャネル間を移動できるということを意味しています。 セッション ハイジャックが心配な場合は、これを<b>"true"（真）</b>に設定することを検討してください。更なる情報については、本書の<a href="http://msdn2.microsoft.com/en-us/library/ms998347.aspx#paght000022_additionalconsiderations">Additional Considerations（更なる考慮事項）</a>を参照してください。 <li><b>スライド式セッション有効期限を強制するためには、slidingExpiration（スライド式有効期限）</b> を<b>"true"（真）</b> に設定します。 これにより、アプリケーションからの要求が発生する度に<b>timeout（タイムアウト）</b>がリセットされることになります。 <li><b>defaultUrl</b> はアプリケーション用の Default.aspxページに設定されます。 <li><b>クライアントに送信する認証チケットに Cookie を使用することを指定するために"UseCookies"</b> （ Cookie の使用）では<b>cookieless</b>（ Cookie なし）を設定します。 <li><b>enableCrossAppRedirects（クロス アプリケーション リダイレクトの有効化）</b>を<b>"false"（偽）</b> に設定して、アプリケーションがアプリケーション対象範囲に要求をリダイレクトできないことを示します。 </li></li></li></li></li></li></li></li></li>
+  </ul>
+  <p>Web.config ファイル 中に &lt;<b>authentication</b>&gt; エレメントの下にある次のような &lt;authorization&gt; エレメント エレメントを&lt;<b>認証のあとに</b>&gt; element. 認証されたユーザーのみがアプリケーションへのアクセスを許可されます。 以前から<b> </b>設定されていた&lt;<b>認証</b>&gt; エレメントのloginUrl（ログイン URL）属性は認証されていない要求を Login.aspx ページにリダイレクトします。</p>
+  <div>
+ <pre>&lt;authorization&gt;    &lt;deny users="?" /&gt;   &lt;allow users="*" /&gt;&lt;/authorization&gt;   </pre>
+  </div>
+  <h3>手順 2:  ActiveDirectoryMembershipProvider を設定する</h3>
+  <p><b>ActiveDirectory メンバーシップ プロバイダー</b> を下記の例のように、アプリケーションの Web.confi ファイルで構成します。</p>
+  <div>
+ <pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="ADConnectionString" <br />&nbsp;&nbsp; connectionString=<br />&nbsp;&nbsp;&nbsp; "<a href="ldap://domain.testing.com/CN=Users,DC=domain,DC=testing,DC=com">LDAP://domain.testing.com/CN=Users,DC=domain,DC=testing,DC=com</a>" /&gt;<br />&lt;/connectionStrings&gt;</pre>
+  </div>
+ <pre>&lt;system.web&gt;<br />&nbsp;...<br />&nbsp;&lt;membership defaultProvider="MembershipADProvider"&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="MembershipADProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.ActiveDirectoryMembershipProvider, System.Web, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Version=3.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="ADConnectionString" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionUsername="&lt;domainName&gt;\administrator" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionPassword="password"/&gt;<br />&nbsp;&nbsp; &lt;/providers&gt;<br />&nbsp;&lt;/membership&gt;<br />&nbsp;...<br />&lt;/system.web&gt;</pre>
+  <p>上記のコード サンプルでは&lt;プロバイダー&gt;エレメントの&lt;<b>add（追加）</b>&gt; 子エレメント<b> </b>を を使って <b>ActiveDirectory メンバーシップ プロバイダー</b>を使用するメンバーシップ プロバイダーを定義します。</p>
+  <p>Active Directory ユーザー ストアへの接続文字列は、次のような書式になります。</p>
+  <p>
+    <b>LDAP://<i> サーバ</i>/<i>userdn</i></b>
+  </p>
+  <p>以下は設定内容の詳細です。</p>
+  <ul>
+    <li>
+      <b>サーバ</b>はディレクトリをホスティングしているサーバの名前（または IP アドレス）です。 <li><b>userdn</b> は Active Directory ユーザー格納を識別する名前（ドメイン名）です。 これはユーザー収納名である<b>/CN=Users</b> 、次に省略されていないドメイン名から派生するパーティションで構成されています。 </li></li>
+  </ul>
+  <p>例えばドメイン名が<b>domain.testing.com</b>の場合、接続文字列は<b>LDAP://domain.testing.com/CN=Users,DC=domain,DC=testing,DC=com</b>となります。</p>
+  <p>Credential 情報の構成におけるオプションとしてはActive Directory にアクセスするために必要な権限を有するアカウントの<b>connectionUserName</b>（接続ユーザー名）および<b>connectionPassword</b>（接続パスワード）属性を使用することができます。 アカウントの Credential 情報を指定しない場合、アプリケーションがなりすましを使用しているかどうかにかかわらず、アプリケーションのプロセス ID を使用して Active Directory にアクセスします。 Web.config ファイルあるいはプロセス アカウントで指定されたアカウントが Active Directory にアクセスするための適切なアクセス許可を保持している必要があります。</p>
+  <p>接続文字列エレメントには、ネットワークに関する詳細が含まれているため、暗号化してください。 <b>ActiveDirectory メンバーシップ プロバイダー</b>構成で Credential 情報を指定する場合は、メンバーシップ構成エレメントも暗号化するようにしてください。 Protected Configuration 機能を使用してコンフィグレーション セクションを暗号化できます。&nbsp; </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp; <b>ActiveDirectory メンバーシップ プロバイダー</b>（この例ではMembershipADProviderと呼ばれています）　の名前には必ず&lt;<b>membership</b>&gt;（メンバーシップ） エレメントの<b>defaultProvider</b> （デフォルト プロバイダー）<b> </b>属性値を設定してください。 マシン レベルにおいて %windir%\Microsoft.NET\Framework\{Version}\Config\machine.config.comments ファイルで定義されているデフォルトを無効にするためにはこれを実施する必要があります。 これは アプリケーションの \app_data フォルダにある  SQL Server Express データベース<b>（SQL メンバーシップ プロバイダー）</b>に書込む<b>defaultProvider</b>（デフォルト プロバイダー）を<b>AspNetSqlMembershipProvider</b>に定義します。<b></b></blockquote>
+  <p>上記属性以外に、<b>ActiveDirectoryMembershipProvider（ActiveDirectory メンバーシップ プロバイダー）</b> にはオプションで上書きすることができる属性があります。 更なる情報については、本書の　<a href="http://msdn2.microsoft.com/en-us/library/ms998347.aspx#paght000022_activedirectorymembershipproviderconfig">ActiveDirectoryMembershipProvider Configuration Attributes</a>（ActiveDirectory メンバーシップ プロバイダー属性）を参照してください。</p>
+  <h3>手順 3:  ユーザーを作成する</h3>
+  <p>新規ユーザーは、次のような方法で作成できます。</p>
+  <ul>
+    <li>新規ユーザーを作成するウィザード状のインターフェイスを提供する Web Site Administration Tool ツールを使用する。 このツールを開始するには、Microsoft Visual Studio 開発システムの<b>Website</b> （ウェブサイト）メニューにある<b>ASP.NET Configuration</b>（ASP.NET 構成）をクリックします。 <li><b>CreateUserWizard</b> （ユーザー ウィザードの作成）制御が含まれている ASP.NET ページを作成します。 このコントロールは、設定済みメンバーシップ プロバイダーを使用して新規ユーザーを作成するロジックをカプセル化します。 <li><b>TextBox</b> 制御を含む ASP.NET Web （ASP.NETウェブ）ページを作成して、ユーザー名およびパスワード（ならびにオプションでユーザーのメール アドレスも）を取得して、新しいユーザーをプログラムで作成するための<b>CreateUser</b> （ユーザー作成）メンバーシップ API メソッドを使用します。 </li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;これらの手法は全て、<b>Membership.CreateUser</b>（メンバーシップ ユーザー作成）メソッドを使用します。<b></b></blockquote>
+  <p><b>ActiveDirectoryMembershipProvider</b> （ActiveDirectory メンバーシップ プロバイダー）　のデフォルト構成では、下記の通り、ネーム マッピングでユーザーのユーザー プリンシパル ネーム（UPN）を使用します。</p>
+  <div>
+ <pre>attributeMapUsername="userPrincipalName"   </pre>
+  </div>
+  <p>そのため、すべてのユーザー名を次の書式で表す必要があります。</p>
+  <div>
+ <pre>UserName@DomainName   </pre>
+  </div>
+  <p>プログラムで<b>Membership.CreateUser</b>（メンバーシップ ユーザー作成）を呼び出す場合は、このフォーマットを使用します: </p>
+  <div>
+ <pre>Membership.CreateUser("UserName@DomainName", "P@ssw0rd", "userName@emailAddress");   </pre>
+  </div>
+  <p>Web.config ファイルのメンバーシップ プロバイダー構成にある次の属性を設定してユーザー マッピングの種類を変更することができます。</p>
+  <div>
+ <pre>attributeMapUsername="sAMAccountName"   </pre>
+  </div>
+  <p>このコンフィグレーションの場合は、ユーザー名を次の書式で入力します。</p>
+  <div>
+ <pre>UserName   </pre>
+  </div>
+  <p>たとえば、次のようになります。</p>
+  <div>
+ <pre>Membership.CreateUser("UserName", "P@ssw0rd", "userName@emailAddress")   </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ユーザーに固有のメール アドレスが支給されるようにするには、<b>requiresUniqueEmail</b> 属性を <b>"true"</b> （真）に設定します。<b></b></blockquote>
+  <h3>手順 4:  ユーザーを認証する</h3>
+  <p>ユーザーを認証するには、ログイン フォームを提供する必要があります。 ログイン フォームは、独立した 1 つのページとして作成することもできますし、あるいはアプリケーションのホーム ページ上に専用スペースを設けてもかまいません。</p>
+  <p>ログイン フォームは次の方法で作成できます:: </p>
+  <ul>
+    <li>ASP.NET ログイン コントロールを使用する。 ASP.NET ログイン コントロールは、ユーザーから Credential 情報を取得して、取得した Credential 情報をユーザー ストアに対して検証するのに必要なロジックのほとんどすべてをカプセル化しています。 これらのコントロールは、設定済みのメンバーシップ プロバイダーを使用します。 追加のコードを記述する必要はありません。 <p>ユーザーの認証が終了すると、ログイン コントロールはユーザーに関する情報を自動的に保存します。 たとえば、ユーザーのブラウザが Cookie を許容する場合は暗号化された Cookie を使用します。 </p><li>カスタム ログイン ASP.NET {<b>テキストボックス</b> 使って巣かって作成します。 カスタム ログイン フォームを単純な <b>テキストボックス</b> 制御で作成すると、ユーザーにユーザー名およびパスワードを要求してから <b>メンバーシップ</b> クラスの <b>ValidateUser</b> （ユーザー認証）メソッドを呼び出して認証を実施することができます。 <p><b>FormsAuthentication</b> （Forms Authenticatio）クラスのメソッドも呼び出して Cookie を作成し、それを例で示されているようにユーザーのコンピュータに書込む必要があります。 </p><div><pre>if (Membership.ValidateUser(userName.Text, password.Text))<br />{<br />&nbsp; if (Request.QueryString["ReturnUrl"] != null)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; FormsAuthentication.RedirectFromLoginPage(userName.Text, false);<br />&nbsp; }<br />&nbsp; else<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; FormsAuthentication.SetAuthCookie(userName.Text, false);<br />&nbsp; }<br />}<br />else<br />{<br />&nbsp; Response.Write("Invalid UserID and Password");<br />}  </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;これらの手法は両方とも<b> Membership.CreateUser </b>（メンバーシップ ユーザー作成）メソッドを使用します。<b></b></blockquote></li></li>
+  </ul>
+  <p><b>ActiveDirectoryMembershipProvider</b> 構成はネーム マッピングにデフォルトでユーザー プリンシパル ネーム（UPN）を使用します。 <b>Membership.ValidateUser</b> （メンバーシップ ユーザー認証）メソッドを呼び出す場合は、下記の例のように必ず UPN 名を使用するようにしてください。</p>
+  <div>
+ <pre>bool isValidUser = Membership.ValidateUser("UseName@DomainName", "P@ssw0rd");   </pre>
+  </div>
+  <p>Web.config ファイルのメンバーシップ プロバイダー構成セクションにある次の属性を設定することで各ユーザーのマッピングを変更することができます。</p>
+  <div>
+ <pre>attributeMapUsername="sAMAccountName"   </pre>
+  </div>
+  <p>この構成では、下記の例に従って、<b>Membership.ValidateUser</b>（メンバーシップ ユーザー認証）を呼び出す必要があります。</p>
+  <div>
+ <pre>bool isValidUser = Membership.ValidateUser("UserName", "P@ssw0rd", "userName@emailAddress")   </pre>
+  </div>
+  <h1>SQLMemberShipProvider を使用する</h1>
+  <p>ユーザー情報が SQL Server に保存されている場合、<b>SQLMembershipProvider</b> （SQL メンバーシップ プロバイダー）をForms Authentication で使用します。 ほとんどの場合、これに該当するのは、イントラネットを使用していてユーザー情報がアプリケーション固有の情報であるか、あるいはアプリケーションがインターネットをターゲットとしていてユーザーが Active Directory アカウントを持たないような場合です。</p>
+  <p>ASP.NET をインストールすると、サーバ用の Machine.config ファイルには SQL Server メンバーシップ プロバイダーを指定する構成エレメントが含まれます。 デフォルトの SQL プロバイダーは、SQL Server のローカル インスタンスに接続するよう設定されています。 </p>
+  <h2>手順の概要</h2>
+  <p><b>SqlMembershipProvider</b> （SQL メンバーシップ プロバイダー）をForms Authentication を使用する  ASP.NET アプリケーションと使用するためには次のステップで構成して使用します。 </p>
+  <ul>
+    <li>手順 1:  Forms Authenticationを設定する。 <li>手順 2:  メンバーシップ データベースをインストールする。 <li>手順 3:  SqlMembershipProvider を設定する。 <li>手順 4:  ユーザーを作成する。 <li>手順 5。 ユーザーを認証する。 </li></li></li></li></li>
+  </ul>
+  <h3>手順 1:  Forms Authenticationを設定する</h3>
+  <p>&lt;<b>authentication</b>&gt;（認証） エレメントの<b>mode</b> （モード）属性をto <b>"Forms"</b> （フォーム）に設定して、アプリケーションの Web.config ファイルに次の例のように構成します</p>
+  <div>
+ <pre>&lt;authentication mode="Forms"&gt;<br />&nbsp;&nbsp; &lt;forms loginUrl="Login.aspx" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; protection="All" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeout="30" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="AppNameCookie" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path="/FormsAuth" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="false" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; slidingExpiration="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultUrl="default.aspx"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieless="UseCookies"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enableCrossAppRedirects="false" /&gt;<br />&lt;/authentication&gt;   </pre>
+  </div>
+  <p>以下は設定内容の詳細です。</p>
+  <ul>
+    <li>
+      <b>loginUrl</b> はログイン ページを示します。 このページは、アクセスに Secure Sockets Layer (SSL) を必要とするフォルダーを配置する必要があります。 <li><b>フォームと認証チケットのプライバシーおよび完全性を指定するために保護</b>を<b>"All"（全て）</b> に設定します。 <li><b>timeout</b> は制限されたセッションのライフタイムの指定に使用します。 <li><b>name</b> および <b>path</b> には、現在のアプリケーションを示す一意の値を設定します。 <li><b>requireSSL（SSL 必要）</b>を<b>"false"（偽）</b>に設定します。このコンフィグレーションは、認証 Cookieが SSL で保護されていないチャネル間を移動できるということを意味しています。 セッション ハイジャックが心配な場合は、これを<b>"true"</b>（真）に設定することを検討してください。更なる情報については、本書の<a href="http://msdn2.microsoft.com/en-us/library/ms998347.aspx#paght000022_additionalconsiderations">Additional Considerations</a>（更なる考慮事項）を参照してください。 <li><b>スライド式セッション有効期限を強制するためには、slidingExpiration（スライド式有効期限）</b> を<b>"true"（真）</b> に設定します。 これにより、アプリケーションからの要求が発生する度に<b>timeout（タイムアウト）</b>がリセットされることになります。 <li><b>defaultUrl</b> はアプリケーション用の Default.aspxページに設定されます。 <li><b>クライアントに送信する認証チケットに Cookie を使用することを指定するために"UseCookies"</b> （ Cookie の使用）では<b>cookieless</b>（ Cookie なし）を設定します。 <li><b>アプリケーションが要求をその対象範囲外へリダイレクトできないように enableCrossAppRedirects</b>（クロスアプリケーション リダイレクト有効化）は  <b>"false"</b>（偽）に設定されています。 </li></li></li></li></li></li></li></li></li>
+  </ul>
+  <p>Web.config ファイル 中に &lt;<b>authentication</b>&gt; エレメントの下にある次のような &lt;authorization&gt; エレメント エレメントを&lt;<b>認証のあとに</b>&gt; element. 認証されたユーザーのみがアプリケーションへのアクセスを許可されます。 以前から<b> </b>設定されていた&lt;<b>認証</b>&gt; エレメントが不正要求を Login.aspx ページにリダイレクトします。</p>
+  <div>
+ <pre>&lt;authorization&gt; <br />&nbsp;&nbsp; &lt;deny users="?" /&gt;<br />&nbsp;&nbsp; &lt;allow users="*" /&gt;<br />&nbsp;&lt;/authorization&gt;   </pre>
+  </div>
+  <h3>手順 2:  メンバーシップ データベースをインストールする</h3>
+  <p><b>SqlMembershipProvider</b>, （SQL メンバーシップ プロバイダー）を使用する前に SQL Server メンバーシップ データベースをインストールする必要があります。</p>
+  <p>メンバーシップ データベースをインストールするには、SQL Server の管理権限を持つアカウント (管理者アカウントなど) でサーバにログオンします。 Visual Studio コマンド プロンプトをオープンし、次のコマンドを実行します。</p>
+  <p>
+    <b>aspnet_regsql.exe -E -S localhost -A m</b>
+  </p>
+  <p>以下は設定内容の詳細です。</p>
+  <ul>
+    <li>
+      <b>-E</b> は現在ログインしているユーザーの Windows Credential 情報を使って認証することを示します。 <li><b>-S</b> （サーバ）はデータベースがインストールされる、または既にインストールされているサーバの名前を示します。 <li><b>-A m</b>はメンバーシップ サポートの追加を示します。 これにより、メンバーシップ プロバイダーが必要とするテーブル、ストアド プロシージャが作成されます。 </li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Aspnet_regsql ツールは、Role Management（ロール管理）、Profile（プロフィール）、Web Parts Personalization（ウェブ部パーソナライズ）、および Web Events （ウェブ イベント）といったような他の ASP.NET 機能用のデータベース エレメントをインストールするためにも使用します。 上記以外のコマンドライン引数は、こうした機能のためのデータベース オペレーションを実行します。 SQL Server の接続情報を指定し、すべてのサポート機能のデータベース エレメントをインストールまたは削除するためのウィザードを使用することで、コマンドライン引数を使わずに Aspnet_regsql を使用することができます。<b></b></blockquote>
+  <h3>手順 3:  SqlMembershipProvider を設定する</h3>
+  <p>Machine.config ファイルには<b>AspNetSqlMembershipProvider</b> と呼ばれる、ローカル コンピュータ上で SQL Server Express インスタンスに接続するデフォルトの<b>SqlMembershipProvider</b> （SQL メンバーシップ プロバイダー）インスタンスが含まれています。 SQL Server をローカルで実行している場合は、このプロバイダーのインスタンスを使用できます。 その代替案としては、次の例のようにアプリケーションの Web.config ファイルにプロバイダーの詳細を指定することもできます。</p>
+  <div>
+ <pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="MySqlConnection" connectionString="Data Source=MySqlServer;Initial Catalog=aspnetdb;Integrated Security=SSPI;" /&gt;<br />&lt;/connectionStrings&gt;<br />&lt;system.web&gt;<br />...<br />&nbsp; &lt;membership defaultProvider="SqlProvider" userIsOnlineTimeWindow="15"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;clear /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;add <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="SqlProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlMembershipProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="MySqlConnection"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyApplication"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enablePasswordRetrieval="false"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enablePasswordReset="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requiresQuestionAndAnswer="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requiresUniqueEmail="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; passwordFormat="Hashed" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/providers&gt;<br />&nbsp; &lt;/membership&gt;   </pre>
+  </div>
+  <blockquote>
+    <b>重要</b>&nbsp;&nbsp;&nbsp;APS.NET プロセス ID (または、偽装を使用している場合は偽装 ID) が SQL Server データベース上で適切なアクセス許可を保持していることを確認してください。</blockquote>
+  <blockquote>接続文字列エレメントは、データベース接続の詳細情報を含むため、Protected Configuration を使用して暗号化してください。&nbsp; </blockquote>
+  <p><b>defaultProvider</b>（デフォルト プロバイダー）属性値が必ずプロバイダー定義を指しているように設定してください。 デフォルト値ではローカルの<b>SqlExpress</b>  インスタンスを使用する<b>AspNetSqlProvider</b>（ASP.NET SQL プロバイダー）を指しています。</p>
+  <p>更なるじょうほうについては、本書の「SqlProviderMembershipProvider Configuration Attributes」（SQL プロバイダー メンバーシップ プロバイダー構成属性）を参照してください。</p>
+  <h3>手順 4:  ユーザーを作成する</h3>
+  <p>新規ユーザーは、次のような方法で作成できます。</p>
+  <ul>
+    <li>新規ユーザーを作成するウィザード状のインターフェイスを提供する Web Site Administration Tool ツールを使用する。 このツールを開始するには、Cisual Studio の <b>Website</b> （ウェブサイト）メニューの <b>ASP.NET Configuration</b> （ASP.NET構成）をクリックします。 <li><b>CreateUserWizard</b> （ユーザー ウィザードの作成）制御が含まれている ASP.NET ページを作成します。 このコントロールは、設定済みメンバーシップ プロバイダーを使用して新規ユーザーを作成するロジックをカプセル化します。 <li>ユーザー名およびパスワード（オプションとしてユーザーのメール アドレスも）を収集する <b>TextBox</b> （テキストボックス）制御を含む ASP.NET ウェブページを作成して、<b>Membership.CreateUser </b>（メンバーシップ ユーザー作成）API を使ってメンバーシップ システムに新しいユーザーを作成します。  </li></li></li>
+  </ul>
+  <p>以下のコードは<b>Membership CreateUser</b>（メンバーシップ ユーザー作成）の呼び出しかたを示します。</p>
+  <div>
+ <pre>Membership.CreateUser("Username", "P@ssw0rd", "userName@emailAddress");   </pre>
+  </div>
+  <h3>手順 5。 ユーザーを認証する</h3>
+  <p>ユーザーを認証するには、ログイン フォームを提供する必要があります。 ログイン フォームは、独立した 1 つのページとして作成することもできますし、あるいはアプリケーションのホーム ページ上に専用スペースを設けてもかまいません。</p>
+  <p>ログイン フォームは、次のような方法で作成できます。</p>
+  <ul>
+    <li>ASP.NET ログイン コントロールを使用する。 ASP.NET ログイン コントロールは、ユーザーから Credential 情報を取得して、取得した Credential 情報をユーザー ストアに対して検証するのに必要なロジックのほとんどすべてをカプセル化しています。 これらのコントロールは、設定済みのメンバーシップ プロバイダーを使用します。 追加のコードを記述する必要はありません。 <p>ユーザーの認証が終了すると、ログイン コントロールはユーザーに関する情報を自動的に保存します。 たとえば、ユーザーのブラウザが Cookie を許容する場合は暗号化された Cookie を使用します。 </p><li> ASP.NET <b>TextBox</b> （テキストボックス）制御を使ってカスタム ログイン フォームを作成します。 カスタム ログイン フォームを単純な <b>テキストボックス</b> 制御で作成すると、ユーザーにユーザー名およびパスワードを要求してから <b>メンバーシップ</b> クラスの <b>ValidateUser</b> （ユーザー認証）メソッドを呼び出して認証を実施することができます。 </li></li>
+  </ul>
+  <h1>ActiveDirectoryMembershipProvider のコンフィグレーション属性</h1>
+  <p>Table 1 には<b>ActiveDirectoryMembershipProvider</b> （ActiveDirectory メンバーシップ プロバイダー）構成属性、そのデフォルト値、ならびにその使用に関するノーツが掲載されています。</p>
+  <p>
+    <b>表 1: ActiveDirectoryMembershipProviderのコンフィグレーション属性</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>属性</th>
+          <th>既定値</th>
+          <th>説明</th>
+        </tr>
+        <tr>
+          <td>
+            <b>connectionStringName</b>
+          </td>
+          <td>&nbsp;</td>
+          <td>接続文字列のコンフィグレーション セクションに含まれる接続文字列を示します。 この属性は <b>create</b>（作成）、<b>update</b>（更新）、<b>get</b>（取得）、および<b>validate</b> （認証）演算で使用する主 LDAP バインド文字列を指しているため必要です。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>connectionUserName</b>
+          </td>
+          <td>&nbsp;</td>
+          <td>ディレクトリへの接続時に認証目的で使用されるユーザー名を定義します。 この属性が指定されると、それと対である<b>connectionPassword</b> （接続パスワード）属性も指定する必要があります。 この属性は、(プロバイダーがディレクトリに接続したタイミングで有効になるプロセス アカウントや偽装 Credential 情報を使用する代わりに) ディレクトリへの接続に使用できる Credential 情報セットの設定に使用します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>connectionPassword</b>
+          </td>
+          <td>&nbsp;</td>
+          <td>ディレクトリへの接続時に認証目的で使用するパスワードを定義します。 この属性が指定されると、それと対である <b>connectionUserName</b> （接続ユーザー名）属性も指定する必要があります。 この属性は、(プロバイダーがディレクトリに接続したタイミングで有効になるプロセス アカウントや偽装 Credential 情報を使用する代わりに) ディレクトリへの接続に使用できる Credential 情報セットの設定に使用します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>connectionProtection</b>
+          </td>
+          <td>
+            <b>Secure</b>
+          </td>
+          <td>ディレクトリへの接続をオープンする際に使用されるトランスポート層のセキュリティ オプションを定義します。 この属性には文字列値の<b>"Secure" </b>（セキュリティ）または <b> "None"</b>（なし）を指定できます。<p><b>"Secure"</b>（セキュリティ）に設定されている場合、プロバイダーは接続先のプロバイダーのディレクトリの種類によって、提供されている中で最も高いレベルの接続セキュリティを選択しようとします。 セキュリティ手段は、次のように決定されます。<br />まず最初に SSL が試されるのは、SSL は Active Directory および ADAM  (<b>ActiveDirectoryConnection<br />Protection.Ssl)</b>（Active Directory 接続 SSL保護 ）の両方で使用できるオプションだからです。<br />SSL が提供されず、プロバイダーが Active Directory またはドメイン統合 ADAM インスタンスに接続されている場合は暗号化サイン アンド シール（署名捺印）が使用さた(<b>ActiveDirectoryConnection<br />Protection.SignAndSeal</b>）（保護署名捺印）が使用されます。<br />SSL も暗号化サイン アンド シールも提供されていない場合、プロバイダーは <b>ProviderException</b>（プロバイダー例外）を生成して、ディレクトリに構成する安全な接続を自動的に選択することができなかったことを宣言します。</p></td>
+        </tr>
+        <tr>
+          <td>
+            <b>enablePasswordReset</b>
+          </td>
+          <td>
+            <b>False</b>
+          </td>
+          <td>パスワードをリセットできるか否かを制御します。 <b>ActiveDirectoryMembershipProvider</b>（Active Directory メンバーシップ プロバイダー）で次の全てが設定されている場合、セキュリティの理由でこの属性は to<b> true</b> （真）としか設定することができません。<br /><b>requiresQuestionAndAnswer</b> （質疑応答要）が（<b>真</b>）に設定されています。<br /><b>passwordQuestion</b>（パスワード質問）、<b>passwordAnswer</b>（パスワード応答）、<b>attributeMapFailedPasswordAnswer（属性マップ パスワード応答失敗）<br />Count</b>（数量）、<b>attributeMapFailedPassword（属性マップ パスワード失敗）<br />（AnswerTime</b>回答時間）および<b>attributeMapFailed（属性マップ失敗）<br />PasswordAnswerLockoutTime</b> （パスワード回答ロックアウト時間）がディレクトリの属性にマッピングされました。<br /><b>注記</b>: この属性が <b>true</b>（真）に設定されていても、パスワードのリセットはリセットを実行する際に使用される Credential 情報が Active Directory で管理者特権がある場合のみ許されます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>enableSearchMethods</b>
+          </td>
+          <td>
+            <b>False</b>
+          </td>
+          <td>管理者は、プロバイダー インスタンス上で検索志向のメソッドを呼び出すことができるか否かを設定できます。 <b>Find*</b> （検索）および<b>GetAllUsers</b> （全ユーザー取得）といったようなメソッドは非常に高価であるため、この属性のデフォルト値は <b>false</b>（偽）に設定されています。<br />以下のメソッドはこの属性が <b>false</b>（偽）に設定されている状態で呼び出されると<b>NotSupportedException</b> （非サポート例外）をスローします。<br /><b>FindUsersByName<br />FindUsersByEmail<br />GetAllUsers</b></td>
+        </tr>
+        <tr>
+          <td>
+            <b>requiresQuestionAnd</b>
+            <br />
+            <b>Answer</b>
+          </td>
+          <td>
+            <b>False</b>
+          </td>
+          <td>パスワード リセットにパスワード クエスチョンおよびアンサーを要求するか否かを決定します。 <p>セキュリティ関連懸念事項により、<b>ActiveDirectoryMembership<br />Provider</b>（Active Directory メンバーシップ プロバイダー）では次の全ての項目が設定されている場合はこの属性は <b>true</b> （真）にしか設定することができません: <br /><b>attributeMapPasswordQuestion</b>（マップ パスワード質疑属性）、<b>attributeMapPasswordAnswer</b>（マップ パスワード応答属性）、<b>attributeMapFailedPasswordAnswerCount</b>（マップ パスワード応答失敗数属性）、<b>attributeMapFailedPasswordAnswerTime</b>（マップ パスワード応答失敗時間属性）、および<b>attributeMapFailedPasswordAnswerLockoutTime（マップ パスワード応答失敗ロックアウト時間属性）</b></p></td>
+        </tr>
+        <tr>
+          <td>
+            <b>applicationName</b>
+          </td>
+          <td>
+            <b>/</b>
+          </td>
+          <td>このプロバイダーの場合、他のプロバイダーとの整合性を考慮して、<b>applicationName</b>（アプリケーション名）も含まれています。 内部的には、アプリケーション名が使用されることはないため、ここに設定される値はどんな値であっても大きな意味は持ちません。 最大値は 256 文字です。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>requiresUniqueEmail</b>
+          </td>
+          <td>
+            <b>False</b>
+          </td>
+          <td>アプリケーションで使用される電子メールの値が一意である必要があるか否かを指定します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>maxInvalidPassword</b>
+            <br />
+            <b>Attempts</b>
+          </td>
+          <td>
+            <b>5</b>
+          </td>
+          <td>ユーザーのアカウントがロックされるまでに失敗してもよいパスワードとパスワード アンサーの試行回数を示します。 失敗した回数がこの属性に設定した値と等しくなると、ユーザーのアカウントはロック アウトされます。 <p>Active Directory プロバイダーの場合、この属性はパスワード アンサーを使用するリセットの管理にのみ適用されます。 不正なパスワードの試行は、Active Directory が内部的に管理します。</p></td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordAttempt</b>
+            <br />
+            <b>Window</b>
+          </td>
+          <td>
+            <b>10</b>
+          </td>
+          <td>パスワード入力とパスワード アンサーの失敗をトラックする時間窓を分単位で示します。 <p>Active Directory プロバイダーの場合、この属性はパスワード アンサーを使用するリセットの管理にのみ適用されます。 不正なパスワードの試行は、Active Directory が内部的に管理します。</p></td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordAnswer<br />AttemptLockout<br />Duration</b>
+          </td>
+          <td>
+            <b>30</b>
+          </td>
+          <td>不正なパスワード アンサーによるロックアウトの有効期間を分単位で指定します。 Active Directory は、不正なパスワードによるロックアウトをタイムアウトするというコンセプトを採用しています。そのため、不正なパスワード アンサーの試行を時間的に調整する同様のコンセプトのサポートにもこの属性は必須です。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>minRequiredPassword<br />Length</b>
+          </td>
+          <td>
+            <b>7</b>
+          </td>
+          <td>パスワードに要求される最低文字数を指定します。 値は、1 から 128 の範囲で指定できます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>minRequiredNonAlpha<br />numericCharacters</b>
+          </td>
+          <td>
+            <b>1</b>
+          </td>
+          <td>パスワードに要求される非英数文字の最低文字数を指定します。 この構成属性は、<b>minRequiredPasswordLength</b>（最低必要パスワード長）よりも大きな値に設定することはできません。つまり、このコンフィグレーション設定には、<br />0 ～<b>minRequiredPasswordLength</b>（最低必要パスワード長）までで、<b>minRequiredPasswordLength</b>（最低必要パスワード長）を含みます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordStrength<br />RegularExpression</b>
+          </td>
+          <td>
+            <b>""</b>
+          </td>
+          <td>プロバイダーがパスワードの安全性の検証の一部として使用する有効な正規表現を提供します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapUsername</b>
+          </td>
+          <td>
+            <b>userPrincipalName</b>
+          </td>
+          <td>ディレクトリ内にある属性に <b>MembershipUser</b> （メンバーシップ ユーザー）オブジェクトのプロパティのマッピングを定義します。<br />Active Directory を使用する場合、ユーザー名のマッピングで唯一のディレクトリ属性となるのは <b>userPrincipalName</b> （ユーザー プリンシパル ネーム）または <b>sAMAccountName</b>（AM アカウント名）です。ADAM を使用する場合、ユーザー名のマッピングで許されているディレクトリ属性は<b>userPrincipalName</b>（ユーザー プリンシパル ネーム）です。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapEmail</b>
+          </td>
+          <td>
+            <b>Mail</b>
+          </td>
+          <td>ディレクトリ内にある属性に <b>MembershipUser</b> （メンバーシップ ユーザー）オブジェクトのプロパティのマッピングを定義します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapPassword<br />Question</b>
+          </td>
+          <td>UNDEFINED</td>
+          <td>ディレクトリ内にある属性に <b>MembershipUser</b> （メンバーシップ ユーザー）オブジェクトのプロパティのマッピングを定義します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapPassword<br />Answer</b>
+          </td>
+          <td>UNDEFINED</td>
+          <td>ディレクトリ内にある属性に <b>MembershipUser</b> （メンバーシップ ユーザー）オブジェクトのプロパティのマッピングを定義します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapFailed<br />PasswordAnswerCount</b>
+          </td>
+          <td>UNDEFINED</td>
+          <td>ディレクトリ内にある属性に <b>MembershipUser</b> （メンバーシップ ユーザー）オブジェクトのプロパティのマッピングを定義します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapFailed<br />PasswordAnswerTime</b>
+          </td>
+          <td>UNDEFINED</td>
+          <td>ディレクトリ内にある属性に <b>MembershipUser</b> （メンバーシップ ユーザー）オブジェクトのプロパティのマッピングを定義します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>attributeMapFailed<br />PasswordAnswer<br />LockoutTime</b>
+          </td>
+          <td>UNDEFINED</td>
+          <td>ディレクトリ内にある属性に <b>MembershipUser</b> （メンバーシップ ユーザー）オブジェクトのプロパティのマッピングを定義します。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p />
+  <p><b>requiresQuestionAndAnswer</b> （必要質疑応答）属性が <b>true</b>（真）に設定されている場合、<b>ActiveDirectoryMembershipProvider</b> （Active Directory メンバーシップ プロバイダー）クラスはユーザーに事前用意された質問の回答を要求することでパスワード リセット セキュリティをサポートします。</p>
+  <p>質疑応答をサポートするためには、メンバーシップ &lt;<b>プロバイダー</b>&gt;の後に&lt;<b>add</b>&gt;（追加）エレメントを<b>ActiveDirectoryMembershipProvider</b> （Active Directory メンバーシップ プロバイダー）オブジェクトに追加する場合に<b></b><b>attributeMapPasswordQuestion</b>（マップ パスワード質疑属性）および<b>attributeMapPasswordAnswer</b> （マップ パスワード応答属性）を設定する必要があります。 element. </p>
+  <h1>SqlMembershipProvider のコンフィグレーション属性</h1>
+  <p>には（<b>SQL メンバーシップ プロバイダー</b>）構成属性、そのデフォルト値、ならびにその使用に関するノーツが掲載されています。</p>
+  <p>
+    <b>表 2 SqlMembershipProvider のコンフィグレーション属性</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>属性</th>
+          <th>既定値</th>
+          <th>説明</th>
+        </tr>
+        <tr>
+          <td>
+            <b>connectionStringName</b>
+          </td>
+          <td>&nbsp;</td>
+          <td>接続文字列のコンフィグレーション セクションに含まれる接続文字列を示します。 この属性は、SQL Server データベース インスタンスへの接続に使用される SQL 接続文字列を示すため、必須です。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>enablePasswordReset</b>
+          </td>
+          <td>
+            <b>False</b>
+          </td>
+          <td>パスワードをリセットできるか否かを制御します。<br />セキュリティ関連懸念事項により、<b>SqLMembershipProvider</b>（SQL メンバーシップ プロバイダー）では次の全ての項目が設定されている場合はこの属性は<b> true</b> （真）にしか設定することができません: <br /><b>requiresQuestionAndAnswer</b> （必要質疑応答）が <b>true（真）に設定されています</b><br /><b>passwordQuestion<br />passwordAnswer</b></td>
+        </tr>
+        <tr>
+          <td>
+            <b>requiresQuestionAnd<br />Answer</b>
+          </td>
+          <td>
+            <b>False</b>
+          </td>
+          <td>パスワード リセットにパスワード クエスチョンおよびアンサーを要求するか否かを決定します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>applicationName</b>
+          </td>
+          <td>
+            <b>/</b>
+          </td>
+          <td>ユーザー情報をグループ化するために使用されます。 アプリケーション名を使用してユーザー情報を限定することで、重複するユーザー名同士に矛盾を発生させることなく、複数アプリケーションの情報を 1 つのデータベース内に格納することができます。 <b>applicationName</b> （アプリケーション名）属性で同じ値を指定することによって複数の ASP.NET アプリケーションが同じユーザー データベースを使用することもできます。 許可されている最大値は 256 文字です。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>requiresUniqueEmail</b>
+          </td>
+          <td>
+            <b>False</b>
+          </td>
+          <td>アプリケーションで使用される電子メールの値が一意である必要があるか否かを指定します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>maxInvalidPassword<br />Attempts</b>
+          </td>
+          <td>
+            <b>5</b>
+          </td>
+          <td>ユーザーのアカウントがロックされるまでに失敗してもよいパスワードとパスワード アンサーの試行回数を示します。 失敗した回数がこの属性に設定した値と等しくなると、ユーザーのアカウントはロック アウトされます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordAttempt<br />Window</b>
+          </td>
+          <td>
+            <b>10</b>
+          </td>
+          <td>パスワード入力とパスワード アンサーの失敗をトラックする時間窓を分単位で示します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordFormat</b>
+          </td>
+          <td>&nbsp;</td>
+          <td>パスワード書式を指定します。 SQL Server メンバーシップ プロバイダーは <b>Clear</b>（取消し）、<b>Encrypted</b>（暗号化）、および<b>Hashed</b> （ハッシュ）パスワード フォーマットをサポートします。 Clear (クリア) パスワードはプレーン テキスト形式で格納されるため、パスワード ストレージと回復におけるパフォーマンスを改善できますが、SQL Server データベースが攻撃を受けた場合、パスワードを容易に読み取ることができるため、あまり安全性には優れていません。 Encrypted (暗号化) パスワードは、格納時に暗号化され、パスワードの照合およびパスワードの回復時に複合化することができます。 Encrypted (暗号化) パスワードでは、パスワードのストレージおよび複合を行うためのプロセスが別途必要になりますが、SQL Server データベースが攻撃を受けた場合でも、パスワードが簡単に読み取られることはないため、より安全です。 Hashed (ハッシュ化) パスワードは、データベースへの格納の際、単方向ハッシュ アルゴリズムとランダムに生成されたソルト値を用いてハッシュ化されます。 パスワードが検証される際、データベース内のソルト値を用いてハッシュ化が行われ、検証が行われます。 ハッシュ化したパスワードを回復することはできません。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordAnswer<br />AttemptLockout<br />Duration</b>
+          </td>
+          <td>
+            <b>30</b>
+          </td>
+          <td>不正なパスワード アンサーによるロックアウトの有効期間を分単位で指定します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>minRequiredPassword<br />Length</b>
+          </td>
+          <td>
+            <b>7</b>
+          </td>
+          <td>パスワードに要求される最低文字数を指定します。 値は、1 から 128 の範囲で指定できます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>minRequiredNonAlpha<br />numericCharacters</b>
+          </td>
+          <td>
+            <b>1</b>
+          </td>
+          <td>パスワードに要求される非英数文字の最低文字数を指定します。 この構成属性は、<b>minRequiredPassword<br />Length</b>（最低必要パスワード長）よりも大きな値に設定することはできません。つまり、このコンフィグレーション設定には、<br /><b>0</b> ～<b>minRequiredPasswordLength</b>（最低必要パスワード長）までで、<b>minRequiredPasswordLength</b>（最低必要パスワード長）を含みます。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>passwordStrength<br />RegularExpression</b>
+          </td>
+          <td>
+            <b>""</b>
+          </td>
+          <td>プロバイダーがパスワードの安全性の検証の一部として使用する有効な正規表現を提供します。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h1>メンバーシップ API </h1>
+  <p>Table 3 には <b>Membership</b>（メンバーシップ）クラスのいくつかの重要なメソッド、ならびにそのパラメータ、および使用ノーツが掲載されています。</p>
+  <p>
+    <b>表 3  Membership クラス メソッド</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>メソッド</th>
+          <th>パラメータ</th>
+          <th>説明</th>
+        </tr>
+        <tr>
+          <td>
+            <b>CreateUser</b>
+          </td>
+          <td>string 型 <i>username</i>-作成するユーザー名です。<br />string 型 <i>password</i>-新規ユーザーのパスワードです。<br />string 型 <i>email</i>-新規ユーザーの電子メールです。<br />string 型 <i>passwordQuestion</i><br />string 型 <i>passwordAnswer</i><br />bool 型 <i>IsApproved</i><br />object 型  <i>providerUserKey</i></td>
+          <td>新規ユーザーの作成に使用します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>DeleteUser</b>
+          </td>
+          <td>string 型 <i>username</i>-削除するユーザーです。<br />bool 型  <i>removeAllRelatedData</i></td>
+          <td>入力されたユーザー名により識別されたユーザーを直ちに削除するときに使用します。 ユーザーが削除された場合には <b>true</b> （真）を、見つからない場合は <b>false</b> （偽）を返します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>FindUsersByName</b>
+          </td>
+          <td>string 型  <i>usernameToMatch</i><br />int 型 <b></b><i>pageIndex</i><b><br /></b>int 型 <i>pageSize</i></td>
+          <td>渡された文字列パラメータがユーザー名の一部に一致しているユーザーのコレクションを返します。<br />ワイルドカード サポートは、それぞれのデータ収納が "<b>*</b>"、"<b>%</b>" 、および"<b>_</b>" といったような文字をいかに処理するかによって異なります。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>FindUsersByEmail</b>
+          </td>
+          <td>string 型 <i>emailToMatch</i><br />int 型 <i>pageIndex</i><br />int 型 <i>pageSize</i></td>
+          <td>渡された文字列パラメータのどこか一部分に一致するメール アドレスを持つユーザーのコレクションを返します。<br />ワイルドカード サポートは、それぞれのデータ収納が "<b>*</b>"、"<b>%</b>" 、および"<b>_</b>" といったような文字をいかに処理するかによって異なります。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>GeneratePassword</b>
+          </td>
+          <td>int 型 <i>Length</i><br />int 型 <i>numberOfNonAlpha<br />NumericCharacters</i></td>
+          <td>指定した文字数の非英数文字を含む、指定の長さのパスワードを返します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>GetAllUsers</b>
+          </td>
+          <td>int 型 <i>pageIndex</i><br />int 型 <i>pageSize</i></td>
+          <td>全ユーザーのコレクションからユーザー サブセットを返します。 サブセットは<b>pageIndex </b>（ページ インデックス）および<b>pageSize</b> （ページ サイズ）メソッドをベースにしています。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>GetNumberOfUsersOnline</b>
+          </td>
+          <td>なし</td>
+          <td>現在オンライン中のユーザー数を返します。<br />Active Directory プロバイダーはこの機能を導入しません。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>GetUsernameByEmail</b>
+          </td>
+          <td>string 型 <i>email</i>-検索するユーザーの電子メールです。</td>
+          <td>メンバーのユーザー名を返します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>UpdateUser</b>
+          </td>
+          <td>
+            <b>MembershipUser</b>
+            <i>user</i>-更新するメンバーシップ ユーザーです。</td>
+          <td>メンバーのプロパティ、 たとえば、電子メールアドレス等を更新します。</td>
+        </tr>
+        <tr>
+          <td>
+            <b>ValidateUser</b>
+          </td>
+          <td>string 型 <i>username</i>-検証するユーザー名です。<br />string 型 <i>password</i>-検証するユーザー パスワードです。</td>
+          <td>ユーザーの Credential 情報を検証します。 Credential 情報が有効な場合には <b>true</b> （真）を、そうでない場合は<b>false</b> （偽）を返します。 <br />Active Directory を使用する場合、接続 Credential 情報の設定に関係なく、プロバイダーは、ユーザー名とパスワード パラメータを接続 Credential 情報として使用し、ディレクトリへの接続を行います。 </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p />
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp; <b>GetAllUsers</b> （全ユーザーを取得）メソッドは .NET Framework 2.0 の RTM バージョンでは取除かれます。<b></b></blockquote>
+  <h1>追加考慮事項</h1>
+  <p>Forms Authenticationでは、ユーザーに対して、ウェブ ページへのユーザー名とパスワードの入力を求めます。入力されたユーザー名とパスワードはプレーンテキスト (デフォルト) の状態でネットワーク上を送信されます。 これらの Credential 情報が盗まれないようにするには、ウェブ サーバにサーバ証明書をインストールし、ウェブ サイトを SSL を要求するよう設定する必要があります。</p>
+  <p>Forms Authentication チケットが SSL セキュリティ チャネルのみを介して送信されるようにするためには、 &lt;<b>forms</b>&gt;（フォーム）エレメントの<b>requireSSL</b> （SSL 必要）属性 を<b>true</b>（真）に設定します。以下のコード サンプルは、その具体的な方法を示しています。また、HTTP:// または HTTPS:// を使用してアプリケーションのメイン ページの URL を入力したか否かに関わりなく、ユーザーが SSL を使用してログイン ページにアクセスできるようにする方法も示しています。 SSL が使用されていることを確認するためには、完全な URL を<b>loginUrl</b> 属性のログイン ページに入力しますが、これをするためには&lt;<b>location</b>&gt;（ロケーション）内で示されている構成でログイン ページへの制限のないアクセスを構成する必要があります。 タグにしてください。</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Forms"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;forms loginUrl="<a href="https://myserver/mywebapp/secure/Login.aspx">https://myserver/mywebapp/secure/Login.aspx</a>" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; protection="All" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeout="30" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="AppNameCookie" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; path="/FormsAuth" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; slidingExpiration="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultUrl="default.aspx"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieless="UseCookies"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enableCrossAppRedirects="false"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/authentication&gt;</pre>
+  </div>
+ <pre>&nbsp;&nbsp;&nbsp; &lt;!-- Deny access to unauthenticated users --&gt;<br />&nbsp;&nbsp;&nbsp; &lt;authorization&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;deny users="?" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;allow users="*" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;/authorization&gt;<br />&nbsp; &lt;/system.web&gt;<br />&lt;/configuration&gt;</pre>
+ <pre>&lt;!-- Allow unrestricted access to the folder with the login page --&gt;<br />&lt;location path="secure"&gt;<br />&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; &lt;authorization&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;allow users="*" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; &lt;/authorization&gt;<br />&nbsp; &lt;/system.web&gt;<br />&lt;/location&gt;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

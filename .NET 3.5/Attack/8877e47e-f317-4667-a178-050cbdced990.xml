@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1935078114" Content_Hash="-84244651">
+  <Metadata>
+    <Id>8877e47e-f317-4667-a178-050cbdced990</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>VLAN スプーフィング攻撃</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>展開</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>仮想ローカル エリア ネットワーク (VLAN) 内で暗号化されていない機微データを転送するアプリケーション。</p>
+  <h1>説明</h1>
+  <p>ネットワーク管理者は、VLAN を利用して物理ネットワークをより小規模な論理ネットワークのセットに分割できます。 物理ネットワークと同様に、各 VLAN は他の VLAN からは独立した単一のブロードキャスト ドメインで構成されます。 VLAN は、パケットに ID ヘッダーのタグを付け、そのタグが付いたパケットが VLAN の一部であるポートで受け取れるようにポートを制限することで機能します。</p>
+  <p>VLAN スプーフィング攻撃を実行すると、VLAN 上の攻撃ホストは通常ではアクセスできない他の VLAN のトラフィックにアクセスできます。 VLAN スプーフィング攻撃を実行するには 2 つの方法があります。</p>
+  <ol>
+    <li>スイッチのスプーフィング: ネットワーク攻撃者はスイッチになりすますようにシステムを構成します。 この方法を使用して、ネットワーク攻撃者はシステムを<a href="http://en.wikipedia.org/wiki/VLAN">トランク ポート</a>を持つスイッチに見せかけることができます。成功すると、攻撃システムはすべての VLAN のメンバーになります。 <li>二重のタグ付け: このバージョンの攻撃では、送信されるフレームに 2 つの ID ヘッダーのタグを付け、そのフレームを間違った VLAN に転送します。 二重タグのフレームに遭遇した最初のスイッチがフレームから最初のタグを取り去り、フレームを送信します。 その結果、フレームは最初のヘッダーですべてのスイッチ ポートに転送されます。ネットワーク攻撃者のネイティブ VLAN で構成されたトランク ポートも含まれます。 2 つ目のスイッチが 2 つ目の IDヘッダーの VLAN ID に基づいて宛先にパケットを転送します。</li></li>
+  </ol>
+  <h1>影響</h1>
+  <ul>
+    <li>信頼されたユーザーの VLAN から信頼されていないユーザーの VLAN への機密情報の漏えい<li>保護された VLAN 内のアプリケーションと別個の VLAN 上の攻撃者との間の通信</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>ネットワーク リソースの安全でない構成。結果として流動的な (すなわち、トランク ポートが割り当てられていない) VLAN ID が生じます。 <li><a href="http://en.wikipedia.org/wiki/Dynamic_Trunking_Protocol">ユーザー ポートで動的トランキング プロトコル (DTP)</a> が有効になっている<li>セキュリティを VLAN に依存する</li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <p>セキュリティ上の理由でネットワークを分離するときは、可能な限り VLAN を利用しないでください。 VLAN はネットワークの管理とケーブルの設置を簡単にする優れたツールですが、物理的な分離の代わりとしては安全ではありません。 VLAN を利用する必要がある場合、次のガイドラインが役に立ちます。</p>
+  <ul>
+    <li>トランク ポートに専用の VLAN ID を利用する<li>使っていないスイッチ ポートをすべて無効にし、それらを未使用の VLAN に置く<li>すべてのユーザー ポートを非トランキング モードに設定する (ポートで DTP を明示的にオフにします)</li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ネットワーク セキュリティに関する詳細は、Cisco の <a href="http://www.cisco.com/en/US/netsol/ns340/ns394/ns171/ns128/networking_solutions_white_paper09186a008014870f.shtml#wp1002270">SAFE Layer 2 Security In-depth Version 2 Whitepaper</a> を参照してください。<li>仮想 LAN の詳細は、 次をを参照してください。<a href="http://en.wikipedia.org/wiki/VLAN">VLAN</a><li>動的トランキング プロトコルの詳細は、次を参照してください。 <a href="http://en.wikipedia.org/wiki/Dynamic_Trunking_Protocol">DTP</a></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

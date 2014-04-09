@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1692111508" Content_Hash="-1783755811">
+  <Metadata>
+    <Id>8f4ebd05-5ea4-4e26-8d8d-7867d02cb10b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メッセージ内の機微なアプリケーション データをフィルタリングするには、カスタム トレース リスナーを使用する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>メッセージ内の機微なアプリケーション データをフィルタリングするにはカスタム トレース リスナーの使用を検討します。</p>
+  <h1>理由</h1>
+  <p>カスタム リスナーを追加オプション付きで使用することにより、ログ記録されるメッセージをより細かく制御することができます。</p>
+  <h1>状況</h1>
+  <p>ログ記録の前に、メッセージからアプリケーション固有の Personally Identifiable Information  (PII) エレメントをフィルタリングするためにメッセージ フィルターが必要な場合。</p>
+  <h1>対策</h1>
+  <p>カスタム トレース リスナーをMessage Logging トレース ソースに追加することは、管理者に制限されるべき特権です。 これは、悪意のあるカスタム リスナーがメッセージをリモート送信するように構成することができ、機微情報の漏えいにつながるためです。 さらに、例えばリモート データベースに、回線を通してメッセージを送信するようにカスタム リスナーを構成した場合、リモート マシンのメッセージ ログに対し適切なアクセス制御を適用する必要があります。</p>
+  <p>以下は、カスタム リスナー構成を示しています。</p>
+ <pre>&lt;system.diagnostics&gt;<br />   &lt;sources&gt;<br />     &lt;source name="System.ServiceModel.MessageLogging"&gt;<br />           &lt;listeners&gt;<br />             &lt;add name="MyListener" <br />                    type="YourCustomListener"<br />                    initializeData="c:\logs\messages.svclog"<br />                    maxDiskSpace="1000"/&gt;<br />           &lt;/listeners&gt;<br />     &lt;/source&gt;<br />   &lt;/sources&gt;<br />&lt;/system.diagnostics&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳しくは以下のサイトより “Security Concerns and Useful Tips for Tracing（トレースに対するセキュリティの考慮事項および有用なヒント）” を参照してください : <a href="http://msdn2.microsoft.com/en-us/library/ms733053.aspx">http://msdn2.microsoft.com/en-us/library/ms733053.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

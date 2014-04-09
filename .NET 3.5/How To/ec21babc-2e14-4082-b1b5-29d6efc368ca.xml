@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1210227716" Content_Hash="1126908268">
+  <Metadata>
+    <Id>ec21babc-2e14-4082-b1b5-29d6efc368ca</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows 認証を使用する場合に最初の呼び出し元をデリゲートしてバックエンド サービスを呼び出す方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>委任を使用して、元のユーザーセキュリティ コンテキスト（Windows Identity）の偽装をリモートのバックエンドサービスにフローします。 リモート バックエンド サービスでは、ローカルリソースへの元の呼び出し元のアクセスを制限または認証するため、元の呼び出しの認証または偽装に元のユーザーのWindows ID が使用されることがあります。</p>
+  <p>最初の呼び出し元をバックエンド リソースに委任する</p>
+  <ol>
+    <li>委任のためにWCF プロセス ID を信頼済みに構成します。 Windows Server 2003 以降では、制限委任を使用します。 これにより、管理者はダウンストリームサーバのどのサービス、またはドメインアカウントにアクセスできるのかを的確に指定することができます。<li>ダウンストリーム リソースへのアクセス時に、プログラム的な偽装または宣言型偽装を用いて、最初の呼び出し元を偽装します。</li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>偽装および委任に関するQ&Aは、<a href="http://www.codeplex.com/WCFSecurityGuideGuideGuideGuide/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide</a>&nbsp;から「WCF 3.5 に関する質問」の偽装と委任の項をご覧ください。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

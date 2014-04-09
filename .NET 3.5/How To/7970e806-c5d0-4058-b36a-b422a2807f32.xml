@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1230939803" Content_Hash="-896652814">
+  <Metadata>
+    <Id>7970e806-c5d0-4058-b36a-b422a2807f32</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>脅威を識別して評価する方法</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>設計</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>無計画にセキュリティを適用するのではなく、Threat Modeling を使用して系統的に脅威を識別してください。</p>
+  <p>脅威の識別を始めるため、セキュリティ目標を識別してください。 目的を明確にすることにより、脅威モデルのアクティビティに注目して、後続の手順にどの程度労力を費やす必要があるかを判断できます。 次に、アプリケーションの重要な特徴とアクターを箇条書きすることでアプリケーションの概要を作成してください。 これは関連する脅威を識別する役に立ちます。 概要を作成後、アプリケーションを分解してください。 アプリケーションの機構を詳細に理解することで、より多くの関連した、詳細なセキュリティの脅威を発見しやすくなります。 アプリケーション シナリオに関連する脅威を識別するには、ここまでに発見された詳細を使用し、脅威の選択リストと潜在的な攻撃者の目標を考慮する質問駆動型アプローチの組み合わせを使用してください。 最後に、アプリケーションの層を見直すことにより脆弱性を識別し、すでに識別した脅威に関連する弱点を見つけてください。 脆弱性のカテゴリーを利用し、最も間違いが起こりやすい領域を集中的に確認します。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

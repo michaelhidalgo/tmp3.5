@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1955406914" Content_Hash="1192968517">
+  <Metadata>
+    <Id>4e41a0ba-7ae3-475c-b407-1976128b1d53</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Fault Contract を使用してエラー情報をクライアントに返す</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>サービスの例外を定義してクライアントにエラー情報を返すためには違反コントラクトを使用します。 </p>
+  <h1>理由</h1>
+  <p>サービス コントラクトにおいて FaultContract （違反コントラクト）属性を使用することによって、WCF サービスで発生しうる違反を指定することができます。</p>
+  <h1>状況</h1>
+  <p>WCF サービスの実行において例外が存在する場合、 FaultContract （違反コントラクト）属性を使用してクライアント アプリケーションに返す特定 SOAP 違反メッセージを生成します。  FaultContract （違反コントラクト）属性は応答を返す演算のみで使用することができます。 この属性は一方的な演算では使用することができません。</p>
+  <h1>対策</h1>
+  <p>次のコードの抜粋は FaultContract （違反コントラクト）属性を使ってエラー情報を返す方法を示しています。</p>
+  <ol>
+    <li>SOAP 違反の詳細をサービスからクライアントに例外として渡す場合の種類を定義します。
+<ol><pre>[DataContract]<br />public class DatabaseFault<br />{<br />    [DataMember]<br />    public string DbOperation;<br />    [DataMember]<br />    public string DbReason<br />    [DataMember]<br />    public string DbMessage;<br />}</pre></ol><li><div> ListCustomers （顧客一覧）方法の FaultContract （違反コントラクト）属性を使ってSOAP 違反を生成します。</div><ol><pre>[ServiceContract]<br />public interface ICustomerService<br />{<br />    // Get the list of customers<br />    [FaultContract(typeof(DatabaseFault))]<br />    [OperationContract]<br />    List&lt;string&gt; ListCustomers();<br />    …<br />}</pre></ol><li> サービス実装クラスの例外の詳細で DatabaseFault （データベース違反）オブジェクトを作成して事前設定して、 FaultException （違反例外）オブジェクトを DatabaseFault（データ違反）オブジェクト詳細と一緒にスローします。 
+<ol><pre>catch(Exception e)<br />{    DatabaseFault df = new DatabaseFault();<br />    df.DbOperation = "ExecuteReader";<br />    df.DbReason = "Exception in querying the Northwind database.";<br />    df.DbMessage = e.Message;<br />    throw new FaultException&lt;DatabaseFault&gt;(df);<br />}</pre></ol></li></li></li>
+  </ol>
+  <h1>
+    <a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home">
+    </a>
+  </h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

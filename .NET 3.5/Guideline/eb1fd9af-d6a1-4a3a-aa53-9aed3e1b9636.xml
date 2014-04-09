@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1348961549" Content_Hash="553042717">
+  <Metadata>
+    <Id>eb1fd9af-d6a1-4a3a-aa53-9aed3e1b9636</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>最小限の特権付きのアカウントを使用して WCF サービスを実行する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>最小特権のアカウントを使用してWCFサービスをホストします。</p>
+  <h1>理由</h1>
+  <p>これにより、アプリケーションの Attack Surface (攻撃対象領域)を減らし、攻撃された場合の潜在的損害を軽減します。</p>
+  <h1>対策</h1>
+  <p>サービスアカウントが、MSMQ、イベントログ、パフォーマンスカウンタ、ファイルシステムなどのインフラストラクチャ リソース上での追加のアクセス権限を必要とする時、WCFサービスが問題なく動作するために適切なアクセス許可がこれらリソースに与えられる必要があります。 サービスが元の呼び出し元に代わり特定のリソースにアクセスする必要がある場合、偽装および委任を用いて、ダウンストリームの認可のために呼び出し元のIDフローを行います。</p>
+  <p>開発シナリオでは、特権が少ない特別ビルトイン アカウントであるローカルネットワーク サービスアカウントを使用します。 生産のシナリオでは、最小特権のカスタムドメイン サービスアカウントを作成します。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>カスタム サービスアカウントの作成に関する詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms998297.aspx">http://msdn2.microsoft.com/en-us/library/ms998297.aspxより「ASP.NET 2.0 アプリケーションのサービスアカウントを作成する方法」をご覧ください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

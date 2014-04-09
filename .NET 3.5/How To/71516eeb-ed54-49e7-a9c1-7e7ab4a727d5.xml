@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-797595980" Content_Hash="28240782">
+  <Metadata>
+    <Id>71516eeb-ed54-49e7-a9c1-7e7ab4a727d5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>鍵およびその他の機微データを管理する方法</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>鍵管理を避けるため、可能な場面ではDPAPI 暗号化の使用を検討してください。 DPAPI を使用すれば、オペレーティング システムは鍵を管理できます。 DPAPI のよい利用法の例は、データベースのデータを暗号化するために使用される対称暗号鍵を暗号化することです。 </p>
+  <p>鍵を周期的にサイクルしてください。 静的機密は時間の経過で発見される可能性が高くなりますので、暗号鍵は定期的に変更してください。 鍵を使いすぎないようにしましょう。 </p>
+  <p>エクスポートされた私有鍵を保護してください。 RSA または DSA 私有鍵をエクスポートする時は、<b>PasswordDeriveBytes</b> クラスを使用してください。 RSA および DSA クラスには <b>ToXmlString</b> メソッドが含まれ、鍵コンテナから公開鍵または私有鍵(または両方)をエクスポートすることを可能にします。 このメソッドはプレーン テキストで私有鍵をエクスポートします。 私有鍵をエクスポートしてWeb ファームの複数のサーバにインストールする場合は、次のコード例に表示されるように対称鍵を生成するために <b>PasswordDeriveBytes</b> を使用して私有鍵をエクスポートした後、鍵を暗号化することをお勧めします。 </p>
+ <pre>using System.Security.Cryptography;<br />...<br />PasswordDeriveBytes deriver = new PasswordDeriveBytes(&lt;strong password&gt;, null);<br />byte[] ivZeros = new byte[8];<br />//This is not actually used but is currently required.<br />//Derive key from the password<br />byte[] pbeKey = deriver.CryptDeriveKey("TripleDES", "SHA1", 192, ivZeros);</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnpag2/html/PAGPractices0002.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnpag2/html/PAGPractices0002.asp にある「セキュリティ実践: .NET Framework 2.0 セキュリティ実践の概要」を参照してください。</a></li>
+  </ul>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

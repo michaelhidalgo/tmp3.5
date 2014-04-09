@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="880831363" Content_Hash="-1797246225">
+  <Metadata>
+    <Id>e2673656-d580-4a99-9534-7545e22f4dcf</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアントには例外詳細を開示しないでください</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>行うべき事柄</h1>
+  <p>例外が発生した場合、簡潔なエラー メッセージをクライアントに返し、具体的な詳細をサーバ上にログ記録します。 スタック トレース、SQL ステートメント フラグメント、およびテーブルまたはデータベース名などの内部システムまたはアプリケーションの詳細を、クライアントに公開しないでください。 この種類の情報が、エンド ユーザーに、または現在の信頼境界を超えて広がらないことを確認してください。 </p>
+  <h1>理由</h1>
+  <p>悪意のあるユーザーは、システム レベルの診断情報を使用して、アプリケーションについて学習し、将来的な攻撃において悪用できるような弱点を探すことができます。 </p>
+  <h1>状況</h1>
+  <p>このガイドラインはエラー ページを生成することができるアプリケーションに適用します。</p>
+  <h1>対策</h1>
+  <p>エラー メッセージの表示を防ぐためには、&lt;<strong>CustomErrors</strong>&gt;の <strong>mode</strong> 属性で設定します。&nbsp;&lt;CUSTOMERRORS&gt;エレメントを<strong>On</strong>に設定して、全ての呼び出し元がフィルタがけされた例外情報を受取るようにします。 <strong>mode="Off"</strong>  を使用しないでください。これは、システム レベルの情報を含むアプリケーション開発者向けの詳しいエラー ページをクライアントに返すためです。&nbsp; </p>
+  <p>また、次のコード例に示されるような Web.config ファイルの &lt;<strong>customErrors</strong>&gt;  セクションを使用して、特定のエラーを示す HTTP 応答コードに必要なエラー ページに加えて、デフォルトで表示されるエラー ページを指定することをお勧めします。</p>
+  <pre>&lt;customErrors mode="On" defaultRedirect="ErrDefault.aspx"&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;error statusCode="401" redirect="ErrUnauthorized.aspx" /&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;error statusCode="404" redirect="ErrPageNotFound.aspx" /&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;error statusCode="500" redirect="ErrServer.htm" /&gt;<br />&lt;/customErrors&gt;</pre>
+  <p>
+    <strong>defaultRedirect</strong>  属性は、 たとえばサポート連絡先情報のような、アプリケーション用のカスタム エラー ページの使用を可能にします。 これらのアプリケーション ワイドなエラー ページを使用して、構造化されたイベント処理では見つけられないエラーに対して、ユーザーにわかりやすい応答を提供します。&amp;nbsp;</p>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションの開発者はデバッグ目的のため、<strong> </strong>ローカル マシンおよびリモート クライアントの両方で詳細なエラー<strong> </strong>メッセージを表示するために、&nbsp;&lt;CUSTOMERRORS&gt;エレメントを<strong>Off </strong>に設定し、ローカルマシンとリモートクライアントに詳細なエラーメッセージが表示されデバッグに使用できるようにします。&nbsp; アプリケーションが運用に移行すると、この設定がそのまま残り、詳細なエラー メッセージが全ユーザーに表示されます。</p>
+  <h1>ソリューションの例</h1>
+  <p>開発中に、ASP.NET アプリケーションは、<strong> </strong>エラー メッセージをローカル マシン上に表示することでデバッグを支援するため、 &lt;<strong>CustomErrors</strong>&gt;&nbsp;&lt;CUSTOMERRORS&gt; エレメントの mode 属性を <strong>RemoteOnly </strong> に設定します。 アプリケーションが展開されると、詳細なエラー メッセージがどのクライアントにも送信されないようにするため、<strong>mode</strong> 属性が <strong>On </strong> に設定されます。&nbsp; 一般的なエラー<strong> </strong>ページの指定には <strong>defaultRedirect</strong> エレメントが使用され、 より具体的なエラー ページの指定には &lt;error&gt; エレメントが使用されます。</p>
+ <pre>&lt;customErrors mode="On" defaultRedirect="ErrDefault.aspx"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;error statusCode="401" redirect="ErrUnauthorized.aspx" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;error statusCode="404" redirect="ErrPageNotFound.aspx" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;error statusCode="500" redirect="ErrServer.htm" /&gt;<br />&lt;/customErrors&gt;</pre>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

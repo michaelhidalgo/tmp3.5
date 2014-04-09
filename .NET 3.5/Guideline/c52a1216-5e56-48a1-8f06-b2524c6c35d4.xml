@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="375227195" Content_Hash="-1052654876">
+  <Metadata>
+    <Id>c52a1216-5e56-48a1-8f06-b2524c6c35d4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データをキャッシュしない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>&nbsp;データをキャッシュしている&nbsp;場合は、機微データがキャッシュされていないことを確認してください。</p>
+  <h1>理由</h1>
+  <p>機微データがキャッシュされると、攻撃者は興味深いデータを利用可能になり、クライアント マシンでセキュリティに関する重大な問題が発生することになります。</p>
+  <h1>対策</h1>
+  <p>サービス メソッドにパスワード、クレジット カード番号、またはアカウント ステータスなどの機微データが含まれている場合、それはキャッシュされるべきではありません。 機微データがクライアント マシン上でキャッシュされる場合は、攻撃者が利用できる興味深いデータが残るため、深刻なセキュリティ上の問題が生じます。<br />機微データがキャッシュされていないことを確認するには、次の手順を実行します。</p>
+  <ol>
+    <li>機微データに対する操作を確認します。 機微データの使用方法について、すべての操作を見直します。 それには以下が含まれますが、これらに限定されません:</li>
+    <ul>
+      <li>Personally Identifiable Information (PII) を含む情報、またはユーザーと共有されるべきではない、 PII を導出するために使用できる情報</li>
+      <li>アプリケーションの他のユーザーと共有したくない、ユーザーが提供する情報</li>
+      <li>ユーザー間で共有するように設計されていない、外部の信頼されているソースからの情報</li>
+    </ul>
+    <li>機微データをキャッシュするための操作を確認します。 各操作が機微データを管理する方法を検討して、それがキャッシュされていないことを確認します。 3つのパターンにおける機微データのキャッシング方法をチェックできます：</li>
+    <ul>
+      <li>辞書や SortedList オブジェクト等を使用する、カスタム キャッシング コード</li>
+      <li>System.Web.Caching.Cache経由の ASP.NET キャッシュの使用&nbsp;</li>
+      <li>エンタープライズ ライブラリ キャッシング ブロックの使用<br /></li>
+    </ul>
+  </ol>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

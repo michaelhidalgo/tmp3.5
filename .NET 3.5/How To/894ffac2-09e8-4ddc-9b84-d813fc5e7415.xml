@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="10954678" Content_Hash="1140537587">
+  <Metadata>
+    <Id>894ffac2-09e8-4ddc-9b84-d813fc5e7415</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メモリ内の秘密を保護する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>メモリや persistent store におけるユーザー名やパスワードの機微データについては暗号化をお勧めします。 これにより、誰かがコンピュータのメモリをプローブしたり、プロセスがクラッシュしたダンプ ファイルを取得しようとしても、データを保護することができます。 </p>
+  <p><b>ProtectedMemory</b> クラスを使用することで、メモリ内の機微データを保護することができます。 <b>ProtectedMemory</b> クラスは DPARI のマネージ ラッパーです。 <b>SecureString</b> 型を使用してメモリ内の機微データを保存することもできます。 <b>SecureString</b> データは (<b>ProtectedMemory</b>によって) 自動で暗号化されます。プログラムによってメモリ内の<b>SecureStrings</b> を削除することもできます。 </p>
+  <p>以下のコードの例は、 <b>ProtectedMemory</b> クラスを使用してメモリ内のデータをどのように暗号化および解読するかを示しています。 </p>
+ <pre>using System.Security.Cryptography;...<br />byte[] optionalEntropy = {7,5,4,9,0};<br />byte[] dataToBeEncrypted = Encoding.Unicode.GetBytes("Test String 1211");<br />// Encrypt the data in memoryProtectedMemory.Protect(dataToBeEncrypted,<br />                          MemoryProtectionScope.SameLogon);<br />// Decrypt the data in memoryProtectedMemory.Unprotect(dataToBeEncrypted,<br />                           MemoryProtectionScope.SameLogon);<br />string originalData = Encoding.Unicode.GetString(dataToBeEncrypted);</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2088277741" Content_Hash="504138753">
+  <Metadata>
+    <Id>49b38504-c2de-4d5e-8ba3-d72a1bcd3e26</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セッション クッキーが保護されている</Title>
+    <Category>セッション管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>セッション クッキーの機密性が保護されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>セッション クッキーは、特定のユーザーに関連付けられたセッションを識別するためにアプリケーションによって使用されます。 セッション クッキーの保護は、攻撃者がセッションをハイジャックし、正当なユーザーとしてアプリケーションを使用することを防止できます。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順を使用して、アプリケーションのセッション クッキーがセキュアに扱われていることを確認します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>セッション識別子が推測不能であることを確認します。</strong> 攻撃者がアプリケーションのセッション識別子を推測できないようにします。 アプリケーションのセッション ID が以下の要件を満たすことを確認します。</p>
+      <ul>
+        <li>
+          <p>
+            <strong>長さ</strong>: アプリケーションが長いセッション識別子を使用していることを検証します (例: 32 文字)。</p>
+          <li>
+            <p>
+              <strong>複雑性</strong>: アプリケーションがランダムに生成されたセッション識別子を使用していることを検証します。 </p>
+            <li>
+              <p>
+                <strong>有効期限</strong>: アプリケーションがセッションを終了するために<strong>timeout </strong> 属性を使用していることを検証します。 </p>
+ <pre>&lt;sessionState timeout="20"<strong></strong>... &gt;   <br />...&lt;/sessionState&gt;</pre>
+              <li>
+                <p>
+                  <strong>再使用</strong>: アプリケーションが以前に使用したセッションを再使用していないことを検証します。</p>
+ <pre>&lt;sessionState regenerateExpiredSessionId="false"<strong></strong>... &gt;   <br />...&lt;/sessionState&gt;</pre>
+              </li>
+            </li>
+          </li>
+        </li>
+      </ul>
+      <li>
+        <p>
+          <strong>ユーザーが自身のセッションを無効にできることを確認します。</strong> アプリケーションで<strong>Session.Abandon</strong> を使用して、ユーザーが独自のセッションを無効化できるようにします。</p>
+        <li>
+          <p>
+            <strong>セッション クッキーが暗号化されたチャネルで送信されることを確認します。</strong> アプリケーションが、暗号化されたチャネルでセッション クッキーを送信するようにします。 これは非機微なトランザクションには必要とされませんが､機微な性質を持つトランザクションには不可欠です。</p>
+ <pre>&lt;authentication mode="Forms"&gt;  <br />&lt;forms <strong>requireSSL="true" </strong>... /&gt;<br />&lt;/authentication&gt; <br />... <br />&lt;roleManager <strong>cookieRequireSSL="true" ... </strong>&gt;  <br />...<br />&lt;/roleManager&gt;</pre>暗号化されたチャンネル上でセッション Cookie を送信できない場合は､<strong>cookieSlidingExpiration</strong> を <strong>false</strong> に設定します。<pre>&lt;authentication mode="Forms"&gt;  <br />&lt;forms <strong>slidingExpiration="false"</strong> ... /&gt;<br />&lt;/authentication&gt; <br />... <br />&lt;roleManager <strong>cookieSlidingExpiration="false" ... </strong>&gt;  <br />...<br />&lt;/roleManager&gt;</pre><li><p><strong>機微な Cookie が、httpOnly に設定されていることを検証します。</strong> 機微な Cookie を<strong>httpOnly</strong> に設定します。これで、<a href="/article/8049f087-514e-4f31-b587-c83f466547d3">クロスサイト スクリプティング攻撃</a> またはその他のスクリプト インジェクション攻撃が発生した際に、攻撃者がスクリプト経由で Cookie にアクセスすることを防止します。</p><pre>&lt;system.web&gt;  <br />...   <br /><strong>&lt;httpCookies httpOnlyCookies="true" ... /&gt; </strong><br />...<br />&lt;/system.web&gt;</pre></li></li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>Web アプリケーションは、SSL を使用してユーザー データにセキュアな接続を提供し､各ユーザー向けに強固な新規セッション ID を生成し､セッションを適切にタイムアウトおよび終了させます。 しかしながら、これはクロスサイト スクリプティングの欠陥に陥りやすく、大部分が IE を使用するユーザー ベースであるにも関わらず、その Cookie には <strong>httpOnlyCookies</strong> が設定されていません。 このアプリケーションの web.config ファイルは以下のようなものです:</p>
+ <pre>&lt;system.web&gt;<br />...  <br />&lt;httpCookies httpOnlyCookies="<strong>false</strong>" requireSSL="true" topic="" /&gt;<br />...<br />&lt;/system.web&gt;</pre>
+  <p>攻撃者が <a href="/article/8049f087-514e-4f31-b587-c83f466547d3">クロスサイト スクリプティング攻撃</a> が作動していることを発見すると、それを使用することで、悪意のあるスクリプトを介してユーザーのセッション Cookie を盗み、ユーザーを擬装することが考えられます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>セッション予測攻撃についての詳細は､<a href="http://www.webappsec.org/projects/threat/classes/credential_session_prediction.shtml">Credential/Session Prediction</a> を参照してください｡</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

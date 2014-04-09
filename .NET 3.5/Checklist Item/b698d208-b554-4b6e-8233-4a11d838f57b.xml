@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="516101259" Content_Hash="-1956227160">
+  <Metadata>
+    <Id>b698d208-b554-4b6e-8233-4a11d838f57b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>信頼できないコードで reflection.emit を使用して動的アセンブリを作成しない。</Title>
+    <Category>リフレクション</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>信頼できないコードで reflection.emit を使用して動的アセンブリを作成しないようにします。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>アプリケーションが <b>Reflection.Emit</b> を使用してコードを動的に作成する場合は、信頼できないコードまたはデータがコード生成に影響を与えないようにします。 攻撃者がコード生成に影響を与えることができる場合、攻撃者は悪意のあるコードを生成するようにアプリケーションを強制することができます。 これは、ユーザーが指定した入力を使用してコードを動的に生成する場合に特に重要です。</p>
+  <p>スクリプト エンジンの実装など、信頼できない入力を使用して <b>Reflection.Emit</b> を駆動する必要があるいくつかのシナリオがあります。 アセンブリが​​呼び出し元の操作を実行するコードを動的に生成し、呼び出し元が低い信頼レベルで操作する場合は、セキュリティの脆弱性に特に注意する必要があります。 生成されたコード内で文字列リテラルとして使用される入力文字列を検証し、引用符文字をエスケープして、呼び出し元がリテラルの外に出ることなく、また呼び出し元がコードを挿入できないようにします。 呼び出し元がコード生成に影響を与えたためにコードのコンパイルに失敗する場合は、潜在的なセキュリティの脆弱性を招く問題として扱う必要があります。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

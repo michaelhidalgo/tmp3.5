@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1266735314" Content_Hash="-364479382">
+  <Metadata>
+    <Id>fc72538c-4705-441e-9118-5f6eea1fce48</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>制御フロー解析を実行する</Title>
+    <Category>セキュリティ工学</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>制御フロー解析は、コードの論理条件を段階的に通過するために使用されるメカニズムです。 このプロセスは次のように機能します。</p>
+  <ol>
+    <li>1 つの関数に注目して、各分岐条件を確認します。 分岐条件には、ループ、if 文、try/catch ブロックがあります。 <li>各ブロックが実行される条件を確認します。 <li>次の関数に進んで、この作業を繰り返します。</li></li></li>
+  </ol>
+  <h1>理由</h1>
+  <p>制御フロー解析を使用して論理エラーに起因する脆弱性を探します。</p>
+  <h1>状況</h1>
+  <p>アプリケーション開発ライフサイクルの開発段階で制御フロー解析を実行します。</p>
+  <h1>対策</h1>
+  <p>制御フロー解析は、コードの論理条件を段階的に通過するために使用されるメカニズムです。 このプロセスは次のように機能します。</p>
+  <ol>
+    <li>1 つの関数に注目して、各分岐条件を確認します。 分岐条件には、ループ、if 文、try/catch ブロックがあります。 <li>各ブロックが実行される条件を確認します。 <li>次の関数に進んで、この作業を繰り返します。</li></li></li>
+  </ol>
+  <p>制御フローを調査する際は、次の問題に留意します。</p>
+  <h2>アプリケーションがクライアント側の検証に依存しているかどうか </h2>
+  <p>マネージド コードや Web アプリケーション コードは、クライアントで簡単に変更できます。サーバはクライアント コードを信頼することはできません。 クライアントの動作を変更したり、同じデータ検証ルールを順守しない新しいクライアントを最初から書いたりすることは簡単です。</p>
+  <p>例: </p>
+ <pre>&lt;html&gt;&lt;head&gt;<br />&lt;script language=&amp;#8216;javascript&amp;#8217;&gt;<br />function validateAndSubmit(form)<br />&amp;#123;<br /> if(form.elments&amp;#91;&amp;#8220;path&amp;#8221;&amp;#93;.value.length() &gt; 0)<br /> &amp;#123;<br /> form.submit();<br /> &amp;#125;<br />&amp;#125;<br />&lt;/script&gt;<br />&lt;form action=&amp;#8220;mypage.asp&amp;#8221; method=&amp;#8220;post&amp;#8221;&gt;<br />&lt;input type=&amp;#8216;text&amp;#8217; id=&amp;#8216;path&amp;#8217;/&gt;<br />&lt;input type=&amp;#8216;button&amp;#8217; onclick=&amp;#8216;validateAndSubmit(this.parent)&amp;#8217;&gt;Submit&lt;/input&gt;<br />&lt;/form&gt;<br />&lt;/script&gt;&lt;/head&gt;&lt;body&gt;&amp;#8230;&lt;/body&gt;&lt;/html&gt;</pre>
+  <p>この例では、クライアント側のスクリプティングが、&amp;#8220;path&amp;#8221;  の長さが 0 より大きいことを検証します。 サーバがこの値を処理するときに、この前提に依存してセキュリティ脅威を軽減しようとする場合、攻撃者はシステムを容易に破壊できるようになります。</p>
+  <h2>コードに秘密や重要な IP が組み込まれているかどうか </h2>
+  <p>マネージド コードは簡単に逆コンパイルできます。実際に、最終実行ファイルから元のコードに非常によく似たコードをリカバリすることができます。 機密な IP やハードコード化された秘密が簡単に盗まれる可能性があります。 オブファスケーターを使用すると、この種類の盗難を困難にすることはできますが、完全に防ぐことはできません。 他のよくある問題として、情報がユーザーに表示されないと考えたうえで Hidden フィールドを使用する場合があります。</p>
+  <p>例: </p>
+ <pre>IntPtr tokenHandle = new IntPtr(0);<br />IntPtr dupeTokenHandle = new IntPtr(0);<br />string userName = "joe", domainName = "acmecorp", password="<a href="mailto:p&amp;#64;Ssw0rd">p&amp;#64;Ssw0rd</a>";<br />const int LOGON32_PROVIDER_DEFAULT = 0;<br /><br />//This parameter causes LogonUser to create a primary token.<br />const int LOGON32_LOGON_INTERACTIVE = 2;<br />const int SecurityImpersonation = 2;<br />tokenHandle = IntPtr.Zero;<br />dupeTokenHandle = IntPtr.Zero;<br /><br />// Call LogonUser to obtain a handle to an access token.<br />bool returnValue = LogonUser(userName, domainName, password, <br />LOGON32_LOGON_INTERACTIVE, LOGON32_PROVIDER_DEFAULT, ref tokenHandle);</pre>
+  <h2>機微データが（一時ファイルなどの）予測可能な場所に保存されていないか、またはネットワーク上で平文で送信されていないかどうか</h2>
+  <p>機微データは、盗難を防ぐ暗号化された形式で保存および送信される必要があります。 </p>
+  <p>例: </p>
+  <p>よくあるエラーは、ASP.NET web.config ファイルにサーバ パスワードを保存することです。</p>
+ <pre>&lt;&amp;#33;-- web.config --&gt;<br />&lt;connectionStrings&gt;<br /> &lt;add name="MySQLServer" <br /> connectionString="Initial Catalog=finance;<br /> data source=localhost;Integrated Security=SSPI"<br /> providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;</pre>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" <br />               -prov "DataProtectionConfigurationProvider"</pre>
+  <p>代わりに、接続文字列を暗号化してください。</p>
+ <pre>
+    <br />&lt;&amp;#33;&amp;#8212;web.config after encrypting the connection strings section --&gt;<br />. . . <br />&lt;protectedData&gt;<br /> &lt;protectedDataSections&gt;<br /> &lt;add name="connectionStrings" <br /> provider="dataprotectionconfigurationprovider"<br /> inheritedByChildren="false" /&gt;<br /> &lt;/protectedDataSections&gt;<br />&lt;/protectedData&gt;<br />. . . <br />&lt;connectionStrings&gt;<br /> &lt;EncryptedData&gt; <br /> &lt;CipherData&gt; <br />&lt;CipherValue&gt;AQAAANCMnd8BFdERjHoAwE/Cl&amp;#43;sBAAAAexuIJ/8oFE&amp;#43;sGTs7jBKZdgQAA<br />AACAAAAAAADZgAAqAAAABAAAAAKms84dyaCPAeaSC1dIMIBAAAAAASAAACgAAAAEAAAAKa<br />VI6aAOFdqhdc6w1Er3HMwAAAAcZ00MZOz1dI7kYRvkMIn/BmfrvoHNUwz6H9rcxJ6Ow41E<br />3hwHLbh79IUWiiNp0VqFAAAAF2sXCdb3fcKkgnagkHkILqteTXh&lt;/CipherValue&gt;<br /> &lt;/CipherData&gt;<br /> &lt;/EncryptedData&gt;<br />&lt;/connectionStrings&gt;<br />. . . </pre>
+  <p>同様に、Forms Authentication の Credential 情報を web.config ファイルに保存しないでください。</p>
+ <pre> &lt;authentication mode="Forms"&gt;<br /> &lt;forms name="App" loginUrl="/login.aspx"&gt;<br /> &lt;credentials passwordFormat = "Clear" <br /> &lt;user name="UserName1" password="Password1"/&gt;<br /> &lt;user name="UserName2" password="Password2"/&gt;<br /> &lt;user name="UserName3" password="Password3"/&gt;<br /> &lt;/credentials&gt;<br /> &lt;/forms&gt;</pre>
+  <p>代わりに、ACL でしっかり管理される外部の ユーザー ストアを使用します。</p>
+  <h2>暗号化が使用されているかどうか</h2>
+  <p>問題のある乱数発生器を探します。 System.Security.Cryptography.RNGCryptoServiceProvider を使用して、暗号技術的に安全な乱数が生成されていることを確認する必要があります。</p>
+  <p>管理が不十分な鍵を探します。 ハード コード化した鍵の値に注意します。コードに残しておくと、暗号化が確実に破られます。 メソッド間で鍵の値を値参照で渡さないようにします。この方法では、メモリーに多数の秘密のコピーが残り、攻撃者が発見できます。</p>
+  <p>使用後のメモリーから秘密を削除していない部分を探します。 CLR はメモリーを管理するため、マネージド コードでこの手順を実行することは、ネイティブ コードで実行するよりも実質的に困難です。 秘密が適切にクリアされていることを確認するため、次の手順が実行されていることを確認します。</p>
+  <ul>
+    <li>秘密を保存するために文字列を使用しないでください。 文字列は不変であり、効果的にクリアすることはできません。 代わりに、バイト配列または CLR 2.0 SecureString が使用されていることを確認します。 <li>どの種類を使用している場合でも、データ処理終了後にすぐ .clear メソッドを必ず呼び出します。 <li>ディスクにページアウトされた秘密は、長期間存続し、完全にクリアすることが難しくなる場合があります。 GCHandle.Alloc および GCHandleType.Pinned が使用され、マネージ オブジェクトがディスクへのページアウトされないようにします。 </li></li></li>
+  </ul>
+  <p>カスタムの暗号ルーティンを探します。 System.Security.Cryptography を使用していることを確認します。 暗号化は、正しく機能させることが困難であることが知られています。 Windows の暗号 API は適切であることが立証されており、長年にわたる学術的研究から得られたアルゴリズムを実装しています。 あまり知られていないアルゴリズムを使用する方が安全であると考える向きもありますが、これは間違いです。 暗号化アルゴリズムは数学的に実証されているため、多く人が目を向けるものほど高い効果を持ちます。 攻撃者の意志が固い場合、欠陥のある実装を隠すことはできません。 </p>
+  <h2>CAS が使用されているかどうか</h2>
+  <p>LinkDemand 呼び出しと Assert 呼び出しの使用を詳細に調べます。 これらの呼び出しでは、コード アクセスのスタック ウォークが完了前に停止するため、おびき寄せによる攻撃 (Luring Attack) に対してコードをオープンにする可能性があります。 パフォーマンス上の理由により、これらの呼び出しを使用することが必要な場合がありますが、スタックの上位に信頼できない呼び出し元がないことを確認してください。このメソッドの LinkDemand 呼び出しまたは Assert 呼び出しが攻撃の手段として使用される危険性があります。 点検しているコンポーネントが、部分的に信頼できる呼び出し元を許可する場合は特に注意が必要です。</p>
+ <pre>&amp;#91;assembly: AllowPartiallyTrustedCallersAttribute()&amp;#93;</pre>
+  <p>これにより、完全には信頼できない呼び出し元がアセンブリにアクセスできるようになります。 点検しているコンポーネントが、その後で部分的に信頼可能な呼び出し元を許可しないアセンブリを呼び出す場合は、セキュリティ バグが生じる可能性があります。 <br />UnmanagedCode、MemberAccess、SerializationFormatter、SkipVerification、ControlEvidence / ControlPolicy、ControlAppDomain、ControlDomainPolicy、SuppressUnmanagedCodeSecurityAttribute などの危険なアクセス許可の要求も確認します。</p>
+  <p>例: </p>
+ <pre>&amp;#91;DllImport("Crypt32.dll", SetLastError=true, CharSet=System.Runtime.InteropServices.CharSet.Auto)&amp;#93;<br />&amp;#91;SuppressUnmanagedCodeSecurity&amp;#93;<br />private static extern bool CryptProtectData(<br />ref DATA_BLOB pDataIn, <br />String szDataDescr, <br />ref DATA_BLOB pOptionalEntropy,<br />IntPtr pvReserved, <br />ref CRYPTPROTECT_PROMPTSTRUCT pPromptStruct, <br />int dwFlags, <br />ref DATA_BLOB pDataOut);</pre>
+  <h2>文書化されていないパブリック インターフェイスがあるかどうか</h2>
+  <p>文書化されていないパブリック インターフェイスやその他のインターフェイスを探します。 点検中のインターフェイスがテスト インターフェイスまたはバックドア管理インターフェイスであるかどうかを確認します。 これらのインターフェイスは、製品にまったく存在すべきでない場合も多くあり、製品の他の部分と同じレベルの設計やテスト監視が行われていることはほとんどありません。</p>
+  <h2>コンポーネントが依存性を信頼しすぎていないかどうか</h2>
+  <p>明確な予防手段が存在しなければ、攻撃者はコードをごまかして、信頼できるコードの代わりに悪意のあるライブラリを読み込めるようになります。 ロードされたアセンブリのすべてに厳密な名前が指定されているかどうかを確認します。 この手順により、タンパリングの発生を防止できます。 厳密な名前を指定しない場合、コードはそれとは知らずに悪意のあるコードを呼び出す可能性があります。 ネイティブ コード ライブラリを使用すると、これが困難になるため、ネイティブ コードを暗黙的に信頼しないように注意する必要があります。 ネイティブ ライブラリはハッシュや証明書で確認できます。 さらに、すべてのライブラリが完全なパスで読み込まれていることを確認し、正規化攻撃を回避する必要があります。</p>
+  <p>さらに、遅延署名が有効かどうかを確認します。 遅延署名は、コンポーネントの署名に使用される私有鍵の機密性を保護するのに役立つため、一般的に推奨されます。</p>
+ <pre>&amp;#91;assembly:AssemblyDelaySignAttribute(true)&amp;#93;</pre>
+  <h2>適切かつ矛盾のないエラー チェックが行われているかどうか</h2>
+  <p>try/catch が矛盾なく使用され、 戻り値が確認されていることを確認します。 空の catch ブロックに注意します。 アセンブリが動的に読み込まれる場合は必ずエラー処理をダブル チェックします。 System.Reflection.Assembly.Load のコールを探します。 ライブラリにセキュリティ機能が含まれ、セキュリティ機能の読み込みに失敗した場合に、コードがセキュリティ レベルの高いデフォルト値に戻ることを確認します。 </p>
+  <p>例外がスローされた場合に、なりすましや昇格した特権が下がらない可能性があるケースを探します。 これは、攻撃者による論理バグ (catch に正しいコードが含まれていない) または finally ブロックの巧妙な攻撃者によって発生する可能性があります。</p>
+  <p>例外フィルターは finally ブロックの前に実行さるため、本来の部分的に信頼可能なコンテキストではなく、特権コードのコンテキストで悪意のあるコードが実行される場合があります。</p>
+  <p>例: </p>
+  <p>論理バグ</p>
+ <pre>try<br />&amp;#123;<br />ElevatePrivilege();<br />//If ReadSecretFile throws an exception privileges will not be lowered<br />ReadSecretFile();<br />LowerPrivilege();<br />&amp;#125;<br />catch(FileException fe)<br />&amp;#123;<br />ReportException();<br />&amp;#125;</pre>
+  <p>finally の悪用</p>
+ <pre>&amp;#8216;Malicious VB Client<br />Imports VictimLib<br />Module MalCode<br /> Sub Main()<br /> Dim victim As New Victim<br /> Try<br /> victim.Operation(-1)<br /> Catch When Malware(victim) = True<br /> End Try<br /> End Sub<br /> Function Malware(ByVal victim As Victim) As Boolean<br /> 'Do malicious stuff in here<br /> Return True<br /> End Function<br />End Module</pre>
+ <pre>&amp;#8216;Victim Server<br />using System;<br />namespace VictimLib &amp;#123;<br /> public class Victim &amp;#123;<br /> public void Operation(int param) &amp;#123;<br /><br />  try &amp;#123;<br /> RaisePrivilege();<br /> if(param &lt; 0) &amp;#123;<br /> throw new ArithmeticException("Invalid input");<br /> &amp;#125;<br /> &amp;#125;<br /> /&amp;#42;<br /> catch(Exception e_) &amp;#123;<br /> LowerPrivilege();<br /> throw(e_);<br /> &amp;#125;<br /> &amp;#42;/<br /> finally &amp;#123;<br /> LowerPrivilege();<br /> &amp;#125;<br /> &amp;#125;<br /> &amp;#125;<br />&amp;#125;</pre>
+  <h2>エラー メッセージに余計な情報が含まれていないかどうか </h2>
+  <p>エラー メッセージは攻撃者が悪用できる情報を漏えいすることなく、一般的なユーザーに役立つものであることが必要です。 コードがコール スタック、コード行、サーバ ファイル パスその他のアプリケーション内部の情報を暴露しないことを確認します。 このような情報は、ユーザーの役には立ちませんが、攻撃者にとっては非常に便利です。 </p>
+  <p>カスタム エラー ページが ASP.NET アプリケーションに実装されていることを確認し、機微データが漏えいせず、アプリケーション トレースがオフになるようにします。</p>
+  <p>セキュリティへの配慮が必要なエラー パスを慎重にチェックします。 たとえば、ユーザー認証中の様々なエラー コード パスに対してエラー メッセージを変更することには注意が必要です。 よくある問題は、不適切なユーザー名/パスワードの場合と適切なユーザー名/パスワードの場合で、異なるエラー メッセージが表示されることです。 エラーの違いは微妙なものであっても、最終的な結果は悪用可能な情報を攻撃者に与えます。</p>
+  <p>例: </p>
+  <p>不適切なユーザー名でログインすると、あるエラー メッセージが表示されます。 ユーザー名が適切でもパスワードが不適切な場合、異なるエラー メッセージが表示されます。</p>
+  <h2>アプリケーションで、ユーザー セッションが機密情報を漏えいするかどうか</h2>
+  <p>点検しているウェブ アプリケーションがユーザー セッションを介して機密情報を暴露する場合、セッションの管理方法には特別な注意が必要です。 ASP.Net ではセッション ID が適切にランダム化されるため、セッション ID を推測することは困難です。しかし、攻撃者は他の方法でこの情報を入手しようとします。 セッション ID が SSL で送信されること、さらにセッション タイムアウトが短いことを確認します。</p>
+ <pre>&lt;sessionState mode="InProc" stateConnectionString="tcpip=127.0.0.1:42424"<br /> sqlConnectionString="data source=127.0.0.1;user id=&lt;username&gt;;<br /> password=&lt;strong password&gt;" cookieless="false" timeout="20"<br /> regenerateExpiredSessionId = &amp;#8220;true&amp;#8221; /&gt;</pre>
+  <h2>GET 要求で書き込み操作を実行できるかどうか</h2>
+  <p>GET 要求でデータまたはコンテンツを変更できるかどうかを確認します。 これが可能である場合、攻撃者は正規のユーザーをだまして、アカウントを利用した不正な操作を実行させることができます。 ASP.Net アプリケーションでは、Request.RequestType を必ず確認してから、SQL クエリーなどのデータやコンテンツを変更する操作を実行します。</p>
+  <h2>コードがマルチスレッドかどうか</h2>
+  <p>特に静的メソッドとコンストラクターについて、競合状態がないかチェックします。</p>
+  <p>例: </p>
+ <pre>private static int amtRecvd = 0;<br />public static int IncrementAmountReceived(int increment)<br />&amp;#123;<br />return(amtRecvd &amp;#43;= increment);<br />&amp;#125;</pre>
+  <p>2 つの Thread がこのコードを同時に呼び出す場合、amtRecvd 値の計算が不正になる可能性があります。</p>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

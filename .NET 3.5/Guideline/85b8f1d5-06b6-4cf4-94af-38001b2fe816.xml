@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="918614426" Content_Hash="-1232199410">
+  <Metadata>
+    <Id>85b8f1d5-06b6-4cf4-94af-38001b2fe816</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>タンパリングおよび読み取りから認可 Cookie を保護する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>タンパリングおよび読み取りから認可 Cookie を保護する </p>
+  <h1>理由</h1>
+  <p>ユーザーが認可 Cookie を改変できる場合､潜在的にはシステムで取ることが許可されているロールを改変できます。&nbsp; Cookie を読み取ることで、ユーザーが使用の認可 Cookie を偽造でき、必要以上のシステムへのアクセスをさらに取得できるようになる可能性があります。&nbsp; Cookie が暗号化され署名され、使用されるたびに署名と Cookie の内容の正確さと有効期限がチェックされる場合､タンパリングと読み取りの両方が防止されます。 </p>
+  <h1>状況</h1>
+  <p>認可 Cookie を使用するすべてのシステムは、読み取りと改変から保護することをお勧めします｡ </p>
+  <h1>対策</h1>
+  <p>次の例は、<b>&lt; roleManager&gt; エレメントが </b>認可 Cookie を保護するように構成されていることを表示します。 </p>
+ <pre>&lt;roleManager enabled="true"<br />	cacheRolesInCookie="true"    <br />	cookieName=".ASPROLES"              <br />	cookieTimeout="30"              <br />	cookiePath="/"              <br />	cookieRequireSSL="true"              <br />	cookieSlidingExpiration="true"              <br />	cookieProtection="All"               <br />	createPersistentCookie="false"&gt;<br />&lt;/roleManager&gt;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

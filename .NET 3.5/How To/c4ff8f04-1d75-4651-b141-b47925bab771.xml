@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1785090221" Content_Hash="-2006700497">
+  <Metadata>
+    <Id>c4ff8f04-1d75-4651-b141-b47925bab771</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>部分的に信頼されたアプリケーションをデバッグする間、コード アクセス セキュリティを無効にする方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>.NET Framework では、コード アクセス セキュリティは一時的にしか無効できません。 コード アクセス セキュリティを一時的に無効にすることによって、問題がセキュリティ関連のものかを判断することができます。コード アクセス セキュリティは コマンド ラインからここで示されているように<b>-s off </b>スイッチを使って CasPol.exe を実行することで一時的に無効にできます。</p>
+ <pre>CasPol.exe -s off </pre>
+  <p>これによりコード アクセス セキュリティが一時的に無効になりますが、CasPol プロセスは有効なままとなります。 コード アクセス セキュリティを再度有効にしたい場合は、ENTER キーを押してください。 コード アクセス セキュリティが無効になっている場合、全てのコード アクセス要求が成功します。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;コード アクセス セキュリティを無効にすることは、システムを潜在的な攻撃に無防備にしてしまうこととなります。 これはアプリケーションを安全な環境でデバッグする際のみに実行してください。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

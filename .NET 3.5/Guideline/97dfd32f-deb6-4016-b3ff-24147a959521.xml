@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1923848787" Content_Hash="-1718157440">
+  <Metadata>
+    <Id>97dfd32f-deb6-4016-b3ff-24147a959521</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>LogonUser API を使用しない</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>偽装を使用する必要がある場合、LogonUser API を呼び出して偽装トークンを作成するコードを書かないようにします。 Web.config の &lt; identity &gt; エレメントを使用して特定のアカウントを偽装する、もしくは Kerberos を使用して組織の Active Directory から偽装トークンを要求します。</p>
+  <h1>理由</h1>
+  <p>LogonUser API を使用すると、アプリケーションが Windows 認証の Credential 情報を処理するように強制します。 LogonUser はユーザーを擬装する目的のために容認された方法ですが、Windows の Credential 情報を不適切に処理すると社内の IT インフラに対する侵害を引き起こす恐れがあります。</p>
+  <h1>状況</h1>
+  <p>次のような場合は、LogonUser API を使用しないことをお勧めします。</p>
+  <ul>
+    <li>アプリケーションはユーザーから <strong>直説</strong> Windows Credential 情報を取得しません。 <li>あなたはアプリケーションが Windows Credential 情報を安全に取り扱えないかもしれないと思っています。 <li>アプリケーションは、Windows 2003 ドメインが管理する環境で動作します。</li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <p>アプリケーションが LogonUser の使用に適しているかどうかを決定する際は、次のステップを使用します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>偽装の必要性を特定します。</strong>
+        <a href="/article/fdb65a4c-d979-4ab7-b2fa-b88e908207fe">「必要な場合を除いて偽装を使用しない」</a> ガイドラインを使用して、アプリケーションがプログラム的な偽装を必要とするかどうかを決定します。</p>
+      <li>
+        <p>
+          <strong>アプリケーションがユーザーからの Windows Credential 情報を受け付けるかどうかを特定します。</strong> アプリケーションの設計およびセキュリティ要件を確認します。 コードにおいてユーザーが Credential 情報を求められる場所を特定します。 アプリケーションの偽装コードがユーザーの Credential 情報にアクセスできるかどうかを特定します。</p>
+        <li>
+          <p>
+            <strong>アプリケーションが Active Directory を使用するかどうかを特定します。</strong> アプリケーションのサーバにおいて管理者権限を保持している場合、サーバが Windows ドメインのメンバーであるかどうかを確認します。 アプリケーションのサーバで管理者権限を保持していない場合、この問題についてネットワーク管理者に問い合わせてください。</p>
+          <li>
+            <p>
+              <strong>偽装メカニズムを選択します。</strong> 偽装メカニズムを選択する際は次の基準を使用します。</p>
+            <ul>
+              <li>
+                <p>
+                  <strong>ISS</strong> デフォルトで、IIS は Windows 認証の実行時にユーザーを偽装します。 アプリケーションが Windows 認証を使用する場合、これは現在のユーザーを偽装するための推奨方法です。 Windows 認証を使用することにより、アプリケーションは現在のセッションの対象範囲内で現在のユーザーを永続的または一時的に偽装できます。</p>
+                <ul>
+                  <li>
+                    <strong>永続的</strong> 統合 Windows 認証を有効にし、それ以外のすべての認証メソッドを無効にした状態で IIS の構成を行ってください。 お使いのアプリケーションの Web.config ファイルの<strong>&lt;system.web&gt;</strong> セクションに次の構成を追加することで、ASP.NET アプリケーションの構成を行ってください。 <blockquote><pre>&lt;authentication mode="Windows" /&gt;<br />&lt;identity impersonate="true" /&gt;</pre></blockquote><p>このコンフィグレーションでは、ASP.NET は、IIS による認証ユーザーを偽装し、ウェブ アプリケーションのコードを実行する ASP.NET の要求 Thread は、自らに対して偽装トークンをアタッチします。 </p><p>上記のコンフィグレーションでは、すべてのリソース アクセスの実行に最初の呼び出し元の ID を用いることができますが、プロセス ID を用いてローカル ファイルのような特定リソースにアクセスする必要があるときは、次のコードを使用することで、ASP.NET 要求  Thread から一時的に偽装トークンを削除できます。</p><blockquote><pre>// Stop impersonation<br />WindowsImpersonationContext ctx = WindowsIdentity.Impersonate(IntPtr.Zero);<br />try<br />&amp;#123;<br />  // Thread is now running under the process identity.<br />  // Any resource access here uses the process identity.<br />&amp;#125;<br />finally <br />&amp;#123;<br />  // Resume impersonation<br />  ctx.Undo(); <br />&amp;#125;</pre></blockquote><li><p><strong>一時的</strong> 特定のメソッド内で最初の呼び出し元を一時的に偽装するには、認証されたユーザーを表す <strong>WindowsIdentity</strong> オブジェクトを入手してから、そのオブジェクトの <strong>Impersonate</strong> メソッドを呼び出す必要があります。 </p><ol><li><p><strong>お使いのASP.NET アプリケーションで偽装が無効になっていることを確認します</strong>。Web.config ファイル内で次の構成を使用して偽装を無効にします。</p><blockquote><pre>&lt;identity impersonate="false" /&gt;</pre></blockquote><li><p><strong>認証されたトークンを入手します。 </strong>偽装を必要とするメソッドに次のコードを追加します。 </p><blockquote><pre>using System.Security.Principal;<br />...<br />// Obtain the authenticated user's Identity<br />WindowsIdentity winId = (WindowsIdentity)HttpContext.Current.User.Identity;<br />WindowsImpersonationContext ctx = null;<br />try<br />&amp;#123;<br />  // Start impersonating<br />  ctx = winId.Impersonate();<br />  // Now impersonating<br />  // Access resources using the identity of the authenticated user<br />&amp;#125;<br />// Prevent exceptions from propagating<br />catch<br />&amp;#123;<br />&amp;#125;<br />finally<br />&amp;#123;<br />  // Revert impersonation<br />  if (ctx &amp;#33;= null)<br />  ctx.Undo();<br />&amp;#125;<br />// Back to running under the default ASP.NET process identity</pre></blockquote><p>このコードは最初の呼び出し元を偽装します。 最初の呼び出し元の ID は HttpContext.Current.User.Identity オブジェクト内に維持されます。 </p><p>上記のコードで、例外の発生時でも偽装が復帰するように、 finally ブロックがどのようにして使用されているかに注目してください。 また、このコードでは、スレッド で偽装を行っている間に例外がコール スタック内に伝播できないように catch ブロックが使用されています。</p></li></li></ol></li></li>
+                </ul>
+                <li>
+                  <p>
+                    <strong>&lt;ID&gt;.</strong>
+                    <strong>web.config</strong> 内の &lt;ID&gt; エレメントは、偽装を行うための推奨方法です。 これは、アプリケーションが特定のアカウントを偽装する必要がある場合に使用されます。 <a href="/article/faada3f5-3f50-42fc-b863-5058e3d848cb">「構成ファイル内の機微データを保護する」</a>ガイドラインを使用して、&lt;ID&gt; エレメントを保護します。 例: </p>
+                  <blockquote>
+                    <pre>&lt;identity impersonate="true" userName="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,userName"<br />                              password="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,password" /&gt;</pre>
+                  </blockquote>
+                  <li>
+                    <p>
+                      <strong>Kerberos</strong> 偽装特権は Active Directory により管理されているため、Kerberos はプログラム的な偽装を行うための推奨方法です。 Active Directory を使用することにより、アプリケーションはユーザーの Credential 情報を明確に処理する必要なくユーザーを偽装できます。 しかし、アプリケーションがかかるタスクを実行するには、Active Directory において適切な特権を保持している必要があります。 例: </p>
+                    <blockquote>
+ <pre>WindowsIdentity winIdentity = new WindowsIdentity(<a href="mailto:username&amp;#64;domainName">username&amp;#64;domainName</a>);<br />WindowsImpersonationContext ctx = winIdentity.Impersonate();</pre>
+                    </blockquote>
+                    <li>
+                      <p>
+                        <strong>LogonUser</strong> LogonUser は、アプリケーションが認証スキーマの一部としてユーザーの Windows Credential 情報を既に処理している場合にのみ使用できます。 それ以外の場合は、他の 2 つのアプローチを使用することが推奨されています。 例: </p>
+                      <blockquote>
+ <pre>IntPtr token;<br />bool result; <br />result = LogonUser("user", "domain", "pass", LogonTypes.Batch, LogonProviders.Default, out token); <br />if (result)<br />&amp;#123;<br />    WindowsIdentity winIdentity = new WindowsIdentity(token);<br />    CloseHandle(token);<br />    WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />&amp;#125;<br /> ...<br />&amp;#91;DllImport("advapi32.dll", SetLastError = true)&amp;#93;<br />static extern bool LogonUser(  string principal,  string authority,<br />  string password,  LogonTypes logonType,  LogonProviders logonProvider,<br />  out IntPtr token);<br />&amp;#91;DllImport("kernel32.dll", SetLastError = true)&amp;#93;<br />static extern bool CloseHandle(IntPtr handle); <br />enum LogonTypes : uint<br />&amp;#123;<br />    Interactive = 2,    Network,    Batch,    Service,    NetworkCleartext = 8,    NewCredentials<br />&amp;#125;<br /><br />enum LogonProviders : uint<br />&amp;#123;<br />    Default = 0, // default for platform <br />    WinNT35, // sends smoke signals to authority<br />    WinNT40, // uses NTLM<br />    WinNT50      // negotiates Kerb or NTLM&amp;#125;</pre>
+                      </blockquote>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </ul>
+            <li>
+              <p>
+                <strong>偽装メカニズムを適用します。</strong> 適切な偽装メカニズムを適用します。 以下の考慮事項に留意してください。</p>
+              <ul>
+                <li>
+                  <p>常に、偽装を必要とするコードに可能な限り近いポイントで偽装してください。 これにより、偽装ユーザーのコンテキスト内でエクストラ ファンクショナリティが実行されることはありません。</p>
+                  <li>
+                    <p>偽装は可能な限り短くしてください。 それを必要とする機能を実行し、偽装コンテキストを終了します。 <strong>[finally]</strong> ブロックを使用して偽装が常に終了していることを確認します。</p>
+                    <blockquote>
+ <pre>using System.Security.Principal;<br />...<br />WindowsIdentity winIdentity = new WindowsIdentity(<a href="mailto:username&amp;#64;domainName">username&amp;#64;domainName</a>);<br />WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />try<br />&amp;#123;<br />  // Do work<br />&amp;#125;<br />catch(Exception ex)<br />&amp;#123;<br />  // Stop impersonating<br />  ctx.Undo();<br />&amp;#125;<br />finally<br />&amp;#123;<br />  // Stop impersonating<br />  ctx.Undo();<br />&amp;#125;</pre>
+                    </blockquote>
+                    <li>
+                      <p>偽装の回数は最小限に抑えてください。 アプリケーションが複数回偽装を実行する必要がある場合、可能な限りそれらのアクションをグループ化します。 コード全体を通して複数の場所で偽装する必要がある場合は、LogonUser を使用しないでください。</p>
+                      <li>
+                        <p>例外を伝播しないでください。 <a href="/article/5b6c71b0-cb89-4435-b30e-2fd76347078e">「偽装中に例外を伝播しない」</a>ガイドラインを使用して、偽装コンテキスト内の例外を適切に処理します。</p>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </ul>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は、MyCorp の人事アプリケーションです。 MyCorp の IT ネットワークは Active Directory を使用して稼動しますが、MyApp は証明書ベースのシングル サインオンを実行します。 MyApp は ASP.NET のローカル システム アカウント下で稼動します。 しかしながら、ファイルのアップロードのような一部の操作は、ユーザーの Windows アカウントを使用して実行されます。 この要件に適合するために、アプリケーションはユーザーの Credential 情報を独自の Credential 情報リポジトリに格納し、LogonUser を使用してユーザーを偽装します。 攻撃者は、MyApp Credential 情報リポジトリを危険にさらし、 それにより MyCorp の Active Directory 内の有効なユーザーを危険にさらします。</p>
+  <blockquote>
+ <pre>HttpClientCertificate cert = HttpContext.Current.Request.ClientCertificate;<br />if (cert.IsPresent)<br />&amp;#123;<br />    IntPtr token;<br />    bool result;<br />    string cn = cert.Get("SUBJECT CN");<br />    string username = MyApp.GetUsername(cn);<br />    string password = MyApp.GetPassword(username);<br />    string domain = "NTDOMAIN";<br />    result = LogonUser(username, domain, password, LogonTypes.Batch, LogonProviders.Default, out token);<br />    if (result)<br />    &amp;#123;<br />        WindowsIdentity winIdentity = new WindowsIdentity(token);<br />        CloseHandle(token);<br />        WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />        // Store the uploaded file<br />    &amp;#125;<br />&amp;#125;</pre>
+  </blockquote>
+  <h1>ソリューションの例</h1>
+  <p>MyApp は、MyCorp の人事アプリケーションです。 MyCorp の IT ネットワークは Active Directory を使用して稼動しますが、MyApp は証明書ベースのシングル サインオンを実行します。 MyApp は ASP.NET のローカル システム アカウント下で稼動します。 しかしながら、ファイルのアップロードのような一部の操作は、ユーザーの Windows アカウントを使用して実行されます。 この要件に適合するために、アプリケーションは Kerberos および会社の Active Directory サービスを使用してユーザーを偽装する権限を付与されています。 そのため、MyApp が危険にさらされても、MyCorp の Active Directory 内のユーザーが危険にさらされることはありません。</p>
+  <blockquote>
+ <pre>HttpClientCertificate cert = HttpContext.Current.Request.ClientCertificate;<br />if (cert.IsPresent)<br />&amp;#123;<br />    string cn = cert.Get("SUBJECT CN");<br />    string username = MyApp.GetUsername(cn);<br />    WindowsIdentity winIdentity = new WindowsIdentity(username &amp;#43; "&amp;#64;NTDOMAIN");<br />    WindowsImpersonationContext ctx = winIdentity.Impersonate();<br />    // Store the uploaded file<br />&amp;#125;</pre>
+  </blockquote>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/faada3f5-3f50-42fc-b863-5058e3d848cb">ガイドライン: 構成ファイル内の機微データを保護する</a>
+      <li>
+        <a href="/article/fdb65a4c-d979-4ab7-b2fa-b88e908207fe">ガイドライン: 必要な場合を除いて偽装を使用しない</a>
+        <li>
+          <a href="/article/618d21b2-e380-4b43-8e51-854a0855c74e">チェックリスト アイテム: LogonUser API が使用されていない</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

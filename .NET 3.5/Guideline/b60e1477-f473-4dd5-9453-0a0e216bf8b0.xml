@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="394308897" Content_Hash="-605881494">
+  <Metadata>
+    <Id>b60e1477-f473-4dd5-9453-0a0e216bf8b0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>グローバル例外ハンドラーを使用して未処理の例外を捕らえる</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>グローバル例外ハンドラーを使用して未処理の例外を捕らえ、クライアントへ伝播することを防止してください。 </p>
+  <h1>対策</h1>
+  <p>サービス ホスト オブジェクトの失敗したイベントへサブスクライブすることにより、WCF サービスでの未処理の例外を処理できます。 このイベントにサブスクライブすることにより、失敗の原因を見極め､そしてサービスを破棄もしくは再開するために必要な操作をすることができます。</p>
+  <p>次のコード スニペットは、失敗したイベントへのサブスクライブの方法を表示します。</p>
+ <pre>// hosting a WCF service <br />ServiceHost customerServiceHost;<br />customerServiceHost = new ServiceHost(…);<br />…<br />// Subscribe to the Faulted event of the customerServiceHost object<br />customerServiceHost.Faulted += new EventHandler(faultHandler);<br />…<br />// FaultHandler method - invoked when customerServiceHost enters the Faulted state<br />void faultHandler(object sender, EventArgs e)<br />{&nbsp;&nbsp;&nbsp;&nbsp; // log the reasons for the fault…<br />}<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>例外の基準について知るには､<a href="http://msdn2.microsoft.com/en-us/library/ms733763.aspx">http://msdn2.microsoft.com/en-us/library/ms733763.aspx の「例外の基準」を参照してください｡</a><li>例外管理の Q&A については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home にある｢ WCF 3.5 質疑応答｣のセクションを参照してください｡</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home"></a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

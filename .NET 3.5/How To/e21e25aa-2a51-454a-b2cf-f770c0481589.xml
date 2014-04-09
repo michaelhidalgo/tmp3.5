@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-721611653" Content_Hash="1604963601">
+  <Metadata>
+    <Id>e21e25aa-2a51-454a-b2cf-f770c0481589</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>プロキシのスプーフィングを防ぐ方法</Title>
+    <Category>ネットワーキング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>WCF サービス レファレンスの追加時にプロキシ スプーフィングを避けます。</p>
+  <ul>
+    <li>メタデータを安全にhttps上で発行します。 mexHttpsBindingを使用して、サービスのサーバ証明書を構成します。 次の構成ではメタデータを安全に発行する方法を示します:
+<ul><pre>&lt;serviceMetadata httpGetEnabled="False" httpsGetEnabled="True"/&gt;</pre></ul><li>Mex エンドポイントを使用する場合、サービスレファレンスをhttpGetを使用して公開することなく、セキュアバインディングを使います。 Mexサービス エンドポイントに一般的なバインディング(セキュリティ機能のあるもの)を使用します。唯一の要件はIMetadataExchangeの使用です。 プロキシの生成にはserviceutil.exe.configファイルの使用が必要となります。</li></li>
+  </ul>
+  <p>動作中のプロキシ スプーフィングを避ける</p>
+  <ul>
+    <li>WCFサービスが相互認証を使用するようにします。メッセージまたはトランスポート セキュリティのどちらかを使用する際相互認証が求められます。 
+<li>デフォルトでbasicHttpBindingを使用し、セキュリティを行っていない場合、トランスポートまたはメッセージ セキュリティのどちらかを使用する構成にします。 
+<li>認証はNTLM プロトコルに依存してはいけません。 NTLMは相互認証を提供しません。</li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

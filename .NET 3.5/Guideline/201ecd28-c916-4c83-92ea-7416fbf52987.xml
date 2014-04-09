@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="420510812" Content_Hash="-603722071">
+  <Metadata>
+    <Id>201ecd28-c916-4c83-92ea-7416fbf52987</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>例外詳細をサーバにログ記録する</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>例外が発生した場合、簡潔なエラー メッセージをクライアントに返し、具体的な詳細をサーバ上にログ記録します。 スタック トレース、SQL ステートメント フラグメント、およびテーブルまたはデータベース名などの内部システムまたはアプリケーションの詳細を、クライアントに公開しないでください。 この種類の情報が、エンド ユーザーに、または現在の信頼境界を超えて広がらないことを確認してください。 </p>
+  <h1>理由</h1>
+  <p>悪意のあるユーザーは、システム レベルの診断情報を使用して、アプリケーションについて学習し、将来的な攻撃において悪用できるような弱点を探すことができます。 </p>
+  <h1>状況</h1>
+  <p>この手法は、エラーを生成できるアプリケーション ページが存在する場合はいつでも一律に適用されます。エラーの大部分はアプリケーション ページで生成されます。 </p>
+  <h1>対策</h1>
+  <p>すべての呼び出し元がフィルターされた例外情報を受信するように、&lt;CUSTOMERRORS&gt; エレメントの mode 属性を On に設定することで、詳細なエラー メッセージが表示されないようにしてください。 mode="Off" は使用しないでください。この設定を行うと、システムレベルの情報が含まれるアプリケーション開発者向けの詳細なエラー ページがクライアントに返されることが可能になるからです。 詳細については、以下のソリューション例を参照してください。 </p>
+  <h1>ソリューションの例</h1>
+  <p>また、Web.config ファイルの &lt;customErrors&gt; セクションを以下のコード例に示すように使用して、表示するデフォルト エラー ページを指定し、あわせて、エラーを表す特定の HTTP 応答コードに対応したそれ以外の必要なエラー ページも指定すべきです。</p>
+ <pre>&lt;customErrors mode="On" defaultRedirect="ErrDefault.aspx"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;error statusCode="401" redirect="ErrUnauthorized.aspx" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;error statusCode="404" redirect="ErrPageNotFound.aspx" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;error statusCode="500" redirect="ErrServer.htm" /&gt;<br />&lt;/customErrors&gt;</pre>
+  <p>defaultRedirect 属性を使用することによって、たとえばサポート連絡先の詳細を記載したカスタム エラー ページを、お使いのアプリケーションで使用することができます。 たとえばサポート連絡先情報のような、アプリケーション用のカスタム エラー ページの使用を可能にします。 これらのアプリケーション ワイドなエラー ページを使用して、構造化されたイベント処理では見つけられないエラーに対して、ユーザーにわかりやすい応答を提供します。&nbsp;&nbsp;</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/bc10306c-f37c-4780-a096-847070ae67da">構造化例外処理が使用される</a>
+      <li>
+        <a href="/article/209b61a1-022d-4574-ad70-293b9a1a5a86">無害なメッセージを含んだ一般的なエラー ページがクライアントに返される</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

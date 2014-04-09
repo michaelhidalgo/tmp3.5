@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="686533907" Content_Hash="-446449829">
+  <Metadata>
+    <Id>2bef4aaa-d019-43bf-ba3b-7486f75036c2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>正当なアプリケーションであることがユーザーに証明されている</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションでユーザーがアプリケーションの信頼性を確認することができることを確認します。</p>
+  <h1>理由</h1>
+  <p>一部のアプリケーションは、フィッシング攻撃の対象になります。 ユーザーの&amp;nbsp;アプリケーションの認証を提供できない場合、攻撃者がアプリケーションをスプーフィングし、それによりユーザーに Credential 情報またはその他の機微情報を攻撃者の悪意のあるアプリケーションに送信するようにユーザーをだますことができます。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順を使用して、アプリケーションがその正当性をユーザーに証明できるようにします。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションが SSL を使用してユーザーに対して自己を識別していることを確認します。 </strong>アプリケーションの環境で HTTPS が有効になっていることをチェックします。 機微なトランザクションが HTTPS 接続のみを経由して送信されていることを確認します。 フォーム ベース認証の実行時に、アプリケーションの <strong>web.config</strong> ファイルの&lt;forms&gt;エレメントが <strong>requireSSL</strong> 属性を "true" に設定しているかどうかを確認してください。</p>
+      <pre>&lt;authentication mode="Forms"&gt;<br />&amp;nbsp; &lt;forms loginUrl="login.aspx"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; protection="All"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; timeout="20"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; <strong>requireSSL="true"</strong>&gt;&amp;nbsp; <br />&lt;/forms&gt;<br />&lt;/authentication &gt;</pre>
+      <li>
+        <p>
+          <strong>アプリケーションでユーザーの共有されている秘密が表示されるかどうかを確認します。 </strong>アプリケーションに各ユーザーの共有されている個人的な秘密が表示されるかどうかを確認します。 共有されている秘密には以下のいずれかの組み合わせが含まれます (ただし、これらに限定されません)。</p>
+        <ul>
+          <li>
+            <strong>Layout</strong>：ユーザーが定義したレイアウト／カラー スキーム<li><strong>写真</strong>: ユーザーが定義した画像 <li><strong>語句</strong>: ユーザーが定義した語句または質問</li></li></li>
+        </ul>
+        <p>ユーザーが自分の ID を指定した後、資格情報を指定する前に、共有されている秘密がユーザーに表示されることを確認します。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は、パブリック Web インターフェイスを備えた金融アプリケーションです。 このアプリケーションは SSL を使用してユーザーに正当性を証明しないため、攻撃者は偽装したサイトを設定して MyApp を装うことができます。 ユーザーのブラウザには、本物の MyApp インターフェイスと偽物を&amp;nbsp;見分けるメカニズムがないため、ユーザーに警告信号は提示されません。 ユーザーが偽物の MyApp インターフェイスにアクセスすると、Credential 情報を攻撃者に提供するよう&amp;nbsp;だまされる可能性があります。&amp;nbsp;</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>フィッシング詐欺対策技術の詳細については、Wikipedia の「<a href="http://en.wikipedia.org/wiki/Phishing#Anti-phishing">フィッシング (詐欺)</a>」を参照してください。 </li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

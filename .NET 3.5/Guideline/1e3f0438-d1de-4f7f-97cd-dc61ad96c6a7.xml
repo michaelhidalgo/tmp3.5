@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-772057998" Content_Hash="-675094088">
+  <Metadata>
+    <Id>1e3f0438-d1de-4f7f-97cd-dc61ad96c6a7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微な Cookie 状態の暗号化</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ユーザー名または役割一覧などの機微データを含むクッキーは、暗号化する必要があります。</p>
+  <h1>理由</h1>
+  <p>Cookie データがクライアント側で変更されたり、ネットワークを通じて渡される場合にキャプチャーされて変更されたりする可能性があります。</p>
+  <h1>状況</h1>
+  <p>クエリ文字列、クッキー、およびクライアントとサーバー間のビュー ステートなどのパラメーターを使用して、セッション識別子などの機微データを渡す場合。</p>
+  <h1>対策</h1>
+  <p>Cookie にはサーバーサイドの認可プロセスの一部として使用されるセッション ID やデータなどの、機微データが含まれる場合があります。 このデータの種類を無許可の操作から保護するには、暗号化を使用して、Cookie のコンテンツを暗号化します。</p>
+  <p>クエリ文字列やフォーム フィールドなどのパラメーターでアプリケーションから機微データを渡している場合は、アプリケーションでセッション識別子を渡すために、よりセキュアな方法 (たとえば、暗号化されたクッキー) ではなく、その方法を使用する理由があるか確認します。 この情報を使用して、サーバー上の状態ストアに保持されているユーザーの状態とセッションを関連付けます。 以下の確認事項を検討します:</p>
+  <ul>
+    <li>
+      <b>機微データを含むクッキーを暗号化していますか。</b>
+      <p>ユーザー名または役割一覧などの機微データを含むクッキーをアプリケーションで使用する場合は、クッキーを必ず暗号化します。 </p>
+      <li>
+        <b>機微データをクエリ文字列またはフォーム フィールドで渡していますか。</b>
+        <p>これは、お勧めしません。クエリ文字列やフォーム フィールド内のデータ操作を防止する簡単な方法がないからです。 代わりに、暗号化されたセッション識別子の使用を検討し、サーバーのセッション状態ストアに機微データを格納してください。 </p>
+        <li>
+          <b>ビュー ステートを保護していますか。</b>
+          <p>Web ページまたはコントロールでビュー ステートを使用して、HTTP リクエストで使用する状態を保持している場合、ビュー ステートが暗号化されていて、メッセージ認証コード (MAC) との完全性がチェックされていることを確認します。 これは、マシン レベルまたはページごとに構成できます。 </p>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」(<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a>) を参照してください。 </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

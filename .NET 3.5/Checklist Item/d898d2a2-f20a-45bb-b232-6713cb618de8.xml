@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1816172112" Content_Hash="-907942304">
+  <Metadata>
+    <Id>d898d2a2-f20a-45bb-b232-6713cb618de8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>すべての出力データがエンコードされている</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>入力が、まず検証され、またはデータのエンコーディングされない限り、ユーザーにエコーバックしないことを確認します。 ユーザーにより変更できるデータは信頼されていないデータとして扱われる必要があります。</p>
+  <h1>理由</h1>
+  <p>入力を直接ユーザーへエコー バックすると、アプリケーションが <a href="/article/8049f087-514e-4f31-b587-c83f466547d3">クロスサイト スクリプティング攻撃</a> のような一部のコード インジェクション 攻撃に脆弱になります。悪意のある入力がどのようなものであるかは、システムにより大きく異なります。 ウェブ上では、通常JavaScriptの一種を指します。</p>
+  <h1>チェック方法</h1>
+  <p>次のステップを使用して、ユーザーが変更できる入力は、ユーザーにエコーバックされる前に、適切に検証されエンコードされることを確かめます。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ユーザー入力のすべてのソースを識別します。</strong> 開発において設計時およびコード レビューの段階で、アプリケーションへのすべての潜在的な汚染した入力を識別します。 各入力の意図された特性(長さ、フォーマットなど)を識別し、それに対するバリデータを作成します。 次のリストでは共通する入力ソースが紹介されています。</p>
+      <ul>
+        <li>フォーム フィールド<li>クエリー文字列<li>データベースおよびデータアクセス方法<li>Cookie コレクション<li>セッションおよびアプリケーション変数</li></li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>ユーザー入力を含むすべてのアウトプットを識別します。</strong> 開発において、設計時及びコード レビューの段階でシステムへのすべての入力を追跡し、それらが出力されるすべての場所を判断します。 それぞれのケースで、出力が起こるコンテキストを識別します。</p>
+        <li>
+          <p>
+            <strong>ユーザーの制御可能なデータが、出力として送信される前に適切にエンコードされることを確かめます。</strong> データが出力される各のロケーションで、出力のコンテキストに従ってエンコードする必要があります。</p>
+          <ul>
+            <li>クロスサイト スクリプティング攻撃からアプリケーションを防御するために <strong>Server.HtmlEncode</strong> 関数に依存しないでください。 代わりに、<a href="http://www.microsoft.com/downloads/details.aspx?familyid=efb9c819-53ff-4f82-bfaf-e11625130c25&amp;displaylang=en">http://www.microsoft.com/downloads/details.aspx?familyid=efb9c819-53ff-4f82-bfaf-e11625130c25&amp; で利用できる Microsoft Anti-Cross Site Scripting Library を使用してください。displaylang=en</a>. <li>文字ブロックリストを使用しようとしないでください。 新しく出現している攻撃形態やUnicode 文字に関して言うと、ブロックリストは効果がないことが明らかです。 <li>&lt;や&gt;などといった特定の文字の代わりに、英数字以外の文字がエンコードされるように、許可リスト エンコーディングが実施されることを確認します。<li>HTMLコンテンツまたはURLであるか、出力のクライアントへのリターンに基づいて、エンコーディングが適切に選択されている必要があります。 出力が使用されるコンテキストを確認し、出力が適切にエンコードされるようにします。 <li>Microsoft Anti-Cross Site Scripting Library を使用する場合、HTML タグおよびその属性をエンコードするために <strong>Microsoft.Security.ApplicationAntiXSSLibrary.HtmlEncode</strong> メソッドが使用されることを確認してください。 同様に、アプリケーションが入力データまたは共有データベースのデータから一部の URL を構築するケースでは、それを安全にするために <strong>Microsoft.Security.ApplicationAntiXSSLibrary.UrlEncode</strong> メソッドが使用されることを確認してください。 <li>データのエンコードは必ず、データがクライアントに返される前の最後の段階で行ってください。 それよりも前にエンコードを行った場合、データが使用される正確なコンテキスト、すなわちエンコード先のフォーマットが不明になることがあります。 また、一部のデータでは、早い段階でエンコーディングを行うと二重エンコーディングの問題が生じることがあります。</li></li></li></li></li></li>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>データが HTML コンテキストに書き出される場合、次のコードにより、既知の安全な文字のみが通過し、すべての XSS 攻撃の可能性から防護されることを確実にできます。 それにより、結果として生成されるHTML のサイズが大きくなりより、多くのプロセス オーバーヘッドが必要になりますが、明らかに安全です:</p>
+ <pre>public static string HtmlEncode(string x)&amp;#123;<br />  if (x == null)<br />  &amp;#123;<br />      return x;<br />  &amp;#125;<br />  return Regex.Replace(x, "&amp;#91;&amp;#94;a-zA-Z0-9&amp;#93;&amp;#43;", new MatchEvaluator(WebUtility.EncodeMatch));<br />&amp;#125;</pre>
+  <h1>問題の例</h1>
+  <p>クエリ文字列から直接ユーザー入力を使用するので、次の ASP.NET コードは脆弱です：</p>
+ <pre>&lt;img id='img&lt;&amp;#37;=Server.HtmlEncode(Request.QueryString&amp;#91;"userId"&amp;#93;) &amp;#37;&gt;' src='/image.gif' /&gt;</pre>
+  <p>このページは、ユーザー提供のクエリ文字列パラメータ <strong>userID</strong> に依存する出力をエンコードしないので、悪意のあるユーザー入力はクロスサイト スクリプティング攻撃につながります。</p>
+  <p>
+    <strong>注記:</strong> ASP.NET はデフォルトで要求検証を有効にするので、このウェブページには単純な XSS 攻撃は効かないものの、より複雑な多くの攻撃は成功します。 この問題の詳細は、ここを参照してください: <a href="/article/8b79f29d-0962-440b-9099-f5bd0688ce1b">要求検証に依存しない</a>。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://msdn2.microsoft.com/en-us/library/ms998274.aspx">ASP.NET でクロスサイト スクリプティングを防止する方法</a>
+      <li> <a href="http://www.microsoft.com/downloads/details.aspx?familyid=efb9c819-53ff-4f82-bfaf-e11625130c25&amp;displaylang=en">http://www.microsoft.com/downloads/details.aspx?familyid=efb9c819-53ff-4f82-bfaf-e11625130c25&amp;displaylang=en から Microsoft Anti-Cross Site Scripting Library をダウンロードしてください。</a></li>
+        <a href="http://www.microsoft.com/downloads/details.aspx?familyid=efb9c819-53ff-4f82-bfaf-e11625130c25&amp;displaylang=en">http://www.microsoft.com/downloads/details.aspx?familyid=efb9c819-53ff-4f82-bfaf-e11625130c25&amp;displaylang=en から Microsoft Anti-Cross Site Scripting Library をダウンロードしてください。</a>
+      </li>
+    </li>
+  </ul>
+  
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

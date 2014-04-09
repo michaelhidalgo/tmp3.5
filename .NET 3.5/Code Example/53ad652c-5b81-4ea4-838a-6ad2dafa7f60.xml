@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1924951917" Content_Hash="-750653668">
+  <Metadata>
+    <Id>53ad652c-5b81-4ea4-838a-6ad2dafa7f60</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>要求オブジェクトからのデータ取り出しを計画する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、ユーザー入力データの取得時の ASP.NET Request オブジェクトの呼び出しを安全に検査する方法を示すことです。 Request オブジェクトのセキュアなスコーピングは、アプリケーションで使用される入力が意図されたソースから得られることを保証します。 </p>
+  <h1>目的</h1>
+  <ul>
+    <li>データソースを特定することで潜在的なデータ入力攻撃から守る<li>通常は ASP.NET オブジェクト内に取り込まれない追加の HTTP 要求 データを利用する</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>ViewState の暗号化および完全性チェックとわせてユーザーによる CGI データのタンパリングから保護する<li>アプリケーションは、サーバ サイドの変数からではなく Request オブジェクトから直接 CGI データとしてユーザー入力を取得する<li>アプリケーションは、ユーザー ID 管理または認証の目的でクライアント証明書を使用する<li>アプリケーションは HTTP ヘッダーからのデータを使用する</li></li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+  <p>Request オブジェクトのデータを取得するためのいくつかの方法は次のとおり:</p>
+ <pre>public static string GetQueryStringData(HttpRequest Request, string arg)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Obtain input passed using HTTP GET<br />&nbsp;&nbsp;&nbsp;&nbsp; return(Request.QueryString[arg]);<br />}</pre>
+ <pre>
+    <br />public static string GetPostData(HttpRequest Request, string arg)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Obtain input passed using HTTP POST<br />&nbsp;&nbsp;&nbsp;&nbsp; return(Request.Form[arg]);<br />}<br />public static HttpCookie GetHTTPCookie(HttpRequest Request, string arg)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Obtain input passed as an HTTP Cookie<br />&nbsp;&nbsp;&nbsp;&nbsp; return(Request.Cookies[arg]);<br />}</pre>
+ <pre>
+    <br />public static string GetClientCertData(HttpRequest Request, string attr)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Obtain a server variable or HTTP Request Header, such as Content Length<br />&nbsp;&nbsp;&nbsp;&nbsp; return(Request.ServerVariables[attr]);<br />}</pre>
+ <pre>
+    <br />public static string GetEnvData(HttpRequest Request, string arg)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Obtain a server variable or HTTP Request Header, such as Content Length<br />&nbsp;&nbsp;&nbsp;&nbsp; return(Request.ServerVariables[arg]);<br />}</pre>
+  <h1>問題の例</h1>
+  <p>次の例は、ユーザー入力を取得するための Request オブジェクトへの対象範囲外の呼び出しを示しています。</p>
+ <pre>string data = Request['argname'];</pre>
+  <ul>
+    <li>アプリケーションへの入力が POST データから渡されることが予想される場合、クエリ文字列内に 'argname' を指定すると、予想される POSTデータの代わりにアプリケーションはGETデータを取得することになります。 </li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Web;</pre>
+  <p>上記で定義された方法で使用するためにASP.NET aspx テスト ページが例として以下で提供されています。</p>
+ <pre>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "<a href="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd</a>"&gt;</pre>
+ <pre>
+    <br />&lt;script language="C#" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string sUserText = GetQueryStringData(Request, "TextBox");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sUserText = sUserText.Trim();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; System.Text.RegularExpressions.Regex wordPattern = new System.Text.RegularExpressions.Regex("[A-Za-z0-9]*");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (wordPattern.IsMatch(sUserText))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.myLabel.Text = Server.HtmlEncode(sUserText);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />&lt;/script&gt;</pre>
+ <pre>
+    <br />&lt;html xmlns="<a href="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</a>" &gt;</pre>
+ <pre>&lt;head id="Head1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;title&gt;Request Object Example&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;form id="form1" method="Get" runat="server"&gt;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input type="text" name="TextBox"/&gt; &lt;br/&gt;&lt;br/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Label ID="myLabel" runat="server" Text="Insert Text Above to See Here"&gt;&lt;/asp:Label&gt;&lt;br/&gt;&lt;br/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input type="submit" name="textButton" value="Submit"/&gt;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/div&gt;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <h1>期待される結果</h1>
+  <p>N/A (入力内容による)</p>
+  <h1>詳細情報</h1>
+  <p>Request('var') によって返されたデータは、表示されている順序で、次のいずれかのソースに由来することができます。 </p>
+  <ul>
+    <li>クエリ文字列<li>フォーム<li>Cookie<li>クライアント証明書<li>サーバ変数/HTTP ヘッダ</li></li></li></li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>要求オブジェクト (ASP.NET): <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/iissdk/html/54d9972a-b6cd-4672-b62a-8793ce8ad335.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/iissdk/html/54d9972a-b6cd-4672-b62a-8793ce8ad335.asp</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

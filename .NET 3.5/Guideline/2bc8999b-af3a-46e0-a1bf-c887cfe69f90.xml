@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1578893525" Content_Hash="721598395">
+  <Metadata>
+    <Id>2bc8999b-af3a-46e0-a1bf-c887cfe69f90</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>一意の Cookie 名とパスを使用</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>一意の Cookie 名とパスを使用します。</p>
+  <h1>理由</h1>
+  <p>一意の名前を使用することで、同一のサーバ上で複数のアプリケーションをホストする場合の潜在的な問題の発生を防ぎます。&nbsp; 例えば､個別の名前を使用しない場合､１つのアプリケーションで認証されたユーザーが、別のアプリケーションのログオンページへリダイレクトされることなく、そのアプリケーションに要求を出すことが可能になります。 </p>
+  <h1>状況</h1>
+  <p>Cookie を使用するすべてのアプリケーションは、一意の Cookie 名とパスを使用する必要があります。 </p>
+  <h1>対策</h1>
+  <p>以下のように、&lt;<b>forms</b>&gt; 要素で一意の <b>name</b> 属性値と <b>path</b> 属性値を使用します。</p>
+ <pre>&lt;forms name="YourAppName"        <br />	path="/FormsAuth" ... /&gt;  </pre>
+  <p><b>name</b> および <b>path</b> 属性に一意の値を保証することによって、同じサーバ上で複数のアプリケーションをホストする場合に発生しうる問題を防ぐことができます。 例えば､個別の名前を使用しない場合､１つのアプリケーションで認証されたユーザーが、別のアプリケーションのログオンページへリダイレクトされることなく、そのアプリケーションに要求を出すことが可能になります。 パーティションと特定のパスを使用することで、認証チケットが不必要に送信されることを防止し、したがって攻撃ウィンドウを削減できます。</p>
+  <p>認証チケットは前述の <b>requireSSL</b> および <b>HttpOnly</b> 属性のようなメカニズムを使用してネイティブに保護することができないため、 Cookie なしのセッションは一般的にリスクが大きくなります。 従って認証チケットには常にクエリー字列ではなく Cookie を使用することを推奨します｡</p>
+  <p />
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

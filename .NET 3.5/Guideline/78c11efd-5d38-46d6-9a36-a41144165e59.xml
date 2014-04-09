@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="919753468" Content_Hash="981478981">
+  <Metadata>
+    <Id>78c11efd-5d38-46d6-9a36-a41144165e59</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows グループを認可に使用する場合は、AspNetWindowsTokenRoleProvider が設定された ASP.NET ロール プロバイダーを使用する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>Windows グループを認可に使用している場合は、AspNetWindowsTokenRoleProvider という名前の ASP.NET ロール プロバイダーの使用を検討してください。 </p>
+  <h1>理由</h1>
+  <p>こうすることで、認可の設計をお使いのサービス内での実装から分離することができます。 ロール プロバイダーの変更を決定した場合、変更は認可の実行に必要なコードに影響しません。</p>
+  <h1>状況</h1>
+  <p>Windows グループを認可に使用している場合にこのガイドラインを使用することを検討してください。</p>
+  <h1>対策</h1>
+  <p>次の構成例に、AspNetWindowsTokenRoleProvider を構成する方法を示します。</p>
+  <blockquote>
+ <pre>&lt;system.web&gt;<br />…<br />&lt;roleManager enabled="true"<br />             defaultProvider="AspNetWindowsTokenRoleProvider" /&gt;<br />…<br />&lt;/system.web&gt;</pre>
+    <p>サービス動作で ASPNetRoles およびロール プロバイダーを使用するための構成を行ってください。</p>
+ <pre>….<br />&lt;behaviors&gt;<br />    &lt;serviceBehaviors&gt;<br />        &lt;behavior name="BehaviorConfiguration"&gt;<br />            &lt;serviceAuthorization principalPermissionMode="UseAspNetRoles"<br />                roleProviderName=" AspNetWindowsTokenRoleProvider " /&gt;<br />            &lt;serviceMetadata /&gt;<br />        &lt;/behavior&gt;<br />    &lt;/serviceBehaviors&gt;<br />&lt;/behaviors&gt;<br />….</pre>
+  </blockquote>
+  <p>また、WindowsPrincipal.IsInrole を用いた認可チェックを実行するのではなく、ロール マネージャ API を使用した命令型チェックの使用を検討してください。 </p>
+  <p>次のコードに、ロール マネージャ API を使用して認可チェックをコード内で実行する方法を示します。</p>
+  <blockquote>
+ <pre>if (Roles.IsUserInRole(@"accounting"))<br />{<br />   //authorized<br />}<br />else<br />{<br />   //authorization failed<br />}</pre>
+  </blockquote>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認可の詳細情報については、「認可」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx) を参照してください。</a><li>ロール マネージャを使用する方法については、「ハウツー: ASP.NET 2.0 でロール マネージャを使用する方法」 (<a href="http://msdn2.microsoft.com/en-us/library/ms998314.aspx">http://msdn.microsoft.com/ja-jp/library/ms998314.aspx) を参照してください。</a><li>認可に関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home) の認可のセクションを参照してください。</a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

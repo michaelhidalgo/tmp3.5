@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="39113248" Content_Hash="-1712374677">
+  <Metadata>
+    <Id>733be22b-8cda-4c76-9009-1bafbb223ddc</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>レスポンス分割攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>すべての Web アプリケーション。</p>
+  <h1>説明</h1>
+  <p>HTTP レスポンス分割は、攻撃者が任意のデータを HTTP レスポンスのヘッダーに注入できるときに発生します。 この脆弱性が存在すると、基本的に攻撃者は自分が選んだHTMLを含むHTTPレスポンスを強制することができます。 この攻撃は、0x0d 0x0a バイトのシーケンスでレスポンスのヘッダー セクションを終わらせ、悪意のある HTML で続けるだけで完成します。 結果的に生成されるバイト ストリームは、ブラウザー側は 2 つの独立したの HTTP レスポンスのように見えます。 最初のレスポンスには悪意のある HTML が含まれます。ブラウザーはこれを正当なレスポンスとして解釈します。 2 つ目のレスポンスには、サーバが本来返すはずだった実際の HTML が含まれますが、通常は無視されます。</p>
+  <p>ユーザーのドメインのコンテキストで与えられる HTTP レスポンスを、攻撃者が事実上完全に支配することを許せば、<a href="/article/c8ae222b-ed2e-4621-a46b-3671f82f5a03">フィッシング攻撃</a>や<a href="/article/61f8ac64-c4e1-4c31-9521-f20a1a64b6fd">クロス サイト スクリプティング攻撃</a>への扉を開くことになります。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>特権の昇格</strong>: 攻撃者はユーザーの Web アプリケーションのドメインのコンテキストでスクリプトを実行できます。 <li><strong>アクセス制御</strong>: 攻撃者は認証 Cookieを盗むか、少なくとも現在のログイン ユーザーのコンテキストで付加的 HTTP 要求を実行できます。 <li><strong>改ざん</strong>: 攻撃者は任意のコンテンツでページを作成できます。</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>信頼されていない、符号化されていないデータが入力された HTTP レスポンス ヘッダー。 この攻撃が発生する最も一般的なシナリオは次のようなものです。<ul><li>HTTP リダイレクト (例参照)<li>ユーザーが提供する HTTP Cookie値。 たとえば、アプリケーションでユーザーが名前を提供でき、その名前を利用してCookie値が設定される場合。 Cookieが Set-Cookie HTTP レスポンス ヘッダーにより設定されることに注意することが重要です。</li></li></ul></li>
+  </ul>
+  <h1>対策</h1>
+  <p>信頼されていない入力を HTTP レスポンス ヘッダーで利用する前に、コンテキスト依存のスクラビングとエンコーディングを実行します。</p>
+  <ul>
+    <li>ユーザー入力は、HTTP レスポンス ヘッダーで使用する前 に、削除するか符号化します。 <li>特に、RFC 2616 には、CR と LF は HTTP レスポンス ヘッダーの特に「Location」フィールドと「Set-Cookie」フィールドで許可されないと明記されています。 また、CR、LF、SP、HT のシーケンスを削除し、LF の後に SP または HT が続かない入力は受け取らないようにします。</li></li>
+  </ul>
+  <p>ブラックリスト戦略と同様に、これは開始点としては良いですが、すべてをキャッチできるわけではありません。 Sun Java System Web Proxy Server など、Web プロキシはこの手法で問題を起こします。多くの場合、CR のみで有効な行末マーカーとして 受け取るので、CR のみを利用することでエクスプロイト可能です。</p>
+  <h1>例</h1>
+  <p>レスポンス分割攻撃の実例として、次の状況を見てください。 Web サーバが 2 つのページを持つドメイン example.com に置かれていると仮定します。 /redirect.php にある最初のページは、ユーザーを /hello/world.htmlにある 2 つ目のページにリダイレクトするために使用されます。 </p>
+  <p>これはシンプルな redirect.php です。</p>
+ <pre>&lt;?phpheader ("Location: " . &amp;#36;_GET&amp;#91;'site'&amp;#93;);?&gt;</pre>
+  <p>これはシンプルな /hello/world.html です。</p>
+ <pre>&lt;html&gt;hello world&amp;#33;&lt;/html&gt;</pre>
+  <p>このリンクはユーザーを hello/world.html ページにリダイレクトします。</p>
+ <pre>http://example.com/redirect.php?site=hello/world.html</pre>
+  <p>これが発生したときに、クライアントと Web サーバの間で送信されるヘッダーを以下に示します。 最初に、クライアントがページを要求します。</p>
+ <pre>GET <a href="http://example.com:80/redirect.php?page=hello/world.html">http://example.com:80/redirect.php?page=hello/world.html</a> HTTP/1.1<br />Accept: &amp;#42;/&amp;#42;Accept-Language: en-us<br />UA-CPU: x86<br />Accept-Encoding: gzip, deflate<br />User-Agent: Mozilla/4.0<br />Host: somewhere.com<br />Proxy-Connection: Keep-Alive</pre>
+  <p>次に、サーバがメッセージで応答し、ページが移動したことと、それを見つける場所をクライアントに伝えます。</p>
+ <pre>HTTP/1.1 302 Found<br />Server: Apache/1.3.33 (Unix) PHP/4.4.2X-Powered-By: PHP/4.4.2<br />Location: hello/world.html<br />X-Transfer-Encoding: chunked<br />Content-Type: text/htmlContent-length: 0</pre>
+  <p>そのため、クライアント アプリケーションは新しいページの要求を送信します。</p>
+ <pre>GET http://example.com:80/hello/world.html HTTP/1.1<br />Accept: &amp;#42;/&amp;#42;<br />Accept-Language: en-us<br />UA-CPU: x86<br />Accept-Encoding: gzip, deflate<br />User-Agent: Mozilla/4.0<br />Host: 192.168.1.103<br />Proxy-Connection: Keep-Alive</pre>
+  <p>最後に、サーバがページで応答します。</p>
+ <pre>HTTP/1.1 200 OK<br />Server: Apache/1.3.33 (Unix) PHP/4.4.2<br />Accept-Ranges: bytes<br />Content-length: 28<br />Content-Type: text/html<br /> &lt;html&gt;hello world&amp;#33;&lt;/html&gt;</pre>
+  <p>この時点で、注意すべきことがいくつかあります。 上のヘッダーの各行は復帰改行 (CRLF) シーケンス \r\n で終わっています。 それらは読み取りやすくするために上のダイアログには表示されていませんが、実際には存在し、通信の際、アプリケーションにとって重要になります。 次に注意するべきことは、URL が符号化された CRLF シーケンス &amp;#37;0d&amp;#37;0a は \r\n に等しく、ヘッダー情報を URL に埋め込むために使用できるということです。 この例の次の部分では、これを利用してユーザーのブラウザーに攻撃者が支配するページを届ける仕組みを説明します。</p>
+  <p>以下のものが URL に注入されたとき何が起こるか考えてください。</p>
+ <pre>&amp;#37;0d&amp;#37;0aContent-Type: text/html&amp;#37;0d&amp;#37;0aHTTP/1.1 200 OK&amp;#37;0d&amp;#37;0a Content-Type: text/html&amp;#37;0d&amp;#37;0a&amp;#37;0d&amp;#37;0a&amp;#37;3Chtml&amp;#37;3E Insert attacker payload here&amp;#33; &amp;#37;3C/html&amp;#37;3E</pre>
+  <p>つまり、ユーザーには次のリンクが与えられます。</p>
+ <pre>http://example.com/redirect.php?site=&amp;#37;0d&amp;#37;0aContent-Type: text/html&amp;#37;0d&amp;#37;0aHTTP/1.1 200 OK&amp;#37;0d&amp;#37;0aContent-Type: text/html&amp;#37;0d&amp;#37;0a&amp;#37;0d&amp;#37;0a&amp;#37;3Chtml&amp;#37;3E Insert attacker payload here&amp;#33; &amp;#37;3C/html&amp;#37;3E</pre>
+  <p>次に、クライアントが上の URL を要求したとき、ダイアログの中でヘッダーに何が起こるのか見てみましょう。</p>
+ <pre>GET http://example.com/redirect.php?site=&amp;#37;0d&amp;#37;0aContent-Type: text/html&amp;#37;0d&amp;#37;0a<br />  HTTP/1.1 200 OK&amp;#37;0d&amp;#37;0aContent-Type: text/html&amp;#37;0d&amp;#37;0a&amp;#37;0d&amp;#37;0a&amp;#37;3C<br />  html&amp;#37;3E Insert XSS payload here&amp;#33;<br /> &amp;#37;3C/html&amp;#37;3E HTTP/1.1<br />Accept: &amp;#42;/&amp;#42;<br />Accept-Language: en-us<br />UA-CPU: x86<br />Accept-Encoding: gzip, deflate<br />User-Agent: Mozilla/4.0<br />Host: somewhere.com<br />Proxy-Connection: Keep-Alive<br />Pragma: no-cache</pre>
+  <p>基本的に、 2 つのヘッダーが 1 つの要求で送信されます。 より読み取りやすい形式で上のヘッダーを見てみましょう。</p>
+ <pre>GET http://example.com/redirect.php?site=Content-Type: text/html<br />HTTP/1.1 200 OK<br />Content-Type: text/html<br /> &lt;html&gt; Insert attacker payload here&amp;#33; &lt;/html&gt;<br /> HTTP/1.1<br />Accept: &amp;#42;/&amp;#42;<br />Accept-Language: en-us<br />UA-CPU: x86A<br />ccept-Encoding: gzip, deflate<br />User-Agent: Mozilla/4.0<br />Host: 192.168.1.103<br />Proxy-Connection: Keep-Alive<br />Pragma: no-cache</pre>
+  <p>サーバはこのヘッダーを受け取ると、攻撃者のペイロードを含む次の 2 つのレスポンスを送信します。</p>
+ <pre>HTTP/1.1 302 Found<br />Server: Apache/1.3.33 (Unix) PHP/4.4.2<br />Location:<br />Content-Type: text/html<br />HTTP/1.1 200 OK<br />Content-Type: text/html<br />&lt;html&gt; Insert attacker payload here&amp;#33; &lt;/html&gt;<br />Keep-Alive: timeout=15, max=100<br />Connection: Keep-Alive<br />Transfer-Encoding: chunked<br />Content-Type: text/html</pre>
+  <h1>その他のリソース</h1>
+  <p>HTTP レスポンス分割に関する詳細は、次の記事とホワイトペーパーの一覧を参照してください。</p>
+  <ul>
+    <li>
+      <a href="http://www.webappsec.org/projects/threat/classes/http_response_splitting.shtml">Web App Sec Response Splitting Article</a>
+      <li>
+        <a href="http://www.securiteam.com/securityreviews/5WP0E2KFGK.html">Introduction to HTTP Response Splitting</a>
+        <li>
+          <a href="http://www.securiteam.com/securityreviews/5WP0E2KFGK.html">Divide and Conquer{</a>、Packet Storm Security Whitepaper <li><a href="http://www.cgisecurity.com/lib/http_response_smuggling.shtml">HTTP Response Smuggling</a>、CGISecurity</li></li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/d6ae90bf-1b44-4a89-b22e-55ea97e52ba5">ガイドライン: すべての出力データを符号化する</a>
+      <li>
+        <a href="/article/b431b7df-36d8-461b-a437-675a20e9548b">ガイドライン: データベースに渡されるすべての入力を検証する</a>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

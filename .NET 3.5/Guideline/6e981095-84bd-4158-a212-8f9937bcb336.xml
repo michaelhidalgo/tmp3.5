@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1695753031" Content_Hash="-904085341">
+  <Metadata>
+    <Id>6e981095-84bd-4158-a212-8f9937bcb336</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Client-side Validationへの依存の禁止</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>コードがClient-side Validation にセキュリティ目的では依存していないことを確認します。</p>
+  <h1>理由</h1>
+  <p>クライアント側検証は簡単に回避できます。 たとえば､悪意のあるユーザーは JavaScript を無効にすることによりクライアント側のスクリプト ルーチンを無効にする場合があります。 </p>
+  <h1>状況</h1>
+  <p>実装中、&nbsp;クライアントからの&nbsp;すべての入力は、たとえ格納されない場合でも検証されることを確認してください。</p>
+  <h1>対策</h1>
+  <p>簡単にバイパスすることができる Client-side Validation には依存しないでください。 サービスを呼び出すクライアントのソース コードは制御可能である一方で、クライアントはサービスを攻撃するためにリバース エンジニアリング、または新規に構築することができます。&nbsp; Client-side Validation を使用してサーバへのラウンド トリップを削減するとユーザー エクスペリエンスを向上させますが、検証は常にサービスそのものに使用してセキュリティ チェックを実行します。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

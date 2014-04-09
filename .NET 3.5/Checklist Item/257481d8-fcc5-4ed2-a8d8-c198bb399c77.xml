@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1017278182" Content_Hash="-391647950">
+  <Metadata>
+    <Id>257481d8-fcc5-4ed2-a8d8-c198bb399c77</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュリティ ポリシーが定義されている</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>セキュリティ ポリシーが、最小特権の原則を使用するアプリケーションについて定義されていること&amp;nbsp;を確認します。 アプリケーションが必要な最小限のアクションのセットのみを実行することを許可されていること&amp;nbsp;を検証します。</p>
+  <h1>理由</h1>
+  <p>セキュリティ ポリシーの定義は、制限しない場合はオペレーティング システムが許可するようなタスクをアプリケーションが実行することを制限する、 綿密な防御メカニズムです。 これは、攻撃者によりアプリケーションが危険にさらされる場合に特に重要です。</p>
+  <h1>チェック方法</h1>
+  <p>以下のステップを実行して、アプリケーションは、適切な機能のために必要なコード アクセス セキュリティ権限のみを認可されていることを確認してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションが必要とするアクセス許可を特定します。 </strong>ASP.NET ウェブ サービスおよびアプリケーションは、デフォルトでフル トラスト モードで実行します。 しかし、アプリケーションが全てのアクセス許可を必要とすることはほとんどありません。 アクセスするリソースの種類、必要とされるリソース アクセスの種類 (読み取り/書き込みなど)、および実行される特権オペレーションを決定するコードを分析することにより、アプリケーションに必要なアクセス許可を決定します。 Permissions Calculator ツール (Permcalc.exe) を使用することにより、この実践を支援できます。 </p>
+      <li>
+        <p>
+          <strong>適切な信頼レベルが特定済みであることを検証します。</strong> アプリケーションが必要とするアクセス許可に最も厳密に適合する&amp;nbsp;機能および制約の標準信頼レベルを特定済みであることを確認します。</p>
+        <ul>
+          <li>
+            <p>必要とされる許可と最高の信頼レベルが提供するアクセス許可を比較します。</p>
+            <li>
+              <p>アプリケーションが必要としないアクセス許可を最高の信頼レベルが付与する場合、一つ下のレベルに移動します。</p>
+              <li>
+                <p>適切な信頼レベルが見つかるまでこのプロセスを続行します。</p>
+                <p>
+                  <strong>注記:</strong> 事前定義された信頼レベルのいずれも、必要とされるアクセス許可と厳密に一致しない場合、アプリケーションのカスタム信頼レベルを作成する必要がある場合があります。 たとえば、中程度の信頼レベルが提供するより多いが、高い信頼レベルが提供するよりも少ないアクセス許可をアプリケーションが必要とする場合、カスタム信頼レベルを作成する必要があるでしょう。 以下のステップを実行して、カスタム信頼レベルを作成します。</p>
+                <ul>
+                  <li>既存の信頼レベル ポリシー ファイルの 1 つをコピーして、カスタム ポリシー ファイルを作成する<li>カスタム ポリシー ファイルに必須のアクセス許可を追加する<li>アプリケーションがカスタム ポリシーを使用して起動するように構成する</li></li></li>
+                </ul>
+              </li>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>正しい信頼レベルが実装されていることを確認します。 </strong>最も適切な信頼レベルが特定された、またはカスタム信頼レベルが作成されたら、<strong>web.config</strong> ファイルの <strong>trust</strong> エレメントの <strong>level</strong> 属性を設定して、その信頼レベルが実装されていることを確認してください。</p>
+ <pre>&lt;trust level="Full|High|Medium|Low|Minimal" /&gt;</pre>
+          <p>また、<strong>location</strong> エレメントの <strong>allowOverride</strong> 属性を "false" に設定する (これにより、信頼エレメントをマシンレベルの <strong>web.config</strong> ファイルに入れる) ことにより、これらの信頼レベルが修正不可能になるようにロックされていることを確認してください。 </p>
+ <pre>...<br />&lt;location allowOverride="false"&gt;<br />   &lt;system.web&gt;<br />     ...<br />    &lt;trust level="Medium" originUrl=""/&gt;<br />    ...<br />   &lt;/system.web&gt;<br />...<br />&lt;/location&gt;       <br />...</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>開発者は、アプリケーションに割り当てられるディレクトリー外へのファイル システム アクセスを必要とする ASP.NET アプリケーションを作成します。 デフォルトのフル トラスト レベルは、アプリケーションが必要とする方法でファイル システム アクセスを可能にします。 しかし、それはソケット アクセスやアンマネージ コードを呼び出す機能などの複数の不要な特権も提供します。 これらの追加の特権は、アプリケーションが危険にさらされる場合に攻撃者が与えることのできる損害の量を増大させます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET 信頼レベルおよびポリシー ファイルの詳細については <a href="http://msdn2.microsoft.com/en-us/library/wyts434y(VS.80).aspx">「ASP.NET 信頼レベルおよびポリシー ファイル」を参照してください。</a><li>Permissions Calculator ツールの詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms165077.aspx">「Permissions Calculator ツール ウェブサイト」を参照してください。</a><li>カスタム信頼レベルの詳細については、<a href="http://msdn2.microsoft.com/en-us/library/ms998326.aspx#paght000017_step4">「オプションでカスタム信頼レベルを作成する」を参照してください。</a></li></li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

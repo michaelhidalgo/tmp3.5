@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1669830242" Content_Hash="1142863276">
+  <Metadata>
+    <Id>7317fcb7-b91b-4184-b5e4-01a25b8baf00</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>イベントのログ記録と監査にはヘルス モニタリングを使用する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>イベントをログ記録し監査するには ASP.NET ヘルス モニタリング機能を使用します。 </p>
+  <h1>理由</h1>
+  <p>ASP.NET ヘルス モニタリングは、アプリケーションの健全性を監視するために使用可能な多数の標準イベントに対応しています。 自動生成されるセキュリティ関連イベントの例には、ASP.NET メンバーシップ システム使用時のログオンの失敗および成功、Forms Authenticationチケットの改変または再利用の試行、ディスク アクセスの失敗などのインフラストラクチャー イベントなどがあります。 </p>
+  <p>ヘルス モニタリング機能には、電子メール メッセージ、SQL Server、ASP.NET トレース出力としてのイベント ログへのイベントの記録、または Windows Management Instrumentation (WMI) ウェブ イベント プロバイダーへのイベントの記録を可能にするビルトイン プロバイダーが含まれています。</p>
+  <h1>対策</h1>
+  <p>ASP.NET アプリケーションはデフォルトでヘルス モニタリングが有効になっており、すべての Web インフラストラクチャ エラー イベント (<b>System.Web.Management.WebErrorEvent</b> から継承) およびすべての監査失敗イベント (<b>System.Web.Management.WebFailureAuditEvent</b> から継承) がイベント ログに書き込まれます。&nbsp; デフォルト構成は、マシンレベルの Web.config ファイルの<b>&lt;healthMonitoring&gt;</b> エレメントに定義されています。&nbsp; 追加のセキュリティ関連イベントを監査するには、ビルトイン タイプの中の 1 つから派生することによりカスタム イベント タイプを作成します。 </p>
+  <p />ヘルス モニタリング機能にはプロバイダーが組み込まれており、これらのプロバイダーによって、電子メール メッセージ (<b>SimpleMailWebEventProvider</b>、<b>TemplatedMailWebEventProvider</b>)、SQL Server (<b>SqlWebEventProvider</b>) 、イベントログ (<b>EventLogWebEventProvider</b>)、ASP.NET のトレース出力 (<b>TraceWebEventProvider</b>)、あるいは Windows Management Instrumentation (WMI) Web イベント プロバイダー (<b>WMIWebEventProvider</b>) へイベントを記録することができます。ヘルス モニタリングはマシンまたはアプリケーションWeb.configファイルで設定できます。ログ記録されるイベントを選んだり、それらがログ記録される方法を設定できます。 <p /><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

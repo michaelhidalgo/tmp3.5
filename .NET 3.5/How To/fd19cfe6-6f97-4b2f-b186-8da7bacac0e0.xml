@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2122748889" Content_Hash="-1754999193">
+  <Metadata>
+    <Id>fd19cfe6-6f97-4b2f-b186-8da7bacac0e0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>証明書で IIS の SSL を有効にするための構成を行う方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>IIS の SSL を使用して、WCF が有効化された Web アプリケーションおよび Web クライアント間で通信チャネルを保護します。 SSL は、ネットワーク上の機微データが盗難または修正されないように保護しています。</p>
+  <p>以下は、IIS における Secure Sockets Layer (SSL) 通信の証明書を構成する手順です。 </p>
+  <ol>
+    <li><strong>[スタート]</strong> をクリックして、<strong>[実行]</strong> をクリックします。<li><strong>[実行]</strong> ダイアログ ボックスで、<strong>inetmgr</strong> と入力して <strong>[OK]</strong> をクリックします。<li><strong>[Internet Information Services (IIS) Manager]</strong> ダイアログ ボックスで、(<strong>[ローカル コンピュータ]</strong>) ノードを展開し、続いて <strong>[Web サイト]</strong> ノードを展開します。<li><strong>[既定の Web サイト]</strong> を右クリックして、<strong>[プロパティ]</strong> をクリックします。<li><strong>[既定の Web SiteProperties]</strong><strong></strong> ダイアログ ボックスで、<strong>[Directory Security]</strong> タブをクリックし、続いて <strong>[SecureCommunications]</strong><strong></strong> セクションで <strong>[Server Certificate]</strong> をクリックします。<li>Web サーバ証明書ウィザードの「ようこそ」画面で、 <strong>[次へ]</strong> をクリックして続行します。<li>サーバ証明書画面で、<strong>[既存の証明書を割り当てる]</strong> ラジオ ボタンをオンにし、<strong>[次へ]</strong> をクリックします。<li>[利用可能な証明書] 画面で、前の手順で作成およびインストールした証明書を選択し、<strong>[次へ]</strong> をクリックします。<li>証明書概要画面の情報を確認し、<strong>[次へ]</strong> をクリックします。<li><strong>[終了]</strong> をクリックして証明書のインストールを完了します。<li><strong>[既定の Web サイト プロパティ]</strong> ダイアログ ボックスで <strong>[OK]</strong> をクリックします。<br /></li></li></li></li></li></li></li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>サーバ証明書の詳細については、<a href="http://www.microsoft.com/technet/prodtechnol/WindowsServer2003/Library/IIS/a2f35fcd-d3b6-4f39-ba93-041a86f7e17f.mspx?mfr=true">http://www.microsoft.com/technet/prodtechnol/WindowsServer2003/Library/IIS/a2f35fcd-d3b6-4f39-ba93-041a86f7e17f.mspx?mfr=true の「サーバ証明書 (IIS 6.0) のインストール」を参照してください。</a><li>展開に関する考慮事項の Q&A については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home の「WCF 3.5 質問と答え」の「展開に関する考慮事項」セクションを参照してください。</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home"></a><li>展開に関する考慮事項のガイドラインについては、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Security%20Guidelines&referringTitle=Home の「展開に関する考慮事項」セクションを参照してください。</a><br /></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

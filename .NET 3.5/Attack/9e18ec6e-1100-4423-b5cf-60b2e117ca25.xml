@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-369593238" Content_Hash="-150120562">
+  <Metadata>
+    <Id>9e18ec6e-1100-4423-b5cf-60b2e117ca25</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>XPath-XQuery 攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>XPath-XQuery により XML ドキュメントを操作できるアプリケーション</p>
+  <h1>説明</h1>
+  <p>XPath-XQuery 攻撃は入力検証の脆弱性をエクスプロイトし、XML データベースで任意のコマンドを実行します。 この攻撃は SQL インジェクション攻撃とほとんど同じように動作しますが、SQL ではなく XML を標的にします。 この攻撃は、アプリケーションがユーザーからの直接の入力を利用して XPath/XQuery ステートメントを構築し、XML テーブルにアクセスするときに発生します。 攻撃者は XPath/XQuery 攻撃を利用すれば、XML データベース上で任意の XPath/XQuery ステートメントを実行できます。 この攻撃は多くの場合、SQL インジェクション攻撃よりも多くの損害を与えます。アクセス許可が強制されず、攻撃者のクエリが XML ドキュメントのあらゆる部分にアクセスできるためです。 XPath/XQuery 攻撃を利用すれば、XML ドキュメントに保存されているあらゆるデータを取得、操作、破壊できます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>機密性:</strong> XML は一般的に機微データを保持しているため、XPath/XQuery インジェクションの脆弱性に関しては、機密性が失われるという問題がたびたび発生します。 <li><strong>認証:</strong> ユーザー名とパスワードの確認に貧弱な XPath/XQuery コマンドが利用される場合、パスワードを知らなくても別のユーザーとしてシステムに接続できる可能性があります。 <li><strong>認可:</strong>認可情報が XML ドキュメント内に保持されている場合、XPath/XQuery インジェクションの脆弱性をエクスプロイトできれば、承認情報を変更できる可能性があります。 <li><strong>完全性:</strong> XPath/XQuery インジェクション攻撃で機密情報を読み取るとしたら、それを変更したり削除したりすることも可能です。 </li></li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>不十分な入力検証。 <li>文字列をユーザーが提供したデータと動的に連結することで XPath 式を生成する。 <li>一重引用符、二重引用符、およびその他の危険である可能性のある文字をエスケープしなかったこと。</li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <strong>入力を制約する。</strong> XQuery コマンドの一部として利用される可能性があるユーザー入力にホワイトリスト スタイルを使用して厳密にチェックします。 これにより、格納されたデータセットにメタ文字が追加され、それが再利用されることも回避されます。 <li><strong>文字列をユーザー入力に連結する代わりに、パラメータ化し、事前にコンパイルした XPath 式を XQuery で利用する。</strong> パラメータ化した XPath ステートメントは厳密に型指定されるため、XPath に対して特別な意味を持つ文字 (一重引用符など) を問題なく受け入れます。 <li><strong>エスケーピング ルーチンを利用する。</strong> パラメータを使えず、XPath ステートメントを動的に生成しなければならない場合は、エスケーピング ルーチンを利用し、データベースにとって意味のある特殊文字を処理します。 <li><strong>XQuery エラーをエコーしない。</strong> 例外が発生した場合はサーバでキャッチし、クライアントには一般的なエラー メッセージを返します。</li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>次の XML ファイルを見てください。これはあるアプリケーションで、ユーザーをそのアプリケーションにログインさせるために使用されます。</p>
+ <pre>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt; &lt;users&gt;    &lt;user&gt;       &lt;username&gt;admin&lt;/username&gt;       &lt;password&gt;8af2&amp;&lt;/password&gt;       &lt;account&gt;admin&lt;/account&gt;    &lt;/user&gt;    &lt;user&gt;       &lt;username&gt;user1&lt;/username&gt;       &lt;password&gt;password&lt;/password&gt;       &lt;account&gt;guest&lt;/account&gt;    &lt;/user&gt;    &lt;user&gt;       &lt;username&gt;user2&lt;/username&gt;       &lt;password&gt;1234&lt;/password&gt;       &lt;account&gt;guest&lt;/account&gt;    &lt;/user&gt; &lt;/users&gt;</pre>
+  <p>開発者は次の XPath コマンドを利用し、すべてのユーザーとユーザー名を返すことができます。 </p>
+ <pre>&amp;#8216;user1&amp;#8217; and password &amp;#8216;password&amp;#8217;string(//user&amp;#91;username/text()='user1'        and password/text()='password'&amp;#93;/account/text())</pre>
+  <p>ただし、適切な入力検証がないと、攻撃者は簡単に論理ステートメントを入力し、クエリの出力を操作できます。 攻撃者は上の XPath ステートメントに次の文字列を入力できます。</p>
+ <pre>Username: user1Password: ' or '1' = '1</pre>
+  <p>これで XPath ステートメントが変更され、次のようになります。</p>
+ <pre>string(//user&amp;#91;username/text()='user1' and password/text()=''        or '1' = '1'&amp;#93;/account/text())</pre>
+  <p>クエリのパスワード部分は常に真になります。つまり、このアプリケーションはパスワードが与えられていないのに攻撃者を「user1」として認証します。</p>
+  <p>この例を修正する良い方法はパラメータ化クエリを利用することです。 実行時に連結を行って XPath 式を動的に生成するのではなく、パラメータから値を取得する事前コンパイル済みのクエリを作成するというのがここでの考えです。 &amp;#36;ユーザー名と &amp;#36;パスワードを、ユーザー入力を保持する文字列変数にします。 その後、次のようにクエリを構築します。</p>
+ <pre>"//user&amp;#91;user&amp;#91;username/text()=&amp;#36;username and password/text()=&amp;#36;password&amp;#93;"</pre>
+  <p>.NET を利用している場合、以下の追加リソースでこの仕組みの別の例を参照してください。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://www.tkachenko.com/blog/archives/000385.html">http://www.tkachenko.com/blog/archives/000385.html</a>
+      <li>
+        <a href="http://www.owasp.org/index.php/XML_Injection">http://www.owasp.org/index.php/XML_Injection</a>
+        <li>
+          <a href="http://palisade.plynt.com/issues/2005Jul/xpath-injection/index.php">http://palisade.plynt.com/issues/2005Jul/xpath-injection/index.php</a>
+          <li>
+            <a href="http://secureitalliance.org/blogs/watchfire/archive/2006/02/10/660.aspx">http://secureitalliance.org/blogs/watchfire/archive/2006/02/10/660.aspx</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

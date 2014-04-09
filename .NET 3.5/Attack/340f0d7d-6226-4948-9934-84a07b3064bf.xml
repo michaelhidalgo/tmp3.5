@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2014723220" Content_Hash="21063690">
+  <Metadata>
+    <Id>340f0d7d-6226-4948-9934-84a07b3064bf</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>選択暗号文攻撃</Title>
+    <Category>暗号化</Category>
+    <Phase>設計</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>暗号保護メカニズムを適用するアプリケーション。</p>
+  <h1>説明</h1>
+  <p>この攻撃の目的は、解読する暗号文を制御することで、暗号システムの鍵を発見することです。 攻撃者は通常、暗号化された大量のメッセージと、復号を可能にする、改ざん防止ボックスに相当する物を入手できます。 この種の攻撃は主に非対称暗号化アルゴリズムに適用されますが、対称暗号化アルゴリズムにも適用できます。 この攻撃の変形としては、適応的選択暗号文攻撃があります。攻撃者は解読する暗号文を大量に送信し、その後、返されたプレーン テキストに基づいて、攻撃者は次のRoundで解読する別の暗号文を選択します。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>システムで利用される私有鍵の発見。</li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>匿名のユーザーに選択暗号文の解読を許すこと。 <li>この種の攻撃に対して防御しない暗号化アルゴリズムを使用すること。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>RSA 暗号化に関しては、最適非対称暗号化パディングを利用します。 <li>匿名のユーザーには任意の暗号文を解読することを許可しません。</li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>選択暗号文攻撃に関する詳細は、次を参照してください。<a href="http://en.wikipedia.org/wiki/Chosen_ciphertext_attack">http://en.wikipedia.org/wiki/Chosen_ciphertext_attack </a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/cd4ccbbb-be9c-4ff4-8b20-d116819b634b">ガイドライン: 安全な鍵の保管場所を利用する</a>
+      <li>
+        <a href="/article/de3e4477-e2b0-40a5-91f6-b3dab65667fb">ガイドライン: パスワードを安全に保存する</a>
+        <li>
+          <a href="/article/b070122f-f1d1-47da-a378-57f845d5db61">ガイドライン: 通信リンクを暗号化する</a>
+        </li>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

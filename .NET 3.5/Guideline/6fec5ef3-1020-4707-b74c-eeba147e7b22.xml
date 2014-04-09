@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="261422732" Content_Hash="-281981655">
+  <Metadata>
+    <Id>6fec5ef3-1020-4707-b74c-eeba147e7b22</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>強力なパスワードを SQL 認証に使用する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>SQL Server 認証を使用する際は、強力なパスワードを選択します。 </p>
+  <h1>理由</h1>
+  <p>強力なパスワードを使用すると、攻撃者がパスワードを推測して、アカウントへのアクセス権を取得できる可能性が低下します。&nbsp;十分に強力なパスワードを使用しないと、数百万回もの試行に頼らずとも、攻撃者をパスワードのブルートフォース解読に成功させてしまうかもしれません。&nbsp;</p>
+  <h1>状況</h1>
+  <p>このガイドラインは、SQL 認証が使用されるときはいつでも適用が可能です。 SQL 認証において、決して脆弱なパスワードを使用しないでください。</p>
+  <h1>対策</h1>
+  <p>強力なパスワードを作成するために従うべき手順は次のとおりです。</p>
+  <ol>
+    <li>
+      <strong>大文字と小文字が混在するパスワードを使用 </strong>します。 パスワードを通して大文字を使用します。 <li><strong>最初の文字だけに大文字を使用するのではなく</strong> 、パスワード全体を通して大文字を追加します。&nbsp;&nbsp; <li><strong>形式のいかんにかかわらず（逆並び、大文字、二回繰り返す等）、パスワードとしてネットワーク ログイン ID を使用しない</strong> でください。 <li><strong>パスワードには英数文字以外にも、 ! や $ などの記号を含めて</strong>ください。&nbsp;&nbsp; <li><strong>自分または他人のファーストネーム、ミドルネーム、ラストネームはいかなる形式であれ使用しない</strong>でください。 イニシャルやニックネームは使用しないでください。&nbsp;&nbsp; <li><strong>英語や外国の辞書、スペルリスト、または他の単語リストや略語に含まれる単語を使用しない</strong>でください。&nbsp;&nbsp; <li><strong>少なくとも7文字を使用</strong> します。&nbsp;&nbsp; <li><strong>容易に得られる他の情報を 使用しない</strong>でください。 これには、ペットの名前、ナンバープレート番号、電話番号、識別番号、自動車のブランド、住んでいる通りの名前などが含まれます。 このようなパスワードは、ユーザーを知っている人には非常に簡単に推測されます。&nbsp;&nbsp; <li><strong>文字と数字の一見ランダムな組み合わせを使用します</strong> 。&nbsp;&nbsp; <li><strong>すべてが数字のパスワードやアルファベット文字だけのパスワードを使用しない</strong> でください。 数字と文字を混ぜます。&nbsp;&nbsp; <li><strong>キーボードを見なくてもすばやく入力することができるパスワードを使用 </strong>します。 これは、誰かがキーボードを盗み見る（ "ショルダーサーフィン" として周知）ことによってパスワードを盗むのを難しくします。&nbsp;&nbsp; <li><strong>たとえば September や SEPT1999、またはその組み合わせのような日付を使用しない</strong> でください。&nbsp; <li><strong>定期的にパスワードを変更</strong> してください。 アカウントがネットワークの完全性にとって重要であればあるほど（例えば、Unix ホスト上の root や Windows NT の Administrator など）、パスワードをより頻繁に変更する必要があります。 この変更は、継続的なアクセスから誰かがアカウントをすでに侵害していてもそれを停止します。 <li><strong>たとえば qwerty など、キーボードの並びを使用しない</strong> でください。&nbsp;&nbsp; <li><strong>たとえそれがどんなに良くても、情報およびコンピュータ セキュリティについての説明本からのサンプル パスワードを使用しない</strong> でください。&nbsp;&nbsp; <li><strong>上記のいずれかを逆につづったり、大文字にしたり、または別の方法で変装したものを使用しない</strong> でください。&nbsp;&nbsp;&nbsp; <li><strong>明かすと自動的にその強度を無効にするため、パスワードは誰にも明かさない</strong> でください。&nbsp; <br /></li></li></li></li></li></li></li></li></li></li></li></li></li></li></li></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>
+    <br />ASP.NET アプリケーションはその永続レイヤーに SQL Server を使用しています。 アプリケーションには SQL インジェクションの 1 つのインスタンスがあり、SQL 管理アカウント "sa" のパスワードは '1234 ' です。&nbsp;アプリケーションが使用するデータベース アカウントは、最小限の特権で構成されています。 ハッカーが SQL で任意のコマンドを実行することができる方法は次のとおりです。</p>
+  <p>1. ハッカーは Web サイト上で SQL インジェクションのインスタンスを見つけます。</p>
+  <p>2. アプリケーションが使用するデータベース アカウントは、ハッカーが想定している攻撃を遂行するための適切な特権を欠いているので、ハッカーは、sa アカウントの下でコマンドを実行する必要があると判断します。 </p>
+  <p>3. ハッカーは、次のような OPENROWSET コマンドを実行する場合、代替 ID を使用して SQL コマンドを実行することを知っています： </p>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SELECT * FROM OPENROWSET <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ('SQLOLEDB',';'sa'; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; '&lt;password&gt;','&lt;query to be <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; executed&gt;')</pre>
+  <p>4. ハッカーは、有効なクエリを渡せる SQL インジェクション攻撃を用意します。 ハッカーはユーザー名として sa を使用し、パスワードを推測します。</p>
+  <p>5. アプリケーションはエラーを発生させ、それによってパスワードが無効だったことを知ることができます。</p>
+  <p>6. ハッカーは、sa パスワードを破るために単純なブルートフォース プログラムを作成します。 パスワードは '1234 ' であるため、それは最小限の労力で発見される可能性が非常に高くなります。</p>
+  <p>7. ハッカーがいったん sa のパスワードを知ると、OPENROWSET コマンドを使用して SQL インジェクション攻撃を実行し続けることができます。 </p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションはその永続レイヤーに SQL Server を使用しています。 SQL 管理アカウント "sa" のパスワードは 'rYK56lm4$' に設定されています。&nbsp;アプリケーションが使用するデータベース アカウントは、最小限の特権で構成されています。 これは、いくつかの理由から '1234 ' のようなパスワードを使用するより優れたパスワードの選択です：</p>
+  <ul>
+    <li>大文字と小文字を混ぜて使用する<li>英数文字以外の特殊文字を使用する<li>システムが使用する可能性のある任意のデフォルトのパスワードのようには見えない<li>QWERTY キーボード上のホーム行に近いいくつかの文字を使用して、入力をはるかに速く、ショルダーサーフィンをより困難にする <li>言語辞書の任意の単語に対応しない</li></li></li></li></li>
+  </ul>
+  <p>
+    <strong>注記:</strong> 上記の例のいずれも直接パスワードの選択肢として使用しないでください！  それらは公に利用可能なセキュリティ リファレンスガイドに含まれているため、ただちに安全性が無効になります。&nbsp; </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>マイクロソフトのパスワードの安全性メーター：<a href="http://www.microsoft.com/protect/fraud/passwords/checker.aspx">http://www.microsoft.com/protect/fraud/passwords/checker.aspx</a><li>パスワードの安全性に関するWikipediaの記事 <a href="http://en.wikipedia.org/wiki/Strong_password">http://en.wikipedia.org/wiki/Strong_password</a></li></li>
+  </ul>
+  <h1>関連する規則</h1>
+  <ul>
+    <li>
+      <a href="/article/f10679b7-5390-49ee-b529-7a2f7c059ce7">接続文字列を暗号化する</a>
+      <li>
+        <a href="/article/0b64b4b3-387e-4c3b-a75d-93c4ada92b2c">ユーザー入力を受け入れる動的クエリを避ける</a>
+        <li>
+          <a href="/article/fab1733c-61d7-46a8-88c6-2617a643c0d9">データベース アクセスに最小特権アカウントを使用する</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

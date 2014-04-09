@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="377039707" Content_Hash="-163073411">
+  <Metadata>
+    <Id>de35cce8-95d1-4ba9-80e5-4a40c449136c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>RSA 保護構成プロバイダーが Web ファーム環境の接続文字列を保護するため使用されます</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが Web ファーム環境の接続文字列を保護するため RSA 保護構成プロバイダーを使用することをチェックして確認してください。</p>
+  <h1>修正方法</h1>
+  <p>構成ファイルで Credential 情報を保護するには、暗号化してください。 データベース接続文字列を &lt;<b>connectionStrings</b>&gt; 内に設定します。 element of the Web.config file and then encrypt that element by using the Aspnet_regiis utility. DPAPI 暗号化または RSA 暗号化を使用することができます。 Web ファームでは、RSA 鍵のエクスポートおよびインポートがサーバを横断して簡単に行うことができるため、 RSA を使用してください。 接続文字列の保護は、SQL 認証を使用する接続文字列では平文のユーザー ID およびパスワードが含まれるため、特に重要です。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;また、Windows 認証を使用する場合も接続文字列の暗号化を行うべきです。 この書式の接続文字列には Credential 情報は含まれませんが、サーバ名およびデータベース名をプライベートにしておくことを目指すべきです。 </blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

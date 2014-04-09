@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-498102330" Content_Hash="-1176708754">
+  <Metadata>
+    <Id>0a6a4953-2a52-4d81-afcd-8719762d184b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構造化例外処理の使用</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>構造化例外処理を使用し、例外条件をキャッチします。 すべてのエラー処理で、関数の戻り値を信頼することはできません。</p>
+  <h1>理由</h1>
+  <p>エラー処理のための従来のアプローチは、関数の戻り値を使用して、特定の操作の成否を評価する方法です。 リターン コードのチェックは忘れやすく、その結果、お使いのコードはセキュアでないモードに低下します。</p>
+  <h1>状況</h1>
+  <p>あるプログラムでエラーまたは例外条件が発生する可能性がある場合は、必ず構造化例外を使用します。 関数で例外が発生する可能性があるならば、やがて例外が発生すると想定することは理にかなっています。 例外はすべて処理しなければいけません。</p>
+  <h1>対策</h1>
+  <p>Microsoft Visual C# ® 開発ツールと Microsoft Visual Basic® .NET 開発システムには、構造化例外処理コンストラクタが用意されています。 C# には、<b>try / catch</b> および <b>finally</b> コンストラクタがあります。 <b>try</b> ブロックの中にコードを置くことによって保護し、<b>catch</b> ブロックを実装して例外をログ記録して処理することができます。 また、<b>finally</b> コンストラクタを使用して、例外条件が発生しているかどうかにかかわらず、接続などの重要なシステム リソースを閉じるようにしてください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

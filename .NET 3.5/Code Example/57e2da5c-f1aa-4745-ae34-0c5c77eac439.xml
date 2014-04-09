@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2139615889" Content_Hash="-1007746714">
+  <Metadata>
+    <Id>57e2da5c-f1aa-4745-ae34-0c5c77eac439</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>与えられたメッセージの RSA 署名を生成</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコードは、完全性チェックの実行に使用できる、与えられたメッセージの RSA 署名を生成し、他のエンティティによって送信されたメッセージの非否認を提供します。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>一定期間保存されたデータまたは送信されたデータでの完全性チェックを提供するときに使用される、与えられたメッセージの暗号公開鍵署名を作成する。 <li>RSA 公開鍵を所有するユーザーが個別に検証できるメッセージまたはデータの非否認を提供する。 </li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>クライアント/サーバまたはクライアント/クライアント アーキテクチャ内の 2 つのエンティティは、送信者の信頼性を検証するメカニズムを使用してデータを伝送して非否認を提供する必要がある。 <li>アプリケーションは、期間を延長してファイルを保存する。 開発者は、保存されているファイルの非否認を提供して、時間を経ても変更されないようにすることを望んでいる。 </li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>// In RSA signatures a message is hashed with a predefined cryptographic hashing algorithm<br />// and the digest or hash is signed with the private keypair<br />public static byte[] SignMessage(byte[] message, RSAParameters privkey){<br />    byte[] signature;<br />    // Create an RSA Crypto provider, by default creating a new RSACryptoServiceProvider<br />    // causes a public / private key pair to be generated.<br />    RSACryptoServiceProvider myRsaProvider = new RSACryptoServiceProvider();<br />    // Import our private key so we can perform the signing operation<br />    myRsaProvider.ImportParameters(privkey);<br />    signature = myRsaProvider.SignData(message, new SHA1CryptoServiceProvider());<br />    return signature;<br />}</pre>
+  <h1>問題の例</h1>
+  <p>公開通信チャネルを介してリモート モードと通信するときに開発者がもっともよく陥る落とし穴は、ソリューション例で実装されているようなメッセージ署名の実行の失敗です。</p>
+  <p>次によくある落とし穴は、以下に示す公開ハッシュ化アルゴリズムを使用して、単にメッセージのハッシュされたダイジェストを実行することです。</p>
+ <pre>public static string GenerateDigest(string input){<br />    // Instantiate the SHA1 Digest<br />    SHA1 sha = new SHA1CryptoServiceProvider();<br />    return ASCIIEncoding.ASCII.GetString(sha.ComputeHash(ASCIIEncoding.ASCII.GetBytes(input)));<br />}</pre>
+  <ul>
+    <li>メッセージが伝送中に傍受されるか、ストレージ内で変更されると、攻撃者は、値に対して独自のハッシュ表現を実行して、通信に含めるか、ディスク上にファイルと一緒に保存します。 </li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Text;<br />using System.Security;<br />using System.Security.Cryptography;<br />static void Main(string[] args){<br />    // Create a test keypair with a strong keysize of 2048 bits. In a production application<br />     // we would load this value from a DPAPI protected registry value<br />    RSACryptoServiceProvider rsaProvider = new RSACryptoServiceProvider(2048);<br />    // The ExportParameters method below takes a boolean, which determines whether<br />    // to export the private key data within the parameters. When exporting parameters<br />    // ensure that only the public key parameter is shared with the remote party:<br />    RSAParameters rsaPubKeyParams = rsaProvider.ExportParameters(false);<br />    // We'll also export the private key for our signing operations<br />    RSAParameters rsaPrivKeyParams = rsaProvider.ExportParameters(true);<br />    string message1 = "the quick brown fox jumped over the lazy dog";<br />    string message2 = "the quick brown dog jumped over the lazy fox";<br />    byte[] sig = SignMessage(ASCIIEncoding.ASCII.GetBytes(message1), rsaPrivKeyParams);<br />    Console.Out.WriteLine("MSG: "+message1);<br />    Console.Out.WriteLine("\nRSA Sig: " +Convert.ToBase64String(sig));<br />    Console.Out.WriteLine("\nTest Case #1:");<br />    Console.Out.WriteLine("Validating signature for MSG: " + message1);<br />    if (VerifyMessageSignature(ASCIIEncoding.ASCII.GetBytes(message1), sig, rsaPubKeyParams)) {<br />        Console.Out.WriteLine("Valid signature.");<br />    }<br />    else {<br />        Console.Out.WriteLine("Invalid signature.");<br />    }<br />    Console.Out.WriteLine("\nTest Case #2:");<br />    Console.Out.WriteLine("Validating signature for MSG: " + message2);<br />    if (VerifyMessageSignature(ASCIIEncoding.ASCII.GetBytes(message2), sig, rsaPubKeyParams))<br />    {<br />        Console.Out.WriteLine("Valid signature.");<br />    }<br />    else<br />    {<br />        Console.Out.WriteLine("Invalid signature.");<br />    }<br />}</pre>
+  <h1>期待される結果</h1>
+  <p>上記のテスト ケースを実行すると、以下が出力されます。</p>
+ <pre>MSG: the quick brown fox jumped over the lazy dog<br />RSA Sig:         E1uGW7OmhpoP9LgnjfLA7IWUQhlrxL87tmHnkqGPowCssX70ftT78T4m<br />E5lF5iog4elIgBTUH5miVJdsqKXzTBK64V+W5gCUqsESiqcmJztchpbeyc0E9tqNBaFlo+8yi<br />Sp6aIsDsS9W5OsNgnj0Tn3vT2vnRqWA8qORLmifVrPXtQU4gm60sHO2RKiTsiMu81m3MfNI3I<br />s/MadLn6bwxnnvDNxJFpDADENaihVdBSrIDeEV4CBaQE59GbJJSBBfY15xC5X0ufNske0eG+k<br />3LURJeQDSg03oFNBHMi8ZL7oTaWHw0xRygh/aBqZCTEtTjj+RsLPxv5NsrxhzSFXlDw==</pre>
+  <p>テスト ケース #1:</p>
+ <pre>Validating signature for MSG: the quick brown fox jumped over the lazy dog<br />Valid signature.</pre>
+  <p>テスト ケース #2:</p>
+ <pre>Validating signature for MSG: the quick brown dog jumped over the lazy fox<br />Invalid signature.</pre>
+  <h1>詳細情報</h1>
+  <p>安全な通信における潜在的な落とし穴として、セッション反復攻撃があります。 セッション反射は、一度だけ使用されるタイムスタンプまたはセッション識別子を含むメッセージがある RSA 署名の使用を通して軽減することができます。 メッセージ上で RSA 署名を実行することにより、セッション反射に対して保護することができます。非対称暗号化アルゴリズムのプロパティを指定したメッセージの有効な署名を生成できるのは、送信者のみだからです。</p>
+  <p>おそらく、セキュア通信プロトコルで考慮すべき最も重要な設計は、メッセージ署名を一緒に含めることのみです。 ただし、非対称暗号化ルーチンはコストが高く、通常は最初の鍵交換プロセスで実行されます。このプロセスで、2 つのエンティティが、より効率のよい HMAC アルゴリズムで使用される共通の共有 (秘密 – 対称) 鍵について同意します。</p>
+  <p>私有鍵ペアの保存には注意が必要です。 鍵がコンテナ内に格納されていることを確認します（詳しくは以下を参照: http://msdn2.microsoft.com/en-us/library/system.security.cryptography.cspparameters(VS.80).aspx ）。</p>
+  <p>鍵をリモート エンティティと共有するときは、完全な RSA 鍵ではなく、公開鍵データのみがエクスポートされるようにしてください。 私有鍵のみをエクスポートするには、以下のメソッドを呼び出します。</p>
+ <pre>// The ExportParameters method below takes a boolean, which determines whether<br />// to export the private key data within the parameters. When exporting<br />// parameters ensure that only the public key parameter is shared with the <br />// remote party:   rsaPubKeyParams = rsaProvider.ExportParameters(false);</pre>
+  <p>または、公開鍵データを XML としてエクスポートします。</p>
+ <pre>// Setting the argument to false ensures that the private<br />// key is not exported.<br />rsaPubString = myRsaProvider.ToXmlString(false);</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>RSA 暗号化 / 署名: <a href="http://en.wikipedia.org/wiki/RSA">http://en.wikipedia.org/wiki/RSA</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

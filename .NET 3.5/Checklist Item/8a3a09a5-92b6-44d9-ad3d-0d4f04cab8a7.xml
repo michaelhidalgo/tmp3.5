@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1817887706" Content_Hash="-1951167152">
+  <Metadata>
+    <Id>8a3a09a5-92b6-44d9-ad3d-0d4f04cab8a7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションに使用されない拡張子は、404.dll にマップされます (.idq、.htw、.ida、.shtml、.shtm、.stm、Idc、.htr、.printer)。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Author>
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>アプリケーションに使用され&nbsp;ない拡張子が 404.dll にマップされることをチェックしてください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>Windows&nbsp;2000 および Windows Server 2003 では、対象となる IIS ファイル拡張子に以下が含まれています: .asp、.asa、.cer、.cdx、.htr、.idc、.shtm、.shtml、.stm、および .printer。</p>
+  <p>これらのいずれの拡張子も使用しない場合、IISLockdown により提供される 404.dll にその拡張子をマップしてください。 たとえば、ASP ページをクライアントに提供したくない場合は、.asp を 404.dll にマップしてください。</p>
+  <p>IISLockdown により変更されるマッピングは、選択するサーバ テンプレートによって異なります。</p>
+  <ul>
+    <li>
+      <b>静的ウェブ サーバ</b>.IISLockdown を実行して静的ウェブ サーバオプションを選択する場合、上記のすべての拡張子が 404.dll にマップされます。 
+<li><b>動的ウェブ サーバ</b>. ASP.NET ページを提供する場合の推奨オプションである、動的ウェブ サーバ オプションを選択する場合、.htr、.idc、.shtm、.shtml、.stm、および .printer は 404.dll にマップされ、.asp、.cer、.cdx、および .asa はマップされません。 この場合、.cer、.cdx、および .asa を 404.dll に手動でマップする必要があります。 .asp を提供しない場合、それもマップできます。 </li></li>
+  </ul>
+  <h3>なぜ 404.dll にマップするのか?</h3>
+  <p>ファイル拡張子を 404.dll にマップすることにより、 HTTP 経由のファイルの返送およびダウンロードを防止します。 404.dll にマップされた拡張子を持つファイルを要求すると、「HTTP 404 - ファイルが見つかりません」というメッセージが記載されたウェブ ページが表示されます。 マッピングを削除するよりも、未使用の拡張子を 404.dll にマップすることが推奨されています。 マッピングを削除し、ファイルが誤ってサーバに残されている (または誤ってそこに置かれている) 場合、IIS はその処理方法を知らないため、それが要求されると平文で表示される可能性があります。</p>
+  <p>
+    <b>ファイル拡張子を 404.dll にマップするには</b>
+  </p>
+  <ol>
+    <li>ISS を起動してください。 
+<li>左ウィンドウにあるサーバ名を右クリックし、[<b>プロパティ</b>] をクリックしてください。
+<li>[<b>MasterProperties</b>] ドロップダウン リストで [<b>WWWService</b><b></b>] が選択されていることを確認し、隣の [<b>編集</b>] ボタンをクリックします。 
+<li>[<b>HomeDirectory</b><b></b>] タブをクリックしてください。 
+<li>[<b>設定</b>] をクリックしてください。タブ付けされたページが下に表示されます。 
+<p><img alt="" src="http://msdn2.microsoft.com/en-us/library/Aa302432.f16thcm04(en-us,MSDN.10).gif" border="0" />&nbsp;</p></li></li></li></li></li>
+  </ol>
+  <p>
+    <b>
+      <i>アプリケーション拡張子をマップする</i>
+    </b>
+  </p>
+  <ol>
+    <li>リストから拡張子を 1 つ選択し、[<b>編集</b>] をクリックしてください。
+<li>[<b>参照</b>] をクリックし、\WINNT\system32\inetsrv\404.dll に進んでください。 
+<blockquote><b>注意</b>: &nbsp;&nbsp;この手順は、IISLockdown ツールにより 404.dll がインストールされる際に、IISlockd.exe を既に実行済みであることを想定しています。</blockquote><li>[<b>開く</b>] をクリックし、[<b>OK</b>] をクリックしてください。 
+<li>残りのすべての拡張子についても、手順 6、7 および 8 を繰り返してください。 </li></li></li></li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

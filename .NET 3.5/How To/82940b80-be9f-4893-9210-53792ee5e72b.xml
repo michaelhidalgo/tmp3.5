@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1412296340" Content_Hash="-530372650">
+  <Metadata>
+    <Id>82940b80-be9f-4893-9210-53792ee5e72b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>DNS ポイズニング バグのテスト方法</Title>
+    <Category>ネットワーキング</Category>
+    <Phase>展開</Phase>
+    <Technology> 任意</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用対象は次のとおりです。</h1>
+  <p>DNS (Domain Name System) ソフトウェア (DNS サーバやリゾルバーなど)。</p>
+  <h1>概要</h1>
+  <p>Domain Name System は、ドメイン名 (www.example.com など) を対応する IP アドレスに解決するために、インターネット全体で幅広く実装されています。&nbsp; Web ブラウザーなどのインターネット クライアントは、<i>www.example.com</i> などのドメイン名を <i>201.77.100.88</i> のような IP アドレスに解決するために、DNS サーバの集まりに問い合わせます。</p>
+  <p>攻撃者は、DNS ポイズニング攻撃時に、脆弱な DNS サーバを攻撃して、有効なドメイン名 (たとえば、 <i>IP  201.77.100.88</i>の<i>www.example.com</i> ) を悪意のある IP (<i>w.x.y.z</i>)に置き換えます。&nbsp;  また、攻撃者は、DNS クライアントと DNS サーバの間に中間者 (MitM) スタイルの攻撃を実行して、本物のサーバよりも先にクライアントに応答することにより、この置き換えを行います。&nbsp; 次に、攻撃者は、標的となるドメイン名のコンテンツを自分が選択した悪意のあるコンテンツで置き換えます。</p>
+  <p>&nbsp;</p>
+  <p>次の手順に従って、DNS ポイズニング バグをテストします。</p>
+  <ul>
+    <li>ステップ 1: 攻撃のシナリオを理解する<li>ステップ 2: 根本的な原因と対応策を分析する<li>ステップ 3: テストおよび調査を開始する<li>ステップ 4: テスト ケースを調整する</li></li></li></li>
+  </ul>
+  <h1>ステップ 1: 攻撃のシナリオを理解する</h1>
+  <p>最初に、DNS ポイズニング攻撃について、詳細に理解する必要があります。&nbsp;&nbsp; 次のシナリオは、2 つの一般的な DNS ポイズニング攻撃を示すものです。</p>
+  <ul>
+    <li>DNS キャッシュ ポイズニングによる DNS ポイズニング。 <li>DNS サーバ フォージェリによる DNS ポイズニング。</li></li>
+  </ul>
+  <h2>DNS キャッシュ ポイズニングによる DNS ポイズニング</h2>
+  <p>攻撃者は、DNS キャッシュ ポイズニング攻撃時に、サーバがクライアントに悪意のあるデータで応答するように、DNS サーバのキャッシュを改ざんします。&nbsp; 攻撃者の目的は、特定のドメイン名が攻撃者の支配する IP アドレス (<i>w.x.y.z</i>) に解決されるように、キャッシュを置き換えることです。攻撃が成功した場合、クライアントが安全なドメイン (たとえば、<i>www.example.com</i>) を DNS サーバに問い合わせると、DNS サーバは、クライアントを攻撃者の IP アドレス (<i>w.x.y.z</i>) に誘導します。</p>
+  <p>詳細: </p>
+  <ol>
+    <li>攻撃者は、脆弱な DNS サーバを見つけます。<li>攻撃者は、DNS サーバに対して、強制的に自分のネームサーバが支配するドメインに要求を発行させます。<li>攻撃者は空の応答をしますが、その応答には DNS サーバ キャッシュで別のレコードをキャッシュするためのセクションが追加されています。</li></li></li>
+  </ol>
+  <h2>DNS サーバ フォージェリによる DNS ポイズニング</h2>
+  <p>DNS サーバ フォージェリ [i] と呼ばれる、ある種の DNS ポイズニングは、本物の DNS サーバを装って標的のネットワークに侵入し、クライアントの要求に対する DNS サーバの本物の応答を、攻撃者が選択した別の応答で置き換えようとします。&nbsp; ただし、この別の応答には、元の DNS サーバからの有効な要求 ID が含まれている必要があります (16 ビットの nonce から構築されています)。&nbsp; 攻撃者は、元のサーバに対して複数の要求を同時に送信することにより、一定の時間内に有効な要求 ID を予測する目的で、誕生日攻撃 [ii] の改造版を実行します。</p>
+  <p>詳細: </p>
+  <ol>
+    <li>攻撃者は、DNS サーバと DNS クライアントの間で中間者攻撃を実行します。<li>攻撃者は、クライアントが DNS 要求を発行するのを待ちます。<li>攻撃者は、DNS 要求を傍受します。<li>攻撃者は、誕生日攻撃を開始して、要求に対する有効な DNS 応答 nonce を予測します。<li>攻撃者は、要求されたドメイン名に悪意のある IP アドレスを組み込んで、クライアントに対して有効な DNS 応答を送信します。</li></li></li></li></li>
+  </ol>
+  <p>&nbsp;</p>
+  <h1>ステップ 2: 根本的な原因と対応策を分析する</h1>
+  <p>このステップでは、DNS ポイズニングの原因を理解する必要があります。&nbsp; 根本的な原因を理解することにより、設計面と実装面の両方で対応策を特定することができます。&nbsp; この情報を使用して、アプリケーションのアーキテクチャとソース コードをレビューすることにより、 安全な作業と安全でない作業を判断することができます。</p>
+  <h2>DNS ポイズニングの根本的な原因</h2>
+  <p>DNS ポイズニング バグの主な原因は、DNS サーバが DNS 応答を過度に信頼してしまうことです。&nbsp; これにより、悪意のある DNS ノード (スプーフィングされた DNS サーバなど) が、有効な DNS ノードを置き換えることを許可してしまいます。&nbsp; 悪意のあるノードは、有効であると認識されると、悪意のある応答を DNS サーバに送信したり、先に DNS クライアントに返信したりすることができるようになります。</p>
+  <h2>DNS ポイズニングへの対応策</h2>
+  <p>このバグへの主な対応策は、DNS サーバとクライアントの両方が、DNS 応答に対する信頼度を下げることです。&nbsp; <a style="mso-comment-reference: A_2; mso-comment-date: 20080402T1025"></a><a style="mso-comment-reference: IG_1; mso-comment-date: 20080401T2106">これを達成する 1 つの方法として、既存の 16 ビット nonce に対してソース ポートを無作為に選択するなど、セキュリティ レイヤーを追加して、誕生日攻撃などのレース攻撃の可能性を減少させることがあります。</a></p>
+  <p>別の対応策として、デジタル署名を使用して DNS ノードを認証する方法があります。&nbsp; つまり、DNS データの認証時に使用されるデジタル証明書を介して、データが信頼できるソースから送信されていることを確認します。&nbsp; これにより、アプリケーションは、セキュア ソケット レイヤー (<b>SSL</b>) やトランスポート層セキュリティ (<b>TLS</b>) などの信頼できる安全な方法で署名を使用して、DNS メッセージの信頼性を確認することができます。</p>
+  <p><b><i>DNSSEC</i></b> と呼ばれる DNS の安全なバージョンにおいても、暗号化証明書を使用して DNS パケットを検証します。&nbsp;&nbsp; この対応策は、DNS ポイズニング攻撃に対して理想的な策ですが、 最近の調査結果によると、DNSSEC はほとんど配置されていないことが判明しています [iii]。</p>
+  <p>ただし、DNSSEC がインターネットで幅広く使用されるようになるまでの暫定的なソリューションがあります。たとえば、DNS フォージェリ対策用のファイアウォール ルールとともに最新版の <b><i>BIND</i></b> を実行したり、ポートを無作為化する <b><i>OpenDNS</i></b> を実行してセキュリティ レイヤーを追加し、フォージェリ攻撃を防いだりすることができます。</p>
+  <p>このステップの最終の部分で、DNS アプリケーションのソース コードまたは設計仕様を参照することにより、アプリケーションが設計面で脆弱であるかどうか、さらに上記の DNS フォージェリ対応策のいずれかが実装されているかどうかが判別できるはずです。&nbsp; </p>
+  <p>&nbsp;</p>
+  <h1>ステップ 3: テストおよび調査を開始する</h1>
+  <p>DNS ポイズニング攻撃の概要とその防御方法を理解したら、次は安全な実装と安全でない実装の両方についてテストする必要があります。</p>
+  <h2>DNS キャッシュ ポイズニングに対して DNS サーバをテストする</h2>
+  <ol>
+    <li>標的となる DNS サーバを選択します。<li>標的となる DNS サーバを使用するように、Web クライアント (ブラウザー) をセットアップします。<li>悪意のある攻撃者が支配する DNS サーバをセットアップします (このサーバは、特別に作成された応答を送信します – ステップ 6 を参照)。<li>悪意のある攻撃者が支配する Web サーバをセットアップします。 <li>標的となる DNS サーバ内から悪意のある DNS サーバに対して DNS ルックアップ クエリを開始するトリガーをセットアップします。&nbsp; <li>悪意のある DNS サーバを使用し、DNS パケットに情報を追加してクエリに応答します。&nbsp; &nbsp;これ以降のすべての要求が .COM [iv] ドメインに宛てられて、悪意のある Web サーバ (ステップ 4) の IP アドレスに解決されるように、DNS パケットの “<b>回答 (Answers)</b>”、”<b>権限ネームサーバ (Authoritative nameservers)</b>”、”<b>追加レコード (Additional records)</b>“ フィールドを設定します。&nbsp; <li>ステップ 2 の Web ブラウザーを開き、.COM ドメインに移動します。&nbsp;</li></li></li></li></li></li></li>
+  </ol>
+  <p>予想される結果: テストが失敗した場合、Web ブラウザーは、入力された .COM ドメインに対する攻撃者の Web サーバのコンテンツを表示します。&nbsp; 攻撃者のコンテンツではなく、意図した Web サイトが読み込まれた場合、このテストは合格です。</p>
+  <h2>DNS フォージェリに対して DNS サーバをテストする</h2>
+  <ol>
+    <li>標的となる DNS サーバを選択します。<li>標的となる DNS サーバを使用するように、Web クライアント (ブラウザー) をセットアップします。<li>悪意のある攻撃者が支配する DNS サーバをセットアップします。<li>悪意のある攻撃者が支配する Web サーバをセットアップします。<li>中間者攻撃を実行して、クライアントからサーバへの DNS 要求を傍受します。<li>サーバに対して DNS 誕生日攻撃 [v] を開始し、有効な DNS 要求 ID を予測します。<li>有効な要求 ID でクライアントに応答を送信します。ただし、すべての .COM ドメインを (ステップ 4 の) 悪意のあるサーバの IP アドレスにマッピングします。<li>ステップ 2 の Web ブラウザーを開き、.COM ドメインに移動します。</li></li></li></li></li></li></li></li>
+  </ol>
+  <p>予想される結果: テストが失敗した場合、Web ブラウザーは、入力された .COM ドメインに対する攻撃者の Web サーバのコンテンツを表示します。&nbsp; 攻撃者のコンテンツではなく、意図した Web サイトが読み込まれた場合、このテストは合格です。</p>
+  <p>&nbsp;&nbsp;</p>
+  <h1>ステップ 4: テスト ケースを調整する</h1>
+  <p>これで基本的な DNS ポイズニング テストは終了です。次に、攻撃者が支配する DNS 応答の例をいくつかご紹介します。 </p>
+  <p>次の応答は、犠牲者のドメイン ネーム サーバ (ns.teammentorexample.com) を攻撃者の IP (w.x.y.z) にリダイレクトします。</p>
+  <blockquote>
+ <pre>答え:</pre>
+ <pre>(no response)</pre>
+ <pre>Authority section:</pre>
+ <pre>example.com. 3600 IN NS ns.bankingsite.com.</pre>
+  </blockquote>
+  <blockquote>
+ <pre>Additional section:</pre>
+ <pre>ns.teammentorexample.com. IN A w.x.y.z</pre>
+  </blockquote>
+ <pre>&nbsp;</pre>
+  <p>次の応答は、犠牲者のサイト (<i>banking.com</i>) のネーム サーバ レコードを別の標的ドメイン (<i>ns.example.com</i>) にリダイレクトします。</p>
+  <blockquote>
+ <pre>答え:</pre>
+ <pre>(no response)</pre>
+ <pre>Authority section:</pre>
+ <pre>teammentorexample.com. 3600 IN NS ns.example.com.&nbsp;</pre>
+ <pre>Additional section:</pre>
+ <pre>ns.example.com. IN A w.x.y.z</pre>
+  </blockquote>
+  <p>次の応答は、すべての .COM ドメインのネーム サーバ レコードを攻撃者の IP にリダイレクトします。</p>
+  <blockquote>
+ <pre>答え:</pre>
+ <pre>www.example.com: type A, class inet, addr w.x.y.z</pre>
+ <pre>Additional records:</pre>
+ <pre>com: type A, class inet, addr w.x.y.z</pre>
+  </blockquote>
+ <pre>&nbsp;</pre>
+  <p>これらは 、DNS キャッシュ ポイズニング攻撃のバリエーションのごく一部です。&nbsp; さまざまな種類の DNS 攻撃手法が、毎日のようにインターネット上に出現しています。&nbsp; テスト手法や防御方法について、常に最新の情報を入手してください。</p>
+  <h1>結論</h1>
+  <p>DNS ポイズニングは、壊滅的な影響を与える可能性がある深刻な問題です。&nbsp; DNS サーバの配置と管理を担当している場合は、このクラスの攻撃に対して脆弱ではないことを確認する必要があります。&nbsp; この記事では、最も一般的な 2 種類の DNS ポイズニング シナリオ、およびその根本的な原因と防御方法について説明しています。&nbsp; 最後の 2 つのステップでは、DNS ポイズニングに対して現在の実装に存在する脆弱性をテストします。&nbsp; </p>
+  <div>
+    <br />
+    <hr />
+    <div>
+      <p>[i]&nbsp;&nbsp;DNS キャッシュ ポイズニング。 Wikipedia <a href="http://en.wikipedia.org/wiki/DNS_cache_poisoning">http://en.wikipedia.org/wiki/DNS_cache_poisoning</a></p>
+      <p>[ii]&nbsp;&nbsp;DNS キャッシュ ポイズニング – 次世代  &nbsp;(Joe Stewart)。 <a href="http://www.lurhq.com/dnscache.pdf">http://www.lurhq.com/dnscache.pdf</a></p>
+    </div>
+    <div>
+      <p>[iii]&nbsp;&nbsp; DNSSEC 調査結果。 <a href="http://www.ccnso.icann.org/surveys/dnssec-survey-report-2007.pdf">http://www.ccnso.icann.org/surveys/dnssec-survey-report-2007.pdf</a></p>
+    </div>
+    <div>
+      <p>[iv]&nbsp;&nbsp;2005 年 3 月の DNS ポイズニング集計  (Kyle Haugness)。 <a href="http://isc.sans.org/presentations/dnspoisoning.html">http://isc.sans.org/presentations/dnspoisoning.html</a></p>
+    </div>
+    <div>
+      <p>[v]&nbsp;&nbsp;BIND 9 DNS キャッシュ ポイズニング  (SecuriTeam)。 <a href="http://www.securiteam.com/securitynews/5VP0L0UM0A.html">http://www.securiteam.com/securitynews/5VP0L0UM0A.html</a></p>
+    </div>
+    <div>
+      <p>&nbsp;</p>
+    </div>
+  </div>
+  <div>
+    <hr />
+  </div>]]></Data>
+  </Content>
+</TeamMentor_Article>

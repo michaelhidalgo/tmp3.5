@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="11041741" Content_Hash="463659646">
+  <Metadata>
+    <Id>5994fde3-8507-46b2-8001-b60034ae1e5c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>偽装とのトレードオフを知る</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>偽装の代償を知っておいてください。</p>
+  <h1>対策</h1>
+  <p>擬装 ID を使用してダウンストリーム データベースにアクセスする場合、接続プールの効率的な使用が妨げられることに注意します。 これはアプリケーションのスケーラビリティに影響を与えます。 偽装を使用することによって特にマルチスレッド アプリケーションにおける他の脆弱性を導入してしまう結果になる場合もあります。</p>
+  <p>次のような場合に、偽装が必要となります。</p>
+  <ul>
+    <li>本来の呼び出し元のセキュリティ コンテキストを、Web アプリケーションの中間層やデータ層に送り、微細な (ユーザー毎の) 認可をサポートする。<li>本来の呼び出し元のセキュリティ コンテキストを、ダウンストリーム階層に送り、オペレーティング システム レベルの監査をサポートする。<li>特定の ID を使用して、特定のネットワーク リソースにアクセスする。</li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

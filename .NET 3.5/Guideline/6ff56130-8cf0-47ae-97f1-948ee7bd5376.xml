@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1469029705" Content_Hash="-2004202530">
+  <Metadata>
+    <Id>6ff56130-8cf0-47ae-97f1-948ee7bd5376</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SSL を使用できない場合は CookieSlidingExpiration を False に設定し、認可 Cookie の有効期間を制限する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーションの認可 Cookie を保護するために SSLを使用できない場合は、<b>cookieSlidingExpiration</b> を <b>false</b> に設定し、認可 Cookie の有効期間を制限するために Cookie タイムアウトを設定します。 </p>
+  <h1>理由</h1>
+  <p>SSL が不可能ないくつかのケースがあります。 その 1 つのシナリオは、SSL サポートのないモバイル デバイスかもしれません。&nbsp; これらのケースにおいて、期限切れになろうとしている認証 Cookie は、偽って認証するために Cookie を盗もうという攻撃者の機会の窓が減少します。 しかし、これは SSL の代替とはならず、提供するのははるかに弱いセキュリティです。</p>
+  <h1>状況</h1>
+  <p>認可 Cookie を保護するために SSL を使用できないアプリケーションでは、最小レベルの保護を提供するためにこれらの手法を使用する必要があります。 </p>
+  <h1>対策</h1>
+  <p>SSL を使用できない場合、アプリケーションへのリスクを軽減させるために以下のステップが役立ちます。</p>
+  <ol>
+    <li>
+      <p>アプリケーションになりすまし ID でアクセスしようとする攻撃者がキャプチャした Cookie を使用できる時間枠を軽減するため、 Cookie の有効期限を制限します。&nbsp; 認証Cookieの初期設定タイムアウトは30分です。&nbsp; ここに示されているように 10 分に減らすことを検討します。</p>
+ <pre>&lt;roleManager ...<br />             cookieTimeout="10"<br />             ...&gt;<br />&lt;/roleManager&gt;</pre>
+      <li>
+        <p><b>cookieSlidingExpiration="true"</b> のデフォルト設定により、 Cookie の有効期限は各 Web 要求後にリセットされることが保証されます。&nbsp; ユーザー対話モデルが可能な場合、または Cookie ハイジャックが懸念されるシナリオの場合は、 <b>cookieSlidingExpiration="false"</b>&nbsp; の設定を検討します。そうする場合、ユーザーがアクティブであるか否かにかかわらず、タイムアウト期間後に認可 Cookie の有効期限が切れ、ユーザーは再認可/再認証しなければなりません。&nbsp; 次のコードは <strong>cookieSlidingExpiration</strong>: をオフにします。</p>
+ <pre>&lt;roleManager&nbsp;...<br />             cookieSlidingExpiration="true"<br />             ...&gt;<br />&lt;/roleManager&gt;</pre>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>通常では携帯電話の顧客によって使用される、SSL を使用しない Webサイトでは、認可 Cookie 管理のデフォルト設定が使用されます。&nbsp; ユーザーはサイトに接続するために、一時的に公開端末を使用し、簡単に自分のアカウントの状態を確認してから、サイトの他の（セキュアでない）の部分を参照します。&nbsp; まだサイトをリフレッシュしているため、ユーザーが離席して 10 分後に攻撃者がそのマシンの前に座ったとき、攻撃者はサイトに直接移動し、再度ログインする必要なく、ユーザー設定を変更することができます。</p>
+  <p />
+  <h1>ソリューションの例</h1>
+  <p>通常では携帯電話の顧客によって使用される、SSL を使用しない Webサイトでは、認可 Cookie 管理のためにその設定をロックダウンします。&nbsp; ユーザーはサイトに接続するために、一時的に公開端末を使用し、簡単に自分のアカウントの状態を確認してから、サイトの他の（セキュアでない）の部分を参照します。&nbsp; ログイン後 10 分が経過すると直ちに認可 Cookie の有効期限が切れますが、これはブラウジングには影響しません。&nbsp; ユーザーが離席して 10 分後に攻撃者がそのマシン座ったときには、攻撃者はサイトからロック アウトされています。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

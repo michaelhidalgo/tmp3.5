@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1434403111" Content_Hash="-858848323">
+  <Metadata>
+    <Id>88f49e05-f101-4764-b8e3-b31cd7507071</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>要求検証に依存しない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>すべての悪意のある入力を検出する際に ASP.NET 要求検証に依存しない。 独自の入力検証に追加される、付随的な予防対策としてのみ使用してください｡</p>
+  <h1>理由</h1>
+  <p>ASP.NET 要求検証機能は基本的な入力検証のみを実行するものであり、あらゆる種類の悪意のあるデータを検出するものとして依存すべきではありません。 クロスサイト スクリプティングや SQL インジェクションのような攻撃を防止するにも十分ではなく、また各アプリケーションは特定の検証ニーズを持っています&amp;#8212;あるアプリケーションにとってよい入力は別のアプリケーションには悪い可能性があります。</p>
+  <h1>状況</h1>
+  <p>ユーザー入力がウェブページからサーバへ送信して戻される時。</p>
+  <h1>対策</h1>
+  <p>要求検証は、デフォルトで有効になっています。 これは<strong>Machine.config.comments </strong> ファイルの<strong>&lt; pages&gt;素でvalidateRequest</strong>属性trueに<strong> </strong>設定することにより調べられます。 これは、Web アプリケーションに送信されるすべての入力を自動的に検証しようとします。 一定範囲の HTML エレメントを受け入れる必要のあるものを除き、すべてのページに有効化されていることを確認してください｡ あるページについて無効にする必要がある場合､<strong>&amp;#64;</strong> <strong>Page</strong> 命令を次のように使用して<strong>ValidateRequest 属性をfalse</strong> に設定してください:</p>
+ <pre>&lt;&amp;#37;&amp;#64;Page Language="C#" ValidateRequest = "false" &amp;#37;&gt;</pre>
+  <p>この機能は<strong>Request.ValidateInput()</strong> 呼び出しを使用して、サーバが明示的に呼び出すこともできます。</p>
+  <p>ページ命令を使用して自動的に検証するのであれ、<strong>Request.ValidateInput() </strong> を明示的に呼び出すのであれ、目的はこの機能を追加予防策としてのみ使用することです。 ユーザー データを正しく取り扱っていることを確かめるには、以下のステップのすべてに従っていることを確認してください:</p>
+  <ol>
+    <li>ユーザーがファイル名またはパスを入力できないようにしてください。 <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">すべてのユーザー提供のファイル名およびパス入力をフィルタする</a> のガイドラインを参照してこの方法を学習してください。</li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>この例ではオンライン ショッピング カートを使用します。 カートコンポーネントは2つのコンポーネントから成ります：</p>
+  <ol>
+    <li>
+      <p>注文処理のため送信するすべてのフィールドを含むHTMLフォーム。</p>
+ <pre>&lt;html&gt;<br />  &lt;head&gt;<br />    &lt;title&gt;Widget shopping cart&lt;/title&gt;<br />  &lt;/head&gt;<br />  &lt;body&gt;<br />    &lt;H1&gt;welcome to the most boring shopping cart on the web&amp;#33;&lt;/H1&gt;<br />     A widget's current price is &amp;#36;19.95 USD. Please use the following form to submit an order.<br />    &lt;form action="process_order.aspx" method="POST"&gt;<br />       &lt;p&gt;Please enter the number of widgets you would like to purchase:&lt;/p&gt;<br />       quantity:&lt;br/&gt;<br />       &lt;select name="WidgetQuantity"&gt;<br />        &lt;option value="1"&gt;1&lt;/option&gt;<br />        &lt;option value="2"&gt;2&lt;/option&gt;<br />        &lt;option value="3"&gt;3&lt;/option&gt;<br />        &lt;option value="4"&gt;4&lt;/option&gt;<br />      &lt;/select&gt;<br />      ...<br />      &lt;input type="submit" value="order"/&gt;<br />    &lt;/form&gt;<br />  &lt;/body&gt;<br />&lt;/html&gt;</pre>
+      <li>
+        <p>要求検証機能に依存しフォーム送信を処理し、発注を作成するのに必要なステップを実施する ASP.NET のページ。</p>
+ <pre>......<br />try<br />&amp;#123;<br />   Request.ValidateInput();<br />&amp;#125;<br />catch(HttpRequestValidationException e)<br />&amp;#123;<br />   //error out<br />&amp;#125;<br />int dQuantity = Request("WidgetQuantity");<br />double dPrice = 19.95;<br />double dCost = dQuantity &amp;#42; dPrice;<br />......</pre>
+      </li>
+    </li>
+  </ol>
+  <p>このサーバ側のページは、ASP.NET 要求検証機能にだけ依存するので問題があります｡ ユーザーがルールを守り、指示どおりにフォームを提出する場合、数量フィールドは注文数量の範囲制約が常に有効であることを保証するので、アプリケーションは正常に動作します。 しかし、賢いユーザーが自分だけのフォームを構築することを決め、負の数のWidgetQuantity フィールドを送信すると、マイナス残高が発生します。 使用する電子商取引システムによっては、これによりユーザーのアカウントにクレジットが発生する可能性があります。 それはまた、会社の棚卸資産からマイナス残高を減算するかもしれず、後で著しい悪影響と損失をもたらすことになります。</p>
+  <h1>ソリューションの例</h1>
+  <p>フォームの送信を処理して、注文を作成するために必要な手順を実行する、次のASP.NETページを考えてみましょう。</p>
+ <pre>&lt;&amp;#37;&amp;#64;Page Language="vb" &amp;#37;&gt;<br />&lt;script runat=server&gt;public sub OnSubmit(source as Object, e as EventArgs)<br />    if Page.IsValid then<br />        ' Now we can perform our transaction.<br />        int dQuantity = Request("WidgetQuantity");<br />        double dPrice = 19.95;<br />        double dCost = dQuantity &amp;#42; dPrice;<br />    end if<br />end sub<br />&lt;/script&gt;<br />&lt;html&gt;<br />&lt;head&gt;<br />&lt;title&gt;Validation Sample&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;<br />&lt;form runat=server&gt;<br />&lt;asp:ValidationSummary runat=server headertext="There were errors on the page:" /&gt;<br />&lt;table&gt;<br />  &lt;tr&gt;<br />    &lt;td&gt;<br />        &lt;asp:RequiredFieldValidator runat=server<br />             controltovalidate="WidgetQuantity"<br />             errormessage="WidgetQuantity is required."&gt;<br />        &lt;/asp:RequiredFieldValidator&gt;<br />    &lt;/td&gt;<br />    &lt;td&gt;A widget's current price is &amp;#36;19.95 USD. Please use the following form to submit an order.&lt;/td&gt;<br />    &lt;td&gt;<br />      &lt;select name="WidgetQuantity"&gt;<br />        &lt;option value="1"&gt;1&lt;/option&gt;<br />        &lt;option value="2"&gt;2&lt;/option&gt;<br />        &lt;option value="3"&gt;3&lt;/option&gt;<br />        &lt;option value="4"&gt;4&lt;/option&gt;<br />      &lt;/select&gt;<br />     &lt;asp:RegularExpressionValidator runat=server display=dynamic<br />            controltovalidate="WidgetQuantity"<br />            errormessage="WidgetQuantity must be a non-zero, positive integer." <br />            validationexpression="&amp;#91;1-9&amp;#93;&amp;#123;1&amp;#125;&amp;#91;0-9&amp;#93;&amp;#123;0,7&amp;#125;" /&gt;<br />    &lt;/td&gt;<br />  &lt;/tr&gt;<br />...<br />&lt;/table&gt;<br />&lt;br&gt;<br />&lt;input type=submit runat=server id=cmdSubmit value=Submit onserverclick=OnSubmit&gt;<br />&lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <p>ASP.NETバリデータコントロールは、サーバへのラウンドトリップを軽減し、ユーザー エクスペリエンスを向上させるためにClient-side Validationを提供しますが、同時に、ウィジェットの数量フィールドが正の整数であることを確保するために、Server-side Validationも提供します。 それはまた、注文の提出前に提供されなければならない必須フィールドとして検証されます。</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン:ユーザー提供のファイル名とパス入力をすべてフィルタする</a>
+      <li>
+        <a href="/article/d6ae90bf-1b44-4a89-b22e-55ea97e52ba5">ガイドライン:すべての出力データを暗号化する</a>
+        <li>
+          <a href="/article/467c390a-87b6-459c-878a-8f2da151750a">チェックリスト項目:要求検証に依存しない</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

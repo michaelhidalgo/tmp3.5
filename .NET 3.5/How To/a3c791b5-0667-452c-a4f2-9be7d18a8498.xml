@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1828813944" Content_Hash="622543707">
+  <Metadata>
+    <Id>a3c791b5-0667-452c-a4f2-9be7d18a8498</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内に整数オーバーフローがないかどうかテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>整数オーバーフロー攻撃では、攻撃者は未チェックの算術状態を悪用して、最大整数値よりも大きな整数変数を結果として保存しようとするようにアプリケーションを導きます。 これが発生すると、整数型変数が：</p>
+  <ul>
+    <li>符号なし整数の場合には、小さい整数値に切り下げます。<li>符号付き整数の場合には、負の整数値に切り上げます。</li></li>
+  </ul>
+  <p>いずれの場合も、目標の整数変数は誤った値を持つ結果になります。 ASP.NET において、攻撃者は、整数オーバーフロー バグを使用してアプリケーションにロジカル アタックを仕掛けることができます。 </p>
+  <p>以下の手順に従って､ASP.NET での整数オーバーフロー バグをテストしてください｡</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テストと調査を開始する<li>手順 4: 追加テストを実行する</li></li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>手順 1: 攻撃のシナリオを理解する</h1>
+  <p>まず、ASP.NET での様々な整数オーバーフロー攻撃のシナリオを理解する必要があります。 C または C++ のようなアンマネージ コードで書かれたアプリケーションでは、攻撃者は整数オーバーフローを利用してバッファをオーバーランさせるかまたはサービス拒否 (DoS) 攻撃を行います｡ ただし、ASP.NET を含む管理されたコードで書かれたアプリケーションは脆弱性がないと想定するのは間違いです。 </p>
+  <p>管理されたコードでは､攻撃者は整数オーバーフロー状態を利用してアプリケーションのロジックを改変し、攻撃者を利するようなロジカル パスを強制的に実行させようとします。 この攻撃は､少なくとも整数の 1 つをユーザーがアクセスできるような整数演算の値に基づいた実行パスをアプリケーションが選択した場合に発生します。 十分に大きな整数値を渡す攻撃は、整数演算をオーバーフローさせ、実行パスを決定するためにアプリケーションが使用する変数に誤った値を格納する場合があります。 アプリケーションが意図されていないパスを実行するロジカル アタックは、アプリケーションが攻撃者に特別な便益を与えるか、さらに悪い場合は銀行口座に誤った金額を預金したりまた攻撃者がセキュリティ チェックをバイパスできるようにしたりするなど、中度から重度の結果をもたらす可能性があります。 </p>
+  <p>たとえば､次のようなコードは URL に提供される整数に基づいて顧客の料金を計算します。</p>
+ <pre>http://example.com/example.aspx?items=50</pre>
+  <p>下の関数は、顧客の口座から引き出される実際の金額を計算します。</p>
+ <pre>protected void CalculateCharge()<br />{<br />	const int itemPrice = 50;<br />	int numberOfItems = Convert.ToInt32(Request.QueryString["items"]);<br />&nbsp;	<br />	if (numberOfItems &gt; 0)<br />	{<br />		int balance = itemPrice * numberOfItems; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 	}<br />&nbsp;<br />	Response.Write("The customer account will be charged " + balance);<br />}&nbsp;</pre>
+  <p>クライアントがたとえば 50 などの通常のアイテム数を渡した場合、残高は最大の 32ビットの符号付き整数（2147483647）未満であり、正しく計算されます：&nbsp; </p>
+  <p />
+ <pre>http://example.com/example.aspx?items=50&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (input)&nbsp;</pre>
+ <pre>The customer account will be charged 2500&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (output)</pre>
+  <p>&nbsp;ところが攻撃者は、<i>balance</i> 変数をオーバーフローさせるために、<i>items</i> パラメーターを使用して大きな整数を渡すことができます。&nbsp; その結果､計算された残高が最大整数を超え、マイナスを出すことになります。</p>
+  <p />
+ <pre>http://example.com/example.aspx?items=<strong>42949673</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (input)&nbsp;</pre>
+ <pre>The customer account will be charged -2147483646&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (output)</pre>
+  <p />
+  <p>その結果、アプリケーションから攻撃者の銀行口座に高額の入金が実行されてしまいます。</p>
+  <p>&nbsp;</p>
+  <h1>手順 2: 原因と対策を分析する</h1>
+  <p>次に､実際のテスト ケースを実施する前に､ASP.NET で何が整数オーバーフローの原因となりどのように防御すべきかを理解する必要があります。</p>
+  <p>整数オーバーフローは、ASP.NET アプリケーションまたはサービスが、演算の上限境界に対して入力をチェックせずに整数演算にクライアントが提供した値を使用する時に発生します。&nbsp; たとえば､上のシナリオでは、アプリケーションは URL パラメータからの <i>numberOfItems</i> の値を取得することにより残高を計算します。</p>
+ <pre>int balance = itemPrice * numberOfItems; </pre>
+  <p />
+  <p>このアプリケーションでは、入力が負の値でないことはチェックされていますが、上限を超えないことがチェックされていません。 その結果、攻撃者は 42949673 のように非常に大きな数を渡すことができます。 Visual Basic は、デフォルト設定で整数オーバーフローをチェックし、開発者がパフォーマンス上の理由でこのチェックを削除しない限り､このバグに対して脆弱性はありません。 反対に、C# は、デフォルト設定では算術オーバーフローをチェックしないため、開発者は適切な予防措置を講じておく必要があります。</p>
+  <p>C# 整数オーバーフローを防止する最初の方法は、合理的な最大値に対して入力整数値をチェックすることです。 たとえば、上のコードは以下のように修正できます。</p>
+ <pre>if ((numberOfItems &gt; 0)&nbsp; && (numberOfItems &lt; 5000)<br />{<br />	int balance = itemPrice * numberOfItems;</pre>
+ <pre>}</pre>
+  <p>さらに、C# の開発者は､C または C++ のそれに類似する <i>checked/unchecked</i>ステートメントを使用して、実行時とコンパイル時の両方で算術オーバーフローをチェックできます。 <i>checked</i>ステートメントは、上記に示された攻撃を処理する際には非常に便利です｡</p>
+ <pre>int balance = checked(itemPrice * numberOfItems);</pre>
+  <p>For more information about using this mitigation, refer to <i>Code Project’s&nbsp;</i><i>Arithmetic Overflow Checking using checked/unchecked</i> article, at (<a href="http://www.codeproject.com/KB/cs/overflow_checking.aspx">http://www.codeproject.com/KB/cs/overflow_checking.aspx</a>)</p>
+  <p>
+    <b>
+    </b>&nbsp;</p>
+  <h1>手順 3: テストと調査を開始する</h1>
+  <p>ASP.NET の整数オーバーフローへの攻撃シナリオおよびその原因と防御策を理解したところで、テスト ケースを実施し、 ASP.NET アプリケーションまたはサービスでの動作を観察する必要があります。</p>
+  <p>以下の手順に従って、整数オーバーフローをテストします。</p>
+  <ol>
+    <li>整数値を取る入力変数を見つけます。<li>50 のような小さな整数を送信します｡<li>アプリケーションの反応をチェックします。<li>大きな整数値を送信します (下の表 1 を参照)。<li>アプリケーションの反応をチェックします。</li></li></li></li></li>
+  </ol>
+  <p>予測される結果: アプリケーションが整数オーバーフローに対し脆弱性を持つ場合､アプリケーションは大きな整数値を使用する際に異なるロジックを実行するため、手順 3 および 5 での反応が異なります。 </p>
+  <p>&nbsp;</p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+ <pre>データ型</pre>
+        </td>
+        <td>
+ <pre>最大値</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>Int</pre>
+        </td>
+        <td>
+ <pre>2147483647</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>int16</pre>
+        </td>
+        <td>
+ <pre>32767</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>uint</pre>
+        </td>
+        <td>
+ <pre>4294967295</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>uint16</pre>
+        </td>
+        <td>
+ <pre>65535</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>short</pre>
+        </td>
+        <td>
+ <pre>32767</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>ushort</pre>
+        </td>
+        <td>
+ <pre>65535</pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <b>表 1 – ASP.NET の整数関連型の最大整数値</b>
+  </p>
+  <p>&nbsp;</p>
+  <h1>手順 4: 追加テストを実行する</h1>
+  <p>整数オーバーフローのテストの最終手順は､様々な攻撃シナリオの変形に基づいて追加テストを実施することです。</p>
+  <p>アプリケーションで、顧客が入力した整数に負の数を掛けたり、累積した数からその整数を引いたりする場合があります。 以下のコードを考えてみます。</p>
+ <pre>const int points = 5000;<br />int penalized = Convert.ToInt32(Request.QueryString["penalized"]);<br />&nbsp;<br />int pointsPenalized = 10 * penalized;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />int totalPoints = points - pointsPenalized; <br />&nbsp;<br />Response.Write("The player's total points are: " + totalPoints);</pre>
+  <p>攻撃者は、大きな整数を <i>penalized</i> パラメーターに渡して、合計ポイントに対する減点ポイントを負の整数に変更しようと試みます。 攻撃が成功した場合､アプリケーションはポイントを差し引く代わりにペナルティとしてそれらを加算します。 たとえば､下の URL では、プレーヤーが実際に持つ 5000 から 200 のペナルティ ポイントが差し引かれます｡</p>
+ <pre>http://example.com/example.aspx?penalized=2</pre>
+ <pre>The player's total points are:&nbsp; 4800</pre>
+  <p>しかしながら、整数オーバーフロー バグを悪用することはプレーヤーにポイントが加算される結果になります。</p>
+ <pre>http://example.com/example.aspx?penalized=214748364</pre>
+ <pre>The player's total points are:&nbsp; 5080</pre>
+  <p>&nbsp;</p>
+  <h1>結論</h1>
+  <p>攻撃者は、整数オーバーフロー バグを悪用して ASP.NET アプリケーションにロジカル アタックを仕掛けます｡ それをテストするには､まず攻撃シナリオおよびその原因と防御策を理解する必要があります。 次に､アプリケーションの反応を観察しながら､数値を取る任意の入力値を探し､極端に大きな正および負の値を使用してテスト ケースを実施する必要があります。</p>
+  <p>
+    <b>&nbsp;</b>
+  </p>
+  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

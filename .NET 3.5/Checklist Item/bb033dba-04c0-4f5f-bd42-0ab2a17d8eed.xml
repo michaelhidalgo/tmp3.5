@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="8338931" Content_Hash="711218063">
+  <Metadata>
+    <Id>bb033dba-04c0-4f5f-bd42-0ab2a17d8eed</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションがファイル名とパスの入力を避ける</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>絶対に必要な場合を除き、アプリケーションはファイル名またはファイル パスの入力を受け入れてはなりません。</p>
+  <h1>理由</h1>
+  <p>アプリケーションに任意のファイルおよびリソースにアクセスさせるために悪意のあるファイル入力が用いられることがあります。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順で、この問題がないかチェックしてください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーション内のすべての入力ソースを見つけてくだい。 </strong>設計時に、アプリケーションへの潜在的な入力ソースをすべて特定してください。 ソース コードを十分に調べて、設計段階で見落としている可能性のある入力のソースを見つけます。 次の手順において利用できるリストをコンパイルします。</p>
+      <li>
+        <p>
+          <strong>入力ソースがファイルまたはパスの情報を提供していないか判別してください。 </strong>すべての入力ソースを調べて、ファイル名またはファイル パスを生成するために使用されているかどうかを判別してください。&amp;nbsp;完全なパスまたはファイル名を提供する入力ソースだけでなく、パスおよびファイル名の内部生成を変更するために使用される可能性のあるユーザー入力も探してください。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>ファイル パスまたはファイル名に対するユーザー制御が絶対に必要というわけではない場合は、アプリケーションから該当コードを削除してください。</p>
+  <p />
+  <p>アプリケーションの適切な動作にこの機能が不可欠である場合は、入力をディレクトリ トラバーサルおよび正規化攻撃に対し検証してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ファイル名をチェックしてください。 </strong>ファイル パスがアプリケーションの仮想ディレクトリ階層内のファイルのみを参照していることを確認してください (これが適切である場合)。 ファイル名のチェック時に、<b>System.IO.Path.GetFullPath</b> メソッドを使用してファイルのフルネームを取得します。 </p>
+      <li>
+        <p>
+          <strong>ファイル パスをチェックしてください。 </strong>サーバ上で提供された仮想パスを物理パスにマップするために<b>MapPath</b> を使用している場合には、アプリケーション間のマッピングを防げるように、<b> bool</b> パラメータを承諾する<b>Request.MapPath</b> メソッドを使用します:</p>
+        <pre>try<br />{<br />  string mappedPath = Request.MapPath( inputPath.Text,<br />                                       Request.ApplicationPath, false);<br />}<br />catch (HttpException)<br />{<br />  // Cross-application mapping attempted<br />}</pre>
+        <p>最終の <b>false</b> パラメータは、クロス アプリケーション マッピングを防止します。 つまり、ユーザーは “..” を含むパスを指定することでアプリケーションの仮想ディレクトリ階層外をスキャンすることはできません。 それを試行しようとしても、結果は <b>HttpException</b> 型の例外となります。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/4ce86b45-ffb7-4646-9f8f-01f87be439da">チェックリストの項目: 入力ファイル名が必要な場合には、それらは整形式で、アプリケーション コンテキスト内で 検証可能な形で有効になっている</a>
+      <li>
+        <a href="/article/581e8fff-7841-49ac-8bbe-d74e44aa9bd8">チェックリストの項目: すべての入力の長さ、範囲、形式、および型が検証されている</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

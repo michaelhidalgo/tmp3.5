@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1215657084" Content_Hash="226798921">
+  <Metadata>
+    <Id>0e48f492-92b2-4f99-ba15-8b5aa9dcc56f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WSDL を公開したくない場合、HttpGetEnabled をオフにしてメタデータ交換(mex) エンドポイントを削除します</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>WSDL を公開したくない場合、HttpGetEnabled をオフにしてメタデータ交換(mex) エンドポイントを削除します</p>
+  <h1>理由</h1>
+  <p>メタデータが公開された場合、望ましくないクライアントがプロキシ ファイル(例えば、SvcUtil.exe を使用して)を生成し、潜在的に機微なメソッドおよびサービスが提供するパラメータを検査することができます。</p>
+  <h1>状況</h1>
+  <p>サービスのWSDL を公開したい場合、このガイドラインの使用を検討してください。</p>
+  <h1>対策</h1>
+  <p>サービスの WSDL にクライアントがアクセスするのを阻止したい場合、すべてのメタデータ交換エンドポイントを削除し、httpGetEnabled および httpsGetEnabled属性を false に設定することをお勧めします。</p>
+  <p>これはクライアントがビルドされて展開された後、他のクライアントが WCF サービスを発見して使用して欲しくない場合には潜在的に重要です。 メタデータが公開された場合、望ましくないクライアントがプロキシ ファイル(例えば、SvcUtil.exe を使用して)を生成し、潜在的に機微なメソッドおよびサービスが提供するパラメータを検査することができます。&nbsp;クライアントのプログラムがすでにサービス プロキシにアクセスできる場合、httpGetEnabled 属性をfalse に設定してください。</p>
+  <p>次の構成は、サービス メタデータの共有を無効にします:</p>
+ <pre>&lt;serviceMetadata httpGetEnabled="False" httpsGetEnabled="False"/&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メタデータ エンドポイントの公開の詳細については、「メタデータの公開」 (<a href="http://msdn2.microsoft.com/en-us/library/aa751951.aspx">http://msdn2.microsoft.com/en-us/library/aa751951.aspx) を参照してください。</a><li>構成管理に関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home) の構成管理のセクションを参照してください。</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home"></a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

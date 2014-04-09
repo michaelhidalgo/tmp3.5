@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2128471655" Content_Hash="1723779696">
+  <Metadata>
+    <Id>c25ceebf-e6b2-4b45-80fc-9f54fea496a2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アセンブリに厳密名をつける</Title>
+    <Category>強力な命名および署名</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>厳密名が必要かどうかを評価します。</p>
+  <h1>理由</h1>
+  <p>セキュリティの観点から、厳密名を使用しない理由はありません。 しかし、それらはバージョニングをより複雑にする可能性があります。 たとえば、厳密名のアセンブリでバグを修正し、その厳密名のバージョン番号を増やす場合、アセンブリに依存するすべてを再構築するか、またはアセンブリのパブリッシャー ポリシーを展開する必要があります。</p>
+  <h1>状況</h1>
+  <p>以下の場合はアセンブリに厳密名を検討します。</p>
+  <ul>
+    <li>
+      <div>グローバル アセンブリ キャッシュにアセンブリを追加する必要がある</div>
+      <li>
+        <div>部分信頼の呼び出し元を防ぎたい</div>
+        <li>
+          <div>セキュリティ ポリシー評価のための暗号化された強力な証拠が欲しい</div>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>対策</h1>
+  <p />以下は、アセンブリに厳密名を付ける最も一般的な理由です。<ul><li><b>アセンブリをグローバル アセンブリ キャッシュに追加しなければならない</b>。アセンブリを複数のアプリケーション間で共有する場合には、グローバル アセンブリ キャッシュに追加することをお勧めします。 アセンブリをグローバル アセンブリ キャッシュに追加するには、厳密名を付ける必要があります。 アセンブリをグローバル アセンブリ キャッシュに追加することにより、アセンブリが完全な信頼性を備えて起動することを確認します。 <li><b>部分的な信頼呼び出し元を防止したい</b> CLR は、フル トラストアクセス許可セットのリンク要求を追加することにより、部分的に信頼されているコードが厳密名のアセンブリを呼び出さないようにします。 <b>AllowPartiallyTrustedCallersAttribute</b> (APTCA) を使用してこの動作を無効にできますが、これは問題を完全に認識して注意深いコード レビューを行った場合にのみ実行することをお勧めします。 詳細については、本文書の「APTCA」セクションを参照してください。 <li><b>セキュリティ ポリシー評価のために暗号的に強力なエビデンスが欲しい</b>。 厳密名は、コード アクセス セキュリティ ポリシー評価の暗号的に強力なエビデンスを提供します。 これにより、管理者は特定のアセンブリにアクセス許可を与えることができます。 たとえば、厳密名の公開鍵コンポーネントは、特定の組織を表すために頻繁に使用されます。 指定組織からのコードのみをコンピュータ上で実行可能にするポリシーを作成できます。 </li></li></li></ul><p>&nbsp;</p><h1>その他のリソース</h1><ul><li>厳密名のシナリオ (<a href="http://msdn.microsoft.com/en-us/library/szdke3d6.aspx"> http://msdn.microsoft.com/ja-jp/library/szdke3d6(v=VS.90).aspx)</a><li>ハウツー: <a href="http://msdn.microsoft.com/en-us/library/xc31ft41.aspx">http://msdn.microsoft.com/en-us/library/xc31ft41.aspx にて厳密名でアセンブリに署名する</a></li></li></ul><h1>関連する項目</h1><ul><li><div>チェックリスト項目: アセンブリに厳密名が使用されている</div></li></ul><hr /><p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

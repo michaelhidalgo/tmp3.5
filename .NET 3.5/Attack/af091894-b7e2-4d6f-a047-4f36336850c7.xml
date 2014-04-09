@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="125004554" Content_Hash="1935294931">
+  <Metadata>
+    <Id>af091894-b7e2-4d6f-a047-4f36336850c7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>リクエスト スマグリング攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>脆弱な Web サーバとプロキシ。</p>
+  <h1>説明</h1>
+  <p>HTTP リクエスト・スマグリングは、ユーザーと Web サーバの間に  HTTP デバイスがあるときに、構文解析の不一致に便乗する手法です。 攻撃者はパケット インスペクター、ファイアウォールまたは Web プロキシ サーバを介して悪意のある要求を「こっそり持ち込み」ます。 この手法により、Web サーバが Web キャッシュ ポイズニングなどのさまざまな攻撃を受けやすい状態になったり、攻撃者が Web サーバ上の保護されたファイルを要求できたりすることがあります。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>
+      <strong>キャッシュ ポイズニング</strong>: 攻撃者は Web サーバ キャッシュの接続先を「書き換え」て あるページが要求されたときに別のページが表示されるようにできます。 <li><strong>悪意のある要求</strong>: 攻撃者はパケット インスペクター、Web プロキシ サーバまたはファイアウォールと Web サーバとの間にセキュリティ ルールの不一致があると、悪意のある要求をこっそり持ち込むことができます。<li><strong>Credential 情報ハイジャッキング</strong>: 攻撃者は要求を HTTP フローに挿入し、Web サーバの要求/応答の順序付けを操作します。その結果、攻撃者は第三者の認証情報をハイジャッキングできます。</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>Web サーバ、パケット インスペクター、ファイアウォール、または Web プロキシ サーバ構成の失敗。</li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>脆弱ではない Web サーバを配置する – HTTP 解析手順が非常に厳密な Web サーバはこの攻撃に対して脆弱になりません。 <li>すべてのページをキャッシュ不可能に変更する – プロキシは毎回、Web サーバからページを取得することになります。 セキュリティ面からはこれは好ましい措置ですが、実際には、キャッシュはサーバのパフォーマンスを大幅に改善し、待ち時間を減らします。 そのため、長期的には別の対策のほうが良いかもしれません。 <li>すべての HTTP 要求を書き直す – ファイアウォールまたはプロキシ サーバにモジュールをインストールし、すべての HTTP 要求をその場で既知の有効な要求タイプに書き直します。 <li>Web サーバをアップデートする – Web サーバのベンダーに問い合わせて、この種の脆弱性のためにパッチがリリースされていないか確認します。</li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>この例では典型的なリクエスト スマグリング攻撃について説明しています。攻撃者はあるページを別のページのコンテンツで不正操作をします。 この例では、攻撃者は 1 つの POST 要求と 2 つの GET 要求を組み合わせ、1 つの不正な形式の HTTP 要求を作っています。 この HTTP 要求には、値の異なる 2 つのコンテンツ長ヘッダーがあります。 IIS や Apache など、一部のサーバはこのような要求を拒否しますが、エラーを「修正」 しようとするサーバもあります。 攻撃者にとって幸運なことに、特定の Web サーバと Web プロキシでは、不正な形式の要求に関して注意を払うセクションが異なります。 ここでは、「somewhere.com」をプロキシの背後の Web サーバの DNS 名とし、「/poison.html」 を Web サーバの静的でキャッシュ可能な HTML ページであると仮定します。 </p>
+ <pre>1 POST http://somewhere.com/example.html HTTP/1.1\r\n2 Host: somewhere.com\r\n3 Connection: Keep-Alive\r\n4 Content-Type: application/x-www-form-urlencoded\r\n5 Content-Length: 0\r\n6 Content-Length: 53\r\n7 \r\n8 GET /poison.html HTTP/1.1\r\n9 Host: somewhere.com\r\n10 Bla: 11 GET http://somewhere.com/index.html HTTP/1.1\r\n12 Host: somewhere.com\r\n13 Connection: Keep-Alive\r\n14 \r\n</pre>
+  <p>10 行目が CRLF ("\r\n") で終わらない唯一の行であり、その代わり、スペース ("Bla: ") があることに注意してください。 この要求はプロキシ サーバを介して Web サーバに送信されます。 </p>
+  <p>最初にこのメッセージがプロキシにより解析されます。 プロキシ サーバがメッセージを解析すると、POST 要求 (1-7 行) に続いて矛盾する 2 つのコンテンツ長 (5 行目と 6 行目) があることに気付きます。 プロキシは最初のヘッダーを無視し、本体の長さは 53 バイトであると信じます (これは、CRLF を含めて、8-10 行で使用されるバイト数になります)。 それからプロキシは 11-14 行を見て、それらを 2 つ目の要求として解釈します。 </p>
+  <p>次に、Web サーバによりメッセージが解析されます。 Web サーバは同じメッセージを受け取りますが、5 行目で最初のコンテンツ長を見ると、POST 要求の本体の長さは 0 バイトであると考えます。 そのため、8 行目に 2 つ目の要求を見つけ、11 行目を 10 行目の「Bla: 」の値として解釈します。CRLF がないためです。 </p>
+  <p>まとめると、次のようになります。</p>
+  <p>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+          </td>
+          <td>最初の要求</td>
+          <td>2 つ目の要求</td>
+        </tr>
+        <tr>
+          <td>プロキシ</td>
+          <td>POST、1-10 行</td>
+          <td>GET、11-14 行</td>
+        </tr>
+        <tr>
+          <td>Web サーバ</td>
+          <td>POST、1-7 行</td>
+          <td>GET、8-14 行</td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <p>この時点で、Web サーバは 8 行目の GET に応答し、/poison.html のコンテンツをプロキシに送信します。 プロキシは 11 行目の GET 要求への応答を期待し、 /poison.html のコンテンツを含む Web サーバからの返答を、間違えてページ /index.html に結びつけます。 そのため、/poison.html のコンテンツが /index.html の名前でプロキシにキャッシュされます。 これで、プロキシを通して http://somewhere.com/index.html を要求するユーザーが代わりに http://somewhere.com/poison.html のコンテンツを受け取るようになります。</p>
+  <p>この攻撃を軽減する方法はいくつかありますが、そのいずれにも短所があります。 可能であれば、Apache や IIS など、十分に試験された Web サーバを利用してください。 そうでなければ、サーバ側のページのキャッシングを停止します。ただしこれは、サーバの負荷や待ち時間が増えるなど、重大なパフォーマンス問題を引き起こします。 最後の選択肢はすべてに SSL 通信を利用することです (HTTP の代わりに HTTPS を利用する)。ただし、これもパフォーマンス上の負荷の問題が関連してきます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>HTTP リクエスト・スマグリングに関する詳細は、<a href="http://www.cgisecurity.com/lib/HTTP-Request-Smuggling.pdf">HTTP Request Smuggling Whitepaper</a>を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

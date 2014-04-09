@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="812634036" Content_Hash="-1312426593">
+  <Metadata>
+    <Id>6ae71499-095c-49bd-bed0-4e08303a4324</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クロス サイト リクエスト フォージェリ攻撃</Title>
+    <Category>アプリケーションの状態</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>すべての Web アプリケーション</p>
+  <h1>説明</h1>
+  <p>クロス サイト リクエスト フォージェリ攻撃は、攻撃者が被害者を欺いて、悪意のあるリクエストを含むページをロードさせたときに発生します。 リクエストは Web アプリケーションの状態を変化させることができる場合があり、リクエストがログインしている被害者のコンテキスト内で送信されるために可能になります。 多くのサイトでは、各リクエストは自動的に、セッションクッキーや認証資格など、被害者の資格情報を送信します。 このため、偽りのリクエストを正当なリクエストと区別する方法はありません。</p>
+  <p>クロス サイト リクエスト フォージェリは、XSRF、セッション ライディング、ワンクリックおよびゼロクリック攻撃といった他の名前でも知られています。 </p>
+  <p>ワンクリック攻撃とは、被害者がクリックしたとき、悪意のあるアクションを実行するリンクのことを指します。 ゼロクリック攻撃は、ページをロードしたときに自動的に実行されます。 ゼロクリック攻撃を実行する一般的な方法は、画像のソースにリクエストを埋め込むことです。</p>
+  <h1>影響</h1>
+  <p>
+    <strong>特権の昇格</strong> - 攻撃者は、被害者に代わって、Web アプリケーションでコマンドを実行することができます。</p>
+  <h1>脆弱性</h1>
+  <p>ユーザーの追加、口座残高やパスワードの変更など、アプリケーションの状態を変更できる単一のリクエストの実行です。</p>
+  <h1>対策</h1>
+  <ul>
+    <li>各セッションにセッション識別子または nonce を追加してください。または、viewstate を使用して各リクエストを追跡してください。 <li>"二重送信" クッキーを使用してください (Ajax リクエストのみ)。 <li>単一リクエストの GET コマンドを最少にしてください。 <li>単一リクエストで Web アプリケーションの状態を変更することは決して許可しないでください。</li></li></li></li>
+  </ul>
+  <h1>例</h1>
+  <p>アプリケーションが、単一リクエストでアプリケーションの状態を変更することを許可しているなら、この攻撃が可能になります。 この例で Web アプリケーションは、ログインした管理者に対し、単一の GET リクエストを送信して新規ユーザーを作成することを許可しています。</p>
+  <p>GET リクエストは次のようになります。</p>
+ <pre>GET http://teammentorexample.com/adduser.aspx?username=joe&amp;password=1234&amp;usertype=userHTTP/1.1</pre>
+  <p>攻撃者は、このリクエストが新規ユーザーを作成していることを発見し、自分自身のリクエストを作成して、電子メール内の次のような画像タグに埋め込みます。</p>
+ <pre>&lt;img src="http://teammentorexample.com/adduser.aspx?username=HACKER&amp;password=TEST&amp;usertype=admin" /&gt;</pre>
+  <p>被害者の電子メールクライアントが上のソースに記載された画像のダウンロードを試みると、被害者の知らないうちにリクエストが行われます。 </p>
+  <p>アプリケーションは、サーバーの状態のすべての変更に対して、2 ステップの認可メカニズムを要求するべきです。 この例では、サーバーは、admin が本当にこのユーザーを追加することを望んでいるののかどうかを検証するために、クライアントに nonce 値を送信するべきです。 admin は、独立したページでアクションを検証して、nonce 値を返すことが必要になります。 サーバーがアクションを受信し、nonce を検証した後で初めて、ユーザーが作成されます。 </p>
+  <h1>その他のリソース</h1>
+  <p>CSRF 攻撃についての詳細は、次を参照してください。</p>
+  <ul>
+    <li>
+      <a href="http://www.owasp.org/index.php/Cross-Site_Request_Forgery">http://www.owasp.org/index.php/Cross-Site_Request_Forgery</a>
+      <li>
+        <a href="http://www.cgisecurity.com/articles/csrf-faq.shtml">http://www.cgisecurity.com/articles/csrf-faq.shtml</a>
+        <li>
+          <a href="http://www.owasp.org/index.php/Testing_for_CSRF">http://www.owasp.org/index.php/Testing_for_CSRF</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/a96eaddb-5fb2-458e-b5ca-fde05a9a3a06">ガイドライン: 機微データはパラメータに含めない</a>
+      <li>
+        <a href="/article/8e0aea9c-322b-4b3f-9c61-a670c1fcd3e3">ガイドライン: クロス サイト リクエスト フォージェリ攻撃への対策として Page.ViewStateUserKeyを使用する</a>
+        <li>
+          <a href="/article/254ddab5-ecd2-4e05-a2b0-861e970bc0d9">ガイドライン: セッション クッキーを保護する</a>
+        </li>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

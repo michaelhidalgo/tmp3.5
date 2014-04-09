@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-261430353" Content_Hash="618896140">
+  <Metadata>
+    <Id>b24a7dd0-a01a-4cbb-8559-6d566f54bd6c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Health Monitoring はイベントのログ記録と監査に使用されます。</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>&nbsp; ASP.NET ヘルス モニタリング機能がログに使用されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>ASP.NET ヘルス モニタリングは、アプリケーションの健全性を監視するために使用可能な多数の標準イベントに対応しています。 自動生成されるセキュリティ関連イベントの例には、ASP.NET メンバーシップ システム使用時のログオンの失敗および成功、Forms Authenticationチケットの改変または再利用の試行、ディスク アクセスの失敗などのインフラストラクチャー イベントなどがあります。 </p>
+  <p>ヘルス モニタリング機能には、電子メール メッセージ、SQL Server、ASP.NET トレース出力としてのイベント ログへのイベントの記録、または Windows Management Instrumentation (WMI) ウェブ イベント プロバイダーへのイベントの記録を可能にするビルトイン プロバイダーが含まれています。</p>
+  <h1>チェック方法</h1>
+  <p>構成ファイルをスキャンすることにより、ヘルス モニタリングの使用を見分けることができます。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>Health Monitoring が作動していることをチェックしてください。 </strong>マシン レベル Web.Config ファイルでは、Health Monitoring は初期設定で作動しています。</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="true"&gt;  <br />&lt;bufferModes/&gt;  <br />&lt;providers/&gt;  <br />&lt;profiles/&gt;  <br />&lt;rules/&gt;  <br />&lt;eventMappings/&gt;<br />&lt;/healthMonitoring&gt;</pre>
+      <p>マシンまたはアプリケーション レベル configファイルで「有効」属性が偽に設定されている場合、ヘルス モニタリングは停止されています。&nbsp; </p>
+      <li>
+        <p>
+          <strong>Health Monitoring 規則が有効化されていることをチェックしてください。 </strong>初期設定で、規則エレメントはすべてのエラーおよび失敗監査をログ記録するよう設定されています。</p>
+ <pre>&lt;rules&gt; <br />&lt;add name="All Errors Default" eventName="All Errors" provider="EventLogProvider"      <br />	profile="Default" minInstances="1" maxLimit="Infinite"       <br />	minInterval="00:01:00" custom="" /&gt; <br />&lt;add name="Failure Audits Default" eventName="Failure Audits"      <br />	provider="EventLogProvider" profile="Default" minInstances="1"     <br />	maxLimit="Infinite" minInterval="00:01:00" custom="" /&gt;<br />&lt;/rules&gt;</pre>
+        <p>規則エレメントに規則が存在しない場合、ヘルス モニタリングはいかなるイベントもログ記録しません。</p>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>ASP.NET アプリケーションはデフォルトでヘルス モニタリングが有効になっており、すべての Web インフラストラクチャ エラー イベント (<b>System.Web.Management.WebErrorEvent</b> から継承) およびすべての監査失敗イベント (<b>System.Web.Management.WebFailureAuditEvent</b> から継承) がイベント ログに書き込まれます。&nbsp; デフォルト構成は、マシンレベルの Web.config ファイルの<b>&lt;healthMonitoring&gt;</b> エレメントに定義されています。&nbsp; 追加のセキュリティ関連イベントを監査するには、ビルトイン タイプの中の 1 つから派生することによりカスタム イベント タイプを作成します。 </p>
+  <p>ヘルス モニタリング機能にはプロバイダーが組み込まれており、これらのプロバイダーによって、電子メール メッセージ (<b>SimpleMailWebEventProvider</b>、<b>TemplatedMailWebEventProvider</b>)、SQL Server (<b>SqlWebEventProvider</b>) 、イベントログ (<b>EventLogWebEventProvider</b>)、ASP.NET のトレース出力 (<b>TraceWebEventProvider</b>)、あるいは Windows Management Instrumentation (WMI) Web イベント プロバイダー (<b>WMIWebEventProvider</b>) へイベントを記録することができます。ヘルス モニタリングはマシンまたはアプリケーションWeb.configファイルで設定できます。ログ記録されるイベントを選んだり、それらがログ記録される方法を設定できます。&nbsp;&nbsp;</p>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションは、マシン レベル web.config ファイルが初期設定値から変更されなかったマシンに展開されます。&nbsp; しかし、アプリケーション レベルの web.config ファイルはヘルス モニタリングがオフになるように変更されています。</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="false"&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションは、1 つを例外として、マシン レベルおよびアプリケーション レベルの両方の web.config ファイルにおいて、ヘルス モニタリング エレメントが初期設定から変更されなかったマシンに展開されます。&nbsp; </p>
+  <p>デフォルトは次のようになります。</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="true"&gt;<br />&lt;rules&gt; <br />&lt;add name="All Errors Default" eventName="All Errors" provider="EventLogProvider"      <br />	profile="Default" minInstances="1" maxLimit="Infinite"      <br />	minInterval="00:01:00" custom="" /&gt; <br />&lt;add name="Failure Audits Default" eventName="Failure Audits"     <br />	provider="EventLogProvider" profile="Default" minInstances="1"     <br />	maxLimit="Infinite" minInterval="00:01:00" custom="" /&gt;<br />&lt;/rules&gt;<br />&lt;/healthMonitoring&gt;</pre>
+  <p>初期設定の唯一の例外は、SQL イベント プロバイダーが追加されていることです:</p>
+ <pre>&lt;providers&gt;   <br />&lt;add connectionStringName="MySqlConnection"      <br />	maxEventDetailsLength="1073741823"      <br />	buffer="true"      <br />	bufferMode="Extra Critical Notification"       <br />	name="MySqlWebEventProvider"       <br />	type="System.Web.Management.SqlWebEventProvider,System.Web,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a" /&gt; <br />&lt;/providers&gt;</pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/7317fcb7-b91b-4184-b5e4-01a25b8baf00">イベントログ記録と監査にヘルス モニタリングを使用する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

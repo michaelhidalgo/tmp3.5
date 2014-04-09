@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="331372747" Content_Hash="-451182207">
+  <Metadata>
+    <Id>70bf25f8-7433-4b57-9047-e01f223a815f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows マッピングを実行できない場合は、偽装および委任について S4U 機能の使用を検討する</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>windowsのマッピングを行うことができない場合は、偽装と委任に S4U 機能の使用を検討します。 </p>
+  <h1>対策</h1>
+  <p>多くの状況、たとえば、ユーザーがインターネット経由で WCF サービスにアクセスする場合、ファイアウォールによってクライアント コンピュータは直接ドメイン コントローラと通信することを阻止されるため、Kerberos 認証を使用することはできません。 代わりに、サービスは、ユーザー名認証や、エクストラネットのシナリオではクライアント証明書認証などの別のアプローチを使用して、クライアントを認証する必要があります。</p>
+  <p>直接 Windows アカウントにユーザー名や証明書認証をマッピングできない状況では、プロトコル遷移（S4U）機能の使用を検討することができます。アプリケーションがユーザーを認証するために Windows 以外の認証メカニズムを使用でき、かつ下流ネットワーク リソースにアクセスするために Kerberos 認証および委任を使用できます。 これによりアプリケーションが Windows 認証を必要とする下流サーバにアクセスして、Windows 監査でユーザーのバックエンド リソースへのアクセスを監視することができます。</p>
+  <p>アカウントのユーザー プリンシパル名 (UPN)  のみを与える Windows トークンを作成するには WindowsIdentity コンストラクタを使用します。 </p>
+  <p>
+    <strong>重要</strong>: 偽装レベルで偽装するには、「オペレーティング システムの一部として動作する」ユーザー権利をプロセス アカウントに付与する必要があります。 ネットワーク リソースへアクセスするために委任レベルで偽装するには、Active Directory 内のプロトコル遷移を有効にする必要があります。</p>
+  <p>以下のコードは、このコンストラクタを使用して、指定されたユーザーの Windows トークンを取得する方法を示しています。</p>
+ <pre>using System;<br />using System.Security.Principal;<br />public void ConstructToken(string upn, out WindowsPrincipal p)<br />{<br />&nbsp; WindowsIdentity id = new WindowsIdentity(upn);<br />&nbsp; p = new WindowsPrincipal (id);<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>S4U およびプロトコル トランジションの詳細は、「プロトコル トランジションの使用—トレンチからのヒント」<a href="http://msdn2.microsoft.com/en-us/magazine/cc163500.aspx">http://msdn2.microsoft.com/en-us/magazine/cc163500.aspx を参照してください。</a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspx の「WCF を使用した委任と偽装」を参照してください。</a><li>偽装と委任 Q&A は、下記サイトから「WCF 3.5 Q&A」の「偽装/委任」セクションをご覧ください: <a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home"></a></li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

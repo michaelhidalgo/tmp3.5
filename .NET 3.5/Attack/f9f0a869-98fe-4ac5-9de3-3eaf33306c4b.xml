@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1822658857" Content_Hash="76336545">
+  <Metadata>
+    <Id>f9f0a869-98fe-4ac5-9de3-3eaf33306c4b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>正規化攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>ユーザー入力に基づいて、ファイル名、パス文字列、ホスト名、その他のリソース ID を構築するアプリケーション。</p>
+  <h1>説明</h1>
+  <p>さまざまな形態の入力が同じ標準名に解決されるとき、それは正規化と呼ばれます。 入力としてプログラムに渡されるリソースの名前に基づいてセキュリティ上の決定が行われる場合、コードは正規化による課題に特に影響を受けやすくなります。 ファイル、パス、ホストの名前、URL は正規化に対して脆弱なリソースの種類です。いずれの場合も、同じ名前を表すさまざまな方法があるからです。 </p>
+  <h1>影響</h1>
+  <ul>
+    <li>認可されていないアクセス<li>情報漏えい<li>特権の昇格</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>信頼されていない入力により提供されたリソース文字列の非正規化形式に基づいてセキュリティ上の決定を行うこと。 このようなリソース文字列の一般的な例には URL、ファイル名、ファイル パスがあります。</li>
+  </ul>
+  <a name="Countermeasures">
+  </a>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <p>セキュリティ上の決定を行うためのすべての文字列に「標準的な」表現を選択します。</p>
+      <li>
+        <p>セキュリティ上の決定を行う前に、このような文字列をすべて正規化形式に変換します。 たとえば、次のようになります。</p>
+        <ul>
+          <li>URL が符号化された文字列をそれと同等のユニコードに変換します。<li>ファイルと URL 文字列の相対パスを絶対パスに変換します。</li></li>
+        </ul>
+        <li>
+          <p>可能な場合は、正規化に共通ライブラリを利用します。 絶対に必要な場合にのみ、独自の正規化ルーチンを記述します。</p>
+          <li>
+            <p>可能な場合、入力ファイル名を回避し、代わりにエンド ユーザーが変更できない絶対ファイル パスを利用します。</p>
+            <li>
+              <p>不適切に符号化された文字を却下し、標準文字の代替表現は受け取らないようにします。</p>
+              <li>
+                <p>ブラックリストではなく、ホワイトリストを使用してすべてのリソースをチェックします。</p>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>例</h1>
+  <p>
+    <strong>ディレクトリ トラバーサル</strong>:</p>
+  <p>サーバに、C:\inetpub\wwwroot\cgi-bin ディレクトリに保存されているファイルのみを実行するというルールがあると仮定します。 パスがサーバに提供されるとき、それが C:\inetpub\wwwroot\cgi-bin で始まらない場合、それは実行されません。 それでは、次のパスを見てしてください。</p>
+  <pre>C:\inetpub\wwwroot\cgi-bin\..\..\..\Windows\System32\cmd.exe</pre>
+  <p>これは検証ルールを十分パスしますが、シェルにより実行されるとき、次の正規化表現に解決します。</p>
+  <pre>C:\Windows\System32\cmd.exe</pre>
+  <p>これは明らかに意図されたものではなく、正規化がセキュリティ上のリスクとなる明らかな例です。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://en.wikipedia.org/wiki/Canonicalization">http://en.wikipedia.org/wiki/Canonicalization</a>
+      <li>
+        <a href="http://www.nextgenss.com/papers/unicodebo.pdf">http://www.nextgenss.com/papers/unicodebo.pdf</a>
+        <li>
+          <a href="http://www.owasp.org/index.php/Canoncalization,_locale_and_Unicode">http://www.owasp.org/index.php/Canoncalization,_locale_and_Unicode</a>
+          <li>
+            <a href="http://www.faqs.org/rfcs/rfc3492.html">http://www.faqs.org/rfcs/rfc3492.html</a>
+            <li>
+              <a href="http://projects.cerias.purdue.edu/secprog/class2/7.Canon_&amp;_DT.pdf">http://projects.cerias.purdue.edu/secprog/class2/7.Canon_&amp;_DT.pdf</a>
+              <li>
+                <a href="http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/index.html">http://www.dwheeler.com/secure-programs/Secure-Programs-HOWTO/index.html</a>
+                <li>
+                  <a href="http://en.wikipedia.org/wiki/File_format">http://en.wikipedia.org/wiki/File_format</a>
+                  <li>
+                    <a href="http://channel9.msdn.com/wiki/default.aspx/SecurityWiki.CanonicalizationLab">http://channel9.msdn.com/wiki/default.aspx/SecurityWiki.CanonicalizationLab</a>
+                    <li>
+                      <a href="http://support.microsoft.com/kb/887459">http://support.microsoft.com/kb/887459</a>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン: ユーザーが提供するファイル名とパスの入力をすべてフィルター処理する</a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

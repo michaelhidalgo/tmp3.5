@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="296137590" Content_Hash="-1752153829">
+  <Metadata>
+    <Id>f5096dfd-e0e8-4707-8a70-e938d7d6f5ea</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>遅延署名を使用しない場合、.pfx ファイルを使用して私有鍵を保護する</Title>
+    <Category>強力な命名および署名</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>パスワード保護された .pfx ファイルを使用して私有鍵を保護します。</p>
+  <h1>理由</h1>
+  <p>侵入者に対して追加のセキュリティを得るため、プレーン .snk ファイルの代わりに .pfx を使用します。</p>
+  <h1>状況</h1>
+  <p>遅延署名を使用する場合は、この手法が小中規模のプロジェクトに適切です。 私有鍵を含んでいた .snk ファイルを回覧した、もしくはアクセスしたことが以前にあった場合、代わりに .pfx ファイルの使用を検討することをお勧めします。</p>
+  <h1>対策</h1>
+  <p>Visual Studioが .pfx ファイルに対応しているためとても便利です。 アセンブリの署名に .pfx ファイルを使用する場合、ストロング ネーミング ユーティリティ(SN.EXE)は複数の証明書を含む.pfxファイルを受け付けません。 .pfx ファイルにはパスワードが必要であり、SN.EXEはパスワードが空の.pfxファイルには対応しません。&nbsp;</p>
+  <p>自己署名の.pfx 鍵を作成する場合、最も簡単な方法はVisual Studioの使用です。</p>
+  <ul>
+    <li>
+      <p><b>Solution Explorer</b> で選択されたプロジェクトノードで、<b>Project</b> メニューから、<b>Properties</b> をクリックします (または<b>Solution Explorer</b>内のプロジェクトノードを右クリックし、<b>Property</b>をクリックします)。</p>
+      <li>
+        <p><b>Project Designer</b>で<b>Signing</b> タブをクリックします。</p>
+        <li>
+          <p><b>Sign the assembly</b>チェックボックスにチェックします。</p>
+          <li>
+            <p>新しい鍵ファイルを指定します。 <b>Choose a strong name key file</b> (強力な名前の鍵ファイルを選択)のドロップダウンリストで <b>&lt;New...&gt;</b>(新規)を選択します。新しい鍵ファイルは常に.pfxフォーマットに作成されることに留意してください。</p>
+            <li>
+              <p><b>Create Strong Name Key</b>(強力な名前鍵の作成) ダイアログボックスに、新しい鍵ファイルの名前とパスワードを入力し、<b>OK</b>をクリックします。</p>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>より詳細な情報は、「方法: アセンブリの署名 (Visual Studio)」を <a href="http://msdn.microsoft.com/en-us/library/ms247123.aspx">http://msdn.microsoft.com/en-us/library/ms247123.aspxからご覧ください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1551343326" Content_Hash="650720959">
+  <Metadata>
+    <Id>b3f89eab-a533-4ca0-851e-8c4233e1b1e4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アンマネージ API を分離して名前をつける方法</Title>
+    <Category>アンマネージ コード</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アンマネージ API 呼び出しをすべてラッパー アセンブリ内に分離してください。 アンマネージ コードを呼び出すコードを確認しやすくして、アプリケーションが依存するアンマネージ API を簡単に特定することができるようになります。 アンマネージ コードのアクセス許可を一つのアセンブリに分離することもできます。 </p>
+  <p>コードの開発およびレビューをする場合は、命名規則を使用してネイティブ コード リスクを念頭に置くようにしてください。 アンマネージ コードを分類し、prefix を使用して、アンマネージ API のカプセル化に使用する型を指定してください。 </p>
+  <p>どのようなコード (悪意のあるコードまたはそれ例外のコードにかかわらず) で呼び出してもセキュリティ上の脅威とならず無害なコードは、「<i>Safe (安全)</i>」という語を使用して識別してください。 安全なクラスには <b>SuppressUnmanagedCodeSecurity</b> 属性を注釈として付けることができます。この属性によってコードアクセス セキュリティ権限の完全信頼要求がオフになります。 </p>
+ <pre>[SuppressUnmanagedCodeSecurity]class SafeNativeMethods <br />{<br />    DllImport("user32")]<br />    internal static extern void MessageBox(string text);}   </pre>
+  <p>安全でない可能性があるが、アンマネージ コードのアクセス許可に対するフル スタック ウォーキング要求で保護されているアンマネージ コードは、「<i>Native (ネイティブ)</i>」という語を使用して識別してください。 これらは、<b>SuppressUnmanagedCodeSecurity</b> 属性で禁止されている場合を除き、相互運用レイヤーによって黙示的に作成されます。 </p>
+ <pre>class NativeMethods {<br />    [DllImport("user32")]<br />    internal static extern void FormatDrive(string driveLetter);}   </pre>
+  <p>危険な可能性があり、アンマネージ コードのアクセス許可に対するセキュリティ要求が宣言的に禁止されているアンマネージ コードは、「<i>Unsafe (危険) </i>」という語を使用して識別してください。 スタック ウォークが実行されないため、これらのメソッドに対する全ての呼び出し元で、使用法が安全であることを確認するために完全なセキュリティ レビューを実施する必要があります。 </p>
+ <pre>[SuppressUnmanagedCodeSecurity]class UnsafeNativeMethods {<br />    [DllImport("user32")]<br />    internal static extern void CreateFile(string fileName);}</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

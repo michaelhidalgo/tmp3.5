@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-372347745" Content_Hash="1296330208">
+  <Metadata>
+    <Id>75fce1f7-10d9-430e-b7ab-ce2b73d9f2bc</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>データ アクセス メソッドに渡された信頼されていない入力を検証する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>フォーム フィールド、クエリ文字列パラメータ、 Cookie を含めて全入力を検証してください。 ユーザー指定のデータがすべて悪意のあるデータであると想定して、すべての入力に Server-side Validation を使用してください。 データ アクセス メソッドで、データ アクセス コードの信頼境界の外部から入力パラメータが受信された場合は、必ずパラメータの型、長さ、書式、および範囲を検証してください。</p>
+  <h1>理由</h1>
+  <p>&nbsp;チェックされていない&nbsp;入力の安全性については、いかなる信頼の想定をすることもできません。 アプリケーションレベルの攻撃の&nbsp;ほとんどは、悪意のある入力によって行われます。 入力&nbsp;を検証しなかった場合、&nbsp;データにデータベース インジェクション攻撃が含まれている可能性があることになります。&nbsp;</p>
+  <h1>状況</h1>
+  <p>この&nbsp;ガイドラインは、信頼されていない入力が直接的または間接的なユーザー データの形で存在する場合にいつでも適用されます。&nbsp;たとえば、ユーザーは&nbsp;HTTP POST や GET&nbsp;のフォームを経由してデータを&nbsp;直接入力する&nbsp;ことができます&nbsp;が、&nbsp;一部のアプリケーションでは、悪意のある&nbsp;データが&nbsp;含まれている&nbsp;画像やメディア ファイル&nbsp;のアップロード等、間接的なユーザー入力が可能です。 このガイドラインは、すでに検証済みのデータには適用されません。二重の検証は無駄で、かつ&nbsp;不要なためです。&nbsp;&nbsp;&nbsp;</p>
+  <h1>対策</h1>
+  <p>入力の検証は、&nbsp;可能な&nbsp;値の範囲が制限しにくいため、&nbsp;本質的に難しい作業です。 不正な&nbsp;入力の&nbsp;バリエーション&nbsp;を&nbsp;すべて指定しようとするのではなく、認められる入力を指定することが重要です (ブラックリスト化に対してホワイトリスト化を行う)。&nbsp;ASP.NETバリデーターコントロールを使用してサーバ側でユーザー入力をチェックし、入力が検証要件を満たさなかった場合はユーザーにフィードバックを提供します。&nbsp; アプリケーション内の各フォーム ページで以下の手順を実行して、入力を制限してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>必須フィールドを決定します。</strong> 必要なフィールド検証コントロールを使用して、必要なすべてのフィールドが存在していることを確認します。 必須フィールドであるASPページ内のテキストフィールドを宣言する例を次に示します。</p>
+ <pre>&lt;td&gt;<br />&nbsp;&nbsp; &lt;asp:RequiredFieldValidator runat=server <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate=txtName<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="User ID is required."&gt; *<br />&nbsp;&nbsp; &lt;/asp:RequiredFieldValidator&gt;<br />&lt;/td&gt;<br />&lt;td&gt;User ID:&lt;/td&gt;<br />&lt;td&gt;&lt;input type=text runat=server id=txtName&gt;&lt;/td&gt;</pre>
+      <p>入力が空白である場合、ラベルの横に * が表示されます。 エラーメッセージが要約で報告されます。 "ControlToValidate" プロパティは、検証するコントロールのIDを指定します。 ページの先頭に検証の要約を追加することが最終ステップです：</p>
+ <pre>&lt;asp:ValidationSummary runat=server <br />HeaderText="There were errors on the page:" /&gt;<br /></pre>
+      <li>
+        <p>
+          <strong>数値の幅の制約を強制します。</strong> RangeValidator コントロールを使用して、すべての数値を特定の有効範囲に制約します。 次は、1 から 50までの有効範囲を持つ、ASP ページ中の整数フィールドを宣言する例です。</p>
+ <pre>&lt;td&gt;</pre>
+ <pre>  &lt;asp:RangeValidator id="Range1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="txtState"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MinimumValue="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaximumValue="50"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Type="Integer"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EnableClientScript="false"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Text="The value must be from 1 to 10!"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; runat="server"&gt; * </pre>
+ <pre>&nbsp; &lt;/asp:RangeValidator&gt;<br />&lt;/td&gt;<br />&lt;td&gt;State:&lt;/td&gt;<br />&lt;td&gt;&lt;input type=text runat=server id=txtState&gt;&lt;/td&gt;</pre>
+        <li>
+          <p>
+            <strong>検証フィールド検証します。</strong> パスワード入力などのフィールドは、しばしばユーザーに再入力を求めることにより検証されます。 比較して有効性/完全性を確認するにはCompareValidatorコントロールを使用します。 次は、ASP ページで適切に検証するために一致する必要がある 2 つのパスワード フィールドを宣言する例です。</p>
+ <pre>&lt;asp:CompareValidator runat=server <br />	ControlToValidate=txtRePWord            <br />	ControlToCompare=txtPWord              <br />	ErrorMessage="Passwords do not match." /&gt;</pre>
+          <p>この場合、比較される2つのフィールドは "txtPWord" と"txtRePWord"です。 2 つのフィールドが一致しない&nbsp;場合、「パスワードが一致しません」というエラー メッセージが表示され、検証は失敗します。&nbsp;</p>
+          <li>
+            <p>
+              <strong>文字列フィールドでタイプ制約を強制します。</strong> 文字列フィールドは、受け入れ可能な文字の範囲が数字や列挙型に比べはるかに広いため、効率よく検証することが最も難しい種類の入力です。 正規表現を使用することによって、有効なパターンおよび文字を指定するための柔軟なメカニズムが得られます。 郵便番号や電話番号のような文字列ベースのフィールドでさまざまなチェックを行うにはRegularExpressionValidatorを使用します。&nbsp; 以下は、数字の桁のみからなる 5 桁の郵便番号を表すべき&nbsp;テキスト フィールド&nbsp;を ASP ページ内で宣言する例と、その制限を強制するためのバリデーターです。</p>
+ <pre>&lt;input type=text runat=server id=txtZip&gt;       <br />&lt;asp:RegularExpressionValidator runat=server              <br />	ControlToValidate="txtZip"              <br />	ErrorMessage="Zip code must be 5 digits, all numbers."              <br />	ValidationExpression="[0-9]{5}"&gt; * </pre>
+ <pre>&lt;/asp:RegularExpressionValidator&gt;</pre>
+ <pre>&lt;td&gt;Zip code:&lt;/td&gt;<br />&lt;td&gt;&lt;input type=text runat=server id=txtZip&gt;&lt;/td&gt;</pre>
+            <li>
+              <p>
+                <strong>カスタム 検証を使用して、残りの入力制約を実施します。</strong> ASP.NET に組み込まれている検証コントロールは、Web アプリケーション内で通常発生する大部分のケースを処理しますが、これらの検証コントロールだけでは対応が十分でない場合もあります。&nbsp;CustomValidator は、既存の検証システムに追加することができるカスタム検証コードを有効にします。&nbsp;次は、ASP.NET ページ中でテキスト フィールドを宣言する例です。 このテキスト フィールドの場合、満たす必要のあるビジネス ロジックがありますが、このロジックは&nbsp;他の&nbsp;検証コンストラクトによって簡単に制限できないため、テキスト フィールド&nbsp;内の&nbsp;文字列&nbsp;が「a」という文字で始まらない&nbsp;ことを保証する&nbsp;カスタム バリデーターが実装されます。</p>
+ <pre>&lt;%@ Page Language="vb" %&gt;<br />&lt;script runat=server&gt;</pre>
+ <pre>public sub CheckID(source as Object, args as ServerValidateEventArgs)<br />&nbsp;&nbsp;&nbsp; args.IsValid = args.Value.substring(0, 1).tolower() &lt;&gt; "a"<br />end sub </pre>
+ <pre>&lt;/script&gt;</pre>
+              <p>この関数を呼び出すには、そのチェックを実行するよう開発者コードを呼び出すために設計されたCustomValidatorを追加します。 以下が宣言です:</p>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:CustomValidator runat=server<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; controltovalidate="txtName" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; errormessage="ID is already in use." <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnServerValidate="CheckID" /&gt;</pre>
+              <p>注目に値するのは、この操作が RegularExpression 検証制御を用いて実行することができた可能性もありますが、この場合は単純なバターン一致よりも明らかに複雑である高レベル検証が定義されることになるため (検証ルールがアプリケーションの状態に応じて変更されるかもしれないなど)、カスタム検証を使用するほうがより有効であるという点です。&nbsp;</p>
+              <p>テキスト入力に正規表現を使用し、数値データに種類と範囲のチェックを実行することができます。 これを行わない場合、データアクセスコードは、SQLインジェクションに対して潜在的に影響を受けやすくなります。 渡されたデータを徹底的に検証していることを知っているアプリケーションのビジネス ロジックなど、信頼できるコードによってデータが提供されることが確実にわかっている場合にのみ、データアクセスメソッドで入力パラメータの検証を省略します。&nbsp;&nbsp;&nbsp;</p>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>&nbsp;開発者の目的は、ユーザーに関連付けられている社会保障番号 (SSN) に基づいて&nbsp;ユーザーの名前を選択することですが、この操作は&nbsp;次の&nbsp;データ アクセス メソッドを通じて遂行されます&nbsp;。</p>
+ <pre>&nbsp;public DataSet GetAuthorInfo(String SSN)<br />{</pre>
+ <pre>SqlConnection connection;<br />SqlDataAdapter dataadapter;<br />DataSet dataset;</pre>
+ <pre>connection = new SqlConnection("Persist Security Info=False;" +<br />&nbsp; "Integrated Security=SSPI;database=appdb;" +<br />&nbsp; "server=localhost;Connect Timeout=30");<br />connection.Open();</pre>
+ <pre>string SQLstr = "SELECT au_lname, au_fname FROM authors WHERE au_id = '" + SSN.Text + "'";</pre>
+ <pre>
+    <br />dataadapter = new SqlDataAdapter(SQLstr, connection);<br />dataset = new DataSet();<br />dataadapter.Fill(dataset, "table1");</pre>
+ <pre>connection.Close();</pre>
+ <pre>return dataset;</pre>
+ <pre>}</pre>
+  <p>この SSN 入力は、GetAuthorInfo メソッド&nbsp;に&nbsp;渡される&nbsp;ウェブ&nbsp;フォーム&nbsp;内のテキストフィールドから入力されたものです。 たとえば、'172-32-9999' を含む SSN 変数を渡すと、次のクエリが実行されます。</p>
+ <pre>SELECT au_lname, au_fname FROM authors WHERE au_id = '172-32-9999'</pre>
+  <p>ユーザーが SSN テキスト ボックス内に次の文字列を入力した場合、何が起きるか考えてみてください。このテキスト ボックスは、nnn-nn-nnnn の書式の社会保障番号を想定しています。</p>
+ <pre> ; DROP DATABASE pubs&nbsp; --<br />&nbsp; </pre>
+  <p>コードはユーザーの悪意のある入力を挿入し、次のクエリーを生成します。</p>
+ <pre>SELECT au_lname, au_fname FROM authors WHERE au_id = ''; DROP DATABASE pubs --'&nbsp; </pre>
+  <p>この場合、悪い入力を開始する「'」(シングル クォーテーション マーク) 文字が、SQL ステートメントにおいて現在の文字列リテラルを終了させます。 「;」(セミコロン) 文字は、これが現在のステートメントの終わりであり、その後に次の悪意のある SQL コードが続くということを SQL に伝えます。 最後に、「--」(ダブル ダッシュ) 文字配列は、SQL に残りのテキストを無視するよう伝える SQL コメントです。 この場合、SQL は閉じ「'」(シングル クォーテーション マーク) 文字を無視します。そうしなければ、SQL構文解析器 (parser) エラーを引き起こすことになります。&nbsp;</p>
+  <h1>ソリューションの例</h1>
+  <p>&nbsp;開発者の目的は、ユーザーに関連付けられている社会保障番号 (SSN) に基づいて&nbsp;ユーザーの名前を選択することですが、この操作は&nbsp;次の&nbsp;データ アクセス メソッドを通じて遂行されます&nbsp;。</p>
+ <pre>using System.Text.RegularExpressions ;</pre>
+ <pre>public DataSet GetAuthorInfo(String SSN)<br />{</pre>
+ <pre>  SqlConnection connection;<br />  SqlDataAdapter dataadapter;<br />  DataSet dataset;</pre>
+ <pre>  // Validate the SSN   <br />  //If the SSN does match the regex pattern, perform the query   <br />  if (Regex.IsMatch(SSN.Text,@"^[0-9]{3}\-[0-9]{2}\-[0-9]{4}$"))   <br />  {</pre>
+ <pre>
+    <pre>    connection = new SqlConnection("Persist Security Info=False;" +<br />&nbsp;     "Integrated Security=SSPI;database=appdb;" +<br />&nbsp;     "server=localhost;Connect Timeout=30");<br />    connection.Open();</pre>
+ <pre>    string SQLstr = "SELECT au_lname, au_fname FROM authors WHERE au_id = '" + SSN.Text + "'";</pre>
+ <pre>
+      <br />    dataadapter = new SqlDataAdapter(SQLstr, connection);<br />    dataset = new DataSet();<br />    dataadapter.Fill(dataset, "table1");</pre>
+ <pre>    connection.Close();  }</pre>
+  </pre>
+ <pre>  return dataset;</pre>
+ <pre>}</pre>
+  <p>この SSN 入力は、GetAuthorInfo メソッド&nbsp;に&nbsp;渡される&nbsp;ウェブ&nbsp;フォーム&nbsp;内のテキストフィールドから入力されたものです。 SSN は信頼されない入力と考えられ、SQL クエリ内で使用する前に検証が行われます。&nbsp;</p>
+  <h1>関連する規則</h1>
+  <ul>
+    <li>
+      <a href="/article/0b64b4b3-387e-4c3b-a75d-93c4ada92b2c">ユーザー入力を受け入れる動的クエリを回避する</a>
+      <li>
+        <a href="/article/fab1733c-61d7-46a8-88c6-2617a643c0d9">最小限の特権付きアカウントをデータベース アクセスに使用する</a>
+        <li>
+          <a href="/article/8ef52996-aec5-4274-aec1-85a3a313e0bc">Client-side Validationに依存しない</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2104976997" Content_Hash="1374363607">
+  <Metadata>
+    <Id>9da792e1-a975-491e-bc19-f81c881a004e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>デバッグ目的でメッセージ ログを使用する</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>デバッグ目的でユーザー メッセージ ログを使用します。</p>
+  <h1>理由</h1>
+  <p>メッセージ のログ記録は、アプリケーション エラーや性能上の問題の診断に使用できます。</p>
+  <h1>対策</h1>
+  <p>ログ記録はコストの高い動作であり、ディスクの空き容量と処理時間を消費する可能性があるため、メッセージ ログはデフォルトでオンになっていません。 メッセージ ログをオンにするには、構成ファイル内の &lt;messagelogging&gt; エレメントの各属性を設定し、イベントのログをファイルに記録するためのトレース リスナーを追加します。</p>
+  <p>
+    <strong>重要</strong>：ディスクの空き容量は制限要因になる可能性があるため、必ず特定のサービスがディスクに書き込むメッセージの数を制限してください。 メッセージの制限に達すると、情報レベルのトレースが作成され、すべてのメッセージ ログ活動が停止します。 </p>
+  <p>次の構成コードでは、ServiceModelMessageLoggingListener および System.ServiceModel.MessageLogging ソースを作成することでメッセージ ログを有効しています。</p>
+ <pre>…<br />&lt;configuration&gt;<br />&lt;system.diagnostics&gt;<br />  &lt;sources&gt;<br />   &lt;source name="System.ServiceModel.MessageLogging" switchValue="Warning, ActivityTracing"&gt;<br />    &lt;listeners&gt;<br />     &lt;add type="System.Diagnostics.DefaultTraceListener" name="Default"&gt;<br />      &lt;filter type="" /&gt;<br />     &lt;/add&gt;<br />     &lt;add name="ServiceModelMessageLoggingListener"&gt;<br />      &lt;filter type="" /&gt;<br />     &lt;/add&gt;<br />    &lt;/listeners&gt;<br />   &lt;/source&gt;<br />  &lt;/sources&gt;<br />  &lt;sharedListeners&gt;<br />   &lt;add initializeData="c:\inetpub\wwwroot\WCFService\web_messages.svclog"<br />    type="System.Diagnostics.XmlWriterTraceListener, System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"<br />    name="ServiceModelMessageLoggingListener" traceOutputOptions="Timestamp"&gt;<br />    &lt;filter type="" /&gt;<br />   &lt;/add&gt; <br />  &lt;/sharedListeners&gt;<br />&lt;/system.diagnostics&gt;<br />&lt;/configuration&gt;<br />…<br />…<br />&lt;system.serviceModel&gt;<br />  &lt;diagnostics&gt;<br />   &lt;messageLogging logEntireMessage="false" logMalformedMessages="true"<br />    logMessagesAtServiceLevel="false" logMessagesAtTransportLevel="true" /&gt;<br />  &lt;/diagnostics&gt;<br />…</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「ハウツー - Windows フォームから呼び出した WCF のセキュリティ イベントを監査してログ記録する」を参照してください。<li>ログ スロットルの詳細については、「メッセージ ログの構成」 (<a href="http://msdn2.microsoft.com/en-us/library/ms730064.aspx"> http://msdn2.microsoft.com/en-us/library/ms730064.aspx) を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

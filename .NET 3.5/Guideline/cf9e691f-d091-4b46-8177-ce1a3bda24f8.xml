@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2113465277" Content_Hash="-2144496410">
+  <Metadata>
+    <Id>cf9e691f-d091-4b46-8177-ce1a3bda24f8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーのログイン Credential 情報を処理前に検証する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ユーザーの資格情報を処理する前にユーザーの資格情報を検証します。</p>
+  <h1>理由</h1>
+  <p>ユーザー提供のログイン情報の検証は、システム アーキテクチャーに応じて、クロスサイト スクリプティング攻撃、SQL インジェクション、およびその他の潜在的な問題の防止に役立ちます。 すべての入力は使用前に必ず検証され、表示前にエンコードされなければなりませんが、ログイン情報は高価値のデータ ストアと相互処理するため特に重要です。</p>
+  <h1>状況</h1>
+  <p>ログイン機能を備えたすべてのアプリケーションが、ユーザーが送信した、およびユーザーが修正可能な全てのログイン情報を検証することをお勧めします。</p>
+  <h1>対策</h1>
+  <p>ユーザーの資格情報を検証する場合は、以下の手順を使用します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ユーザー名要件を規定する: </strong>ユーザー名に認められる許容可能な文字セットおよび最小限の長さを規定します。 たとえば、ユーザー名は 6 文字以上で、英数字のみを使用しなければなりません。</p>
+      <li>
+        <p>
+          <strong>ホワイトリスト検証を使用する:</strong> ホワイトリスト化は許容される入力の定義を必要とします。 有効な入力が定義されると、設定されたリストに対してすべての入力が比較されます。 入力がリストの項目に一致しない場合、アプリケーションはそれを破棄します。 この手法は、正規表現を使用して実装できます。 例: </p>
+ <pre>public bool ValidateUsername(string username)<br />&amp;#123;<br />    Regex rx = new Regex("(\\w&amp;#124;\\d)&amp;#123;6,&amp;#125;");<br />    return rx.IsMatch(username);<br />&amp;#125;</pre>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードはウェブ アプリケーションのユーザーを認証します。 残念ながら、ユーザーのログイン情報の検証に失敗しているため、攻撃者が認証メカニズムを不正に解読し、認可されていないアクセス権を取得できてしまいます。</p>
+ <pre>&lt;asp:Login ID="Login1" runat="server" BackColor="#EFF3FB" BorderColor="#B5C7DE" BorderPadding="4"<br />    BorderStyle="Solid" BorderWidth="1px" Font-Names="Verdana" Font-Size="0.8em"<br />    ForeColor="#333333" MembershipProvider="MyAppMembershipProvider" /&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>以下のコードはウェブ アプリケーションのユーザーを認証します。 ユーザーのログイン情報を検証します。 したがって、攻撃者にとって認証メカニズムを悪用することが非常に困難になります。</p>
+ <pre>&lt;asp:Login ID="Login1" runat="server" BackColor="#EFF3FB" BorderColor="#B5C7DE" BorderPadding="4"<br />    BorderStyle="Solid" BorderWidth="1px" Font-Names="Verdana" Font-Size="0.8em"<br />    ForeColor="#333333" OnLoggingIn="ValidateUsername" MembershipProvider="MyAppMembershipProvider"<br /> /&gt;</pre>
+ <pre>protected void ValidateUsername(object sender, LoginCancelEventArgs e)<br />&amp;#123;<br />    Regex rx = new Regex("(\\w&amp;#124;\\d)&amp;#123;6,&amp;#125;");<br />    e.Cancel = &amp;#33;(rx.IsMatch(Login1.UserName));<br />&amp;#125;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>正規表現のチュートリアルは、<a href="http://www.regular-expressions.info/">Regular-Expressions.info</a> を参照してください。 </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/500ae131-3373-4246-b6f5-b90128ab8e3c">チェックリスト アイテム: ユーザーのログイン Credential 情報が使用前に検証されている</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

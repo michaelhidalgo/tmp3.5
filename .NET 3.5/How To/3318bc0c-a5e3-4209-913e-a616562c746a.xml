@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1656829572" Content_Hash="1762618874">
+  <Metadata>
+    <Id>3318bc0c-a5e3-4209-913e-a616562c746a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF を Windows サービスでホストする方法</Title>
+    <Category>ホスティング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>TCP、MSMQ の名前付きパイプのようなトランスポートをサポートする必要がある時は、Windows サービスを使用する必要があります。 Windows サービスには、自動スタートアップ、オペレーティング システムによるサービス寿命の制御、最小限の特権アカウントでの実行の容易さ、使用中のサービス失敗時のWindows サービス ホストによるそのサービス再開など、セルフ ホスティングよりも有利な点があります。 Windows サービスは、Microsoft Management Console (MMC) 中の Service Control Manager で管理することができます。</p>
+  <p>次のステップを使用して、Windows Service で WCF サービスをホストしてください。</p>
+  <ol>
+    <li>Visual Studio 2008 を使用して Windows Service プロジェクトを作成してください。<li>サービス インストーラーを Windows Service プロジェクトに追加してください。<li>Windows Service 内のサービスを開始・停止するには、OnStart および OnStop メソッドを次のコード例のように オーバーライドしてください。<ol><pre>using System;<br />using System.Collections.Generic;<br />using System.ComponentModel;<br />using System.Data;<br />using System.Diagnostics;<br />using System.Linq;<br />using System.ServiceProcess;<br />using System.Text;<br />using System.ServiceModel;</pre><pre>namespace WindowsService1<br />{<br />    public partial class WCFServiceHost1 : ServiceBase<br />    {<br />        internal static ServiceHost myServiceHost = null; </pre><pre>        public WCFServiceHost1()<br />        {<br />            InitializeComponent();<br />        }<br />        protected override void OnStart(string[] args)<br />        {<br />            if (myServiceHost != null)<br />            {<br />                myServiceHost.Close();<br />            }<br />            myServiceHost = new ServiceHost(typeof(Service1));<br />            myServiceHost.Open();<br />        }<br />        protected override void OnStop()<br />        {<br />            if (myServiceHost != null)<br />            {<br />                myServiceHost.Close();<br />                myServiceHost = null;<br />            }<br />        }<br />    }<br />}</pre></ol><li>Visual Studio 2008 コマンド プロンプトから InstallUtil.exe コマンドを使用して Windows Service をインストールしてください。</li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/Print.aspx?title=How%20To%20-%20Host%20WCF%20in%20a%20Windows%20Service%20Using%20TCP&version=1&action=Print">http://www.codeplex.com/WCFSecurityGuide/Wiki/Print.aspx?title=How%20To%20-%20Host%20WCF%20in%20a%20Windows%20Service%20Using%20TCP&version=1&action=Print にある「TCP を使用して Windows Service で WCF をホストする方法」を参照してください。</a><li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms733069.aspx">http://msdn.microsoft.com/en-us/library/ms733069.aspx にある「マネージ  Windows Service で WCF サービスをホストする方法」を参照してください。</a><br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

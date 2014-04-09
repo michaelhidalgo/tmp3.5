@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1194346940" Content_Hash="381633842">
+  <Metadata>
+    <Id>758f9997-5676-4b25-b2bf-3bb54d800068</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メモリ内の機微データを保護する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>メモリ内の機密情報の暴露を最小限にするために、次の方法について検討します。</p>
+  <ul>
+    <li>機密情報のコピーを複数作成することは避けます。 機密データのコピーを複数作成することにより、Attack Surface (攻撃対象領域) が増加します。 機密データのコピーを作成するのではなく、リファレンスを渡します。 また、各オブジェクト操作の後、機密を System.String のような不変オブジェクトに保存すると新規コピーが作成されます。 <li>機密情報は、可能な限り暗号化したままにします。 データは、機密情報を使用する直前に復号化します。<li>使用後はすぐに、機密の平文版をクリーンアップしてください。</li></li></li>
+  </ul>
+  <p>SecureString メソッドを使用して上記手段を実装できます。 SecureString オブジェクトの値は自動的に暗号化され、アプリケーションがそれを読み取り専用とマークするまで変更でき、またアプリケーションまたは .NET Framework ガーベジ コレクタのいずれかによってコンピュータのメモリから削除できます。 </p>
+  <p>次の C# コードは <strong>SecureString</strong> クラスのインスタンスを作成し、データ値をそこに保存します。</p>
+ <pre>using System;<br />using System.Collections.Generic;<br />using System.Text;</pre>
+ <pre>namespace TestSecureString <br />{<br />  class Program <br />  {<br />   static void Main(string[] args) <br />   {<br />   System.Security.SecureString secstr = new System.Security.SecureString();<br />   secstr.AppendChar('W');<br />   secstr.AppendChar('C');<br />   secstr.AppendChar('F');<br />   secstr.MakeReadOnly();<br />   Console.WriteLine(secstr);<br />   }<br />  }<br />}</pre>
+  <p>最後の文字が追加されると、コードは <strong>MakeReadOnly</strong> メソッドを使用して文字列値をロックするので、データを改変しようと試みると例外がスローされます。 したがって、この文字列値は改変できません。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/system.security.securestring.aspx?ref=herseybedava.info">http://msdn.microsoft.com/en-us/library/system.security.securestring.aspx?ref=herseybedava.info にある「SecureString クラス」を参照してください。</a><li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/07b9wyhy.aspx">http://msdn.microsoft.com/en-us/library/07b9wyhy.aspx にある「SecureString アプリケーション のサンプル」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

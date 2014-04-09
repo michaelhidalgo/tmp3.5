@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1222565173" Content_Hash="204032953">
+  <Metadata>
+    <Id>4888ef0b-253e-4b1f-9f19-59bbc4cb5fdd</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能な限りWindows 認証を選択する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>行うべき事柄</h1>
+  <p>できる限り、Forms Authentication ではなく Windows 認証を使用します。 </p>
+  <h1>理由</h1>
+  <p>Active Directory と Windows 認証を併用することで、単一 ID ストア、集中型アカウント管理、強制可能なアカウントおよびパスワード ポリシー、およびパスワードのネットワーク上への送信を回避する強力な認証が行えるという利点があります。 </p>
+  <h1>状況</h1>
+  <p />Windows 認証では安全な Credential 情報管理、パスワード ポリシー、およびユーザー アカウント管理ツールが提供されるため、可能な場合は Windows 認証を使用するようにしてください。 <p /><b>Windows 認証および Forms Authentication の間から選択するには</b><ul><li>お使いのユーザー アカウントが Active Directory 内にあるか、またはお使いのユーザー アカウントがローカル アカウントの場合は、可能な場合は Windows 認証を使用するようにしてください。 <li>Windows 認証をお使いの Active Directory ストアに対して使用できない場合は、Forms Authentication を Active Directory に対して使用し、<b>ActiveDirectoryMembershipProvider</b> を使用してください。<li>お使いのユーザー アカウントが SQL Server データベース内にある場合は、<b>SqlMembershipProvider</b> を使用することで Forms Authentication を SQL Server に対して使用してください。<li>お使いのユーザー アカウントが ADAM 内にある場合は、<b>ActiveDirectoryMembershipProvider</b> を使用することで Forms Authentication を ADAM に対して使用してください。<li>お使いのユーザー アカウントが上記のストア以外のストア内にある場合は、カスタム メンバーシップ プロバイダーを作成して、Forms Authentication でこのプロバイダーを使用するための構成を行ってください。 </li></li></li></li></li></ul><h1>対策</h1><p />ASP.NETでWindows認証を使用するには、Microsoft インターネット･インフォメーション･サービス(IIS)を使用して匿名アクセスを無効化し、またウェブアプリケーションの仮想ディレクトリ用にWindowsベースの認証方式を構成しなければなりません。 一般的に統合 Windows 認証を使用することが推奨されますが、基本認証、ダイジェスト認証、またはクライアント証明書による認証を使用することもできます。 また、&lt;<b>authentication</b>&gt; エレメントの <b>mode</b> 属性が Web.config ファイルで"Windows" (デフォルト設定) に設定されていることを確認する必要があります。  "Windows" (デフォルト設定) に設定されていることを確認します。 <p /><h1>関連する項目</h1><ul><li>チェックリスト 項目：可能な限り Windows 認証を使用します</li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

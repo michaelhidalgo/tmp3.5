@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1029018670" Content_Hash="1371443039">
+  <Metadata>
+    <Id>dad95f69-5438-49ae-9c87-567087525cd0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>暗号方式がセキュアな乱数を生成する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、.NET を使用してさまざまなアプリケーションに対して暗号として安全な乱数を生成する方法を示すことです。 暗号として安全な乱数の考えられる用途は、セッション識別子、暗号鍵マテリアル、およびデフォルトまたは自動生成のパスワードです。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>同じ関数によって生成される次の数字を決定することが使用不可能な乱数値を作成する</li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>カスタマイズされたセッション管理のための「推測不可能な」セッション識別子またはアプリケーション Cookie を作成する<li>電子メール用のパスワードを忘れた場合に使用される引数など、2 番目の認証要因として 1 回だけ使用する数字を作成する<li>無作為のデータから、デフォルトのパスワードなどの任意のデフォルトの秘密を作成する</li></li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>static public int SecureRandomNumber(){<br /><br />            // Create a secure RNG class and a byte array to hold the random data<br />            RNGCryptoServiceProvider secureRandom = new RNGCryptoServiceProvider();<br />            byte[] randBytes = new byte[4];<br />            // Generate 4 bytes of secure random number data and convert to 4-byte integer<br />            secureRandom.GetNonZeroBytes(randBytes);<br />            return(BitConverter.ToInt32(randBytes, 0));<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、乱数の生成を示しています。</p>
+ <pre>System.Random class.static public int UnsecureRandomNumber(int seed){<br />            // Creates a random number, using the default machine time-derived seed<br />             Random unsecureRandom = new Random(seed);<br />            return(unsecureRandom.Next());<br />}</pre>
+  <ul>
+    <li>同じ Seed 値は常に同じ数列を返す<li>Seed 値 -1 または null は、マシン時間を使用して Seed を生成するが、それは予測されやすい</li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Security.Cryptography;</pre>
+  <p>以下のコードを実行して、安全でない乱数と安全な乱数の両方のセットを生成します。 この安全ではない例は、同じ Seed を使用する Random への 2 つの呼び出しが、同じ数列を返すことを示しています。 </p>
+ <pre>static void Main(string[] args){<br />            // Unsecure Random Number<br />            Console.WriteLine("Unsecure Value, Default Seed: " + UnsecureRandomNumber(-1));<br />            Console.WriteLine("Unsecure Value, Default Seed: " + UnsecureRandomNumber(-1));<br />            Console.WriteLine("Unsecure Value, Seed = 100: " + UnsecureRandomNumber(100));<br />            Console.WriteLine("Unsecure Value, Seed = 100: " + UnsecureRandomNumber(100));<br />            Console.WriteLine("");<br />            // Secure Random Numbers<br />            for(int i = 0; i &lt; 10; i++) {<br />                        Console.WriteLine("Secure Value, no seed: " + SecureRandomNumber());<br />            }<br />}<br />static public int UnsecureRandomNumber(int seed){<br />            // Creates a random number, using the default machine time-derived seed<br />             Random unsecureRandom = new Random(seed);<br />            return(unsecureRandom.Next());<br />}</pre>
+  <h1>期待される結果</h1>
+ <pre>Unsecure Value, Default Seed: 534011718<br />Unsecure Value, Default Seed: 534011718<br />Unsecure Value, Seed = 100: 2080427802<br />Unsecure Value, Seed = 100: 2080427802<br />Secure Value, no seed: 1392122031<br />Secure Value, no seed: -1635401565<br />Secure Value, no seed: 1863340408<br />Secure Value, no seed: -497957136<br />Secure Value, no seed: -1444637226<br />Secure Value, no seed: 925340612<br />Secure Value, no seed: 92412438<br />Secure Value, no seed: -1126434204<br />Secure Value, no seed: 2086044763<br />Secure Value, no seed: -840759923</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>RNGCryptoServiceProvider クラス: <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrngcryptoserviceproviderclasstopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrngcryptoserviceproviderclasstopic.asp</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

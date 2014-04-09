@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2060827655" Content_Hash="1015252270">
+  <Metadata>
+    <Id>da387bde-606c-4edb-9b11-950e238e237b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で正規表現を使用して入力を制限する方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このハウツーは、信頼できない入力を制約するために、ASP.NETアプリケーション内で正規表現を使用する方法を示しています。 正規表現は、名前、住所、電話番号、およびその他のユーザー情報などのテキストフィールドを検証するための良い方法です。 入力を制約し、書式設定ルールを適用し、長さをチェックするためにそれらを使用することができます。 サーバコントロールで収集された入力を検証するために、<b>RegularExpressionValidator</b> コントロールを使用します。 クエリ文字列、 Cookie 、HTMLコントロール入力などの他の形式の入力を検証するには <b>System.Text.RegularExpressions.Regex</b> クラスを使用できます。</p>
+  <p>このハウツーは、信頼できない入力を制約するために、ASP.NETアプリケーション内で正規表現を使用する方法を示しています。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>RegularExpressionValidatorコントロールの使用</div>
+          <li>
+            <div>正規表現 (Regex)クラスの使用</div>
+            <li>
+              <div>一般的な正規表現</div>
+              <li>
+                <div>その他のリソース</div>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>入力を制約するため、フォーマットルールの適用、長さの確認を行うために正規表現を使用します。 <li>ASP.NET <b>RegularExpressionValidator</b>コントロールを使用して、入力を制約および検証します。 <li><b>Regex</b> クラスを使用して、入力を制約および検証します。 <li>入力の制約に使用できる一般的な正規表現を学びます。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>入力のタイプ、長さ、フォーマット、または範囲について根拠のない仮定をした場合、アプリケーションは堅牢とは言えません。 ユーザーが根拠のない思い込みをしていることを攻撃者が発見した場合、入力検証はセキュリティ上の問題になります。 攻撃者は、SQL インジェクション、クロスサイト スクリプティング、および他のインジェクション攻撃を行うことによって、アプリケーションを損なう慎重に細工された入力を供給することができます。 このような脆弱性を回避するには、テキストフィールド（名前、住所、納税者番号など）を検証し、正規表現を使用して次の操作を行うようお勧めします。</p>
+  <ul>
+    <li>入力文字の許容範囲を制約します。 <li>書式設定ルールを適用します。 例えば、納税者番号や郵便番号などのパターンベースのフィールドは、入力文字の特定パターンを必要とします。 <li>長さをチェックします。 </li></li></li>
+  </ul>
+  <p><b>RegularExpressionValidator</b> コントロールおよび<b>System.Text.RegularExpressions</b> 名前空間の<b>Regex</b>クラスを介したASP.NET アプリケーションの正規表現サポートが使用できます。</p>
+  <h1>RegularExpressionValidatorコントロールの使用</h1>
+  <p>サーバコントロールを使用して入力を収集する場合、<b>RegularExpressionValidator</b> コントロールを使用して入力を検証できます。 有効な文字範囲を制限し、不要な文字を削除し、長さとフォーマットチェックを実行するために、正規表現を使用できます。 入力が一致する必要があるパターンを定義することで、入力フォーマットを制約することができます。</p>
+  <h2>RegularExpressionValidatorを使用してサーバコントロールの入力を検証するには</h2>
+  <ol>
+    <li><b>RegularExpressionValidator</b>コントロールをページに加えます。 <li><b>ControlToValidate</b> プロパティを設定してどのコントロールで検証するかを示します。 <li><b>ValidationExpression</b> プロパティを適切な正規表現に設定します。 <li>検証に失敗した場合に表示されるメッセージを <b>ErrorMessage</b> プロパティを設定して定義します。 </li></li></li></li>
+  </ol>
+  <p>次の例は名前フィールドを検証するために使用される<b>RegularExpressionValidator</b>コントロールを示します。</p>
+  <div>
+ <pre>&lt;%@ language="C#" %&gt;<br />&lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:TextBox ID="txtName" runat="server"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="btnSubmit" runat="server" Text="Submit" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;asp:RegularExpressionValidator ID="regexpName" runat="server"&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ErrorMessage="This expression does not validate." <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ControlToValidate="txtName"&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ValidationExpression="^[a-zA-Z'.\s]{1,40}$" /&gt;<br />&lt;/form&gt;  </pre>
+  </div>
+  <p>前のコード例で使用される正規表現は、入力の名前フィールドをアルファベット文字（大文字と小文字）、スペース文字、O'Dellなどの名前のための単一引用符（またはアポストロフィ）、ピリオドまたはドット文字に制約します。 さらに、フィールドの長さは40文字に制約されます。</p>
+  <h2> ^ および $ の使用</h2>
+  <p>キャレット (<b>^</b>) およびドル印 (<b>$)</b>マーカー内に表現を入れることで、無駄なものが入らず希望のコンテンツのみが含まれることを確実にします。 <b>^</b> は入力文字列の最初に合わせ、<b>$</b> は入力文字列の最後となります。 これらのマーカーを省略した場合、攻撃者は悪意のある入力を有効なコンテンツの先頭または最後に取り付け、フィルタをバイパスすることができます。</p>
+  <h1>正規表現 (Regex)クラスの使用</h1>
+  <p>サーバコントロールを使用せず(検証コントロールを使用できないことを意味します)、またはクエリ文字列パラメータや Cookie などといった、フォームフィールドではなくソースから入力を検証する必要がある場合は、<b>System.Text.RegularExpressions</b> 名前空間の<b>Regex</b>クラスを使用できます。</p>
+  <h2>正規表現 (Regex)クラスを使用するには</h2>
+  <ol>
+    <li><b>using</b> ステートメントを加え、<b>System.Text.RegularExpressions</b> 名前空間を参照します。 <li>次の例のように <b>Regex</b> クラスの <b>IsMatch</b> メソッドを呼び出します。 <div><pre>// Instance method:<br />Regex reg = new Regex(@"^[a-zA-Z'.]{1,40}$");<br />Response.Write(reg.IsMatch(txtName.Text));<br />// Static method:<br />if (!Regex.IsMatch(txtName.Text, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @"^[a-zA-Z'.]{1,40}$"))<br />{<br />&nbsp; // Name does not match schema<br />}  </pre></div></li></li>
+  </ol>
+  <p>パフォーマンスの観点から、可能であれば静的<b>IsMatch</b> メソッドを使用し、不必要なオブジェクト作成を避けます。</p>
+  <p>次の例は、通常のクライアント側HTMLコントロールを介して名前入力を検証するために正規表現を使用する方法を示しています。</p>
+  <div>
+ <pre>&lt;%@ Page Language="C#" %&gt;</pre>
+ <pre>&lt;html&nbsp; &gt;<br />&nbsp; &lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" method="post" action="HtmlControls.aspx"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Name:<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input name="txtName" type="text" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;input name="submitBtn" type="Submit" value="Submit"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&nbsp; &lt;/body&gt;<br />&lt;/html&gt;</pre>
+  </div>
+ <pre>&lt;script runat="server"&gt;</pre>
+ <pre>&nbsp; void Page_Load(object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; if (Request.RequestType == "POST")<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string name = Request.Form["txtName"];<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (name.Length &gt; 0)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (System.Text.RegularExpressions.Regex.IsMatch(name, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "^[a-zA-Z'.]{1,40}$"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("Valid name");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("Invalid name");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp; }</pre>
+ <pre>&lt;/script&gt;  </pre>
+  <h2>正規表現コメントの使用</h2>
+  <p>次のシンタックスを使用し、番号記号(<b>#</b>)を使用して各コンポーネントにコメントする場合、正規表現はより分かりやすいと言えます。コメントを有効化するには、<b>RegexOptions.IgnorePatternWhitespace</b>を指定する必要があり、つまり非エスケープの空白が無視されます。</p>
+  <div>
+ <pre>Regex regex = new Regex(@"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ^&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # anchor at the start<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?=.*\d)&nbsp;&nbsp;&nbsp;&nbsp; # must contain at least one numeric character<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?=.*[a-z])&nbsp; # must contain one lowercase character<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (?=.*[A-Z])&nbsp; # must contain one uppercase character<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .{8,10}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # From 8 to 10 characters in length<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \s&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # allows a space <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # anchor at the end", <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegexOptions.IgnorePatternWhitespace);  </pre>
+  </div>
+  <h1>一般的な正規表現</h1>
+  <p>いくつかの一般的な正規表現を表1に示します。</p>
+  <p>
+    <b>表 1 一般的な正規表現</b>
+  </p>
+  <div>
+    <table>
+      <tbody>
+        <tr>
+          <th>フィールド</th>
+          <th>表現</th>
+          <th>フォーマットサンプル</th>
+          <th>説明</th>
+        </tr>
+        <tr>
+          <td>名前</td>
+          <td>^[a-zA-Z''-'\s]{1,40}$</td>
+          <td>John Doe<br />O'Dell</td>
+          <td>名前を検証します。 最大 40 文字の大文字小文字と、名前に一般的に用いられる少数の特殊文字を使用できます。 このリストは変更できます。</td>
+        </tr>
+        <tr>
+          <td>社会保証番号</td>
+          <td>^\d{3}-\d{2}-\d{4}$</td>
+          <td>111-11-1111</td>
+          <td>与えられた入力フィールドの書式、型、長さを検証します。 入力内容は、3 桁の番号、ダッシュ、2 桁の番号、ダッシュ、4 桁の番号の順になっていなければなりません。</td>
+        </tr>
+        <tr>
+          <td>電話番号</td>
+          <td>^[01]?[- .]?(\([2-9]\d{2}\)|[2-9]\d{2})[- .]?\d{3}[-.]?\d{4}$</td>
+          <td>(425) 555-0123<br />425-555-0123<br />425 555 0123<br />1-425-555-0123</td>
+          <td>米国の電話番号を検証します。 入力内容は、3 桁の番号 (括弧でくくられている場合があります)、3 桁の番号、4 桁の番号の順になっていなければなりません。 </td>
+        </tr>
+        <tr>
+          <td>電子メール</td>
+          <td>^([0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*@([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,9})$</td>
+          <td>someone@example.com</td>
+          <td>電子メール アドレスを検証します。</td>
+        </tr>
+        <tr>
+          <td>URL</td>
+          <td>^(ht|f)tp(s?)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?$</td>
+          <td>http://www.microsoft.com</td>
+          <td>URL を検証します。</td>
+        </tr>
+        <tr>
+          <td>郵便番号</td>
+          <td>^(\d{5}-\d{4}|\d{5}|\d{9})$|^([a-zA-Z]\d[a-zA-Z] \d[a-zA-Z]\d)$</td>
+          <td>12345</td>
+          <td>米国の郵便番号を検証します。 郵便番号は 5 桁または 9 桁の番号でなければなりません。</td>
+        </tr>
+        <tr>
+          <td>パスワード</td>
+          <td>(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{8,10})$</td>
+          <td>&nbsp;</td>
+          <td>パスワードが強力かどうかを検証します。 少なくとも1つの数字とアルファベット1文字を含む8から10文字とし、特殊文字を含めることはできません。</td>
+        </tr>
+        <tr>
+          <td>非負整数</td>
+          <td>^\d+$</td>
+          <td>0<br />986</td>
+          <td>ゼロより大きい整数を含むフィールドを検証します。</td>
+        </tr>
+        <tr>
+          <td>通貨 (非負)</td>
+          <td>^\d+(\.\d\d)?$</td>
+          <td>1.00</td>
+          <td>正の貨幣額を検証します。 小数点がある場合は、小数点以下が 2 桁必要です。 たとえば、3.00 は有効ですが、3.1 は無効です。</td>
+        </tr>
+        <tr>
+          <td>通貨 (正または負)</td>
+          <td>^(-)?\d+(\.\d\d)?$</td>
+          <td>1.20</td>
+          <td>正または負の貨幣額を検証します。 小数点がある場合は、小数点以下が 2 桁必要です。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://www.regular-expressions.info/tutorial.html">http://www.regular-expressions.info/tutorial.html</a>から正規表現チュートリアルをご覧ください。</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

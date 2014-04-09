@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1955716421" Content_Hash="1739159485">
+  <Metadata>
+    <Id>941346f9-65ce-488c-86b8-84e963a4820c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>信頼済みサブシステムと偽装/委任のいずれかを選択する方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>信頼済みサブシステム モデルを使用するなら、WCF サービスのプロセス ID を使用してデータベースのようなダウンストリームのネットワーク リソースにアクセスすることになります。 偽装/委任を使用するなら、偽装を使用しまた元の呼び出し元の ID を使用してデータベースにアクセスすることになります。 </p>
+  <p>信頼済みサブシステムは、アプリケーションが効率的な接続プーリングの利点を得られるので、より優れたスケーラビリティに対応します。 バック エンドの ACL 管理を最小化することもできます。 信頼済み ID のみが、データベースにアクセスできます。 エンドユーザーは直接のアクセスができません。 信頼済みサブシステム モデルでは、WCF サービスにはバックエンド リソースへの広範なアクセスが付与されます。 結果として、攻撃を受ける WCF サービスは、攻撃者によるバックエンド リソースへの広範なアクセスを可能にしてしまうことがあります。 サービス アカウントの Credential 情報を保護しておくことが不可欠です。 <br />偽装/ 委任を使用すれば、どのユーザーが特定のリソースにアクセスを試みたのかを追跡できるのでオペレーティング システム監査からは利点が得られます。 データベースに対しきめ細かいアクセス制御を行うこともでき、また個別のユーザー アカウントをデータベースの中で相互から独立して制限することもできます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms730288.aspx">http://msdn.microsoft.com/en-us/library/ms730288.aspx にある「信頼済みサブシステム」を参照してください。</a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspx の「WCF を使用した委任と偽装」を参照してください。</a><li>詳細は、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Windows%20Forms&referringTitle=How%20Tos">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Windows%20Forms&referringTitle=How%20Tos にある「Windows フォーラムからの WCF 呼び出しの元の呼び出し元を偽装する方法」を参照してください。</a><li>詳細は、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Web%20Application&referringTitle=How%20Tos">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Web%20Application&referringTitle=How%20Tos にある「Web アプリケーションからの WCF 呼び出しの元の呼び出し元を偽装する方法」を参照してください。</a></li></li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

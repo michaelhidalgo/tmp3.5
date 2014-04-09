@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1967015607" Content_Hash="-1870347480">
+  <Metadata>
+    <Id>43c19a37-285d-4cdd-a43b-bdea78eb1686</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>HTTP 反復攻撃</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>すべての Web アプリケーション。</p>
+  <h1>説明</h1>
+  <p>HTTP 反復攻撃では、攻撃者はまず、クライアントとサーバーの間のコミュニケーションに対し、<a href="/article/cf06603e-440e-4118-85d5-ad360817fabc">ネットワーク傍受攻撃</a>を実行します。 その後、攻撃者は、キャプチャしたパケットをホストに送信して、元々のリクエストを行ったユーザーに偽装しようととします。 攻撃者は、サーバーを欺いてメッセージが元々のユーザーからものであると信じさせるために、反復されるメッセージの一部の特性を変更しなければならないことがあります。</p>
+  <p>
+    <a href="/article/862e51f1-a026-40f9-826b-7a65fa5dc563">セッション ハイジャック攻撃</a>は HTTP 反復攻撃の一種です。この場合攻撃者は、クライアントのセッション識別子を反復することにより、クライアントに偽装することを試みます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>認証スプーフィング<li>クライアントへの偽装</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <p>サーバーが、受け取ったメッセージの出所を検証するためのセキュアな手段を用いていない場合、サーバーはこれらの攻撃に対して脆弱です。 サーバーがメッセージを送信しているクライアントの身元を検証するための手段を用いていたとしても、検証は攻撃者が変造できるメッセージ内の情報に基づくものなので、サーバーはこの攻撃に対して脆弱です。 主要な原因としては、次のものがあります。</p>
+  <ul>
+    <li>
+      <strong>セッションが保護されていない。</strong> 攻撃者は、次の理由のいずれかのために、別のユーザーのセッションを偽装できる場合があります。<ul><li>セッション ID の再使用。<li>セッション タイムアウトが長い、または無期限。<li>貧弱な、または予測可能なセッション識別子</li></li></li></ul><li><strong>コミュニケーション チャンネルがセキュアでない。</strong> コミュニケーションのチャンネルを暗号化を使用してセキュアにすれば、攻撃者がこの攻撃を実行することはきわめて難しくなります。</li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>SSL または IPSecを暗号化とともに利用して、セキュアなコミュニケーション チャンネルを確立してください。 <li>タイムスタンピングを考慮してください。 この点についての詳細は、<a href="http://en.wikipedia.org/wiki/Timestamp">ウィキペディアのタイムスタンプ</a>の記事を参照してください。</li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ハイジャックの機構と攻撃の防止についての詳細は、次を参照してください。<a href="http://www.microsoft.com/technet/technetmag/issues/2005/01/SessionHijacking/">Web 上の盗難: セッション ハイジャックを防止する</a></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/740a1606-d091-4a93-bfd8-f0d4226adbf1">ガイドライン: 重要な機能を実行するときには再認証を強制する</a>
+      <li>
+        <a href="/article/b070122f-f1d1-47da-a378-57f845d5db61">ガイドライン: 通信リンクを暗号化する</a>
+        <li>
+          <a href="/article/254ddab5-ecd2-4e05-a2b0-861e970bc0d9">ガイドライン: セッション クッキーを保護する</a>
+          <li>
+            <a href="/article/8e0aea9c-322b-4b3f-9c61-a670c1fcd3e3">ガイドライン: クロス サイト リクエスト フォージェリ攻撃への対策として Page.ViewStateUserKey を使用する</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

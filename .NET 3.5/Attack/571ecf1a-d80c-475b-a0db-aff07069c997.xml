@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="813548528" Content_Hash="324309240">
+  <Metadata>
+    <Id>571ecf1a-d80c-475b-a0db-aff07069c997</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>XML インジェクション攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>サーバ上の XML ファイルにユーザー入力を書き込むアプリケーション。</p>
+  <h1>説明</h1>
+  <p>攻撃者は XML インジェクションの脆弱性を利用し、サーバ上に存在する XML に悪意のあるデータを挿入します。 使用される XML構文解析器 (parser) の種類 (SAX または DOM) によっては、この悪意のあるデータが使われ、前のノードの値が上書きされたり、XML構文解析器がサーバ上のメモリを過度に消費したりします。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>XML の前のノード値の変更<li>サーバのDoS攻撃<li>XML ドキュメント全体を認可されていないユーザーにさらすこと <li>新しいノードまたはドキュメント全体の追加 <li>アクセスされるべきではないデータを変更または削除できること</li></li></li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>信頼されていない入力による動的 XML 生成<li>不適切に定義されたスキーマ<li>スキーマ検証の欠如<li>入力を検証し、状況に応じて危険なメタ文字を符号化しなかったこと</li></li></li></li>
+  </ul>
+  <a name="Countermeasures">
+  </a>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <p>
+        <strong>サーバ上の XML ファイルを読み込むとき、そのファイルを定義済みの XSD に対して検証してください</strong>。</p>
+      <li>
+        <p>
+          <strong>信頼されていない入力に対して状況依存のエンコーディングを実行してください</strong>。HTML に出力するデータのエンコーディングと同様に、ホワイトリスト手法を採用するべきです。 データを挿入するコンテキストごとに (エレメントや属性値など)、安全が確認されている文字のセットを構築するべきです。 追加するデータはホワイトリストを参照してチェックし、リストに明記されていない文字は符号化するべきです。 CDATA セクションを利用し、構文解析器 (parser) が特殊文字を無視するようにさらに設定します。 理想的には、信頼されていないソースからは XML 以外の値のみを受け取るようにするべきです。 信頼されていないリソースから XML ブロブを受け取らなければならない場合、受け取ったブロブを XSD に対してチェックした後に、解析された値からブロブを手動で再度組み立てるべきです。</p>
+        <li>
+          <p>
+            <strong>信頼されていない入力は、利用前に「含める」リストを参照して検証するべきです</strong>。たとえば、正規表現 (regex) パターン、プリミティブ型のキャスティング、ドメイン制約、または他の検証機能を利用してください。 データ検証に関する詳細は追加リソースを参照してください。</p>
+          <li>
+            <p>
+              <strong>アプリケーションに必要なデータだけを含めるように XML ドキュメントを整えてください</strong>。</p>
+            <li>
+              <p>
+                <strong>XML 処理パイプラインを利用してデータの流れを明瞭にし、脅威を特定しやすくしてください</strong>。</p>
+              <li>
+                <p>
+                  <strong>ユーザー入力から DOCTYPE エレメントを削除してから XML オブジェクトを作成してください</strong>。</p>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>例</h1>
+  <p>サーバ側の XML の有効なノードとして次のノードを仮定します。</p>
+  <pre>&lt;UserRecord&gt;   &lt;UniqueID&gt;5&lt;/UniqueID&gt;   &lt;Name&gt;Gandalf&lt;/Name&gt;   &lt;Email&gt;Gandalf&amp;#64;MiddleEarth.com&lt;/Email&gt;   &lt;Address&gt;One Middle Earth Way, ME&lt;/Address&gt;   &lt;ZipCode&gt;10000&lt;/ZipCode&gt;   &lt;PhoneNumber&gt;123-456-7890&lt;/PhoneNumber&gt;&lt;/UserRecord&gt;</pre>
+  <p>ここで、UniqueID フィールドはサーバにより割り当てられます。 それでは、Web サーバがユーザーから入力を受け取り、それを XML ファイルに格納する場合、ユーザーが Email フィールドに次のデータを入力すると、構文解析器 (parser) の結果はどのようになるでしょうか。</p>
+  <pre>Gandalf&amp;#64;MiddleEarth.com&lt;/Email&gt;&lt;UniqueID&gt;0&lt;/UniqueID&gt;&lt;Name&gt;Gandalf&lt;/Name&gt;&lt;Email&gt;Gandalf&amp;#64;MiddleEarth.com</pre>
+  <p>サーバに結果的に生成される XML は次のようになります。</p>
+  <pre>&lt;UserRecord&gt;   &lt;UniqueID&gt;5&lt;/UniqueID&gt;   &lt;Name&gt;Gandalf&lt;/Name&gt;   &lt;Email&gt;Gandalf&amp;#64;MiddleEarth.com&lt;/Email&gt;&lt;UniqueID&gt;0&lt;/UniqueID&gt;               &lt;Name&gt;Gandalf&lt;/Name&gt;&lt;Email&gt;Gandalf&amp;#64;MiddleEarth.com&lt;/Email&gt;   &lt;Address&gt;One Middle Earth Way, ME&lt;/Address&gt;   &lt;ZipCode&gt;10000&lt;/ZipCode&gt;   &lt;PhoneNumber&gt;123-456-7890&lt;/PhoneNumber&gt;&lt;/UserRecord&gt;</pre>
+  <p>UniqueID、Name、Email に 2 つのフィールドと値があります。 このようなデータを解析した結果は使用される XML構文解析器 (parser) の種類に依存します。</p>
+  <ul>
+    <li>SAX構文解析器を使用する場合、このノードの UniqueID が 0 として報告されます。そのため、攻撃者が実質的にこのフィールド値を上書きしたことになります。 <li>DOM構文解析器を使用する場合、エラーが報告されます。 ただし、DOM構文解析器はスキーマに一致していても XML に追加ノードを挿入することで悪用されます。そうなると、構文解析器は過度にメモリを消費し、結果的にDoS攻撃を起こす可能性があります。</li></li>
+  </ul>
+  <p>これは単純な例であることにも注意してください。 さまざまな問題がありますが、とりわけ、新しいレコード全体を挿入することも可能です。 上の例を修正するために、マークアップ区切り文字をエスケープし、ユーザー入力の解釈を防止できます。対策セクションの説明にあるように、&amp; を &amp; に、または &lt; を &lt; に置換するなどします。 これでこの事例ではユーザーデータが解釈されることを防止できます。 ただし、一般的には、入力内容は厳密にはわかりません。そこで、万全の策として、ホワイトリストで承認される文字を使い、種類を可能な限り型チェックを行います。 型チェックができない場合、CDATA を使用して文字列が厳密にデータとして扱われるように強制する方法を考慮してください。 たとえば、次のようになります。</p>
+  <pre>&amp;#36;evil_input = "Gandalf&amp;#64;MiddleEarth.com&lt;/Email&gt;   &lt;UniqueID&gt;0&lt;/UniqueID&gt;&lt;Name&gt;Gandalf&lt;/Name&gt;&lt;Email&gt;Gandalf&amp;#64;MiddleEarth.com";&amp;#36;data = "&lt;&amp;#33;&amp;#91;CDATA&amp;#91;" &amp;#43; &amp;#36;evil_input &amp;#43; "&amp;#93;&amp;#93;&gt;";</pre>
+  <p>&amp;#36; データを上の Email フィールドに挿入すると、結果的に次の好ましい XML が生成されます。</p>
+  <pre>&lt;UserRecord&gt;   &lt;UniqueID&gt;5&lt;/UniqueID&gt;   &lt;Name&gt;Gandalf&lt;/Name&gt;   &lt;Email&gt;&lt;&amp;#33;&amp;#91;CDATA&amp;#91;Gandalf&amp;#64;MiddleEarth.com&lt;/Email&gt;&lt;UniqueID&gt;0&lt;/UniqueID&gt;             &lt;Name&gt;Gandalf&lt;/Name&gt;&lt;Email&gt;Gandalf&amp;#64;MiddleEarth.com&amp;#93;&amp;#93;&gt;   &lt;/Email&gt;   &lt;Address&gt;One Middle Earth Way, ME&lt;/Address&gt;   &lt;ZipCode&gt;10000&lt;/ZipCode&gt;   &lt;PhoneNumber&gt;123-456-7890&lt;/PhoneNumber&gt;&lt;/UserRecord&gt;</pre>
+  <p>CDATA は正しく利用すれば大変便利ですが、以前に抱えていたのと同じ一般的問題があります。 攻撃者は "&amp;#93;&amp;#93;&gt;" を利用する文字列を作成して CDATA を終了し、悪意のある XML を挿入できます。 そのため、CDATA を利用するときは必ず、入力文字列から&amp;#93; を&amp;#93;&gt; 削除またはエスケープする必要もあります。 ある時点で、あきらめてホワイトリストによってすべてを符号化したほうが楽です。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://www.w3.org/XML/Processing/">http://www.w3.org/XML/Processing/</a>
+      <li>
+        <a href="http://www-128.ibm.com/developerworks/xml/library/x-think37/index.html">http://www-128.ibm.com/developerworks/xml/library/x-think37/index.html</a>
+        <li>
+          <a href="http://www.owasp.org/index.php/Data_Validation">http://www.owasp.org/index.php/Data_Validation</a>
+          <li>
+            <a href="http://www-128.ibm.com/developerworks/xml/library/x-tipcfsx.html">http://www-128.ibm.com/developerworks/xml/library/x-tipcfsx.html</a>
+            <li>
+              <a href="http://www.w3schools.com/xml/xml_cdata.asp">http://www.w3schools.com/xml/xml_cdata.asp</a>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

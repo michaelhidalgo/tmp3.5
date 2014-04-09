@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-737984665" Content_Hash="73527510">
+  <Metadata>
+    <Id>f534b825-1847-4870-805d-0b3dc8c8aa72</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>接続文字列をハード コードしない</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アセンブリで接続文字列を変更不可のコードとしない。 接続文字列を、外部の場所、たとえば構成ファイルに保存します。</p>
+  <h1>理由</h1>
+  <p>アプリケーションへアクセスする攻撃者が、アセンブリからこの情報を直接抽出することができます。 攻撃者は逆コンパイラを使用してコードを再構成し、この情報の検出をさらに容易にするかも知れません。</p>
+  <h1>対策</h1>
+  <p>次の設定例に示されるように、Web.configファイルで接続文字列を<b>connectionStrings</b> セクションに保存します。</p>
+ <pre>
+    <pre>
+      <br />&lt;configuration&gt;<br />&nbsp;&lt;connectionStrings&gt;<br />&nbsp; <br />&nbsp;&nbsp; &lt;add name="MyDbConn" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="Server=MyServer; Database=pubs; User Id=MyUser; password=P@ssw0rd"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; providerName="System.Data.SqlClient" /&gt;<br />&nbsp;&lt;/connectionStrings&gt;<br />&lt;/configuration&gt;</pre>
+  </pre>
+  <p>アプリケーションで接続文字列を使用するには、次の例のように、動作時文字列の値にアクセスします。</p>
+  <div>
+    <div>
+      <div>
+      </div>
+    </div>
+ <pre>string dbConn = ConfigurationManager.ConnectionString["MyDbConn"].ToString();  </pre>
+  </div>
+  <p>構成ファイルに保存される接続ストリングなどの機微データは暗号化されなければなりません。 接続文字列の暗号化は、ユーザー Credential 情報が含まれる場合に特に重要です。 たとえば、SQL認証の接続文字列が挙げられます。</p>
+  <h1>その他のリソース</h1>
+  <p>更なる情報については、次のドキュメントを参照してください:</p>
+  <ul>
+    <li>ConfigurationManager クラスに関する情報 <a href="http://msdn.microsoft.com/en-us/library/system.configuration.configurationmanager.aspx">http://msdn.microsoft.com/en-us/library/system.configuration.configurationmanager.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

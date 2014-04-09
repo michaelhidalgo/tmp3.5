@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-626131811" Content_Hash="1768611078">
+  <Metadata>
+    <Id>4c4c6b17-c40f-4710-bd98-03693304ae78</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ロールの認可にカスタム コード の代わりにロール マネージャを使用する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ロール ベースの認可に、カスタム コードの代わりに ASP.NET ロール マネージャを使用するようにする。</p>
+  <h1>理由</h1>
+  <p>ASP.NET には、認証されたユーザーのロールを自動的に作成、管理および検索するロール マネージャ機能があります。 ロール マネージャによって、プログラマのエラーによる深刻なセキュリティ問題の可能性が軽減すると同時に、アプリケーションに必要なカスタム コードの量も少なくなります。 </p>
+  <h1>チェック方法</h1>
+  <p>以下のステップを使用して、アプリケーションがロール マネージャを使用しているかをチェックします。</p>
+  <ol>
+    <li>アプリケーションの Web.config ファイルの &lt;<strong>system.web</strong>&gt; セクション の下に &lt;<b>roleManager</b>&gt; エレメントがあることを 確認して､<b>enabled</b> 属性を <b>true に設定します。</b><li>ロール ストアを示す &lt;<strong>connectionStrings</strong> セクションに接続文字列があることを 確認します。 <li>&lt;<b>roleManager</b>&gt; エレメントで特定のプロバイダーが構成されていることを確認します。<b></b> <li>&lt;<b>roleManager</b>&gt; エレメントの <b>defaultProvider</b> 属性が、 選択したロール プロバイダーを示していることを確認します｡ <li>アプリケーションのコードをチェックし、ロール チェックの実行時に常にロール マネージャ API (<b>Roles.IsUserInRole </b>、<strong>Roles.CreateRole</strong> など) が使用されていることを確認します。</li></li></li></li></li>
+  </ol>
+  <h1>修正方法</h1>
+  <ol>
+    <li>ユーザーの認証アクセス チェック<li>構成されたロール プロバイダーの URL とファイル認可を使用した <strong>RoleManager</strong> HTTP モジュールによる、構成されたロール ストア<li>からのロール アクセス<li>プログラム型ロールチェック</li></li></li></li>
+  </ol>
+  <p>この順番は、ロール情報が未認証のユーザーには使用できないことを意味します。 また、これは、ロール アクセスが URL およびファイル認可に使用できることも意味します｡</p>
+  <p />ASP.NET アプリケーションでロール マネージャ機能を使用するには、以下を実施する必要があります。<ol><li>アプリケーションの Web.config ファイルで &lt;<b>system.web</b>&gt; セクションの 下に &lt;roleManager&gt; エレメントを追加し、 の下に &lt;<b>roleManager</b>&gt; エレメントがあることを <b>enabled</b> 属性に <b>true</b> を設定して、ロール マネージャを有効にします。<li>&lt;<b>connectionStrings</b>&gt; セクションにロール ストアを示す接続文字列を 追加します。 <b>AuthorizationStoreRoleProvider</b> を使用している場合､接続文字列は Active Directory または ADAM にある Authorization Manager Policy ストアを示す LDAP クエリ文字列になります。 <b>SqlRoleProvider</b> を使用している場合､接続文字列はロール ストア データベースを示すデータベース接続文字列になります。 <li>アプリケーションの Web.config ファイルで &lt;<b>roleManager</b>&gt; エレメントに特定のプロバイダーを構成します。<b></b> ロール マネージャ システムは、以下のプロバイダーをサポートしています。<li>アプリケーション ロールが Active Directory または ADAM の Authorization Manager Policy ストアにある場合は､<b>AuthorizationStoreRoleProvider</b> を使用します。<li>アプリケーション ロールが SQL Server データベースにある場合は､<b>SqlRoleProvider. を使用します。</b><li>アプリケーションがロールとして Windows グループを使用している場合は､<b>WindowsTokenRoleProvider</b> を使用します。これは、Windows 認証のみとの併用をお勧めします。 <li>アプリケーション ロールが上記のストア以外のストアにある場合は､<b>RoleProvider</b> ベース クラスを継承するカスタム ロール プロバイダーを作成します。 <li>&lt;<b>roleManager</b>&gt; エレメントの <b>defaultProvider</b> 属性を、 選択したロール プロバイダーに設定します。 </li></li></li></li></li></li></li></li></ol><p>ロールをチェックおよび管理するには、(<b>Roles.IsUserInRole </b>、<b>Roles.CreateRole</b> などの) ロール マネージャ API を使用します。</p><h1>関連する項目</h1><ul><li><a href="/article/86e905f3-25a9-438c-bdc6-5b242584be2a">ASP.NET ロール マネージャをロール認可に使用する</a></li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

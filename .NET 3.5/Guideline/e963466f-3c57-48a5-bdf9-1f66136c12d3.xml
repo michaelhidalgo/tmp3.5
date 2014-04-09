@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1850274254" Content_Hash="-1820815884">
+  <Metadata>
+    <Id>e963466f-3c57-48a5-bdf9-1f66136c12d3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Web ファーム環境で RSA 保護の構成プロバイダーを使用する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>RSA保護された構成プロバイダーを使用して構成ファイルの一部を暗号化します。 Web.config と Machine.config ファイルに保持されている接続文字列など機微データを暗号化するには、Aspnet_regiis.exe ツールを使うことができます。&nbsp;&nbsp;&nbsp;&nbsp;</p>
+  <h1>理由</h1>
+  <p>接続文字列には機微なリソース アクセス Credential 情報 (ユーザー名とパスワードを含む、SQL Serverリソース向け接続文字列)が含まれます。サーバに害を与える攻撃者が接続文字列を読み取れるため、プレーン テキストで保存される接続文字列は危険です。 マシンが侵害されていなくても、プレーンテキストで保存された接続文字列はホストマシンやWindowsドメイン上で管理者やその他ユーザーに十分な特権をもってアクセス可能です。&nbsp;</p>
+  <h1>状況</h1>
+  <p>接続文字列は常に暗号化してください。 ウェブファーム環境において、RSA保護された構成プロバイダーは、非対称暗号化を用いて暗号化および復号を行うため、サーバ間で鍵を簡単にエクスポートおよびインポートすることが可能であり、構成ファイルの暗号化および復号を行う効果的な方法です。&nbsp; アプリケーションがウェブファームに配置されていない場合、接続文字列の暗号化にはRSAと同様にDPAPIが適切です。&nbsp; </p>
+  <h1>対策</h1>
+  <p>構成ファイルのセクションを暗号化するには次の手順に従います。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>暗号化する構成のセクションを特定します。</strong> データの暗号化と復号化をすると、パフォーマンスのオーバーヘッドが発生します。 このオーバーヘッドを最小限に抑えるには、構成ファイルのうち、機微データが保存されているセクションのみを暗号化してください。 この場合、私たちは Web.config ファイルの &lt;connectionStrings&gt; エレメントの暗号化に関心があります。なぜなら、それはデータベース接続文字列が存在する場所であるためです。 </p>
+      <li>
+        <p>
+          <strong>マシンまたはユーザー ストアを選択します。</strong> DataProtectionConfigurationProviderは、マシンレベルおよびユーザーレベルの鍵のストアに対応しています。 ストアの選択は、アプリケーションが他のアプリケーションとサーバを共有しているかどうか、および機微データをアプリケーションごとに非公開にする必要があるかどうかによって大きく異なります。 </p>
+        <li>
+          <p>
+            <strong>構成ファイルのデータを暗号化します。</strong> Use the RSA プロバイダーを使用して、Webファーム内のWeb.configの接続文字列を暗号化します。 これを行うとき、カスタムRSA暗号化鍵コンテナを作成し、ウェブファーム内のすべてのサーバで同じ鍵コンテナを使用します。 これは、デフォルトRSA暗号鍵である「NetFrameworkConfigurationKey」はコンピュータごとに異なるため、デフォルトでは機能しません。</p>
+          <p>&nbsp;.NET コマンドプロンプトから次のコマンドを実行して、マシンレベルの格納を使用してconnectionStrings セクションを暗号化します:</p>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; aspnet_regiis -pe "connectionStrings" -app "/MachineRSA"</pre>
+          <p>注記: ASP.NET アプリケーション ID が.Net Framework 構成鍵格納にアクセスできない場合、アクセスを与える必要があります。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ウェブ アプリケーションがウェブファーム環境で実行されています。 アプリケーションは、SQL データベース インスタンスを使用し、同じシステム上で他のアプリケーションにアクセスできない機微データを持ちます。&nbsp;web.config ファイルには、アプリケーションがファーム内のすべてのマシンにおいてSQLデータベース アクセスに使用するconnectionStringセクションが含まれます。</p>
+ <pre>&lt;connectionStrings&gt;   <br />&lt;add name="MyLocalSQLServer"         <br />	connectionString="Initial Catalog=pubs;User Id=sa;Password=asdasd;       <br />	data source=localhost;Integrated Security=SSPI;"       <br />	providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;</pre>
+  <p>残念ながら、アプリケーションのweb.configファイルを読める者は誰でも、データベース インスタンスのデータベース、ユーザー名、パスワードを見ることができ、アプリケーションと同レベルの特権で命令文を実行することができます。</p>
+  <h1>ソリューションの例</h1>
+  <p>ウェブファーム環境で動作するアプリケーションのweb.configファイルは、ファーム内のすべてのマシンにおいてアプリケーションがSQLデータベースへのアクセスに使用するconnectionStringセクションを含みます。</p>
+ <pre>&lt;connectionStrings&gt;   <br />&lt;add name="MyLocalSQLServer"         <br />	connectionString="Initial Catalog=pubs;User Id=sa;Password=asdasd;       <br />	data source=localhost;Integrated Security=SSPI;"        <br />	providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;</pre>
+  <p>RSA 保護構成プロバイダーをマシン鍵格納と使用してconnectionStringセクションを暗号化します。 保護構成プロバイダーを追加および構成して、マシン鍵格納を使用し、次のコマンドを実行してconnectionStringを暗号化します:</p>
+  <blockquote>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/MachineRSA"</pre>
+  </blockquote>
+  <p>ここで、接続文字列は暗号化済みであり、それは web.config ファイルを調べることにより確認できます。 ASP.NETが透過的に実施するため、手動でファイルを復号する必要はありません。&nbsp;&lt;&lt;Prashant -ソリューションは鍵のエクスポートやインポートについて、ファーム内の他のマシンでの使用方法についても言及しません&gt;&gt;</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/f10679b7-5390-49ee-b529-7a2f7c059ce7">接続文字列を暗号化する</a>
+      <li>
+        <a href="/article/1fe40372-6648-4496-8552-794f91ff6bbf">接続文字列がセキュアな状態</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

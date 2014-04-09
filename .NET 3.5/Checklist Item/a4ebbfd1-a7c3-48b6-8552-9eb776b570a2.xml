@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1458410969" Content_Hash="-2057586900">
+  <Metadata>
+    <Id>a4ebbfd1-a7c3-48b6-8552-9eb776b570a2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL 認証を使用する場合に、ネットワーク上で Credential 情報を保護する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>SQL Server 認証を使用する場合に、IPSec または SSL を使用してネットワーク上で Credential 情報を保護するようにする。</p>
+  <h1>修正方法</h1>
+  <p>アプリケーションが物理的に安全な分離されたデータ センター内に置かれていないときに、SQL 認証を使用する場合は、インターネット プロトコル セキュリティ (IPSec) または SSL を使用して、Web サーバとデータベース サーバ間で暗号化された通信チャンネルを作成する必要があります。 SQL 認証を使用してSQL Server に接続する場合、Credential 情報はネットワーク経由で送信される前に暗号化されません。チャンネルを暗号化しなければ、Credential 情報がネットワーク モニターにより容易にキャプチャされてしまう恐れがあります。 </p>
+  <p>コンピュータで実行されるすべてのアプリケーションおよびサービスの代わりに、特定のアプリケーションに対してより細分化されたチャンネルの保護を必要とする場合は、SSL を使用します。 Web およびデータベース サーバ間のすべての IP トラフィックを保護したい場合は、IPSec を使用します。 IPSec を使用すれば、どのコンピュータが相互に通信できるのかを制限することもできます。 たとえば、アプリケーションまたは Web サーバのような信頼済みのクライアントからの要求のみを許可するポリシーを確立すすることで、データベース サーバを保護することができます。 特定の IP プロトコル や TCP/UDP ポートに通信を制限することもできます。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

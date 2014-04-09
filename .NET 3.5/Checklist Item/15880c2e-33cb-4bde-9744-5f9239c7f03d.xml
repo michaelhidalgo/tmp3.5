@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="878679807" Content_Hash="2094267643">
+  <Metadata>
+    <Id>15880c2e-33cb-4bde-9744-5f9239c7f03d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>プレーンテキストの機微データは格納されない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>機微なまたは秘密のデータを承諾または処理するアプリケーションでは、プレーンテキスト形式で保存されていないか確認することが非常に重要です。 オーナーおよび他の権限のあるパーティを除いて、誰も秘密データにアクセスしてはなりません。</p>
+  <h1>理由</h1>
+  <p>機微&amp;nbsp;ユーザー データは、プレーンテキストで格納されると危険にさらされる可能性があります。 ユーザーまたは攻撃者からの認可されていないアクセスは、情報漏えいにつながる可能性があります。</p>
+  <h1>チェック方法</h1>
+  <p>ユーザーにとって機微なまたは秘密のデータを承諾またはプロセスするアプリケーションでは、オーナーのユーザーおよび他の権限のあるパーティ以外の誰もデータにアクセスできないように、プレーンテキスト形式で保存されていないか確認することが非常に重要です。 このような機微データの公開を防止するには、&amp;nbsp;以下を実行します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機密情報を識別します。 </strong>機微データとは、秘密に保たれており、認可されている当事者にのみ開示するべき情報のことです。 機微データの典型的な例として、以下に限定されませんが、顧客名、政府発行のID番号、クレジット カードまたその他の財務情報、パスワード、および私有鍵などが含まれます｡ 機微データは次のように定義されます:</p>
+    </li>
+    <ul>
+      <li>Personally Identifiable Information を含む情報、または&amp;nbsp;他と共有すべきではないPersonally Identifiable Information を得るために使用される可能性のある情報を含む情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。<li>ヘルス ケアや銀行など一部の業界では、機密情報を定義する規制基準を設けています。&amp;nbsp;&amp;nbsp;規制要件&amp;nbsp;が&amp;nbsp;機微データを定義するアプリケーションに適用される場合、これらの定義を使用してください。 </li></li></li></li>
+    </ul>
+    <li>
+      <p>
+        <strong>機微データがセキュアに格納されていることを確認します。 </strong>下記のアプローチのどれかを使用して、アプリケーションが機微データを保存するか確認してください｡</p>
+      <ul>
+        <li>
+          <p>
+            <strong>ハッシュ化 </strong>ハッシュ化は、読み取りできない方法で機微データを保存するためのメカニズムの一つです。 アプリケーションが機微データを保存する方法としてハッシュ化を使用する場合､次のピースが配置されているか確認してください｡</p>
+          <ul>
+            <li>
+              <strong>ソルト</strong>: SecureRandom クラスを使用してアプリケーションがソルトを生成するかどうかを確認します。 <li><strong>関数</strong>:アプリケーションがSHA-256、 SHA-384または SHA-512をハッシュ関数として使用するかチェックしてください｡ <li><strong>呼び出し</strong>: ハッシュ化手順を実行するために、アプリケーションが <strong>HMAC.ComputeHash</strong> メソッドを呼び出すかどうかを確認します。 <li><strong>消去</strong>: ハッシュ化プロシージャが完了後に、アプリケーションが機微データのインスタンスをすべて安全にクリーンアップするかチェックしてください｡ 詳細については、<a href="/article/48ebd4c2-b51d-47b6-8c4c-f7bc37edfb1f">「機微データは使用されなくなるとメモリーから消去される」</a>チェックリストを確認してください。</li></li></li></li>
+          </ul>
+          <li>
+            <p>
+              <strong>暗号化</strong> ： 暗号化は復元可能な方法で機微データを保存するメカニズムです。 アプリケーションが暗号化を機微データを保存する手段として使用する場合､次のピースが配置されているか確認してください｡</p>
+            <ul>
+              <li>
+                <strong>暗号化鍵</strong>: アプリケーションの暗号化鍵が、アプリケーションの鍵ストア内にセキュアに格納されていることを確認します。 詳細については、<a href="/article/f45de1f9-3801-4677-966e-433241bfdd91">「安全な鍵の格納場所が使用されている」</a>チェックリストを確認してください。 <li><strong>関数</strong>: AES、3DES、または他の強力な対称暗号化機能が使用されていることを確認します。 <li><strong>呼び出し</strong>: 暗号化手順を実行するために、アプリケーションが <strong>SymmetricAlgorithm.Create</strong> および <strong>ICryptoTransform.TransformFinalBlock</strong> メソッドを呼び出すかどうか確認します。 <li><strong>クリーンアップ</strong>: 暗号化プロシージャの完了後に、機微データとその暗号化鍵のすべてのインスタンスがセキュアにクリーンアップされるかどうかを確認します。 詳細については、<a href="/article/48ebd4c2-b51d-47b6-8c4c-f7bc37edfb1f">「機微データは使用されなくなるとメモリーから消去される」</a>チェックリストを確認してください。</li></li></li></li>
+            </ul>さらに、アプリケーションの構成ファイルおよびバックエンド データベース サーバ内のデータの暗号化については、<a href="/article/693e1ae5-e381-41fd-93f7-844aaeca3ef8">「構成ファイル内の機微データは保護される」</a>および<a href="/article/31a429d7-7d9e-41a9-83c0-39fb8409e1bf">「機微データはデータベースで暗号化される」</a> チェックリストを確認してください。</li>
+        </li>
+      </ul>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションでは、 web.config ファイルに次の  <strong>appSettings</strong> エレメントが含まれています。</p>
+ <pre>&lt;appSettings&gt;<br />    &lt;add key="Name" value="John Doe" /&gt;<br />    &lt;add key="SSN" value="123-45-6789" /&gt;<br />&lt;/appSettings&gt;</pre>
+  <p>名前および社会保障番号はプレーン テキストであるため、サーバへのアクセス権を持つあらゆる攻撃者が簡単に読み取ることができるでしょう。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>対応する暗号化の詳細については、 MSDN の <a href="http://msdn2.microsoft.com/en-us/library/system.security.cryptography(vs.80).aspx">「System.Security.Cryptography Namespace」</a> ドキュメンテーションをご覧ください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/c6f3e32d-57b8-44cf-818a-c346d0014c06">ガイドライン: プレーンテキストの機微データの格納禁止</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

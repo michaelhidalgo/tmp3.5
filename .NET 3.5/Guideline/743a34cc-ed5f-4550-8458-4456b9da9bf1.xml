@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="592229497" Content_Hash="1797239607">
+  <Metadata>
+    <Id>743a34cc-ed5f-4550-8458-4456b9da9bf1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>開発者にアプリケーションの信頼レベルを変更させない</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>開発者がアプリケーションの信頼レベルを改変するのを防ぎます。&nbsp; </p>
+  <h1>理由</h1>
+  <p>分離された状態が維持されないとはセキュリティを損なう可能性がある、ホストされた環境で動作している他のアプリケーションの存在を開発者が認識していない場合があります。 Web サーバ管理者が、アプリケーションを確実に分離し、システムレベルのリソースへのアクセスを制限するためにコード アクセス セキュリティを使用する場合、開発者が思いのままに自分の権限レベルを変更することができるならば、それは目的に反します。 開発者は、時としてセキュリティをごまかすことがあるにもかかわらず、展開を端折ることがあります。 信頼レベルの改変を防止することは、適切な制御がバイパスされていないことを確認するのに役立ちます。&nbsp;&nbsp;</p>
+  <h1>状況</h1>
+  <p>アプリケーション サービス プロバイダーまたは同じサーバ上で複数のWebアプリケーションの実行に責任を持つ人は、すべての Web アプリケーションの信頼レベルをロックする必要があります。 複数のアプリケーションが共有ホスティング環境で互いを分離する必要があるとき、または便宜上アプリケーションの特権レベルを増加させる誘惑が著しいときは、常にこのガイドラインが適切です。 </p>
+  <h1>対策</h1>
+  <p>&lt;LOCATION&gt; タグでマシンレベルの Web.config ファイル内のエレメントを囲み、ソリューション例に示すように allowOverride 属性を false に設定します。 </p>
+  <p>信頼レベルをロックするには&nbsp;マシンレベルのWeb.configファイルでallowOverrideエレメントをfalse に設定します：</p>
+ <pre>&lt;location allowOverride="false"&gt;<br />&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp; &lt;trust level="Medium" originUrl="" /&gt;<br />&nbsp; &lt;/system.web&gt;<br />&nbsp;&lt;/location&gt;</pre>
+  <h1>ソリューションの例</h1>
+  <p>マシンレベルの Web.config ファイルの&lt;trust&gt; エレメントを &lt;location&gt; タグ内に囲み、 allowOverride 属性をfalse に設定します:<br /></p>
+ <pre>...<br />&lt;location allowOverride="false"&gt;<br />&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;trust level="Medium" originUrl=""/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp; &lt;/system.web&gt;<br />...<br />&lt;/location&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />...</pre>
+  <p>これらのタグをマシンレベルの構成ファイルに置くことで、そこに含まれる設定が上書きされないようにします。</p>
+  <h1>関連する規則</h1>
+  <ul>
+    <li>
+      <a href="/article/8ee31333-4131-4baa-beb2-3863c80ef536">アプリケーションに追加のアクセス許可が必要な場合はカスタム信頼ポリシーを使用</a>
+      <li>
+        <a href="/article/5a4ca787-30a1-487c-be5d-9d849aaaca36">アプリケーション要件を超えない信頼レベルを選択</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

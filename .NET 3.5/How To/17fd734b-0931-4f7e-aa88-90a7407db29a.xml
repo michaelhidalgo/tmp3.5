@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1547377490" Content_Hash="-1821960849">
+  <Metadata>
+    <Id>17fd734b-0931-4f7e-aa88-90a7407db29a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>証明書認証用に臨時の X.509 証明書を作成する方法</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>次のステップを使用して、証明書認証のために一時 X.509 証明書を作成してください。</p>
+  <ol>
+    <li>Root CA (認証局)となる証明書を作成してください。 
+<ol><pre>makecert -n "CN=RootCATest" -r -sv RootCATest.pvk RootCATest.cer</pre></ol><li>Root 証明書から証明書取り消しリストファイルを作成してください。
+<ol><pre>makecert -crl -n "CN=RootCATest" -r -sv RootCATest.pvk RootCATest.crl</pre></ol><li>Root CA (認証局) をサーバおよびクライアントのマシンにインストールしてください。 MMC を使用して、信頼済みRoot CA (認証局)ストアにあるクライアントとサーバ マシンに RootCATes.cer をインストールしてください。
+<li>サーバとクライアント マシンに証明書取り消しリストファイルをインストールしてください。 MMC を使用して、信頼済みRoot CA (認証局) ストアにあるクライアントとサーバ マシンに RootCATes.crl をインストールしてください。
+<li>一時サービス証明書を作成してインストールしてください。
+<ol><pre>makecert -sk MyKeyName -iv RootCATest.pvk -n "CN=tempCert" -ic RootCATest.cer -sr currentuser -ss my -sky signature -pe<br /></pre></ol></li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/bfsktky3(VS.80).aspx">http://msdn.microsoft.com/en-us/library/bfsktky3(VS.80).aspx にある「証明書作成ツール(Makecert.exe)」 を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

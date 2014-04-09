@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1993407969" Content_Hash="-1629535028">
+  <Metadata>
+    <Id>8e60ba05-bc07-4315-bcca-92fe34eb9b2d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>RSA 鍵を生成し DPAPI を使用してレジストリに格納する</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、RSA と DPAPI を使用して公開鍵ペアを生成して .NET に安全に保存する方法を示すことです。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>暗号化されたメッセージが危険にさらされることを懸念することなく、公的に配布可能な暗号鍵を作成する<li>追加の暗号化オペレーションを実行する必要がなく、またデータベース セキュリティのファイル システムに依存することなく、私有鍵材料を安全に格納する</li></li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>クライアントはサーバに機密の暗号化されたメッセージを送信する必要があるが、それらのメッセージを読み取る必要がない、分散クライアント サーバ アーキテクチャ<li>アプリケーションは、暗号化目的で専用鍵ストアを維持することを望まない</li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>// Define some useful globals<br />public int RSA_KEY_SIZE = 2048;<br />public RSACryptoServiceProvider myRSA;<br />public void GenerateAndStoreRSAKeys(){<br />    ///// Generate RSA Key Public and Private Pairs /////<br />    // The RSA CSP class automatically generates public and private key material<br />    // during constructions using the provided key size (or 1024bits if blank)<br />    myRSA = new RSACryptoServiceProvider(RSA_KEY_SIZE);<br />    ///// Store in the registry using DPAPI and a Registry ACL /////<br />    // Serialize the RSA key pair as an XML string for registry storage<br />    string keyPairXml = myRSA.ToXmlString(true);<br />    // Convert the RSA key pair to a byte array and encrypt the data by using<br />    // the DPAPI ProtectedData class. We're using the CurrentUser scope instead<br />     // of the MachineKey scope so that other, potentially malicious applications<br />     // cannot access this key in the registry and decrypt. This provides additional<br />    // security but sacrifices interoperability with other applications. Consider<br />    // using the MachineKey scope if you have a need to share keys between<br />     // applications.<br />    byte[] encryptedKeyPair = ProtectedData.Protect(<br />            UnicodeEncoding.ASCII.GetBytes(keyPairXml),<br />             null,<br />             DataProtectionScope.CurrentUser);<br />    // Create a security context for a new key that we will use to store<br />    // our RSA key pair. The security context will restrict access to only<br />     // our user.<br />    string user = Environment.UserDomainName + "\\" + Environment.UserName;<br />    RegistrySecurity security = new RegistrySecurity();<br />    RegistryAccessRule rule = new RegistryAccessRule(user,<br />            RegistryRights.FullControl,<br />            InheritanceFlags.ContainerInherit,<br />            PropagationFlags.None,<br />            AccessControlType.Allow);<br />    security.AddAccessRule(rule);<br />    // Actually create the new registry key and apply the security context<br />     // we just came up with.<br />    Registry.CurrentUser.CreateSubKey("RSAKeyPair",<br />         RegistryKeyPermissionCheck.ReadWriteSubTree,<br />         security);<br />    // Write the encrypted connection string into the registry<br />    Registry.SetValue(@"HKEY_CURRENT_USER\RSAKeyPair",<br />         "KeyData",<br />        encryptedKeyPair);<br />}</pre>
+  <h1>問題の例</h1>
+  <p>以下の例は、RSA 鍵ペアの生成とファイル システム上への鍵の保存を示しています。 </p>
+ <pre>// The RSA CSP class automatically generates public and private key material<br />// during construction<br />myRSA = new RSACryptoServiceProvider();<br />///// Store in the registry using DPAPI and a Registry ACL /////<br />// Convert the RSA public key to an xml string (passing "true" retrieves<br />// both the private and public key datastring <br />keyPairXml = myRSA.ToXmlString(true);/<br />/ Open up the key pair file and read into a string<br />StreamWriter keyWriter = new StreamWriter(@"C:\temp\rsakeypair.xml");<br />keyWriter.Write(keyPairXml);<br />keyWriter.Close();</pre>
+  <ul>
+    <li>ファイル システムが危害を受けると、私有鍵が露出し、暗号化されたメッセージが不正に入手される可能性があります。 <li>デフォルトの鍵サイズは、強さが弱くセキュリティを弱める</li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.IO;<br />using System.Security;<br />using System.Security.AccessControl;<br />using System.Security.Cryptography;<br />using System.Text;<br />using Microsoft.Win32;</pre>
+  <p>以下のコードを実行して [regedit] を開き、レジストリの「HKEY_CURRENT_USER\RSAKeyPair」キーの下を調べて、レジストリ内で暗号化される RSA  鍵ペア データを確認してください。</p>
+ <pre>static void Main(string[] args){<br />            // Generate an RSA key pair and store using the DPAPI<br />            GenerateAndStoreRSAKeys();<br />}</pre>
+  <h1>期待される結果</h1>
+  <p>RSA 鍵は DPAPI を使用して暗号化され、レジストリ キーに保存されます。</p>
+  <h1>詳細情報</h1>
+  <p>RSA は、公開鍵 (非対称とも呼ばれる) 暗号化のためのアルゴリズムで、明確な公開鍵と私有鍵を作成します。 暗号化操作は公開鍵を利用し、復号には私有鍵が必要です。 これは、対称鍵暗号方式よりも利点があります。メッセージを解読するために使用される秘密鍵は、メッセージの暗号化をサポートするために受信側と共有する必要がないためです。</p>
+  <p>RSA私有鍵は、個々の公開 RSA 鍵を使用して暗号化されたデータの機密性を維持するために安全に保存する必要があります。 ただし、公開鍵は鍵ペアの所有者が、暗号化されたメッセージをその所有者に送信しようとしている人に自由に配布することができます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>RSACryptoServiceProvider (.NET): <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrsacryptoserviceproviderclassctortopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrsacryptoserviceproviderclassctortopic.asp</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

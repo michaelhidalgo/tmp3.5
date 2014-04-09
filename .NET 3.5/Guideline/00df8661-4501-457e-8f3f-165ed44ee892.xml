@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="123535355" Content_Hash="-1394122322">
+  <Metadata>
+    <Id>00df8661-4501-457e-8f3f-165ed44ee892</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF 監査を使用してサービスの監査を行う</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>WCF 監査機能を使用してお使いのサービスの監査を行ってください。</p>
+  <h1>理由</h1>
+  <p>WCF サービス監査では、発生した攻撃および進行中の攻撃を検出することができます。 さらに、監査はセキュリティ関連の問題のデバッグに役立てることができます。 例えば、認可またはチェック ポリシーの構成内のエラーによって認可済みユーザーのアクセスが誤って拒否された場合、イベント ログ内の監査イベントを調べることでこのエラーの原因を発見して分離することができます。</p>
+  <h1>対策</h1>
+  <p>お使いのアプリケーションで、WCF 監査機能を使用してセキュリティ イベントの成功、失敗またはその両方をログ記録するための構成を行ってください。 イベントは Windows システム イベント ログに書き込まれ、イベント ビューアで閲覧して調べることができます。 </p>
+  <p>
+    <br />次の構成の断片に、WCF サービスで監査を使用するための構成を行う方法を示します。</p>
+ <pre>&lt;configuration&gt;<br />  &lt;system.serviceModel&gt;<br />    &lt;behaviors&gt;<br />      &lt;behavior&gt;<br />        &lt;serviceSecurityAudit<br />             auditLogLocation="Application"<br />             suppressAuditFailure="true"<br />             serviceAuthorizationAuditLevel="Failure"<br />             messageAuthenticationAuditLevel=<br />                         "SuccessOrFailure" /&gt; <br />      &lt;/behavior&gt;<br />    &lt;/behaviors&gt;<br />  &lt;/system.serviceModel&gt;<br />&lt;/configuration&gt;<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>WCF 監査の詳細情報については、「セキュリティ イベントの監査」 (<a href="http://msdn2.microsoft.com/en-us/library/ms731669.aspx">http://msdn2.microsoft.com/en-us/library/ms731669.aspx) を参照してください。</a><li>監査のセキュリティ上の懸案事項については、「メッセージ ログに関するセキュリティ上の懸案事項」 (<a href="http://msdn.microsoft.com/en-us/library/ms730318.aspx">http://msdn.microsoft.com/en-us/library/ms730318.aspx) を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

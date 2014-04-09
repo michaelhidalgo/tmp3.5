@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="187229996" Content_Hash="2041086692">
+  <Metadata>
+    <Id>2b89f35b-8c52-41e6-a39b-835a1d225606</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>接続文字列に強力な暗号化を使用</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>行うべき事柄</h1>
+  <p>接続文字列を保護するときは、適切に強力な暗号化を選択します。 運用システム内のデータを暗号化および復号するために利用可能な既存のメカニズムを使用します。 学術目的以外のために、独自の暗号化ルーチンを記述しようとしないでください。 </p>
+  <h1>理由</h1>
+  <p>Web アプリケーションは、実質的に利用可能な最強レベルの暗号化が必要です。 セキュリティの専門家による監査を受けている、使用可能な既存の暗号化ライブラリがいくつかあります。&nbsp;コードを再利用することによる時間の節約に加えて、強固な暗号化ライブラリは、暗号化アルゴリズムを「安全な」実装に変換する際に起きる、不測の落とし穴の多くを処理しています。 確立されたアルゴリズムの商用実装は、National Institute of Standards and Technology (NIST) が発行する FIPS 標準規格など広範囲な証明を介して吟味されています。 弱い、または厳格にはテストされていないライブラリを使用することは、本質的に暗号化を全く使用しないに等しく、ハッカーがブルート フォースを使ったりアルゴリズムの実装の欠陥を利用したりすることで、接続文字列を解読できる可能性がより高くなります。 </p>
+  <h1>状況</h1>
+  <p>残念なことに、一般に公開されているハードウェアおよびソフトウェア アルゴリズムの継続的な改善は、どの暗号化ソリューションも恒久的な選択肢でないことを意味します。 暗号化の強度は、ソフトウェア開発ライフサイクルのすべてのフェーズで、また接続文字列が利用箇所すべてで評価される必要があります。 データの価値を知ることと、当該データのセキュリティを侵害することの難しさは拮抗しています。 &nbsp;使用可能な最強の実用的暗号化の使用は、保護しようとしているデータの価値を知り、その値を超えて侵害することの困難さを評価することによって選ばれます。<br /></p>
+  <h1>対策</h1>
+  <p>ASP.NET アプリケーションには、接続文字列に暗号化機能を提供する2つのライブラリ、すなわち DPAPI と RSA があります。 どちらの実装も堅牢かつ安全で、プロの暗号学者による証明検査を通過しています。 DPAPI および RSA のいずれも、現行基準で強力な暗号化と見なされています。 接続文字列を暗号化するには、次の手順に従います。</p>
+  <p>
+    <strong>1. 適切な構成プロバイダーを選択します。</strong> ほとんどの状況ではDPAPI で十分です。もっとも、複数のサーバを使用したウェブ ファームではRSA によって保護された構成の使用が論理的です。 </p>
+  <p>
+    <strong>2.</strong>
+    <strong>暗号化する構成のセクションを特定します。</strong> データの暗号化と復号化をすると、パフォーマンスのオーバーヘッドが発生します。 このオーバーヘッドを最小限に保つために、構成ファイルの機微データを格納するセクションだけを暗号化します。&nbsp; データベース接続文字列を保護するために、Web.config ファイルの &lt;connectionStrings&gt; エレメントを暗号化します。 </p>
+  <p>
+    <strong>3. マシンまたはユーザー ストアを選択します。</strong> DataProtectionConfigurationProviderは、マシンレベルおよびユーザーレベルの鍵のストアに対応しています。 ストアの選択は、主に、アプリケーションがサーバを他のアプリケーションと共有するかどうか、またアプリケーションごとに機微データを非公開に保持する必要があるかどうかに依存します。</p>
+  <p>
+    <strong>マシン ストア</strong>
+  </p>
+  <p>デフォルトで、DataProtectionConfigurationProvider はマシン ストアで DPAPI を使用するように構成されています。 以下の状況ではマシンレベルの鍵ストレージを使用してください:</p>
+  <ul>
+    <li>アプリケーションは、他のアプリケーションのない独自の専用サーバ上で実行されます。 <li>複数のアプリケーションが同じサーバ上で実行され、それらのアプリケーションが機微情報を共有できる必要があります。</li></li>
+  </ul>
+  <p>マシン ストアで connectionStrings セクションを暗号化するには、.NET コマンド プロンプトから次のコマンドを実行します。</p>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</pre>
+  <p>
+    <strong>ユーザー ストア</strong>
+  </p>
+  <p>アプリケーションが共有ホスティング環境で実行され、アプリケーションの機微データがサーバ上の他のアプリケーションからアクセスされるべきでない場合は、ユーザー レベルの鍵ストレージを使用します。 この状況では、各アプリケーションは別々の ID で実行され、アプリケーションのリソース（ファイル、データベースなど）はその ID に制限されている必要があります。</p>
+  <p>ユーザー ストアで connectionStrings セクションを暗号化するには、.NET コマンド プロンプトから次のコマンドを実行します。</p>
+ <pre>   aspnet_regiis -pe "connectionStrings" -app "/UserDPAPI" -prov "MyUserDataProtectionConfigurationProvider"</pre>
+  <p>
+    <strong>4.</strong>
+    <strong>構成ファイルのデータを暗号化します。</strong>&nbsp;マシン ストアで DPAPI を使用して Web.config の connectionStrings セクションを暗号化するには、.NET コマンド プロンプトから次のコマンドを実行します。</p>
+ <pre>   aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</pre>
+  <p>-app スイッチの伴う上記コマンドは、MachineDPAPI と呼ばれる IIS 仮想ディレクトリがあることを前提としています。 Visual Studio .NET Web サーバが IIS の代わりに利用される場合は、構成ファイルの物理的なディレクトリの場所を指定する -pef  スイッチを使用します。</p>
+ <pre>   aspnet_regiis.exe -pef "connectionStrings" C:\Projects\MachineDPAPI -prov "DataProtectionConfigurationProvider"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre>
+  <h1>関連する規則</h1>
+  <ul>
+    <li>接続文字列を暗号化<li>SQL 接続文字列内の Credential 情報は構成ファイル内で保護される</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

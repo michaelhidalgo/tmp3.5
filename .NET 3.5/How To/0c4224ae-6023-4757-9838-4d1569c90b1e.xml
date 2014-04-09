@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2076613334" Content_Hash="1454900349">
+  <Metadata>
+    <Id>0c4224ae-6023-4757-9838-4d1569c90b1e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>送信メッセージをクライアント上で検証する方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>クライアント上で送信メッセージを検証するために、メッセージ インスペクターのインターフェイス IClientMessageInspector の BeforeSendRequest メソッドを実装します。 これにより、シリアル化後、かつサービスに要求を送信する前に、メッセージを検証することができます。 </p>
+ <pre>object IClientMessageInspector.BeforeSendRequest(ref System.ServiceModel.Channels.Message request, System.ServiceModel.IClientChannel channel)<br />{<br />    validateMessage(ref request);<br />    return null;<br />}   </pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳しくは以下の URL で「メッセージ インスペクター」をご覧ください: <a href="http://msdn.microsoft.com/en-us/library/aa717047.aspx">http://msdn.microsoft.com/en-us/library/aa717047.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

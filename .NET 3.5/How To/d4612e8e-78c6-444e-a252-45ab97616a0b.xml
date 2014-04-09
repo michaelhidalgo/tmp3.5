@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-95657102" Content_Hash="-403740329">
+  <Metadata>
+    <Id>d4612e8e-78c6-444e-a252-45ab97616a0b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>URL リダイレクション バグのテスト方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>対象</span>
+  </h1>
+  <p>
+    <b>
+      <span>
+      </span>
+    </b>
+  </p>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <p>
+    <b>
+      <span>
+      </span>
+    </b>
+  </p>
+  <h1>
+    <span>要約</span>
+    <span>
+    </span>
+  </h1>
+  <p>
+    <span>Web アプリケーションは、URL リダイレクションを利用して、Web クライアントを別の (大部分の場合、別のドメインの) URL アドレスにリダイレクトします。<span>&nbsp; </span><span>&nbsp;&nbsp;</span>ほとんどの場合、アプリケーションはリダイレクション ページを使用する際など、URL リダイレクトをクライアントから隠します。<span> </span>ただし、ターゲット URL の場所の指定のために URL パレメーターが使用される際など、アプリケーションは URL リダイレクトを暴露することがあります。<span>&nbsp;&nbsp; </span>URL リダイレクション攻撃は、悪意のある目的のために URL パラメータを通した URL リダイレクションをエクスプロイトすることから成ります。<span>&nbsp; </span>攻撃者は、この攻撃を実行するために、悪意のあるリンクを作成して、そのリンクに従った Web クライアントを悪意のあるサイトにリダイレクトしようとします。&nbsp;</span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>以下の手順に従って、URL リダイレクションン バグのテストを実行します。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テストと調査を開始する<li>ステップ 4: テスト ケース データを微調整する</li></li></li></li>
+  </ul>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>
+      <span>&nbsp;</span>
+    </span>
+  </p>
+  <h1>
+    <span>手順 1: 攻撃シナリオの理解</span>
+  </h1>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>最初に、URL リダイレクション バグの構造について理解する必要があります。<span>&nbsp; </span>URL リダイレクション攻撃の最中、攻撃者の主目的はターゲットの Web クライアントを悪意のあるサイトにリダイレクトすることです。<span>&nbsp;&nbsp; </span>これはアプケーションのドメイン名で始まるが URL パラメーターを含むリンクをWeb クライアントに送信することで達成します。<span> </span>クライアントがリンクをクリックすると、クライアントのブラウザーはまず脆弱なアプリケーションにダイレクトされ、次にそれはクライアントを URL に示されている悪意のある場所にクライアントをリダイレクトします。<span>&nbsp; </span>攻撃が成功するには、2 つの条件を満たす必要があります。 まず、攻撃者は URL パラメーターによって示されている場所にクライアントをリダイレクトする脆弱なアプリケーションを見つける必要があります。次に、ターゲットの Web クライアントは悪意のあるリンクをクリックする必要があります。</span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>詳細:</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <ol>
+    <li>
+      <span>攻撃者は、Web クライアントを URL パラメータ (または、疑問符やアスタリスクなどの特殊コントロール文字) が指示するページにリダイレクトする、標的の Web アプリケーション内にある URL を見つけます。</span>
+      <li>
+        <span>攻撃者は、(ステップ 1 で見つけた) 正当な URL を持つリンクを標的の Web クライアントに送信します。ただし、攻撃者は、リンク先のページをすでに自分が選択したページに変更しています。</span>
+        <li>
+          <span>標的のクライアントが、悪意のあるリンクをクリックします。<span>&nbsp; </span>これはターゲットのクライアントの Web ブラウザーが攻撃者によって設定された悪意のあるページへのリダイレクトを引き起こします。</span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 2: 原因と対策の解析</span>
+  </h1>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>次に、URL リダイレクション バグの原因とその防御方法について理解する必要があります。<span>&nbsp; </span>これはソース コードにおける問題の特定、およびテスト ケースの実行の準備に役立ちます。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>Web アプリケーションでは、さまざまな目的で URL リダイレクションが使用されます。<span>&nbsp;&nbsp; </span>たとえば、他の場所に移転したページのあるアプリケーションはリダイレクトを使用してそのクライアントを新しいページの場所に移動させます。<span>&nbsp; </span>PHP アプリケーションではこれを自動的に達成するために、アプリケーションは <i>response.redirect</i> などのメソッドを呼び出すコードを使用し、内部的にリダイレクションを制御できます。<span> </span>ただし、アプリケーションの中には、URL リダイレクション論理をクライアントに暴露するものがあります。<span>&nbsp; </span>たとえば、アプリケーションはリダイレクト ターゲットの場所として URL パラメーターを受け取るリダイレクト ページを使用する可能性があります。<span> </span>以下の URL を検討します。</span>
+    <span>&nbsp;</span>
+  </p>
+ <pre>
+    <span>http://example.com/navigate.php?redir=<strong>http://example.com/login.php</strong></span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>この Web アプリケーションは、URL パラメータ <i>redir</i> を利用して、目的のリダイレクト サイトを制御しています。<span>&nbsp; </span>攻撃者はこの事実を利用し、<i>example.com</i> を信頼する Web クライアントが以下のリンクをクリックするように騙すことができます。</span>
+    <span>&nbsp;</span>
+  </p>
+ <pre>
+    <span>http://example.com/navigate.php?redir=<span><strong>http://attackers.com/gotcha.php</strong></span></span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>アプリケーションが脆弱であると、上のリンクをクリックしたクライアントを攻撃者のドメインにリダイレクトしてしまいます。<span>&nbsp; </span>アプリケーションが URL リダイレクション論理を Web クライアントに暴露するため、および実際のリダイレクトを実行する前にリダイレクション ターゲットのコンテンツを確認しないことで、ターゲットを悪意のある Web サイトに向けて変更できるため、攻撃が可能であることに留意してください。<span>&nbsp;&nbsp; </span></span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>このバグを防止するために、開発者は、 URL リダイレクションの制御を外部のクライアントから見えないようにします。<span>&nbsp; </span>URL パラメーターを通して URL リダイレクションを暴露する必要がある場合、アプリケーションはリダイレクトを実行する前に適切にリダイレクト ターゲットを検証する必要があります。<span>&nbsp; </span>開発者は許可されるリダイレクト ターゲットの場所をすべて含むホワイト リストを実装し、ホワイト リストに載っていない場所へのリダイレクトを拒否する関連コードをアプリケーションに追加する必要があります。<span>&nbsp;&nbsp;</span></span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>この攻撃を防止する別の方法として、任意のサイトにリダイレクトされることをクライアントに警告して、リダイレクトさせないようにする方法があります。<span>&nbsp; </span>これは、現在 URL リダイレクション攻撃に対抗するために Yahoo によって使用されているテクニックです [i]。<span>&nbsp; </span>以下のリンクをクリックすると、ブラウザーは Yahoo ページにダイレクトされ、自らの責任で移動先へのナビゲートが可能であるとクライアントに警告します。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p />
+  <span>
+    <a href="http://us.ard.yahoo.com/*http://google.com">http://us.ard.yahoo.com/*http://google.com<span></span></a>&nbsp;<p /><h1><span>手順 3: テストと調査を開始する</span></h1><p><span></span></p><p><span>これで、URL リダイレクション攻撃の理論的な側面のレビューは終了です。次に、テスト ケースに従って、現在のアプリケーションで確認してみます。</span><span>&nbsp;</span></p><h2><span><em>URL リダイレクションのテスト </em></span></h2><p><b><i><span></span></i></b></p><p><span>次の手順に従って、URL リダイレクションをテストします。</span></p><p><b><i><span></span></i></b></p><ol><li>URL リダイレクションを実行するアプリケーションのページ/リクエストを検出します。<span> </span>リダイレクション リクエスト中に使用される URL を書き留めます。<span> </span>組み込まれている URL を見つけるために、アプリケーションが URL を利用する仕組みを分析することをお勧めします。 別の URL 内に含まれている URL が、URL リダイレクションの手がかりになります。<li>怪しい URL を見つけたら、ターゲットのリダイレクト場所を渡すために URL のどの部分が使用されるかを特定します。<span> </span><span>&nbsp;</span>アプリケーションはターゲット URL を名前付き URL パラメーター内で渡すことができます。</li></li></ol><ul><ul><li><span>http://domain/navigate.php?redir=<strong>http://example.com/login.php</strong></span></li></ul></ul><p><b><span></span></b></p><p>または、疑問符やアステリスクなどの特殊文字の後に付加することもできます (他の記号も使用できます)。&nbsp;</p><ul><ul><li><span>http://domain/navigate.php<strong>?http://example.com/login.php</strong></span></li></ul></ul><p><span></span></p><p><span><span>3.&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></span>標的のリダイレクト URL を別の URL (www.google.com など) に変更し、Web ブラウザーを使用して要求を発行します。</p><ul><ul><li><span>http://domain/navigate.php?http://www.google.com</span></li></ul></ul><p><span>&nbsp;</span></p><p><span>予想される結果: アプリケーションが、警告せずに、Web ブラウザーをステップ 3 で変更した標的の URL にリダイレクトした場合、このアプリケーションは、URL リダイレクション攻撃に対して脆弱であると判断されます。 </span></p><p><span>&nbsp;</span></p><p><span></span></p><h1><span>手順 4: <span></span>テスト ケース データの微調整</span></h1><p><span></span></p><p><span>URL リダイレクション攻撃では、標的のクライアントが悪意のあるリンクをクリックする必要があります。<span>&nbsp; </span>ただし、インターネット クライアントがリンクの一部が信頼できないものであると気付いた場合は、リンクをクリックすることに不安を感じる可能性があります。<span> </span>そのため、ターゲット URL のパディングまたは難読化が可能なアプリケーションでは、インターネット クライアントへの URL リダイレクション攻撃の危険が増します。<span> </span>以下の 3 つの URL リンクを検討します。</span></p><p><span></span></p><pre><span><span>(1)</span></span><span>http://trusted_domain/nav.php?redir=http://attacker.com/run.php<span></span></span><span>&nbsp;</span></pre><pre><span><span>(2)</span></span><span>http://trusted_domain/nav.php?redir=http://attacker.com/run.php</span></pre><pre><span><span>(3)</span></span><span>http://trusted_domain/nav.php?redir=http://64.214.88.103/run.php</span></pre><p><span>このリストは、すべてを網羅しているわけではありません。さまざまな URL パディング/マスカレイディング手法について、常に最新の情報を入手してください。</span></p><p><b><span>&nbsp;</span></b></p><p><span>ブラウザーのステータス バーに表示されている最初の URL は、クライアントにとって疑いのあるものに見えます。<span>&nbsp; </span>2 つ目の URL は、ブラウザーのステータス バーにあるターゲット URL を隠そうとするために下線文字でパディングされています。<span> </span>3 つ目の URL はドメインの代わりに攻撃者のドメイン IP アドレスが使用されていることによって難読化されています。<span>&nbsp; </span>最後の 2 つの URL は最初のものと比べて怪しくなくて、URL リダイレクション バグのエクスプロイト可能性を高めます。<span> </span>ただし、最後の 2 つの URL は、パディング文字と IP アドレスをフィルタリングしないアプリケーションのみで機能します。 </span></p><p><span>&nbsp;</span></p><p><span></span></p><h1><span>結論</span><span></span></h1><p><span>攻撃者は、URL リダイレクション攻撃を使用して、フィッシングまたはスプーフィングを行う目的で、Web クライアントを悪意のあるサイトに誘導します。または、クライアントのコンピュータを自動的に感染させようとするマルウェアが含まれるページに、標的のクライアントをリダイレクトします。<span>&nbsp;&nbsp; </span>URL リダイレクションは、Web ページを移動または削除した場合やサイトのドメイン名を変更した場合など、Web クライアントを正当なサイトにリダイレクトする場合に有効で便利な手法ですが、 アプリケーションが URL リダイレクションを Web クライアントに暴露し、任意のドメインへのリダイレクションを許可すると危険です。<span>&nbsp;&nbsp; </span>この脆弱性のテストを実行するには、URL を基にリダイレクトを行うリクエストを見つけて、推奨された方法の使用により URL を変更する必要があります。<span> </span>最後に、このバグがエクスプロイトされる可能性を高める URL のパディングや難読化を使用して、テスト ケースを微調整する必要があります。 </span></p><p><span><span></span></span>&nbsp;</p><div><br /><hr /><div><p>[i] <b><span>URL リダイレクション攻撃、例付き</span></b><span>. (Paralliverse) </span><span><a href="http://log0.wordpress.com/2008/06/23/url-redirection-attack-with-examples/"><span>http://log0.wordpress.com/2008/06/23/url-redirection-attack-with-examples/</span></a></span><span></span></p><p><span>&nbsp;</span></p><p><span>&nbsp;</span></p></div></div></span>]]></Data>
+  </Content>
+</TeamMentor_Article>

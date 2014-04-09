@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1561440876" Content_Hash="243983972">
+  <Metadata>
+    <Id>bf0329ff-54fe-4a49-83cf-bbe688f23927</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>複数ゲートキーパーを使用する</Title>
+    <Category>認可</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>設計が、アクセス制御を実施するために単一のゲートキーパーに依存していないことを確かめます。 このゲートキーパーが失敗した場合、または攻撃がこれをバイパスできた場合に何が起こるかを考慮します。 </p>
+  <h1>理由</h1>
+  <p>設計が単一のゲートキーパーに依存している場合、バイパスされたり、不適切に設定されると、ユーザーは認可されていないアクセスを得ることが可能になります。</p>
+  <h1>状況</h1>
+  <p>これは重要なガイドラインであり、常に従うようにしてください。</p>
+  <h1>対策</h1>
+  <p>サーバ側で、IPセキュリティ プロトコル(IPSec)ポリシーを使用して、ホスト制限を与え、サーバ同士の通信を制限することができます。 たとえば、IPSecポリシーは、指定のウェブサーバ以外のホストがデータベースサーバに接続することを制限します。 IISはウェブ アクセス許可およびインターネット プロトコル/ Domain Name System (IP/DNS)制限を与えます。 IIS ウェブ アクセス許可は、ユーザーに関わらず、HTTPで要求されるすべてのリソースに適用されます。 攻撃者にサーバにログオンされてしまうと、保護は行いません。 この場合、NTFS許可がユーザーのアクセス制御リストの指定を可能にします。 最後にASP.NETは、プリンシパルのアクセス許可要求と共に、URL認可およびファイル承認を与えます。 これらのゲートキーパーを組合せることで、効率的な認可方策を開発することが可能です。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」を参照してください。<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

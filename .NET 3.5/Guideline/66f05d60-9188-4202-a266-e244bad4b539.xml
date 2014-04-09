@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1137765918" Content_Hash="1782614043">
+  <Metadata>
+    <Id>66f05d60-9188-4202-a266-e244bad4b539</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーが SQL メンバーシップ ストア内にいる場合、SQL メンバーシップ プロバイダーを使用する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ユーザーが SQL メンバーシップ格納にいる場合、SQL メンバーシップ プロバイダーの使用を検討してください。</p>
+  <h1>状況</h1>
+  <p>ユーザー情報が既に　データベースで保存されている場合、またはインターネット向けの WCF アプリケーションを初めから構成している場合は、WCF サービス クライアントの認証に SQL メンバーシップ プロバイダーを使用してください。</p>
+  <h1>対策</h1>
+  <p>メンバーシップ プロバイダーは入ってくる全てのクライアント Credential 情報を SQL データベースに保存されている Credential 情報と照し合せて認証します。 メンバーシップ機能はカスタマイズされたコードを作成したり管理することなくユーザー名認証を実施できる良い選択です。 SQL メンバーシップ プロバイダーが サービス構成ファイルに構成されます。 </p>
+  <p>次の例は、サービス SQL メンバー プロバイダーの構成の実演です。</p>
+ <pre>….<br />&lt;connectionStrings&gt;<br />    &lt;add name="MyLocalSQLServer"<br />         connectionString="Initial Catalog=aspnetdb;data source=10.3.19.60;Integrated Security=SSPI;"/&gt;<br />&lt;/connectionStrings&gt;<br />&lt;system.web&gt;<br />….<br />      &lt;membership defaultProvider="MySqlMembershipProvider" &gt;<br />        &lt;providers&gt;<br />          &lt;clear/&gt;<br />          &lt;add name="MySqlMembershipProvider"<br />               connectionStringName="MyLocalSQLServer"<br />               applicationName="MyAppName"<br />               type="System.Web.Security.SqlMembershipProvider" /&gt;<br />        &lt;/providers&gt;<br />      &lt;/membership&gt;<br />….<br />&lt;/system.web&gt;<br />….</pre>
+  <p>バインドを UserName （ユーザー名）認証に使用するように次のように設定します</p>
+ <pre>….<br />&lt;bindings&gt;<br />  &lt;wsHttpBinding&gt;<br />    &lt;binding name="BindingConfiguration"&gt;<br />      &lt;security&gt;<br />        &lt;message clientCredentialType="UserName" /&gt;<br />      &lt;/security&gt;<br />    &lt;/binding&gt;<br />  &lt;/wsHttpBinding&gt;<br />&lt;/bindings&gt;<br />….</pre>
+  <p>username （ユーザー名）認証付きのメンバーシップ プロバイダーを使用するように Service Credentials （サービス Credential 情報）の構成を設定します</p>
+ <pre>….<br />&lt;serviceBehaviors&gt;<br />  &lt;behavior name="BehaviorConfiguration"&gt;<br />    &lt;serviceCredentials&gt;<br />      &lt;userNameAuthentication userNamePasswordValidationMode="MembershipProvider"<br />        membershipProviderName="MySqlMembershipProvider" /&gt;<br />    &lt;/serviceCredentials&gt;<br />  &lt;/behavior&gt;<br />&lt;/serviceBehaviors&gt;<br />….</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

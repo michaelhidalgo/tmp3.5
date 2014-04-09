@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-192047447" Content_Hash="246695757">
+  <Metadata>
+    <Id>d42fbff2-b965-4a02-a8d2-1d49c909e7fa</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>AfterReceiveReply メソッドを実装して受信メッセージをクライアント上で検証する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>クライアントに対して受信されたメッセージを検証する必要がある場合、メッセージ インスペクターの IClientMessageInspector インターフェイスの AfterReceiveReply 方式導入してください。</p>
+  <h1>状況</h1>
+  <p>クライアントからの回答が受信されてからデシリアライズする前、そしてクライアント アプリケーションにデータを返す前にクライアントのメッセージを検証する必要がある場合はこのガイドラインの使用を検討してください。</p>
+  <h1>対策</h1>
+  <p>クライアントから受信したメッセージの検証を実施する必要がある場合、メッセージ インスペクターの IClientMessageInspector インターフェイスのAfterReceiveReply を導入してください。 これによりメッセージはクライアントからの応答が届いてから、デシリアライズが実施されてデータがクライアントのアプリケーションの返される前に検証されます。</p>
+  <p>次の例では、AfterReceiveReply 方式の導入方法が示されています。</p>
+ <pre>void IClientMessageInspector.AfterReceiveReply(ref System.ServiceModel.Channels.Message reply, object correlationState)<br /> {<br />     validateMessage(ref reply); <br /> }<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms733786.aspx">http://msdn2.microsoft.com/en-us/library/ms733786.aspxにある「方法: クライアントのメッセージの検査および変更」を参照してください。</a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/ms733747.aspx">http://msdn2.microsoft.com/en-us/library/ms733747.aspx にある「ハウツー: パラメータを検査し修正する」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

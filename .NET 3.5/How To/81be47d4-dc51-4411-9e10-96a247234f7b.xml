@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-953187882" Content_Hash="-873125962">
+  <Metadata>
+    <Id>81be47d4-dc51-4411-9e10-96a247234f7b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メモリ スニッフィング バグのテスト方法</Title>
+    <Category>情報漏えい</Category>
+    <Phase>テスト</Phase>
+    <Technology> 任意</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>対象</span>
+  </h1>
+  <ul>
+    <li>すべてのソフトウェア アプリケーション</li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>アプリケーションが適切に機能するためには、パスワードや暗号値などの機微データをシステム メモリに保存する必要があります。 しかし、機密情報は、攻撃者がアクセス可能なメモリに保存されたり、メモリからスワップ ファイルにスワップされたりする場合があります。 この攻撃で攻撃者は、ランダム アクセス メモリ (RAM)、仮想メモリ、ダンプ ファイル、スワップ ワイルなどの利用可能な様々な種類のメモリをスニッフィングし、パスワードや暗号鍵などの機密情報をリカバリしようとします。</p>
+  <p>このバグをテストするには、以下の手順を実行することをお勧めします。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テストと調査を開始する<li>手順 4: 追加テストを実行する</li></li></li></li>
+  </ul>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>手順 1: 攻撃シナリオを理解する</span>
+  </h1>
+  <p>最初に、この脆弱性に関連する一時メモリの種類を十分に理解する必要があります。</p>
+  <ul>
+    <li>RAM – 実行中のプロセスで使用されるデータを保存する物理メモリ。 <li>仮想メモリ – システムが各実行プロセスに与える論理アドレス空間:  オペレーティング システムによってランダム アクセス メモリにコピーされ、スワップ ファイルにスワップされます。 <li>スワップ ファイル – RAM の補助メモリ:  オペレーティング システムは、ページングを実行して RAM の内容をスワップ ファイルと相互にスワップします。 <li>メモリ ダンプ - プロセスの仮想メモリのスナップショット:  プロセスがクラッシュした際にシステムによって作成されます。&nbsp;</li></li></li></li>
+  </ul>
+  <p>ユーザー ファイル、データベース、Windows レジストリの永続記憶装置は、この脆弱性の対象範囲外です。 永続メモリはアクセス許可を使用して保護できます。また、情報漏えい攻撃に関連します。</p>
+  <p>一般的なメモリ スニッフィング バグは、ターゲット コンピュータへのアクセスが必要なローカルな攻撃に関連します。 ログインした攻撃者は、ツールを使用して一時メモリからパスワードや鍵などの機微データをリカバリします。</p>
+  <p>詳細: </p>
+  <ol>
+    <li>攻撃者はターゲット マシンにログインします。*<li>攻撃者はスクリプトやツールを使用してメモリ内の機微データを探します。 取得された機微データがハッシュ化されていない/暗号化されていない場合、攻撃はこれで終了します。 <li>機微データがハッシュ化または暗号化されている場合、攻撃者は暗号攻撃を使用して機微データをプレーン テキストで復元します。</li></li></li>
+  </ol>
+  <p>*この攻撃のバリエーションには、ターゲット マシンにアクセスすることなく機密情報を取得することに重点を置くものもあります。 たとえば、科学的捜査により、コンピュータの RAM の内容は FireWire ケーブルを通じて取得される場合があることがわかっています [i]。 さらに、DRAM チップからの機密情報は、コンピュータの電源が切れた後に DRAM チップを取り除くことにより復元される場合があることが最近わかっています。</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 2: 原因と対策を分析する</span>
+  </h1>
+  <p>メモリ スニッフィングの次の手順は、この脆弱性の原因と対策を理解することです。</p>
+  <p>
+    <b>
+      <i>
+        <span>機密情報を含むデータ構造の消去</span>
+      </i>
+    </b>
+  </p>
+  <p>メモリ スニッフィング攻撃を防ぐ従来のアプローチでは、機密情報の一時記憶に使用される配列などのデータ構造を消去します。 たとえば、以下のコードは安全ではありません。</p>
+ <pre>
+    <span>
+    </span>
+  </pre>
+ <pre>void GetData(char *MFAddr) { <br />	char pwd[64];<br />&nbsp;	if (GetPasswordFromUser(pwd, sizeof(pwd))) {<br />&nbsp;&nbsp;		if (ConnectToMainframe(MFAddr, pwd)) {<br />&nbsp;<br />&nbsp;		&nbsp;// Interaction with mainframe<br />&nbsp;<br />&nbsp;		&nbsp;}<br />&nbsp;	}<br />}</pre>
+  <p>関数 <i>GetPasswordFromUser</i> は、ユーザーの入力したパスワードを <i>pwd</i> 文字配列に渡します。 その後、アプリケーションは、メモリからパスワードを消去することなく関数から戻ります。 この攻撃を軽減するため、開発者は、データを保存するための構造のプロセスが終了したら、メモリの内容をゼロに設定する必要があります。<span></span></p>
+ <pre>
+    <span>void GetData(char *MFAddr) { <br />	char pwd[64];<br />&nbsp;	if (GetPasswordFromUser(pwd, sizeof(pwd))) {<br />		if (ConnectToMainframe(MFAddr, pwd)) {<br />&nbsp;<br />&nbsp;		&nbsp;// Interaction with mainframe<br />&nbsp;<br />		&nbsp;&nbsp;}<br />&nbsp;	}<br />&nbsp;	<strong>memset(pwd, 0, sizeof(pwd));<br /></strong>}<br /></span>
+  </pre>
+  <p>しかし、コンパイラの最適化が有効である場合は、<i>memset</i> が意図通りに機能しない場合があることを理解しておくことが非常に重要です。 上記のように、<i>memset</i> を使用してコードを保護する場合は、コンパイラの最適化を無効にする必要があります。 詳細については、<em>「OWASP’s Insecure Compiler Optimization」</em>を参照してください [ii]。</p>
+  <p>メモリを削除する別の手段に、配列をトラバースして各エレメントをゼロに設定する方法があります。</p>
+ <pre>
+    <br />void erase_string(char *s) {</pre>
+ <pre>	while(*s) { *s++ = 0; }</pre>
+ <pre>}</pre>
+  <p>コンパイラの最適化や配列のサイズの知識に依存しないことから、この手法は推奨されています。 アプリケーションを適切に保護するため、機微データを扱う関数呼び出しの終了後や、パスワードや暗号エレメントなどの機密情報を扱うクラスのデストラクタのすべてに、同様のゼロ設定の手法を追加することをお勧めします。</p>
+  <h2>
+    <span>
+      <em>機密メモリのロック</em>
+    </span>
+  </h2>
+  <p>機密メモリをゼロに設定する方法は、機微データが仮想メモリ (結果として RAM とスワップファイル) に維持される時間を可能な限り短くするための効果的な手法です。 しかし、このデータがアプリケーションによってクリーンアップされる前に、オペレーティング システムのページング システムによってスワップ ファイルにスワップされ、メモリ スニッフィング攻撃によるリスクが増加する可能性は依然として存在します。 </p>
+  <p>この状態は、仮想アドレス ページがスワップされるのを防ぐことで軽減できます。 UNIX プラットフォームでは、下記のように <i>mlock</i> を使用してこの状態を実現できます [iii]。</p>
+ <pre>#include &lt;sys/mman.h&gt;</pre>
+ <pre>
+    <br />void *locking_alloc(size_t numbytes) {</pre>
+ <pre>	static short have_warned = 0;</pre>
+ <pre>&nbsp;	void *mem = malloc(numbytes);</pre>
+ <pre>
+    <br />	if(mlock(mem, numbytes) && !have_warned) {<br />&nbsp;<br />		/* We probably do not have permission.<br />&nbsp;&nbsp; &nbsp; 	 	 * Sometimes, it might not be possible to lock enough memory.<br />&nbsp;&nbsp; &nbsp; 	 	 */</pre>
+ <pre>		fprintf(stderr, "Warning: Using insecure memory!\n");<br />&nbsp;&nbsp;&nbsp;		have_warned = 1;<br />&nbsp;<br />	}</pre>
+ <pre>	return mem;<br />}</pre>
+  <p>
+    <span>
+      <span>Windows では、同じ目的で Win32 API VirtualLock を使用できます。</span>
+    </span>
+  </p>
+  <h2>
+    <span>
+      <em>ダンプ ファイルの作成を無効化する</em>
+    </span>
+  </h2>
+  <p>攻撃者は、アプリケーションをクラッシュさせてシステムの作成したコア ダンプにアクセスすることで、メモリ スニッフィング攻撃を実行する可能性があります。 アプリケーションによってデータ構造に読み込まれた機微データがあれば、ダンプ ファイルに表示され、攻撃者はこれを利用します。 この状態を軽減するため、プロセスは最初からダンプ ファイルの作成を無効化する必要があります。 UNIX および Windows プラットフォームのいずれの場合も、<i>setrlimit</i> API を使用してこの状態を実現できます [iv]。</p>
+ <pre>
+    <span>
+      <span>char pwd[MAX_PWD_LEN];<br />if(setrlimit(RLIMIT_CORE, 0) != 0) {<br />	/* deal with error */<br />}<br />&nbsp;<br />fgets(pwd, MAX_PWD_LEN, stdin);</span>
+    </span>
+  </pre>
+  <h2>
+    <span>
+      <em>その他の対策</em>
+    </span>
+  </h2>
+  <p>メモリ スニッフィング 攻撃に対するその他の対策には、リブートまたはシャットダウン時のページ ファイルの削除 (Windows ではレジストリ値を設定することにより実行できます)、システム メモリのすべての種類をスクラビングする科学捜査ツールの使用などがあります。 さらに、RAM とスワップ ファイルの内容の暗号化と暗号鍵をハードウェア内に保存することについての研究が進んでいます。</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 3: テストと調査を開始する</span>
+  </h1>
+  <p>メモリ スニッフィング攻撃の基本的な理論を理解した後は、実際のテスト ケースを実行してアプリケーションの脆弱性を確認する必要があります。 対策を実装している場合は、対策の追加前後にこれらのテストを実行してその効果をテストすることが重要です。</p>
+  <h2>
+    <span>
+      <em>RAM の機微データのテスト</em>
+    </span>
+  </h2>
+  <p>Windows プラットフォームでは、以下の手順を実行して、物理メモリの記録をテキスト ファイルで作成します。</p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ManTech の Memory DD をダウンロードしてインストールします (<a href="https://sourceforge.net/projects/mdd/)">https://sourceforge.net/projects/mdd/)</a>。<li>管理者特権でコマンド プロンプトを開きます。 <li>次のように mdd を実行します。<b>mdd_1.3.exe -o c:\ram.txt -v</b><li>mdd の実行の終了後、出力ファイル ram.txt 内で機密情報を確認します。</li></li></li></li></li>
+  </ol>
+  <p>予測結果: ram.txt には機微データは一切表示されてはなりません。</p>
+  <h2>
+    <span>
+      <em>仮想メモリの機微データのテスト</em>
+    </span>
+  </h2>
+  <p>アプリケーションの仮想メモリに機密情報が含まれているかどうかを確認するには、任意の時点でデバッガを使用して仮想メモリ領域のダンプを作成する方法が最適です。</p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ユーザー モードの Windows デバッギング<i> windbg をダウンロードして実行します。</i><li>テストするアプリケーションに windbg をアタッチします。 <li>デバッガにブレークインし、オプションを指定してアプリケーションの仮想メモリのダンプ ファイル、<b>.dump /f c:\dump.txtを作成します。</b></li></li></li></li>
+  </ol>
+  <p>予測結果: dump.txt には機微データは一切表示されてはなりません。</p>
+  <h2>
+    <span>
+      <em>スワップ ファイルの機微データのテスト</em>
+    </span>
+  </h2>
+  <p>Windows では、スワップファイルは<i>ページ ファイルに保存されます。</i></p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ページファイルを探します<i>。</i>ファイル名は <i>pagefile.sys</i> で、通常はWindows パーティションのルート ドライブ上にあります (例： c:\pagefile.sys)。 <li>ファイルの読み取り専用のコピーを開きます。 <li>ページファイルで機密情報を確認します。</li></li></li></li>
+  </ol>
+  <p>予測結果: ページファイルには機密情報は一切表示されてはなりません。</p>
+  <h2>
+    <span>
+      <em>ダンプ ファイルの機微データのテスト</em>
+    </span>
+  </h2>
+  <p>ダンプ ファイルの機密情報をテストするには、以下の手順を実行します。</p>
+  <ol>
+    <li>テストするアプリケーションを実行している Windows ホストにログインします。 <li>ダンプ ファイルを探します (Windows では、HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CrashControl になります)。 <li>ダンプ ファイルを開き、機密情報を確認します。 <li>各ダンプ ファイルで同様の手順を実行します。</li></li></li></li>
+  </ol>
+  <p>予測結果: ダンプ ファイルに機密情報は一切表示されてはなりません。</p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 4: 追加テストを実行する</span>
+  </h1>
+  <p>機微データの確認が困難な場合は、追加テストを実行する必要があります。 上記のテストでは、攻撃者は出力を解釈する必要があります。 各ツールを実行すると、テストに関係ない大量のデータを持つ出力ファイルが作成されます。 機密情報を効率良く探し出すには、出力ファイルに対して <i>strings</i> などのコマンドを実行し [v]、ファイル内の文字配列をすべて表示します。</p>
+  <span>
+ <pre>
+      <br />C:\Documents and Settings\All Users\Documents\DrWatson&gt;strings user.dmp<br />12</pre>
+ <pre>…<br />kernel32.dll<br />RASAPI32<br />C:\WINNT\tracing<br />C:\Documents and Settings\Administrator\My Documents\PGP\pubring.pkr<br />C:\Documents and Settings\Administrator\My Documents\PGP\secring.skr<br />& !<br />IN PGP MESSAGE-----<br />Version: PGP 7.1<br />qANQR1DBwU4DSL6Q3OHRwOYQB/9pKnnhZGQRFwykWzBO1EWkzW336QOkUaHj0aVj<br />P1MgxDWQWi3kZpOfGnDg6kbQriWBiIgD/z8p5xGN+WcksytlLJv8OxvTGMepx7u8<br />h5aVRXZd8YPM+h5ROpbnNw+SiT/w9oCy/ChWeiCHV1swQSzwBHx2Ye+yxO70Moxc<br />...<br />frAG3nM7kOnChQp4jxhv2J0p7fL1vteI9EGbcimC9QCVBwC1U++mQIqbTyIw5gWK<br />Io11yl8P+wKjcHsLfi2hTE+NIRb+VORWhVoCDHgNKV1nSFNTK0LEnvz84OFyRc1z<br />-----END PGP MESSAGE-----<br /><strong>&lt;pgppassphrase!&gt;</strong><br />…<br /></pre>
+  </span>
+  <span>&nbsp;</span>
+  <p>機微データの特定にはバイナリ エディタなどの下位レベルのファイル処理ツールを使用する必要があります。 その他の手法には、辞書探索または線形探索の実行があります。 たとえば Linux では<em>「Cryptographic Key Recovery from Linux Memory Dumps」</em>を参照します [vi]<em>。</em></p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>メモリ スニッフィング攻撃は、仮想メモリ、RAM、スワップ ファイルなどのシステム メモリの機微データの復元を目的としています。このバグのテストを適切に行うには、攻撃シナリオの構造とともにバグの原因と対策を理解する必要があります。その後、利用可能な一連のツールを使用して、様々な種類のメモリの記録を作成し、その中の機微なデータを確認することで、アプリケーションのテストを実行する必要があります。<b><span></span></b></p>
+  <p />&nbsp;<br /><hr /><p /><div><div><p><span><span><span><span>[i]</span></span></span></span><b><span>Hit by a Bus: Physical Access Attacks with Firewire.<span>&nbsp; </span>Adam Boileau.<span>&nbsp; </span></span></b><span>Security-Assesment.com: <span>&nbsp; </span></span><a href="http://www.storm.net.nz/static/files/ab_firewire_rux2k6-final.pdf"><span>http://www.storm.net.nz/static/files/ab_firewire_rux2k6-final.pdf</span></a><b><span></span></b></p><p><b><span><span></span></span></b></p><p><span><span><span><span><span><span><span><span>[ii]</span></span></span></span></span></span></span></span><b>Insecure Compiler Optimization</b>: (OWASP) <a href="http://www.owasp.org/index.php/Insecure_Compiler_Optimization">http://www.owasp.org/index.php/Insecure_Compiler_Optimization</a></p><p><span><span><span><span><span><span><span><span>[iii]</span></span></span></span></span></span></span></span><b>Protecting sensitive data in memory.<span>&nbsp; </span></b><span>John Viega.<span>&nbsp; </span>CGI Security: <span> </span></span><a href="http://www.cgisecurity.com/lib/protecting-sensitive-data.html"><span>http://www.cgisecurity.com/lib/protecting-sensitive-data.html</span></a></p><p><span><span><span><span><span><span><span><span>[iv]</span></span></span></span></span></span></span></span><b>VOID MSC14-A. Protect memory when working with sensitive data</b>.Alex Volkovitsky CERT: <span> </span><a href="https://www.securecoding.cert.org/confluence/display/seccode/VOID+MSC14-A.+Protect+memory+when+working+with+sensitive+data">https://www.securecoding.cert.org/confluence/display/seccode/VOID+MSC14-A.+Protect+memory+when+working+with+sensitive+data</a></p><p><span><span><span><span><span><span><span><span>[v]</span></span></span></span></span></span></span></span><b><span>Practical Approaches to Recovering Encrypted Digital Evidence. </span></b><span>Eoghan Casey<strong>: <span>&nbsp; </span></strong></span><a href="http://www.utica.edu/academic/institutes/ecii/publications/articles/A04AF2FB-BD97-C28C-7F9F4349043FD3A9.pdf"><span>http://www.utica.edu/academic/institutes/ecii/publications/articles/A04AF2FB-BD97-C28C-7F9F4349043FD3A9.pdf</span></a></p><p><span><span><span><span><span><span><span><span>[vi]</span></span></span></span></span></span></span></span><b>Cryptographic Key Recovery from Linux Memory Dumps</b>. <span>Torbjörn Pettersson:<span>&nbsp; </span></span><a href="http://events.ccc.de/camp/2007/Fahrplan/attachments/1300-Cryptokey_forensics_A.pdf"><span>http://events.ccc.de/camp/2007/Fahrplan/attachments/1300-Cryptokey_forensics_A.pdf</span></a><span></span></p><p>&nbsp;</p></div></div>]]></Data>
+  </Content>
+</TeamMentor_Article>

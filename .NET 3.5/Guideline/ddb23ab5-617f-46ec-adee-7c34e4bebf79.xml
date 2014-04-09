@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1972484254" Content_Hash="-1820355841">
+  <Metadata>
+    <Id>ddb23ab5-617f-46ec-adee-7c34e4bebf79</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュリティが適用されているフォルダと、されていないフォルダにパーティションがかけられているサイトでのナビゲーションの場合は絶対 URL を使用してください。</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>サイトがセキュアと非セキュア フォルダにパーティションされたサイトを行き来するために完全 URL を使用する。 </p>
+  <h1>対策</h1>
+  <p>サイトの公開領域と制限領域の間 (つまり、HTTP ページと HTTPS ページの間) のページ移動には注意が必要です。リダイレクトでは必ず、ターゲット ページではなく、現在のページのプロトコル (HTTPS または HTTP) が使用されるためです。</p>
+  <p>ユーザーがログオンして、SSL で保護されているページを閲覧し、その後 "..\publicpage.aspx"といったような相対リンクを使ったり、HTTP ページにリダイレクトすると、HTTPS プロトコルが使用され、不必要なパフォーマンスのオーバーヘッドが発生します。 これを防ぐためには HTTPS ページから HTTP ページにリダイレクトする場合には "http://servername/appname/publicpage.aspx" といったような絶対リンクを使用してください。</p>
+  <p>同様に、サイトの公共エリアから保護されたページ（例えばログオン ページ等）にリダイレクトする場合、 "restricted/login.aspx” といったような相対パスではなく、 "https://servername/appname/secure/login.aspx" といったような 絶対 HTTPS パスを使用しなければなりません。例えば、ウェブ ページでログオン ボタンが提供されている場合、次のコードを使用することによって保護されたログイン ページにリダイレクトすることができます。</p>
+ <pre>private void btnLogon_Click( object sender, System.EventArgs e )<br />{<br />  // Form an absolute path using the server name and v-dir name   <br />	string serverName = HttpUtility.UrlEncode(Request.ServerVariables["SERVER_NAME"]);  <br />	string vdirName = Request.ApplicationPath;  <br />	Response.Redirect("https://" + serverName + vdirName + "/Restricted/Login.aspx");<br />}</pre>
+  <p />
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

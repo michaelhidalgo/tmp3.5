@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-870901274" Content_Hash="-392786773">
+  <Metadata>
+    <Id>fa275aac-75dc-4db1-8c20-9348f1b59187</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>オブジェクトの不要なインスタンス化を防ぐため、プライベートのデフォルト コンストラクターを使用する</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>インスタンス化できるように設計されていない場合は、クラスのコンストラクターにプライベートのマークを付けます。</p>
+  <h1>理由</h1>
+  <p>クラスが静的である場合を除いて、クラスのインスタンス化を可能にするために、コンストラクタのないクラスにはコンパイラがデフォルトのパブリック コンストラクタを付与します。 そのため、インスタンス化されていない場合はデフォルトのプライベート コンストラクタを追加することをお勧めします。</p>
+  <h1>状況</h1>
+  <p>インスタンス化のために設計されていないクラスの例は、静的メソッドとプロパティのみを含むものです。</p>
+  <h1>対策</h1>
+  <p>空コンストラクタの宣言は、デフォルトのコンストラクタの自動生成を防止します。 コンストラクタにアクセス モディファイアを使用しない場合、それはデフォルトでプライベートのままであることに注意してください。 しかし、通常、プライベート モディファイアはクラスをインスタンス化できないことを明らかにするために明示的に使用されます。</p>
+  <p>以下は、プライベート コンストラクタを使用するクラスの一例です。</p>
+ <pre>public class Counter<br />{<br />&nbsp;&nbsp;&nbsp; private Counter() { }<br />&nbsp;&nbsp;&nbsp; public static int currentCount;<br />&nbsp;&nbsp;&nbsp; public static int IncrementCount()<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return ++currentCount;<br />&nbsp;&nbsp;&nbsp; }<br />}</pre>
+  <h1>その他のリソース</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

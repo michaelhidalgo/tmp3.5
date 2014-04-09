@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1909373708" Content_Hash="-1855894329">
+  <Metadata>
+    <Id>8fb399eb-218c-4a50-9630-7dbf6d1ec088</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションのログは保護された別のサーバに記録される</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>&nbsp; アプリケーションが別の保護されたサーバにアプリケーション イベントをログ記録することを確認してください。</p>
+  <h1>理由</h1>
+  <p>これにより、攻撃者はログを改ざんすることができなくなります。</p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションの web.config ファイルをレビューして、ログが別のサーバに送信されることを確認します。&nbsp;以下のステップを使用します:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>正しい config file ファイルをレビューしていることを確認します。 </strong>アプリケーション レベルの web.config とマシン レベルの web.config の両方に目を向けます。 アプリケーション レベルの設定はマシン レベルの設定を上書きします。</p>
+      <li>
+        <p>
+          <strong>&nbsp; アプリケーションがHealthMonitoring を使用していることを確認します。 </strong>アプリケーションが HealthMonitoring を使用している場合には、web.config に&lt;<strong>HealthMonitoring</strong>&gt; エレメントがあり、 &nbsp;<strong> enabled </strong> 属性はTrue に設定されています:</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="true"&gt;</pre>
+        <li>
+          <p>
+            <strong>SqlWebEventProvider をチェックします。 </strong>&lt;<strong>HealthMonitoring</strong>&gt; エレメント内で、 &lt;<strong>Providers </strong>&gt;  エレメントがイベントを SqlWebEventProvider に送信するよう構成されていることを確認します:</p>
+ <pre>&lt;providers&gt;<br />   &lt;add connectionStringName="MySqlConnection"<br />      maxEventDetailsLength="1073741823"<br />      buffer="true"<br />      bufferMode="Extra Critical Notification"<br />       name="MySqlWebEventProvider"<br />       type="System.Web.Management.SqlWebEventProvider,System.Web,<br />		Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a" /&gt;<br />&lt;/providers&gt; </pre>
+          <li>
+            <p>
+              <strong>&nbsp; 接続文字列をチェックします。 </strong>SqlWebEventProvider が機能するためには、web.config 内に有効な接続文字列がある必要があります。 &lt;<strong>ConnectionStrings</strong>&gt; エレメントをチェックして、上記で説明した &lt;<strong>Providers</strong>&gt; エレメント内の ConnectionStringName属性値が 有効な接続文字列インスタンスにマップすることを確認します。 </p>
+            <li>
+              <p>
+                <strong>リモート サーバをチェックします。 </strong>アプリケーションを開始して、ログを生成するいくつかの機能を実行します。&nbsp;リモート サーバをチェックして、ログが表示されることを確認します。</p>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>修正方法</h1>
+  <p>別のサーバにログ記録するには、以下のステップを使用します:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションがヘルス モニタリングの監視を使用していることを確認します。&nbsp; </strong>ASP.NET アプリケーションでは、ヘルス モニタリング機能はデフォルトで有効になっています。 既定の構成は、<b>%windir%\Microsoft .NET\Framework\{version}\CONFIG </b> 構成ファイル ディレクトリにあるマシン レベルの Web.config.comments ファイルで見ることができます。 </p>
+      <li>
+        <p>
+          <strong>SqlWebEventProvider を構成します。 </strong>SQL Server に書き込むイベント プロバイダーを構成したい場合には、例えば&nbsp; <strong>SqlWebEventProvider</strong> で使用されるデータベースを作成し、接続文字列を構成し、プロバーダーの定義を構成する必要があります。</p>
+        <ol>
+          <li>
+            <p>Visual Studio 2005 のコマンド プロンプトから以下のコマンドを実行して、Web イベント データベースをインストールします:</p>
+            <p>
+              <b>aspnet_regsql.exe -E -S </b>&lt;<b>ServerName</b>&gt;<b> -A w</b></p>
+            <p>このコマンドは次のスイッチを使用します。</p>
+            <ul>
+              <li>
+                <b>-E</b> このスイッチは 、データベースに接続する際にWindows 認証を使用することを示します。 <li><b>-S</b> &lt;<b>ServerName</b>&gt; このスイッチは、データベースがインストールされる、またはすでにインストールされているサーバの名前を示します。 <li><b>-A w </b> このスイッチは、Web イベント サポートを追加することを示します。 これは<b>SqlWebEventProvider</b> によって求められている、関連するテーブルとストアド プロシージャを作成します。</li></li></li>
+            </ul>
+            <li>
+              <p>ウェブ アプリケーションを識別するための SQL Server ログオンを作成します。 例えば、ネットワーク サービスを作成してから、Aspnetdb データベースにこのログオン用のデータベース ユーザーを作成します。 </p>
+              <li>
+                <p>データベース ユーザーに<b>aspnet_WebEvent_LogEvent</b> ストアド プロシージャの <b> execute </b> アクセス許可を付与します。 </p>
+                <li>
+                  <p />以下の接続文字列をアプリケーションのWeb.configファイルに追加します:<pre>&lt;connectionStrings&gt;<br />&nbsp;&nbsp; &lt;add name="MySqlConnection" connectionString="Data Source=remotehost;Initial Catalog=aspnetdb;Integrated Security=SSPI;"/&gt;<br />&lt;/connectionStrings&gt;</pre><li><p>Web.config<b> </b>の &lt;<b>healthMonitoring</b>&gt; セクション内で以下の &lt;providers &gt;構成を追加します:</p><pre>&lt;providers&gt;<br />&nbsp;&nbsp; &lt;add connectionStringName="MySqlConnection"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxEventDetailsLength="1073741823"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; buffer="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bufferMode="Extra Critical Notification"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="MySqlWebEventProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Management.SqlWebEventProvider,System.Web,Version=2.0.0 .0,<br />Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a"/&gt;<br />&lt;/providers&gt;</pre><p />次のリストは、イベント プロバイダーの設定時に設定可能な属性の中でも最も重要な属性を説明しています。<ul><li><b>name: </b>これは他のエレメントから参照するためのバッファ モードの名前です。 <li><b> type:</b> これはプロバイダー クラスに対する完全修飾アセンブリ参照です。 このクラスは<b>System.Configuration.Provider.ProviderBase</b> クラスを実装するはずです。 <li><b>buffer: </b> <b>SqlWebEventProvider</b> を使用している場合には、この属性を使用してイベント バッファーリングを有効にします。 この属性が <b>true</b>である場合には、<b>bufferMode</b> 属性を構成する必要があります。 既定値は <b>false</b>です。<li><b>bufferMode:</b> <b>SqlWebEventProvider</b>を使用している場合には、この属性を使用して、イベントのバッファーリングに使用するバッファ モードのフレンドリ名を特定します。 <li><b>connectionStringName:</b> <b>SqlWebEventProvider</b>を使用している場合には、この属性を使用して、SQL Server データベースに接続するために使用される接続文字列のフレンドリ名を特定します。 <li><b>maxEventDetailsLength:</b> これはイベントの詳細の最大長です。 </li></li></li></li></li></li></ul><blockquote><b>注意</b>: &nbsp;&nbsp;<b>SqlWebEventProvider</b> を使用してローカルまたはリモート SQL Server のインスタンスに書き込みたい場合には、Aspnet_regsql ツールを使用して必要なデータベース テーブルとロールを構成します。</blockquote></li></li>
+              </li>
+            </li>
+          </li>
+        </ol>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ファイル ベースのログによって、2 層のWeb サーバ／データベース モデルの電子商取引サイトが構築され、各マシンはそのログをローカル ディスクに保存します。 複数の Web サーバが危害を受けると、攻撃者はログを消去し、所有者はどのようにして攻撃者が侵入したのか判断することができません。 ホールが見つかりパッチされるまで、攻撃は数回繰り返し行われます。</p>
+  <h1>ソリューションの例</h1>
+  <p>暗号化されたチャネルを介して通信が行われるリモート ログ記録サーバによって、2 層のWeb サーバ／データベース モデルの電子商取引サイトが構築されます。&nbsp; 複数の Web サーバが危害を受けると、攻撃者はリモート ログ記録コンピュータに侵入することができず、よってログを消去することができません。 所有者はログ ファイル内の情報によって迅速にホールを見つけることができ、コンピュータは即座にパッチされます。</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="true"&gt;<br /> &lt;providers&gt;<br />    &lt;add connectionStringName="MySqlConnection"<br />       maxEventDetailsLength="1073741823"<br />       buffer="true"<br />       bufferMode="Extra Critical Notification"<br />        name="MySqlWebEventProvider"<br />        type="System.Web.Management.SqlWebEventProvider,System.Web,Version=2.0.0 .0,<br />		Culture=neutral,PublicKeyToken=b03f5f7f11d50a3a"/&gt;<br />  &lt;/providers&gt;<br />&lt;/healthMonitoring&gt; </pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <div>
+        <a href="/article/bf02bb27-01e9-4968-847b-82fb74280b26">ガイドライン: ログを別のサーバに保存する</a>
+      </div>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

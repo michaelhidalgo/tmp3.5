@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="672302440" Content_Hash="-1543582333">
+  <Metadata>
+    <Id>eae9b65b-9032-44b2-bf87-b7bad67a38d8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>リフレクション攻撃</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>暗号化による相互認証スキーム (以下で説明) を利用するクライアント/サーバ アプリケーションで、サーバがクライアントと同じプロトコルを利用する場合。 </p>
+  <h1>説明</h1>
+  <p>リフレクション攻撃は、独自の Credential 情報を利用するが、それを見ることはないサーバに対して、プロトコルの両端で同じ方法で信頼性を証明するという事実を利用しています。 サーバと通常のクライアントが秘密を共有し、その秘密により互いに認証します。 秘密を送信せずにこの認証を実行するために、それぞれがある値を選択し、相手に秘密を使ってその値をハッシュするように要求します。 悪意のあるユーザーはプロトコルの対称性に付け込んでシステムを出し抜き、サーバにそれ自体に対して認証させます。 この攻撃は次のような仕組みになっています。</p>
+  <ol>
+    <li>攻撃者はサーバに接続します。 <li>サーバは攻撃者にチャレンジを送信します。 <li>攻撃者はサーバに再度接続しますが、今度は前にサーバから受け取ったチャレンジを送信します。 <li>サーバはチャレンジを正しく解いて結果を攻撃者に送り返します。 <li>攻撃者はその応答を利用し、開いたままの最初のチャレンジに返信します。 <li>サーバは応答をチェックし、保護されているリソースへのアクセスを攻撃者に許します。</li></li></li></li></li></li>
+  </ol>
+  <p>このような手順により、攻撃者は秘密を知ることなくサーバに信頼性を証明します。</p>
+  <h1>影響</h1>
+  <p>攻撃者は適切な Credential 情報なしで信頼性を証明し、サーバと通信できます。</p>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>両方向で同じプロトコルと同じ鍵を利用する、貧弱な実装のチャレンジ/応答認証システム。</li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>鍵とプロトコルは方向ごとに異なるものを利用しなければならないようにしてください。</li>
+  </ul>
+  <h1>例</h1>
+  <p />攻撃者の視点からは、この攻撃は次のような形態になります。<p />最初に、攻撃者はサーバへの接続を開始します。 <p /><table><tbody><tr><td>クライアントは接続 1 で次の内容を送信します。</td></tr><tr><td><pre>REQ: initialize connection</pre></td></tr></tbody></table><p>すると、サーバはチャレンジ値を送信します。これを利用して信頼性を証明する応答を生成しなければなりません。 サーバは次のような形態のパケットを送信します。</p><table><tbody><tr><td>サーバは接続 1 で次の内容を送信します。</td></tr><tr><td><pre>AUTH: domain=test&amp;#64;testdomain.comFunction: initiate/authenticatechallenge=6F1ED002AB5595859014EBF0951522D9</pre></td></tr></tbody></table><p>これで攻撃者にチャレンジが与えられました。攻撃者はこれをサーバに送り返して、有効な応答を生成するよう強制できます。 攻撃者は 2 つ目の接続を開始し、同じパケットをサーバに送信し、応答を待ちます。</p><table><tbody><tr><td>クライアントが接続 2 で次の内容を送信します。</td></tr><tr><td><pre>AUTH: domain=test&amp;#64;testdomain.comFunction: initiate/authenticatechallenge=6F1ED002AB5595859014EBF0951522D9</pre></td></tr></tbody></table><p>サーバは、 2 つ目の接続で次の応答を送り返します。</p><table><tbody><tr><td>サーバは接続 2 で次の内容を送信します。</td></tr><tr><td><pre>AUTH: username=&amp;#8221;demo&amp;#8221;Function: authenticateResponse= 23D5C7C0BAB95DE5AFB0E6CDDA275D3A</pre></td></tr></tbody></table><p>注記: この例では、応答のハッシュは有効なユーザー名、パスワード、ドメイン、チャレンジの MD5 ハッシュです。 攻撃者はチャレンジ以外の情報を知る必要がありません。サーバがハッシュ化された Credential 情報を提供するためです。</p><p>この点を利用し、攻撃者は 2 つ目の接続でサーバが提供した応答で、開いたままの最初の接続に応答します。そして最初の接続の認可が完了します。</p><table><tbody><tr><td>クライアントは接続 1 で次の内容を送信します。</td></tr><tr><td><pre>AUTH: username=&amp;#8221;demo&amp;#8221;Function: authenticateResponse= 23D5C7C0BAB95DE5AFB0E6CDDA275D3A</pre></td></tr></tbody></table><h1>その他のリソース</h1><ul><li>リフレクション攻撃に関する詳細は、 <a href="http://en.wikipedia.org/wiki/Reflection_attack">Wikipediaのリフレクション攻撃に関する記事</a>&amp;nbsp;と<a href="http://www.owasp.org/index.php/Reflection_attack_in_an_auth_protocol">OWASPのリフレクション攻撃に関する記事</a>を参照してください。</li></ul><h1>関連する項目</h1><ul></ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

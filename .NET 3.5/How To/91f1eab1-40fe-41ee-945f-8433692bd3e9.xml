@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1677238023" Content_Hash="766566814">
+  <Metadata>
+    <Id>91f1eab1-40fe-41ee-945f-8433692bd3e9</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>スキーマを使用したメッセージ インスペクターを用いてメッセージを検証する方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>次のステップを使用して、メッセージ インスペクタおよびスキーマの使用を検証してください:</p>
+  <ol>
+    <li>検証ロジックを実装するクラスを作成する。 このクラスは、クライアント側またはサーバ側いずれの検証を行いたいかに応じて、<strong>IClientMessageInspector</strong> または <strong>IDispatchMessageInspector</strong> から派生させる必要があります。 この呼び出しは、<strong>AftterReceiveRequest(),BeforeSendReply(),BeforeSendRequest()</strong><strong></strong> および <strong>AfterReceiveReply()</strong> のメソッドを実装します。&nbsp; このクラスには次のような特性があります。
+<ul><li>ディスパッチャで:オペレーションが呼び出されてメッセージのデシリアライズが発生するより前に、受信メッセージをディスパッチャが受け取ったときには、AfterReceiveRequest が起こります。 メッセージが暗号化されている場合、復号化が先に起こります。 アウトバウンドのメッセージがクライアントへ送り返されることになっていれば、BeforeSendReply が起こります。 これは、オペレーションが呼び出された後で、かつシリアル化が発生した後に起こります。 メッセージが暗号化されている場合、暗号化は起こりません。
+<li>クライアントで: シリアル化が発生した後にアウトバウンドのメッセージがクライアントにより送信されるときは、BeforeSendRequest が起こります。 メッセージが暗号化されている場合、暗号化は起こりません。 受信メッセージがメッセージのデシリアライズが発生するより前にクライアントに受け取られるときに、AfterReceiveReply が起こります。 メッセージが暗号化されている場合、復号化が先に起こります。</li></li></ul><li>カスタム エンドポイント動作を実装するクラスを作成する。 このクラスは、サービスおよび/またはクライアント エンドポイントがエンドポイントの構成拡張ポイントとして使用する IEndpointBehavior から派生します。 このクラスには次のような特性があります。
+<ul><li>これは、<strong>ApplyClientBehavior()</strong> を実装して <strong>ParamaterInspector</strong> をクライアント オペレーションに追加し、Client-side Validation を有効にします。 
+<li>これは、<strong>ApplyDispatchBehavior()</strong> を実装して <strong>ParamaterInspector</strong> をディスパッチ オペレーションに追加し、Service-side Validation を有効にします。 
+<li>これにより、<strong>ParameterInspector</strong> をクライアントまたはディスパッチ ランタイムに追加する前に構成ファイルで有効になっていることが検証されます。</li></li></li></ul><li>カスタム構成エレメントを実装するクラスを作成します。 このクラスは <strong>BehaviorExtensionElement</strong> から派生しています。このクラスは、動作エレメント拡張として WCF にあるエンドポイント構成を明らかにし、サービスにおいてそれをエンドポイント動作構成として使用することができます。 このクラスには&nbsp;以下の特性があります。
+<ul><li>これは <strong>CreateBehavior()</strong> を実装し、<strong>ValidationBehavior</strong> クラスのインスタンスを作成します。 
+<li>これは、<strong>BehaviorType()</strong> を実装して <strong>ValidationBehavior</strong> 型を返します。 これにより、カスタム動作がサービスまたはクライアント構成セクションにおいて明らかにします。</li></li></ul><li>カスタム 動作を構成ファイルへ追加してください。 エンドポイント動作がそれを使用できるように、カスタム動作のエレメントを動作エレメントの拡張項目に追加します。 アセンブリを閲覧してカスタム動作である種類を選択することにより、構成ツールを使用してそれを構成ファイルに追加します。
+<li>エンドポイント動作を作成し、それをマップしてカスタム動作を使用します。 エンドポイント動作を作成して、メッセージ インスペクタを実装するアセンブリにより提供されるカスタム動作拡張ポイントを使用してください。
+<li>サービス エンドポイントを構成してエンドポイント動作を使用します。 エンドポイントを構成して、メッセージ インスペクタを使用しているエンドポイント動作を使用してください。</li></li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳しくは以下の URL で「メッセージ インスペクター」をご覧ください: <a href="http://msdn.microsoft.com/en-us/library/aa717047.aspx">http://msdn.microsoft.com/en-us/library/aa717047.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

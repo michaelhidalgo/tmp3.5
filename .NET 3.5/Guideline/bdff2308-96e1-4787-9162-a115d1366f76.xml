@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="659816188" Content_Hash="-294453815">
+  <Metadata>
+    <Id>bdff2308-96e1-4787-9162-a115d1366f76</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>保護されたファイルが取得されることをブロックする</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>重要なアプリケーションおよび構成ファイルへのアクセスをブロックします。</p>
+  <h1>理由</h1>
+  <p>ソース コード、重要なアプリケーションおよび構成ファイルなどの特定のファイルは、アプリケーションによってのみアクセスされるべきで、HTTP を経由して直接アクセスされるべきではありません。</p>
+  <h1>状況</h1>
+  <p>すべての Web アプリケーション </p>
+  <h1>対策</h1>
+  <p>保護されたファイルへのアクセスをブロックするには、次の手順に従います。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>適切なアクセス許可を設定してください｡</strong> 構成ファイルをアプリケーションおよび管理者のみがアクセスできるように、適切なファイルシステム アクセス許可を適用してください。</p>
+      <li>
+        <p>
+          <strong>HttpForbiddenHandler を使用します。</strong> 構成ファイルへの HTTP アクセスを制限する HttpForbiddenHandler を使用します。 アプリケーションのカスタム拡張機能で動作するように HttpForbiddenHandler を設定する場合は、次の手順に従います。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>ISAPI フィルター</strong>: アプリケーションのカスタム拡張子に ASP.NET ISAPI フィルターをマップします。</p>
+            <ol>
+              <li>IIS 管理ユーティリティを開きます。 <li>アプリケーションの仮想ディレクトリを検索します。 <li>アプリケーションを右クリックして、［<strong>プロパティ</strong>］を選択します。<li><strong>[Directory]</strong> タブにナビゲートします。 <li>［<strong>構成</strong>］を選択します。<li><strong>.aspx</strong> 拡張子を検索します。 <li>［<strong>編集</strong>］を選択します。<li>実行可能ファイルのパスをコピーします。 <li>［<strong>キャンセル</strong>］を選択します。<li><strong>Add</strong> を選択します。<li>実行可能ファイルのパスを貼り付けます。 <li>アプリケーションのカスタム拡張子を指定します。 <li>IIS の管理ユーティリティに到達するまで <strong>OK</strong> を選択します。</li></li></li></li></li></li></li></li></li></li></li></li></li>
+            </ol>
+            <li>
+              <p>
+                <strong>web.config</strong>: アプリケーションの web.config に次のエレメントを追加します:</p>
+ <pre>&lt;httpHandlers&gt;  &lt;add path="&amp;#42;.myappextension" verb="&amp;#42;" type="System.Web.HttpForbiddenHandler" validate="true"/&gt;&lt;/httpHandlers&gt;</pre>
+            </li>
+          </li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyLib は有益なソフトウェア開発 コンテンツ用の有料サブスクリプション サービスです。 MyLibはすべての記事を PDF 形式で保存します。 ASP.NET は PDF ファイルへのアクセスをブロックするようには構成されていないため、MyLib のユーザーは直接記事にアクセスできます。 したがって、購入システムをバイパスして無料で記事を取得できます。</p>
+  <h1>ソリューションの例</h1>
+  <p>MyLib は有益なソフトウェア開発 コンテンツ用の有料サブスクリプション サービスです。 MyLibはすべての記事を PDF 形式で保存します。 開発者は、ASP.NET ISAPIフィルターとHttpForbiddenHandlerコンポーネントを適切に設定しており、MyLib の記事への直接的なアクセスすべてをブロックします。 したがって、すべてのユーザーは、要求された記事を取得するために MyLib の決済システムを通過する必要があります。</p>
+ <pre>&lt;httpHandlers&gt;  &lt;add path="&amp;#42;.pdf" verb="&amp;#42;" type="System.Web.HttpForbiddenHandler" validate="true"/&gt;&lt;/httpHandlers&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>HttpForbiddenHandler の構成方法についての詳細は、<a href="http://support.microsoft.com/kb/815152">方法:ASP.NET を使用してファイルを保護するには</a>を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/95f83af5-e312-42e5-a1ec-5da8eec34ce4">チェックリスト項目：保護されたファイルは取得をブロックされている</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

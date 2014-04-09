@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1968521832" Content_Hash="-934146498">
+  <Metadata>
+    <Id>5cfa004e-964a-4cdd-92c0-687bf0bd9961</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET 内にサーバ側コード インジェクションがないかどうかテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <p>
+      <b>
+        <span>
+        </span>
+      </b>
+    </p>
+    <span>要約</span>
+  </h1>
+  <p>ASP .NET アプリケーションは、Active Server Page (ASP ファイル) 等のサーバ側コードを解釈して実行することができるウェブ サーバによってホストされます。<span>&nbsp;&nbsp; </span>サーバー側コード インジェクション バグが発生するのは、攻撃者が、アプリケーションのコードの一部として解釈され実行されるような追加のサーバー側コードを挿入できる場合です。 たとえば、アプリケーションが、そのクライアントが送信したデータを動的に評価する場合などがそうです。<span>&nbsp; </span>攻撃者は、悪意のあるコードを送信して、挿入したコードをASP.NET アプリケーションに動的に評価させる可能性があります。<span>&nbsp; </span>攻撃者は、サーバ側のコード インジェクション バグをエクスプロイトすることで、ASP.NET アプリケーションに対してロジック攻撃を仕掛けることができます。</p>
+  <p>ASP.NET アプリケーションにサーバ側のコード インジェクションがないかどうかテストするには、以下のステップを実行してください。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テスト ケースを実行する</li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 1: 攻撃シナリオの理解</span>
+  </h1>
+  <p>サーバ側にコード インジェクション バグがないかどうかテストする方法を学習するにはまず、ASP.NET におけるサーバ側コード インジェクション脆弱性の解剖学的構造をよく理解する必要があります。</p>
+  <p>クライアント側コード インジェクションとサーバ側コード インジェクションの違いを理解することが重要です。<span>&nbsp; </span>クライアント側コード インジェクションは、攻撃者が脆弱なウェブ アプリケーションを使用しクライアントのブラウザ コンテキスト内でリモート コードを実行する場合に発生します。<span>&nbsp; </span>これが、AJAX インジェクション攻撃、およびクロスサイト スクリプティング (XSS) 等のクライアント側のコード インジェクションを用いたエクスプロイトが、 JavaScriptで 書かれる理由です。 攻撃の対象となったクライアントのブラウザは、エクスプロイト コードを解釈することができなければいけません。<span>&nbsp;&nbsp;&nbsp; </span>サーバ側コード インジェクションは、アプリケーションのウェブ エンジン (ASP、JSP 等) に悪意のあるコードをアプリケーションの一部として解釈、実行させることを狙います。<span>&nbsp;&nbsp;&nbsp; </span>つまり、サーバ側コード インジェクション バグをエクスプロイトすることに成功した攻撃者は、そのアプリケーションのコードと同じ特権で実行される追加のアプリケーション機能を付加します。<span>&nbsp;&nbsp; </span></p>
+  <p>スクリプトを動的に評価する ASP.NET ウェブ アプリケーションは、この攻撃に対して脆弱である可能性があります。<span>&nbsp;&nbsp;&nbsp; </span>次のコードを使用するアプリケーションを検討してください。</p>
+ <pre>&lt;%<br />&nbsp;&nbsp;&nbsp; If Not Request("Code") = Nothing Then<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dim fso, f<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'User input Code is written to a file named input.aspx<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fso = CreateObject("Scripting.FileSystemObject")<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f = fso.OpenTextFile(Server.MapPath("input.aspx"), 8, True)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f.Write(Request("Code") & vbCrLf)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f.close()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f = Nothing<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fso = Nothing<br />&nbsp;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'input.aspx is executed<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>Server.Execute("input.aspx")</strong><br />&nbsp;&nbsp;&nbsp; Else<br />%&gt;<br />&lt;form&gt;<br />&lt;input name="Code" size="100px" /&gt;&lt;input type="submit" name="Enter code" /&gt;<br />&lt;/form&gt;<br />&lt;%<br />End If<br />%&gt;<br /><br /></pre>
+  <p>アプリケーションが、<i>コード</i> ウェブ フォーム パラメータに入力された入力データを動的に評価します。<span>&nbsp; </span>その結果、攻撃者はサーバ側でアプリケーションにより実行される悪意のあるコードを渡すことができます。</p>
+  <p>詳細: </p>
+  <ol>
+    <li>クライアントが提供するインプットが動的に評価および実行される場合、攻撃者はアプリケーション機能を発見します。 <li>攻撃者は、アプリケーションが悪意のあるコードをサーバ側で実行するように、それをインプットとして渡します。</li></li>
+  </ol>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 2: 原因と対策を分析する</span>
+  </h1>
+  <p>サーバ側コード インジェクション バグがないかどうかテストする方法を学習するうえでの次のステップは、この攻撃の原因と防御方法を理解することです。<span>&nbsp; </span></p>
+  <p>ASP.NET アプリケーションでのサーバ側コード インジェクションは、動的コード評価の脆弱性によって可能となるものです。<span>&nbsp; </span>動的コード評価の脆弱性は、アプリケーションで適切な入力検証と無害化が行われないまま、コードの評価と実行にクライアント提供の入力が使用される場合に発生します。<span>&nbsp;&nbsp; </span>たとえば、前のシナリオでは、アプリケーションは無分別に入力テキストファイルを構築し、悪意のあるコードをチェックすることなく、<i>Server.Execute</i> 機能を呼び出して新しく作成されたテキスト ファイルを評価および実行します。</p>
+  <p>このバグを防ぐには、ASP.NET で、<i>Server.Execute</i> ファミリーの機能を実行する場合など、データを動的評価に使用する前に、すべてのデータについて適切な検証を行わなければいけません。<span>&nbsp; </span><span>&nbsp;&nbsp;</span>開発者は、有効データとコード コンストラクターのリストを含む<i>ホワイト リスト</i>の作成をお勧めします。<span>&nbsp; </span>アプリケーションは、動的な評価に使用されるすべてのパラメータがホワイトリストに記載されていることをチェックし、ホワイトリストに記載されていない入力データを拒否する必要があります。</p>
+  <p>
+    <br />&nbsp;</p>
+  <h1>
+    <span>手順 3: テスト ケースを実行する</span>
+  </h1>
+  <p>これで ASP.NET におけるサーバ側コード インジェクション バグの理論的な側面が確認できたので、必要なテスト ケースを実行して、アプリケーションに脆弱性がないかどうかチェックする必要があります。</p>
+  <h2>
+    <em>ASP .NET でサーバ側のコード インジェクションをテストする</em>
+  </h2>
+  <p>以下の手順を実行します。</p>
+  <ol>
+    <li>クライアントが供給するインプットに基づいて動的なコード評価を実行するアプリケーションの機能を発見します。 <li>次のような概念実証用の小規模な ASP.NET コードを入力として渡します。<ul><li><pre><span>&lt;% Response.Write("Application is vulnerable") %&gt;</span></pre></li></ul><li>挿入したコードに対するアプリケーションの反応を観察します。</li></li></li>
+  </ol>
+  <p>予想される結果：<span>&nbsp; </span>ステップ 2 で渡したコードがアプリケーションで評価、実行され、「<i>アプリケーションに脆弱性があります。」というメッセージが表示された場合、アプリケーションに脆弱性があります。</i></p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>サーバ側コード インジェクション バグがあると、攻撃者は、脆弱性のあるアプリケーションをホストする ASP.NET エンジンが実行するコードを挿入することが可能になります。<span>&nbsp;&nbsp; </span>攻撃者は、サーバ側コード インジェクションを使用することでターゲットのアプリケーションに対してロジック攻撃を実行することができます。<span>&nbsp; </span>この脆弱性がないかどうかテストする方法を学習するには、その攻撃シナリオ、ASP.NET アプリケーション内でこの脆弱性が可能になる方法、およびその防御方法を理解する必要があります。<span>&nbsp; </span>このバグのテストは、アプリケーションの反応を観察しながら、テスト中のアプリケーションに小さいプルーフオブコンセプト コードをインプットとして渡す必要があります。</p>
+  <p>
+    <span>&nbsp;</span>
+  </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

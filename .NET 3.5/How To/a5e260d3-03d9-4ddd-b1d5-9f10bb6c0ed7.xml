@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="152732016" Content_Hash="1002713504">
+  <Metadata>
+    <Id>a5e260d3-03d9-4ddd-b1d5-9f10bb6c0ed7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ダブル エンコーディングのバグがASP.NET 内にないかどうかテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>二重エンコーディング攻撃中に、攻撃者は、<i>文字の 16 進表現（パーセント エンコーディングまたは URL エンコーディングとして知られている方法）</i> を用いて 攻撃データを 2 回エンコーディングします。&nbsp;したがって攻撃データはセキュリティ フィルタには検出されません。 この脆弱性は多くの場合、SQL インジェクション、クロスサイト スクリプティング、およびパス トラバーサル攻撃において、リクエスト パラメーターを介して悪意のあるデータを送信するために使用されます。&nbsp; 脆弱性のあるアプリケーションは、悪意のあるコマンドを実行する前に攻撃データを 2 回デコードします。&nbsp; </p>
+  <p>以下の手順に従って、2 重エンコーディング バグをテストします。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テストと調査を開始する<li>手順 4: 追加テストを実行する</li></li></li></li>
+  </ul>
+  <p>
+    <b>&nbsp;</b>
+  </p>
+  <h1>ステップ 1: 攻撃のシナリオを理解する</h1>
+  <p>2 重エンコーディングの脆弱性をテストする最初の手順は、一般的な攻撃シナリオを理解することです。</p>
+  <ul>
+    <li>パス トラバーサル <li>クロスサイト スクリプティング (XSS)</li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h2>
+    <em>シナリオ 1: パス トラバーサル</em>
+  </h2>
+  <p>パス トラバーサル攻撃の間､攻撃者は機密書類を見つけるためにディレクトリを横断します。</p>
+ <pre>http://victim/documents/getDocs.aspx?docname=../../secret.doc</pre>
+  <p>しかし、ページ <i>getDocs.aspx </i> は URL で提供されたファイル名を除去し、スラッシュの後に 2 つのドットが続く任意のシーケンス "../" （引用符なし）を拒否します。 これを回避するために、攻撃者は、ドットとスラッシュを URL エンコードされた同等物（それぞれ %2e と %2F）で置き換えます: </p>
+ <pre>%2e%2e%2f%2e%2e%2fprivate/secret.pdf</pre>
+  <p>しかしながら、アプリケーションは、<i>%2e%2e%2f</i> の連続もパス トラバーサル コンストラクトとして認識するのでそのような攻撃文字列を拒否します。 つまり攻撃者は、パーセント（%）文字を URLエンコードされた同等物（%25）で再エンコードすることにより、二重エンコーディング攻撃を実行します。</p>
+ <pre>%252e%252e%252f%252e%252e%252fprivate/secret.pdf</pre>
+  <p>脆弱性のあるアプリケーションは、悪意のある文字列を 2 回デコードし、それをパス トラバーサル文字列に変換して、攻撃を完了させてしまいます。</p>
+  <p>&nbsp;</p>
+  <h2>
+    <em>シナリオ 2: クロスサイト スクリプティング</em>
+  </h2>
+  <p>クロスサイト スクリプティング攻撃では、攻撃者は山括弧、スラッシュ、バックスラッシュなどの特殊文字を送信する必要があります。 攻撃者は最初に、以下のような文字列の実行を試みる可能性があります。</p>
+ <pre>&lt;script&gt;alert('XSS')&lt;/script&gt;</pre>
+  <p>上記の文字列が正しく作動しない場合､攻撃者は特殊文字を 1 回、URL エンコードしようと試みます｡</p>
+ <pre>%3Cscript%3Ealert('XSS')%3C%2Fscript%3E</pre>
+  <p>ところが、%3C、%3E などの危険な URL エンコード文字が含まれているため、アプリケーションではこの文字列が許可されません。<i> </i></p>
+  <p>次に、攻撃者は攻撃文字列を二重エンコーディングしようと試みます。</p>
+ <pre>%253Cscript%253Ealert('XSS')%253C%252Fscript%253E</pre>
+  <p>新しい構築は、%3C のような単独でエンコードされた危険な 16 進数文字をもはや含まないことに注意してください。 このアプリケーションには、2 重エンコーディングに対する脆弱性があるため、この文字列が安全であると認識され、文字列が 2 回エンコードされて元の XSS 構成に変換されます。</p>
+  <p>&nbsp;</p>
+  <h1>手順 2: 原因と対策を分析する</h1>
+  <p>2 重エンコーディング バグをテストする次の手順は、バグの原因とそれに対する保護方法を理解することです。</p>
+  <p />
+  <p>アプリケーションによっては、悪意のある入力から保護するために、危険な文字がフィルタリングされます。 受信する文字列は、危険なコンストラクトの<i>ブラックリスト</i> として知られるリストに照合チェックされます<i>。</i>ブラックリストに載っている "../" などの構成が入力に含まれている場合、アプリケーションはその操作を許可しません。 たとえば、以下のコードでは、exsistsInBlacklist によるブラックリスト チェックが実装されています。<i> </i></p>
+  <p />
+ <pre>if (!existsInBlackList(Request.QueryString["filename"]))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;<strong>(1)<br /></strong>{&nbsp;</pre>
+  <blockquote>
+ <pre>string filename = <br />Server.UrlDecode(Request.QueryString["filename"]);</pre>
+ <pre>StreamReader streamReader = new StreamReader(filename);&nbsp;&nbsp; &nbsp;<strong>&nbsp;(2)</strong></pre>
+ <pre>while (streamReader.Peek() &gt;= 0)<br />{<br />	Response.Write(streamReader.ReadLine());<br />}</pre>
+ <pre>streamReader.Close();</pre>
+  </blockquote>
+ <pre>}</pre>
+  <p>アプリケーションをパス トラバーサルから防御したい場合､ブラックリストに <i>%252e%252e%252f </i> のような二重エンコードした文字列の連続を含める必要があります。 これが行われていない場合、2 重エンコーディングの脆弱性を招く恐れがあります。 より適切なオプションは、正規化形式で悪意のある構成をチェックするように実装することが考えられます。 However, blacklists are not recommended because they must account for 100% of dangerous constructs; any dangerous construct not covered in the blacklist allows attacks on the application.</p>
+  <p>&nbsp;</p>
+  <p>脆弱性を防御するには、<i>whitelist(ホワイトリスト)</i> のアプローチを使用してください。 ホワイトリストの場合、有効な構成のみを許可します。 ホワイトリストに載っていない構成は自動的に禁止されます。 このように、開発者は適切なもののみを定義する必要があり、危険な構成をすべて網羅することを心配する必要がありません。 たとえば、以下のコードでは、正規表現を使用して安全な入力ファイル名かをチェックするホワイトリストが適用されます。 正規表現は、5 ～ 8 個の大文字または小文字のファイル名の後に ".doc" が付いた文字列（引用符なし）のみを許可します。 パス トラバーサル文字列 "../" のようにこの形式に一致しない文字列は、アプリケーションにエラーメッセージを生成させる原因となります：</p>
+  <p />
+ <pre>string filename = Server.UrlDecode(Request.QueryString["filename"]);&nbsp;<strong> (1)</strong></pre>
+ <pre>Regex validFilename = new Regex("^[a-zA-Z]{5,8}\.doc$");&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>(2)</strong></pre>
+ <pre>if (!validFilename.IsMatch(filename))&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />{<br />	Response.Write("invalid input");<br />}<br />else<br />{<br />	StreamReader streamReader = new StreamReader(filename);</pre>
+ <pre>	&nbsp;while (streamReader.Peek() &gt;= 0)</pre>
+ <pre>&nbsp;	/* continue opening file */ </pre>
+ <pre>}&nbsp;<br /></pre>
+  <p>このコードでは、入力の正規化形式に対してホワイトリストの方法を使用していることに注意してください。 最初に入力をデコードしてから (1)、そのデコードされた入力に対して正規表現を呼び出しています (2)。</p>
+  <p>
+    <b>&nbsp;</b>
+  </p>
+  <h1>手順 3: テストと調査を開始する</h1>
+  <p>2 重エンコーディング攻撃のシナリオを確認し、その原因とその攻撃から保護する方法を理解できたら、さまざまなセキュリティ上の問題のテストに 2 重エンコーディングの問題を含める必要があります。&nbsp; </p>
+  <h2>
+    <em>パス トラバーサル中の二重エンコーディングのテスト</em>
+  </h2>
+  <p>次の手順に従い､パス トラバーサル攻撃中の二重エンコーディング バグをテストしてください｡</p>
+  <ol>
+    <li>アプリケーション内で、サーバー上のファイルを見つけるために入力が使用されている場所をすべて見つけます。 <li>すべての該当する場所に、パス トラバーサル攻撃文字列を送信します (詳細は､<i>パス トラバーサル バグのテスト</i> を参照してください)。 二重エンコーディングを使用して任意のパス トラバーサル攻撃文字列を変更します。<i>&nbsp;&nbsp; </i><li>パスがトラバースされるかチェックします。</li></li></li>
+  </ol>
+  <p>予測される結果: どのパスもトラバースが許可されない｡</p>
+  <p>
+    <i>攻撃文字列の例:</i>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <b>攻撃文字列</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>1 重エンコーディング</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>2 重エンコーディング</b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>../../..</pre>
+        </td>
+        <td>
+          <p>..%2F..%2F..</p>
+        </td>
+        <td>
+ <pre>..%252F..%252F..</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>../../..</pre>
+        </td>
+        <td>
+          <p>%2E%2E%2F%2E%2E%2F%2E%2E</p>
+        </td>
+        <td>
+          <p>%252E%252E%252F%252E%252E%252F%252E%252E</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <b>&nbsp;</b>
+  </p>
+  <p>一部の攻撃文字列は、他の文字列とは別に、単一エンコードされる場合があることに留意してください。 残りのすべての攻撃について、これと同じことが言えます。</p>
+  <p>
+    <b>&nbsp;</b>
+  </p>
+  <h2>
+    <em>クロスサイト スクリプティング (XSS) の 2 重エンコーディングのテスト</em>
+  </h2>
+  <p>以下の手順に従って、クロスサイト スクリプティングの 2 重エンコーディング バグをテストします。</p>
+  <ol>
+    <li>入力が、a) ウェブ フォームから反映される、b) URL パラメータである、またはc) データベースなどの persistent store から読み込まれるアプリケーションにあるすべての場所を特定します｡ <li>すべてのそのような場所に XXS 攻撃文字列を送信します (詳細は、<i>クロスサイト スクリプティング (XXS) バグのテスト</i> を参照してください)。二重エンコーディングした文字列を使用して URL エンコードした XXS 攻撃文字列を変更します｡ <li>変更した場所を含むページを再読み込みし、挿入されたスクリプトが実行されるかチェックします。</li></li></li>
+  </ol>
+  <p />
+  <p>予想される結果:&nbsp; 混入されたスクリプトはいずれも実行されません。</p>
+  <p>
+    <i>攻撃文字列の例:</i>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <b>攻撃文字列</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>1 重エンコーディング</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>2 重エンコーディング</b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>&lt;script&gt;alert('XSS')<br />&lt;/script&gt;</pre>
+        </td>
+        <td>
+ <pre>%3Cscript%3Ealert('XSS')%3C%2Fscript%3E</pre>
+          <p>&nbsp;</p>
+        </td>
+        <td>
+ <pre>%253Cscript%253Ealert('XSS')%253C%252Fscript%253E</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>&gt;"'&gt;<br />&lt;img src='javascript:alert('XSS');"&gt;</pre>
+        </td>
+        <td>
+          <p>%3E%22%27%3E%3Cimg%20src%3D%27javascript%3Aalert%28%27XSS%27%29%3B%22%3E</p>
+        </td>
+        <td>
+          <p>%253E%2522%2527%253E%253Cimg%2520src%253D%2527javascript%253Aalert%2528%2527XSS%2527%2529%253B%2522%253E</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <b>
+      <i>&nbsp;</i>
+    </b>
+  </p>
+  <h2>
+    <em>SQL インジェクションの 2 重エンコーディングのテスト</em>
+  </h2>
+  <p>次の手順に従い、SQL インジェクション スクリプティングでの二重エンコーディング バグをテストしてください。</p>
+  <ol>
+    <li>入力が、a) ウェブ フォームから反映される、b) URL パラメータである、c) GUI である、または d) データベースなどの persistent store から読み込まれるアプリケーションにあるすべての場所を特定します｡ <li>すべてのそのような場所に SQ<i>L インジェクション文字列</i>を送信します。<i>(詳</i> <i>細は</i>、<i>SQL インジェクション バグのテスト</i>を参照してください<i>。</i><b></b>2 重エンコードされた文字列を使用して、URL エンコードされた SQL インジェクション攻撃文字列を変更します。<i>&nbsp; </i><li>挿入された SQL ステートメントがアプリケーションで処理されたかチェックします。</li></li></li>
+  </ol>
+  <p />
+  <p>予想される結果：&nbsp;混入された文はいずれも許可されません。</p>
+  <p>
+    <i>攻撃文字列の例:</i>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <b>攻撃文字列</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>1 重エンコーディング</b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>2 重エンコーディング</b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>a' or 1=1--</pre>
+        </td>
+        <td>
+          <p>a%27%20or%201%3D1--</p>
+        </td>
+        <td>
+ <pre>a%2527%2520or%25201%253D1--</pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>') or ('a'='a</pre>
+        </td>
+        <td>
+          <p>%27%29%20or%20%28%27a%27%3D%27a</p>
+        </td>
+        <td>
+          <p>%2527%2529%2520or%2520%2528%2527a%2527%253D%2527a</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>&nbsp;</p>
+  <h1>手順 4: 追加テストを実行する</h1>
+  <p>二重エンコーディングの脆弱性テストの最終手順は､16 進文字エンコーディングを使用する攻撃を行う際にそれらの脆弱性をチェックすることです。 その他の攻撃には以下のようなものがあります。</p>
+  <ul>
+    <li>XML インジェクション <li>LDAP インジェクション <li>コマンド インジェクション <li>HTTP レスポンス分割 <li>URL パラメータ タンパリング <li>XPath インジェクション</li></li></li></li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>結論</h1>
+  <p>攻撃者は、通常､HTTP 要求パラメータ経由でアプリケーションを攻撃する際にセキュリティ フィルタを迂回するために二重エンコーディングを使用します｡ 二重エンコーディング バグをテストするには､攻撃シナリオ、その原因および防御策を理解しておく必要があります。 XSS、SQL インジェクション、パス トラバーサルなどのリクエスト パラメーター バグをテストするときに、この知識を応用します。 最後に、HTTP リクエスト パラメーターによるテストに使用するセキュリティ脆弱性ペイロードに、2 重エンコーディングのテスト ケースを追加します。</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

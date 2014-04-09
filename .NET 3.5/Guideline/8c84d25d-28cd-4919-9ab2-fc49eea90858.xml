@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1435785727" Content_Hash="617287204">
+  <Metadata>
+    <Id>8c84d25d-28cd-4919-9ab2-fc49eea90858</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>認証 Cookie を HTTPS 接続に限定する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>認証 Cookie を HTTPS接続のみに制限するには <b>requireSSL</b> 属性を使用します。 </p>
+  <h1>理由</h1>
+  <p>Cookie を SSL 上のみで送信することにより、攻撃者が回線上で Cookie 値をスニッフィングすることが非常に難しくなります。&nbsp; 攻撃者が認証 Cookie のコピーを得ることができれば、彼らは潜在的にそのユーザーをエミュレートし、そのアカウントに侵入することができます。 </p>
+  <h1>状況</h1>
+  <p>認証 Cookie を使用するすべてのシステムは、可能であれば、それらの Cookie に SSL を使用する必要があります。&nbsp; Personally Identifiable Informationまたは金銭のトランザクションを扱うシステムは、例外なくすべての環境で SSL の使用をお勧めします。 </p>
+  <h1>対策</h1>
+  <p>ブラウザーが HTTPS 接続によってのみ認証 Cookie を送信するように、認証 Cookie の <b>secure</b> プロパティを設定します。&nbsp; SSLを使用して、認証 Cookie を攻撃者がキャプチャし、アプリケーションにスプーフィングされたアクセス権を取得することを防ぎます。&nbsp; ここに示すように<b> </b>、<b>requireSSL="true"</b> を <b>&lt;forms&gt;</b> エレメント上で使用することにより、secure プロパティを設定します。 </p>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />        requireSSL="true" ... /&gt;</pre>
+  <h1>問題の例</h1>
+  <p>オンライン証券は、大量の参照コンテンツを提供しています。&nbsp; このコンテンツはいかなるユーザーにも固有のものではなく、一般に入手可能であって、パフォーマンス上の理由から、トレーディング インターフェイスのような SSL によって保護されていません。&nbsp; しかし、サイトは認証 Cookie を SSL だけに制限するように構成されていないので、すべての要求と共に送信されます。&nbsp; 攻撃者はユーザーと同じネットワーク セグメント（インターネット カフェでパブリック ネットワークを使っている人）に自分自身を位置づけ、ユーザーのトラフィックをスニッフィングし、 Cookie を盗み、アカウントにアクセスするためにそれを使用します。</p>
+  <h1>ソリューションの例</h1>
+  <p>オンライン証券は、大量の参照コンテンツを提供しています。&nbsp; このコンテンツはいかなるユーザーにも固有のものではなく、一般に入手可能であって、パフォーマンス上の理由から、トレーディング インターフェイスのような SSL によって保護されていません。&nbsp; 認証 Cookie を SSL のみに制限するようにサイトが正しく構成されており、 Cookie は、SSLによって保護された要求と共にだけ送信されます。&nbsp; 攻撃者がユーザーと同じネットワーク セグメント（インターネット カフェでパブリック ネットワークを使っている人）に自分自身を配置し、ユーザーのトラフィックをスニッフィングしても、 Cookie は SSL を介してのみ送信されるため、それを取得することはできません。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

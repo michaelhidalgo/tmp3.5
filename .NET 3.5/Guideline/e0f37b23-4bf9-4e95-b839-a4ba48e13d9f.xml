@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1352114686" Content_Hash="1731190452">
+  <Metadata>
+    <Id>e0f37b23-4bf9-4e95-b839-a4ba48e13d9f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コード内に鍵を保存しない</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>鍵はコードで保存しないでください。 代わりに DPAPI を使用して暗号鍵を暗号化し、保護されたレジストリ キー内に保存してください。 また、ACL を作成してレジストリ キーを保護し、管理者には完全な制御を、アプリケーションのプロセス アカウントには読み取り専用アクセスを可能にします。</p>
+  <h1>理由</h1>
+  <p>攻撃者はコンパイルされたアセンブリにあるハードコーディングされた鍵を ILDASM に似たツールを使って分解して、鍵をプレーンテキストに変換してしまうことができます。</p>
+  <h1>状況</h1>
+  <p>暗号化サポートをアプリケーションに追加する場合</p>
+  <h1>対策</h1>
+  <p>DPAPI をマシン鍵とあわせて使用して鍵を暗号化して、暗号化された鍵はレジストリ鍵の下に保存し、特定アプリケーション ID へのアクセスを制限する ACL を使用してレジストリ鍵へのアクセスを制限することができます。 あるいは､DPAPI をユーザー ストアと共に使用することもできます。  後者のケースでは､ユーザー アカウントのプロフィールを読み取り、鍵にアクセスする必要があります。</p>
+  <p>アプリケーションが専門のコンピュータに搭載され、他のアプリケーションもなく独自に稼動しているサーバである場合、または同じサーバに複数のアプリケーションを搭載していてそれらのアプリケーションが鍵を共有できるようにしなければならない場合は、マシン収納の使用を検討してください。 特定のサービス アカウントにのみに DPAPI 鍵へのアクセスを指定し、プロフィールを読み込む場合、DPAPI とユーザー ストアを使用します。</p>
+  <p>次のコードは､ACL で保護されたレジストリ キーを作成する方法および DPAPI とマシン ストアを使用して制限された鍵で暗号化データを保存する方法を 示しています。</p>
+ <pre>using System.Security.Cryptography;<br />using System.Security.AccessControl;<br />using System.Text;<br />using Microsoft.Win32;<br />...</pre>
+ <pre>// Get the original data in a byte array<br />byte[] toEncrypt = UnicodeEncoding.ASCII.GetBytes(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "The Keys to be encrypted");</pre>
+ <pre>// Encrypt the data by using the ProtectedData class.<br />byte[] encryptedData = ProtectedData.Protect(toEncrypt, null,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DataProtectionScope.LocalMachine);</pre>
+ <pre>// Create a new key in the registry with a restricted ACL <br />// and write stream of bytes to the registry key<br />string user = Environment.UserDomainName + "\\" + Environment.UserName;<br />RegistrySecurity security = new RegistrySecurity();<br />RegistryAccessRule rule = new RegistryAccessRule(user,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegistryRights.FullControl,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; InheritanceFlags.ContainerInherit,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PropagationFlags.None,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AccessControlType.Allow);<br />security.AddAccessRule(rule);</pre>
+ <pre>Registry.CurrentUser.CreateSubKey("TestEncryptedData",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegistryKeyPermissionCheck.ReadWriteSubTree,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; security);<br />Registry.SetValue(@"HKEY_CURRENT_USER\TestEncryptedData", "Encrypted",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; encryptedData);</pre>
+  <p>レジストリに保存されている鍵を復号する際には次のコードを使用します。</p>
+ <pre>// Read the encrypted data from registry and decrypt the contents <br />byte[] dataFromRegistry = Registry.GetValue(<br />@"HKEY_CURRENT_USER\TestEncryptedData",<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Encrypted", null) as byte[];<br />byte[] decryptedData = ProtectedData.Unprotect(dataFromRegistry, null,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DataProtectionScope.LocalMachine);&nbsp;</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

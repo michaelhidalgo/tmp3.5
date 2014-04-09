@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1806512418" Content_Hash="608643326">
+  <Metadata>
+    <Id>e09aa7fb-c6d0-49f5-afcd-8b9a1b11fd05</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>公共区域と制限区域を分離する</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Author>
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ウェブサイトをパーティションし、認証アクセスが求められるページを、匿名でアクセスできるページから離してサブディレクトリに配置し、ページをセキュアに保ちます。</p>
+  <h1>理由</h1>
+  <p>制限付きページに認証なしのユーザーがアクセスすることを防ぎます。 そのような試行があった場合はフォーム ログインを強制します。</p>
+  <h1>状況</h1>
+  <p>ウェブアプリケーションが、特定のページへアクセスする前にユーザーに認証を求める場合、制限付きページは、公開アクセスのページとは別のディレクトリに配置されていることを確認してください。 </p>
+  <h1>対策</h1>
+  <h3>公開エリアと制限エリアを分ける</h3>
+  <p>サイトの公共区域には、どのユーザーでも匿名でアクセスできます。 制限区域にアクセスできるのは特定の個人だけで、そのサイトの認証が必要です。 一般的な小売りの Web サイトを考えてみてください。 製品カタログは匿名で閲覧できます。 ショッピング カートにアイテムを追加すると、ユーザーはセッション識別子によって識別されます。 最後に注文すると、セキュリティ保護されたトランザクションが実行されます。 このためには、ログインして SSL 経由でトランザクションを認証する必要があります。</p>
+  <p>サイトを公共区域とアクセス制限区域に分割することで、サイト全体で別の認証と認可規則を適用でき、SSL の使用を制限できます。 SSL の使用に伴う不要なパフォーマンスのオーバーヘッドを避けるためには、認証済みのアクセスを必要とする領域に対する SSL の使用を制限するようにサイトを設計します。</p>
+  <p>
+    <strong>注意</strong>匿名ページからセキュアなページへの転送のために、アプリケーションで <b>Server.Transfer</b>を使用している場合、.NET Framework が認証チェックをバイパスします。そのため、<b>Server.Transfer</b> を使うコードは、セキュア ディレクトリに転送しないことを検証する必要があります。</p>
+  <p>
+    <strong>ウェブ サイトのパーティショニングすることを考慮する</strong>
+  </p>
+  <p>サイト全体で SSL を使用しなければならない状態を避けるには、認証済みアクセスを必要とするセキュアなページが、匿名でアクセス可能なページから分離したサブディレクトリに配置されるようなウェブサイトの構造にしてください。 この方法は以下の図1で示されています。</p>
+  <p>
+    <img alt="" src="http://msdn2.microsoft.com/en-us/library/ms998310.f01paght00001201(en-us,MSDN.10).gif" border="0" />
+  </p>
+  <p>
+    <b>図 - Visual Studio.NET ソリューション エクスプローラの説明、ウェブサイトのパーティショニング</b>
+  </p>
+  <p>図1では、アプリケーションのログインページを含むセキュア ページは、アプリケーションのバーチャルroot ディレクトリの下にある<b>Secure</b> フォルダに配置されています。 </p>
+  <p>
+    <b>別のサブフォルダでページをセキュアに保つ</b>
+  </p>
+  <ol>
+    <li>Microsoft の Internet Information Services（IIS）で、SSL を必要とするセキュアなフォルダを設定します。 IISメタベース内のフォルダに <b>AccessSSL=true</b>属性を設定します。 保護されているフォルダ内のページへの要求は、要求 URL に HTTPS が使用されている場合にのみ許可されます。 <li>&lt;<b>authorization</b>&gt; エレメントを使用して、認証されたユーザーだけが安全なページにアクセスできるようにしてください。  このエレメントは末尾&lt;<b>/system.web</b>&gt;の下に配置します。 <div><pre>&lt;!-- The secure folder is for authenticated and SSL access only. --&gt;<br />&lt;location path="Secure" &gt;<br />  &lt;system.web&gt;<br />    &lt;authorization&gt;<br />      &lt;deny users="?" /&gt;<br />    &lt;/authorization&gt;<br />  &lt;/system.web&gt;<br />&lt;/location&gt;   </pre></div><p>さらに、下記の構成では、未認証のユーザーにアプリケーションのroot ディレクトリ内のページへのアクセスが許可されます。 この構成をメイン &lt;<b>system.web</b>&gt;の下に配置します。 </p><pre>&lt;system.web&gt;<br />&nbsp; &lt;!-- The virtual directory root folder contains general pages.<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Unauthenticated users can view them and they do not need <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; to be secured with SSL. --&gt;<br />&nbsp; &lt;authorization&gt;<br />&nbsp;&nbsp;&nbsp; &lt;allow users="*" /&gt;<br />&nbsp; &lt;/authorization&gt;<br />&lt;/system.web&gt;&nbsp; </pre></li></li>
+  </ol>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;このタイプのサイト構成を使用する場合、アプリケーションは非SSLページ上でユーザーのアイデンティティに依存するべきではありません。 前記の構成では、非 SSL ページへの要求にForms Authenticationチケットが送信されません。 その結果、ユーザーは匿名とみなされます。 これには、ユーザー名を必要とするパーソナライズのような、関連する機能に影響を与えます｡<b></b></blockquote>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」を参照してください。<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

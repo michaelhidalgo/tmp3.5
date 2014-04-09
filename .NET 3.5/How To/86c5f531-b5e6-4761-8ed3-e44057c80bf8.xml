@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1608927762" Content_Hash="1045089551">
+  <Metadata>
+    <Id>86c5f531-b5e6-4761-8ed3-e44057c80bf8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>WCF でセキュアなカンバセーションを使用する方法</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>ws-security をサポートするすべてのバインドは既定で、通信セキュリティをオンにしています。 これには wsHttpBinding、netTcpBinding、netMsmqBinding が含まれます。 カスタム バインドを使用している場合には、<strong>認証モード</strong> 属性で、通信セキュリティをオンにしてください。</p>
+ <pre>  &lt;customBinding&gt; <br />    &lt;binding name="ServiceBinding"&gt; <br />      &lt;security authenticationMode="SecureConversation" <br />           requireSecurityContextCancellation ="false"&gt; <br />         &lt;secureConversationBootstrap authenticationMode="MutualCertificate"&gt; <br />         &lt;/secureConversationBootstrap&gt; <br />      &lt;/security&gt; <br />      &lt;httpTransport/&gt; <br />    &lt;/binding&gt; <br />   &lt;/customBinding&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については<a href="http://msdn.microsoft.com/en-us/library/ms731814.aspx">http://msdn.microsoft.com/en-us/library/ms731814.aspx の「セキュリティで保護されたセッションに対しセキュリティ コンテキスト トークンを作成する方法」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

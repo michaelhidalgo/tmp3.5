@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1925248767" Content_Hash="1611796800">
+  <Metadata>
+    <Id>e9eb9e15-e155-47fa-80a6-3ffa5a5f80e0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>プロセス外の状態サービスが保護される</Title>
+    <Category>セッション管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>セッション状態の情報を管理する際、アプリケーションがプロセス外状態サービスを保護することを確認してください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>&lt;<b>sessionState</b>&gt; エレメントで <b>mode=StateServer</b> を使用する場合、セッション状態をセキュアにするために 次の推奨条件を使用してください。</p>
+  <ul>
+    <li>
+      <p>
+        <b>最低特権のアカウントを使用して状態サービスを実行する:</b>デフォルトでは、状態サービスは、Network Service のローカルな最低特権のアカウントを使用して実行されます。 この構成を変更することはお勧めしません。</p>
+      <li>
+        <p>
+          <b>チャネルを保護する: </b>状態サービスがリモート サーバにあり、ネットワーク盗聴の脅威を懸念する場合、IPSecを使用することでユーザーの状態がプライベートかつ変更されないままにできるため、このようにチャンネルを保護してください。 </p>
+        <li>
+          <p />
+          <b>デフォルト ポートの変更を検討する:</b>ASP.NET 状態サービスは ポート 42424 でリッスンします。 周知のデフォルト ポートの使用を避けるには、次のレジストリ キーを編集してポートを変更できます。<p><b>HKLM\SYSTEM\CurrentControlSet\Services\aspnet_state\Parameters</b></p><p>ポート番号は <b>Port</b> 名前付き値によって定義されます。 例えば、レジストリのポート番号を 45678 に変更する場合、&nbsp;次のように&lt;<b>sessionState</b>&gt; エレメントの 接続文字列も変更する必要があります: </p><p><b>stateConnectionString="tcpip=127.0.0.1:45678"</b></p><li><p /><b>状態接続文字列を暗号化する:</b>このエレメントには、サービス接続の詳細が含まれるので、保護された構成プロバイダーの一つを使用して暗号化することをお勧めします。 <hr /></li></li>
+      </li>
+    </li>
+  </ul>
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

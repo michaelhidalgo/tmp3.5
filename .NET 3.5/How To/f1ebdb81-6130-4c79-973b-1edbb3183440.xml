@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-768928495" Content_Hash="1962336409">
+  <Metadata>
+    <Id>f1ebdb81-6130-4c79-973b-1edbb3183440</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>入力の長さ、範囲、書式、および型を制限する方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>入力がサーバからの場合、<b>RangeValidator</b>、<b>CustomValidator</b>、および <b>RegularExpressionValidator</b>などの検証を使用して、長さ、範囲、フォーマット、種類に基づいて入力を制限できます。 </p>
+  <p>他のソースからの入力がIDを有する場合（HTMLコントロール、クエリ文字列、 Cookie 、HTTP ヘッダーなど）、<b>System.Text.RegularExpression.Regex</b> クラスを使用して、長さ、範囲、フォーマット、種類から入力を制限します。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="248600691" Content_Hash="-1046297356">
+  <Metadata>
+    <Id>c63569b1-5373-4bb8-ac34-08db76346c18</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データを含むViewStatesを暗号化する</Title>
+    <Category>パラメータ操作</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>お使いの ViewState に機微データが含まれている (かつ、このデータがサーバ側セッション変数内ではなく ViewState 内に格納されている) 場合は、ViewState を暗号化することでこの情報をタンパリングおよび開示から保護すべきです。 </p>
+  <h1>理由</h1>
+  <p>SSL を使用すると、ViewState がサーバとブラウザ間のネットワーク上で渡される間、ViewState を保護することができますが、ユーザーのコンピュータ上での閲覧および改ざんを防ぐことはできません。&nbsp; ViewState 内のデータがエンド ユーザーによって閲覧または改ざんされるべきでない場合は、署名および暗号化だけでこのデータを保護することができます。 </p>
+  <h1>状況</h1>
+  <p>ViewState には機微データが含まれていないのが理想です。機微データは、代わりにサーバ側セッション状態変数内に格納されるべきです。&nbsp; これが可能でない場合は、ViewState の暗号化を使用すべきです。&nbsp; 暗号化は ViewState のサイズを大幅に膨らませ、これによってパフォーマンスが影響を受けるため、ViewState に機微データが含まれていない場合は暗号化を使用しないでください。 </p>
+  <h1>対策</h1>
+  <p />
+  <p>ASP.NET初期設定では、ViewStatesはタンパリングに確実に耐性があります。&nbsp; これで、クライアントのコンピュータまたはネットワーク上で ViewState&nbsp;が改ざんされると、サーバによるデータの処理時に必ず改ざんが検出されます。&nbsp; 潜在的に機微なデータにラウンド トリップを使用する必要がある場合は、特定のページに対して ViewState の暗号化を強制することができます。</p>
+  <ol>
+    <li> <b>&lt;pages&gt;</b> エレメントの <b>viewStateEncryptionMode 属性が次の例のように <b>Always</b> に設定されていることを確認します。 <pre>&lt;pages ... viewStateEncryptionMode="Always" ... /&gt;</pre><p>すべてのページで暗号化した表示ステータスを使用したくない場合は､<b>&lt; pages&gt;</b> エレメントの <b>viewStateEncryptionMode 属性が </b>次の例のように <b>Auto</b> に設定されていることを確認します。 </p><pre>&lt;pages ... viewStateEncryptionMode="Auto" ... /&gt;   </pre><p>次に､コード内から、次の例に表示されるように、<b>RegisterRequiresViewStateEncryption</b> メソッドを呼び出してください。 </p><pre>Page.RegisterRequiresViewStateEncryption();</pre><li>次の例のように、<b>validation</b> 属性で暗号化アルゴリズムを使用するように指定します。 <pre>&lt;machineKey ... validation="AES" ... /&gt;</pre><p><b>validation</b> 属性はオーバーロードされており、ハッシュ化アルゴリズムまたは暗号化アルゴリズムのいずれかを指定するために使用できます。&nbsp; <b>3DES</b> または <b>AES</b> を指定できます。<b>AES</b> は、<b>3DES</b> (56 ビット)よりも大きな鍵サイズ (128 ビット、192 ビット、または 256 ビット) を生成し､より安全であると考えられるため、AES の使用をお勧めします｡</p><li><b>&lt;machineKey&gt;</b> エレメントの <b>decryptionKey</b> 属性および <strong>validationKey</strong> 属性を確認してください：<pre>&lt;machineKey validationKey="AutoGenerate,IsolateApps" decryptionKey="AutoGenerate,IsolateApps" ... /&gt;</pre><p>アプリケーションが Webファームにインストールされていない限り､<b>decryptionKey</b> 属性および <strong>validationKey</strong> 属性は、例に表示されるようにデフォルト値のままにしておくことをお勧めします｡&nbsp; Web ファーム内の ViewState を暗号化するには、<b>validationKey</b> および <strong>decryptionKey</strong> の値を手動で設定する必要があります。これらの値は、Web ファーム内の全マシンで同一にすべきです。</p></li></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>電子商取引のサイトは、内部請求システムとの相互処理のため、発注額および(非パブリックな)割引率を含めた請求明細をユーザーのブラウザ経由でRoundトリップ送信するよう強制されています。&nbsp; この情報のすべてはViewStateに保存されています。&nbsp; 攻撃者は、変更することはできませんが、ViewStateのすべての情報を抽出できます。&nbsp; したがって、競合相手はサーバ側マシンを危険にさらす必要なくそのサイトの割引構造を知ることができます。</p>
+  <h1>ソリューションの例</h1>
+  <p>電子商取引のサイトは、内部請求システムとの相互処理のため、発注額および(非パブリックな)割引率を含めた請求明細をユーザーのブラウザ経由でRoundトリップ送信するよう強制されています。&nbsp; この情報のすべては、暗号化された&nbsp;ViewState 内に格納されます。&nbsp; 攻撃者は、この表示ステータス内に格納された情報を、情報が攻撃者のマシンを通過する場合でも読み取ることができません。&nbsp; したがって、機微な情報は秘密に留まります｡ </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2130280256" Content_Hash="625330730">
+  <Metadata>
+    <Id>b070122f-f1d1-47da-a378-57f845d5db61</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>通信リンクを暗号化する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>ネットワークを介して、その他のソフトウェアを操作するときは、通信チャネルを暗号化します。</p>
+  <h1>理由</h1>
+  <p>通信リンクを暗号化することで、送信データの機密性と完全性を保持できます。</p>
+  <h1>状況</h1>
+  <p>機微データが 2 つのホスト間で伝送される必要がある場合。 転送はサーバ間、またはクライアントとサーバ間である場合があります。</p>
+  <h1>対策</h1>
+  <p>通信リンクを暗号化するには:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機微データの送信に使用される通信を確認します。</strong> 異なるエンティティ間のすべての接続を列挙します。 ネットワーク上で送信される機微データと、そのような通信で使用される接続を確認します。 </p>
+      <li>
+        <p>
+          <strong>適切な暗号化機構を選択します。</strong> インフラストラクチャによっては、IPSec または TLS/SSL の使用を検討することもできます。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>IPSec</strong> すべてのパーティに暗号化を適用する必要があるときはIPSecを使用します。 IPSec は "常にオン" である静的ホスト間の接続を保護するために設計されているので、アプリケーションのサーバ間のネットワーク接続を保護するためにIPSecを使用します。 IPSecを利用するには、次の手順に従います。</p>
+            <ol>
+              <li>
+                <p>
+                  <strong>IPフィルタの作成。</strong> これは、コンピュータが相互に通信できる内容を制限し、特定の通信プロトコルの使用を要求します。 フィルタの構成は次のとおりです</p>
+                <ul>
+                  <li>送信元IPアドレスまたはアドレスの範囲。 <li>宛先IPアドレスまたはアドレスの範囲。 <li>TCP、UDP、 "任意" などのIPプロトコル<li>送信元および宛先ポート（TCPまたはUDPの場合のみ）。</li></li></li></li>
+                </ul>
+                <li>
+                  <p>
+                    <strong>フィルタアクションの作成。</strong> このプロシージャは、2つのフィルタアクションを作成します。 最初のフィルタアクションは、指定されたコンピュータからのすべての通信をブロックするために使用され、2番目は、アプリケーションサーバとデータベースサーバコンピュータ間の暗号化の使用を強制するために使用されます。</p>
+                  <li>
+                    <p>
+                      <strong>ルールの作成。</strong> このプロシージャは、プロシージャ1で作成したフィルタをプロシージャ2で作成した二つのフィルタアクションに関連付けるために使用される、二つのルールを作成します。</p>
+                    <li>
+                      <p>
+                        <strong>リモートコンピュータにIPSec ポリシーをエクスポートします。</strong> データベースサーバで作成したIPSec ポリシーは、アプリケーションサーバ コンピュータにエクスポートしコピーする必要があります。</p>
+                      <li>
+                        <p>
+                          <strong>ポリシーの割り当て。</strong> アクティブになる前にIPSecポリシーを割り当てる必要があります。 一つのコンピュータ上の一時点では、一つのポリシーだけをアクティブにできることに注意してください。</p>
+                        <li>
+                          <p>
+                            <strong>動作することを確認します。</strong> 二つのサーバ間で送信されるデータが暗号化されていることを確認するためにネットワーク監視（Netmon.exe）を使用します。</p>
+                        </li>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </ol>
+            <li>
+              <p>
+                <strong>TLS/SSL</strong> TLS/SSLは、粒状の保護を提供します。 これにより、機微データを含むトラフィックのみを暗号化できます。 TLS/SSL は証明書ベースの設計を備えているため、モバイル ホスト間でデータを保護できます。 アプリケーションとユーザー間の通信チャネルを保護する場合に TLS/SSL を使用します。 .NETにはSSLで暗号化されたトラフィックを処理するためのAPIが備わっていますが、使用されているサードパーティ製ソフトウェアに関連するマニュアルに従うことをお勧めします。 アプリケーションで SSL が使用されている場合、SSL 3.0 を使用し、暗号化の脆弱性が存在する SSL 2.0 プロトコルを無効にしていることを確認します。</p>
+              <p>SSLを使用するようにIISを構成するには、次の手順に従います。</p>
+              <ol>
+                <li>
+                  <p>
+                    <strong>証明書リクエストを作成します。 </strong>IIS管理コンソールを使用して、SSL証明書要求を生成します。 この要求はその後、署名する認証局に送信されます。 証明書要求を生成するには、次の手順に従ってください。 </p>
+                  <ol>
+                    <li>
+                      <strong>IIS管理コンソール</strong> を開始します。これを行うには、 <strong>コンソールパネル</strong> -&gt; <strong>管理ツール</strong> -&gt; <strong>インターネット情報サービス</strong>をクリックします。 <li>アプリケーションの仮想ホストを右クリックし、<strong>プロパティ</strong>を選択します。<li><strong>ディレクトリセキュリティ</strong> タブから<strong>サーバ証明書</strong>をクリックします。  <li><strong>証明書の新規作成</strong> を選択して <strong>次へ</strong>をクリックします。<li><strong>証明書の要求を作成して後で送信する</strong> を選択し、<strong>次へ</strong>をクリックします。<li><strong>アプリケーションの FQDN</strong> とSSL証明書の暗号鍵に対して希望するビット長を提供してから <strong>次へ</strong>をクリックします。<li><strong>組織の詳細</strong> を提供してから <strong>次へ</strong>をクリックします。 <li><strong>アプリケーションの FQDN</strong> を提供してから <strong>次へ</strong>をクリックします。 <li><strong>組織の場所 </strong> を提供してから <strong>次へ</strong>をクリックします。 <li>アプリケーションの証明書要求を保存するIIS管理コンソールの場所を指定します。 <li><strong>終了</strong> をクリックしてプロセスを完了します。</li></li></li></li></li></li></li></li></li></li></li>
+                  </ol>
+                  <li>
+                    <p>
+                      <strong>証明機関 (CA) にリクエストを提出します。</strong> SSL 証明書を取得するためのすべての条件を満たしている場合、CA によって証明書リクエストに基づいて新しい SSL 証明書が生成されます。 SSL 証明書を取得するための要件は証明機関によって異なるため、このような証明書を取得するために必要な管理手順については、証明機関にお問い合わせください。</p>
+                    <li>
+                      <p>
+                        <strong>証明書をインストールします。</strong> アプリケーションのSSL証明書を正しくインストールする手順は、次のとおりです。</p>
+                      <ol>
+                        <li>
+                          <strong>IIS管理コンソール</strong> を開始します。これを行うには、 <strong>コンソールパネル</strong> -&gt; <strong>管理ツール</strong> -&gt; <strong>インターネット情報サービス</strong>をクリックします。 <li>アプリケーションの仮想ホストを右クリックし、<strong>プロパティ</strong>を選択します。<li><strong>ディレクトリセキュリティ</strong> タブから<strong>サーバ証明書</strong>をクリックします。  <li><strong>保留中の要求をプロセスし、証明書をインストールする</strong> を選択し、<strong>次へ</strong>をクリックします。 <li>アプリケーションのSSL証明書の場所を特定し、 <strong>次へ</strong>をクリックします。<li><strong>終了</strong> をクリックしてプロセスを完了します。 </li></li></li></li></li></li>
+                      </ol>
+                    </li>
+                  </li>
+                </li>
+              </ol>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>適切な暗号化機構を適用します。 </strong>コードの適切なロケーションに、選択した暗号化機構を適用します。 このようなロケーションには、アプリケーションと他のエンティティ間で接続を確立するためのすべての機能が含まれます。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコードは、2つのサーバ間の接続を確立します。 残念ながら、通信は暗号化されておらず、攻撃者が接続を傍受することが可能です。</p>
+ <pre>public Stream Connect(string remoteHost, int remotePort)<br />&amp;#123;<br />    TcpClient client = new TcpClient(remoteHost, remotePort);<br />    NetworkStream netStream = client.GetStream();<br />    return netStream;<br />&amp;#125;</pre>
+  <h1>ソリューションの例</h1>
+  <p>次のコードは、2つのサーバ間の接続を確立します。 通信は暗号化されているので転送中のデータの機密性は保護され、攻撃者が接続を傍受することは不可能です。</p>
+ <pre>public Stream Connect(string remoteHost, int remotePort)<br />&amp;#123;<br />    TcpClient client = new TcpClient(remoteHost, remotePort);<br />    SslStream netStream = new SslStream(client.GetStream(), false,<br />               new RemoteCertificateValidationCallback(this.ValidateSSLCertificate));<br />    try<br />    &amp;#123;<br />        netStream.AuthenticateAsClient(remoteHost);<br />    &amp;#125;<br />    catch (AuthenticationException ae)<br />    &amp;#123;<br />        client.Close();<br />        throw ae;<br />    &amp;#125;<br />    return netStream;<br />&amp;#125;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>TLS の詳細については、RFC の「<a href="http://www.faqs.org/rfcs/rfc2246.html">Transport Layer Security</a>」を参照してください。 <li>IPSec の簡単な概要については、<a href="http://www.digisafe.com/products/pdf/IPSec_Primer.pdf">IPSec プライマー</a> にある記事を参照してください。<li>サーバ ファームでの IPSec の使用の詳細は、<a href="http://msdn2.microsoft.com/en-us/library/aa302413.aspx">ハウツー: IPSec を使用して 2 つのサーバ間の通信をセキュアにする</a> を参照してください。<li>IPSec の使用の詳細は、<a href="http://msdn2.microsoft.com/en-us/library/aa302366.aspx">ハウツー:ポートと認証をフィルタリングするために IPSec を使用する方法</a> を参照してください｡<li>サーバ ファームを管理するために IPSec を使用する方法については、<a href="http://support.microsoft.com/kb/816521">ハウツー: Windows Server 2003 でIPSec ポリシーを使用してターミナル サービス 通信をセキュアに方法</a>を参照してください｡</li></li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/bd63d4b0-205d-4d95-9022-86a3f0af5232">ガイドライン: Credential 情報を伝送する時に SSL を使用する</a>
+      <li>
+        <a href="/article/dffb5d33-3dca-4cea-999c-60f0a5deff63">チェックリスト項目: 通信リンクが暗号化されていること</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1033654939" Content_Hash="-1861466667">
+  <Metadata>
+    <Id>ea9a93f3-cb2a-4143-99c9-8da6f4fe05a1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows 認証を使用して SQL Server データベースに接続する方法</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>Windows 認証を使用するには、Windows 認証にSQL Server データベースを構成し、コード例に示すように、<b>"Trusted_Connection=Yes"</b> または <b>"Integrated Security=SSPI"</b>のどちらかが含まれた接続文字列を使用します。 2つの文字列は同等であり、Windows 認証を使用することになります。 </p>
+ <pre>"server=MySQL; <br />Integrated Security=SSPI; <br />database=Northwind""server=MySQL; <br />Trusted_Connection=Yes; <br />database=Northwind"</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1262409791" Content_Hash="1001705445">
+  <Metadata>
+    <Id>bbf0ada1-709e-4351-a184-1d1212233e78</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で Windows 認証を使用する方法</Title>
+    <Category>Windows 認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用先</h1>
+  <ul>
+    <li>ASP.NET <li>Internet Information Services (IIS) 6.0</li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、Windows 認証を ASP.NET ウェブ アプリケーションで構成して使用する方法について説明します。 Windows 認証は、ユーザーが Windows ドメインの一部である場合はいつでも、好ましいアプローチです。 この方法では、会社のActive Directory 等の既存の ID ストアを使用することができ、ネットワーク上でのパスワードの転送は行われません。 また、このガイドでは、Windows 認証で使用可能なさまざまな偽装オプションと、これらのオプションを ASP.NET アプリケーションで構成して使用する方法について説明します。 また、ファイル認可、URL 認可、ロール ベース認可などのさまざまな認可メカニズムをWindows 認証と併用する方法についても説明します。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>Windows 認証を構成する</div>
+          <li>
+            <div>Windows 認証で偽装を使用する</div>
+            <li>
+              <div>Windows ユーザーを認可する</div>
+              <li>
+                <div>Kerberos 認証</div>
+                <li>
+                  <div>その他のリソース</div>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>ウェブ アプリケーションで Windows 認証を使用するための構成方法を学習してください。 <li>ASP.NET アプリケーションで Windows 認証を用いた偽装を使用します。 <li>Windows 認証で認証されたユーザーを認可します。 </li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET は、Windows 認証、Forms Authentication、Passport 認証、カスタム認証などのさまざまな認証モードをサポートしています。 ユーザー アカウントが Microsoft® Windows&nbsp;NT® ドメイン コントローラーによって維持され、または Microsoft Windows® Active Directory™ 内にあり、ファイアウォールに関する問題が生じていない場合は、Windows 認証を選択してください。 </p>
+  <p>Windows 認証を使用する主な利点は、カスタム コードを記述しなくても済むように IIS 認証と組み合わせることができる点にあります。 他の認証メカニズムと比較しても、Windows 認証はユーザーの Credential 情報をワイヤ上で渡しません。 また、Windows 認証はシームレスなユーザー エクスペリエンスを提供します。 このため、できる限り Windows 認証を使用するようにしてください。 </p>
+  <p>ASP.NET でWindows 認証を構成する場合、Windows 認証を IIS 認証と組み合わせると IIS は Basic 認証、統合 Windows 認証、ダイジェスト認証、クライアント証明書認証のいずれかを使用することでアプリケーションのユーザーを認証します。 統合 Windows 認証およびクライアント証明書認証はいずれも強力な認証を実現できますが、PKI インフラストラクチャが整備されていてクライアントに証明書がある場合を除き、統合 Windows 認証を推奨します。 </p>
+  <p>IIS は、ユーザーを認証すると、その認証ユーザーの Windows トークンをそれぞれの ウェブ 要求と共に ASP.NET に渡します。 </p>
+  <h2>偽装オプション</h2>
+  <p>ASP.NET では、Windows 認証をいろいろな方法で使用することができます。</p>
+  <ul>
+    <li>
+      <b>偽装を用いない Windows 認証。</b> これはデフォルト設定です。 ASP.NET は演算を実行し、デフォルトでは Windows Server 2003 の Network Service アカウントであるアプリケーションのプロセス ID を使ってリソースにアクセスします。 <li><b>偽装を用いた Windows 認証 </b>この方法では、認証ユーザーを偽装し、その ID を使用して操作の実行とリソースへのアクセスを行います。 <li><b>固定 ID の偽装を用いた Windows 認証</b> この方法では、固定の Windows アカウントを偽装して、特定の ID を使用することでリソースにアクセスします。 Windows Server 2003 では、この偽装方法は使用せず、 代わりにカスタム サービス ID を用いたカスタム アプリケーション プールを使用するようにしてください。 </li></li></li>
+  </ul>
+  <h2>認可オプション</h2>
+  <p>偽装の有無に関係なく、次のメカニズムを使用することで、ユーザーの認可およびリソースへのアクセスや業務オペレーションを制御することができます。</p>
+  <ul>
+    <li>
+      <b>URL 認可： </b>URL 認可を使用することで、要求されたファイルおよびフォルダーへのアクセスを要求URL に基づいて制御します。 URL 認可は &lt;<b>authorization（認可）</b>&gt;を使って構成します。 要求されたリソースへのアクセス権を持つユーザーおよびユーザー グループを制御します。 認可は <b>HttpContext.User</b>（HTTP コンテキスト ユーザー）に保存されている<b>IPrincipal</b> （主要 IP）オブジェクトによるものです。Windows 認証において、このオブジェクトは <b>WindowsPrincipal</b> （Windows 主要）という種類のものであり、それには認証済みユーザーの Windows トークンを収納する<b>WindowsIdentity</b> （Windows ID ）オブジェクトを含んでいます。 <blockquote><b>注意</b>: &nbsp;&nbsp;Windows Server 2003 の ASP.NET 第 2.0 版は ASP.NET ではマッピングされていない例えば .html、.gif、および .jpg ファイルといったようなものを含めて全てのファイルを特定のディレクトリで保護します。</blockquote><li><b>ファイル認可：</b> IIS で ASP.NET ISAPI 拡張子（Aspnet_isapi.dll）にマッピングされている種類のファイルについては認証されたユーザーの Windows アクセス トークン要求された ASP.NET ファイルに添付されているアクセス制御リスト（ACL）でのアクセス チェックが自動的に実行されます。 <b>FileAuthorizationModule</b> （ファイル認可モジュール）クラスは要求されたファイルのみ対象のアクセス チェックしか実施しません。 例えば、Default.aspx を要求し、これに埋め込みユーザー制御 (Usercontrol.ascx) とイメージ タグ (Image.gif を指す) が含まれている場合、<b>FileAuthorizationModule</b> は Default.aspx と Usercontrol.ascx に対してアクセス チェックを実行します。これらのファイル形式が IIS によって ASP.NET ISAPI 拡張にマッピングされているためです。 <b>FileAuthorizationModule</b> は、Image.gif に対してチェックを実行しません。これは IIS によって内部で処理される静的ファイルであるためです。 ただし、静的ファイルのアクセス チェックは IIS が実行するため、認証ユーザーには、適切に構成された ACL によりそのファイルへの読み取りアクセス許可が付与されていなければなりません。 <blockquote><b>注意</b>: &nbsp;&nbsp;ファイル認可の場合、偽装の必要はありません。<b></b></blockquote><li><b>ロール チェック： </b>認証されたユーザーのロール メンバーシップは<b>User.IsInRole</b> （ユーザーはロールを実行中）および<b>Roles.IsUserInRole</b>（ロールはユーザーが実行中）といったようなメソッドを使って確認することができます。これにより、詳細に設定された認可ロジックの実行が可能になります。 ロール API を使用するには、アプリケーションのロール マネージャを有効にする必要があります。 また、主要なアクセス許可の要求や、クラスレベルおよびメソッド レベルの宣言型セキュリティを使用することで、クラスおよびメソッドの呼び出しを許可されたユーザーを制御することができます。 </li></li></li>
+  </ul>
+  <h1>Windows 認証を構成する</h1>
+  <p>統合 Windows 認証を実施するためにアプリケーションを構成するには、アプリケーションの仮想ディレクトリ セキュリティ設定を IIS Manager を使って構成し、&lt;<b>authentication</b>&gt;（認証）を構成しなければなりません。  エレメントを使用することにより、ASP.NET は、ページ レベルまたはアプリケーション レベルで文字セットを指定することを可能にします。</p>
+  <h2>Windows 認証を構成するには</h2>
+  <ol>
+    <li>Internet Information Services (IIS) を起動します。 <li>アプリケーションの仮想ディレクトリを右クリックして、<b>Properties</b>（プロパティ）をクリックします。<li><b>Directory Security</b>（ディレクトリ セキュリティ）タブをクリックします。 <li><b>Anonymous access and authentication control</b>（匿名アクセスおよび認証制御）の<b>Edit</b>（編集）をクリックします。<li><b>Anonymous access</b> （匿名アクセス）チェックボックスは必ず選択されていないようにして、<b>Integrated Windows authentication</b> （統合 Windows 認証）のみが選択されたチェックボックスであるようにします。 </li></li></li></li></li>
+  </ol>
+  <p>アプリケーションの Web.config ファイルまたはマシン レベルの Web.config ファイルでは、ここで示されているように認証モードが必ず Windows に設定されているようにしてください。</p>
+  <div>
+ <pre>...<br />&nbsp;&lt;system.web&gt;<br />&nbsp; ...<br />&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp; ...<br />&nbsp;&lt;/system.web&gt;<br />&nbsp;...  </pre>
+  </div>
+  <h1>Windows 認証で偽装を使用する</h1>
+  <p>ASP.NET アプリケーションは、偽装を使用することで、認証ユーザーの ID または固定の Windows ID を用いてコードの実行やリソースへのアクセスを行うことができます。 偽装を有効にしたときに通常作成される標準の偽装レベルの偽装トークンでは、ローカル リソースにしかアクセスすることができません。 リモート ネットワーク リソースにアクセスできるようにするためには、デリゲートレベルのトークンが必要です。 偽装時にデリゲートレベルのトークンを生成するには、Kerberos 認証を使用し、Active Directory でプロセス アカウントをデリゲートに対して信頼済みとしてマークする必要があります。 </p>
+  <p>デフォルトでは、ASP.NET アプリケーションは偽装の構成がされていません。 これは次のフォルダにある machine.config.comments ファイルの ID 設定を調査することで確認できます: %windir%\Microsoft.Net\Framework\{Version}\CONFIG</p>
+  <p>&lt;<b>identity</b>&gt;（ ID ） 要素は以下のように構成されています。 偽装が無効になっていることに注目してください。</p>
+  <div>
+ <pre>&lt;identity impersonate="false" userName="" password="" /&gt;   </pre>
+  </div>
+  <h2>Windows 認証で最初の呼び出し元を偽装する</h2>
+  <p>アプリケーションで偽装の構成をすると、認証ユーザーの偽装トークンがウェブ要求 thread に添付されます。 その結果、すべてのローカル リソース アクセスは呼び出し元の ID を使用して行われます。 </p>
+  <p>ASP.NET で偽装を用いた Windows 認証を使用するための構成をするには、以下の構成を使用します。</p>
+  <div>
+ <pre>...<br />&nbsp;&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;identity impersonate="true"/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&lt;/system.web&gt;<br />&nbsp;...  </pre>
+  </div>
+  <p>取得された偽装トークンおよび関連ログオン セッションには、ネットワークの Credential 情報がありません。 同一ドメイン内の別のコンピュータにログオンした状態でブラウザがこのウェブ サイトにアクセスし、ウェブ サイトがネットワーク リソースにアクセスしようとすると、リモート サーバ上では Null セッションとなるため、リソース アクセスは失敗します。 リモート リソースにアクセスするには、デリゲートが必要です。 </p>
+  <h2>Windows 認証で固定 ID を偽装する</h2>
+  <p>ASP.NET を固定 ID を偽装するよう構成することができます。 Web.config ファイルの &lt;<b>identity</b>&gt;（ ID ） エレメントでは、ここで示されている通り、偽装 ID の Credential 情報を指定します</p>
+  <div>
+ <pre>...<br />&nbsp;&lt;system.web&gt;<br />&nbsp; ...<br />&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;identity impersonate="true" userName="&lt;domain&gt;\&lt;UserName&gt;" password="&lt;password&gt;"/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&lt;/system.web&gt;<br />&nbsp;...<br /></pre>
+  </div>
+  <p>Credential 情報を&lt;<b>identity</b>&gt;（ ID ） エレメントで指定した場合、それが必ず Aspnet_regiis.exe ツールを使って暗号化されたフォーマットで保存されているようにしてください。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Credential 情報を&lt;<b>identity</b>&gt;（ ID ）で指定します できる限り回避するようにしてください。 リソースにアクセスするために特定の ID が必要な場合、そしてアプリケーションが Windows Server 2003 上で稼動する場合には、その代わりにカスタム サービス アカウント ID をカスタム アプリケーション プールで使用してください。 この方法だと、偽装を行わずに済みます。<b></b></blockquote>
+  <h2>最初の呼び出し元をプログラム的に偽装する</h2>
+  <p>特定のリソースへのアクセスや特定の操作を実行するためにだけ偽装 ID が必要で、それ以外ではプロセス ID を使用することができる場合は、プログラム的な偽装を使用して偽装を一時的に有効にすることができます。</p>
+  <h3>認証ユーザーを一時的に偽装するには</h3>
+  <p>この手順では、IIS から Web アプリケーションに渡され、そして<b>HttpContext</b> （HTTP コンテキスト）オブジェクトを通して提供される Windows トークンを使って一時的に最初の呼び出し元の偽装をします。 </p>
+  <ol>
+    <li>ASP.NET アプリケーションが偽装のために構成されていないか確認して、&lt;<b>identity</b>&gt;（ ID ）では偽装が <b>false</b> （偽）に設定されているようにしてください。  エレメントを使用することにより、ASP.NET は、ページ レベルまたはアプリケーション レベルで文字セットを指定することを可能にします。 <div><pre>...<br />&nbsp;&lt;system.web&gt;<br />&nbsp; ...<br />&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp; &lt;identity impersonate="false"/&gt;<br />&nbsp; ...<br />&nbsp;&lt;/system.web&gt;<br />&nbsp;...  </pre></div><li>認証ユーザーの Windows トークンを取得します。 <div><pre>IIdentity WinId= HttpContext.Current.User.Identity;WindowsIdentity wi = (WindowsIdentity)WinId;  </pre></div><li>認証ユーザーの Windows トークンを使用して、最初のユーザーを一時的に偽装します。偽装が終了したら、現在の thread から偽装トークンを削除します。 <div><pre>// Temporarily impersonate the original user.<br />WindowsImpersonationContext wic = wi.Impersonate();<br />try<br />{<br />&nbsp; // Access resources while impersonating.<br />}<br />catch<br />{<br />&nbsp; // Prevent exceptions propagating.<br />}<br />finally<br />{<br />&nbsp; // Revert impersonation.<br />&nbsp; wic.Undo();<br />}  </pre></div></li></li></li>
+  </ol>
+  <h1>Windows ユーザーを認可する</h1>
+  <p>Windows 認証でユーザーを認証する場合、次の認可オプションを使用することができます。</p>
+  <ul>
+    <li><b>FileAuthorizationModule</b>（ファイル認可モジュール）により提供されたファイル認可。<li><b>UrlAuthorizationModule</b>（URL 認可モジュール）により提供された URL 認可。<li>ロール ベース認可。 </li></li></li>
+  </ul>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ファイル認可には Windows 認証が必要となります。 それ以外の認可は、他の認証メカニズムによって利用できます。<b></b></blockquote>
+  <h2>Windows ACL でファイル認可を構成する</h2>
+  <p>ASP.NET ISAPI 拡張子にマッピングされているファイル形式の要求は <b>FileAuthorizationModule</b>（ファイル認可モジュール）により確認されます。Windows 認証を使用した場合、認証ユーザーの Windows トークンは、要求されたファイルに添付されている ACL に照らし合わせて比較が行われます。 ASP.NET ISAPI 拡張機能に割り当てられていない静的ファイル形式の場合は、IIS が認証ユーザーのアクセス トークンと ファイルに添付された ACL を使用することでアクセス チェックを再度行います。 ユーザーにより直接要求されたファイル形式およびアプリケーションにアクセスされるファイルやその他の Windows リソースについては、以下のように ACL を適切に構成する必要があります。</p>
+  <ul>
+    <li>
+      <b>For</b>
+      <b>resources directly requested by the user.</b> ユーザーから直接要求されるウェブ ページ (.aspx ファイル) やウェブ サービス (.asmx ファイル) 等のリソースの場合、認証ユーザーの Windows アクセス トークンとファイルに添付されている Windows ACL との間で比較が行われます。 認証ユーザーが適切なウェブ ページおよび ウェブ サービスへのアクセスを許可されていることを確認してください。 <li><b>アプリケーションがアクセスするリソースの場合：</b> 偽装が有効になっている場合、ファイル、データベース、レジストリ鍵、Active Directory オブジェクトなどのリソースは、偽装された ID を用いてアクセスされます。 さもなければ、 Network Service アカウントといったようなアプリケーションのプロセスにおける ID がリソースへのアクセスに使用されてしまいます。 リソース アクセスを成功させるためには、これらのリソースに添付されている ACL が、要求したアクセス (読み取りアクセスや書き込みアクセス等) をプロセス アカウントまたは偽装された ID が実行できるよう、適切に構成されていなければいけません。 </li></li>
+  </ul>
+  <h2>URL 認可を構成する</h2>
+  <p>Windows 認証を使用する場合、<b>UrlAuthorizationModule</b> （URL 認可モジュール）が要求されたファイルやフォルダへのアクセスを、認証された呼び出し元の ID を元に確認します。 アプリケーションで偽装の構成が行われているか否かは関係ありません。</p>
+  <p>URL 認可を構成する場合は、&lt;<b>authorization</b>を追加します エレメントを Web.config ファイルに追加して、&lt;<b>deny</b>&gt;（拒否） または &lt;<b>allow</b>&gt;（許可）を構成する際にドメイン名およびユーザーまたはグループ名を指定します elements, as shown here.</p>
+  <div>
+ <pre>&lt;authorization&gt;<br />&nbsp;&lt;deny users="DomainName\UserName" /&gt;<br />&nbsp;&lt;allow roles="DomainName\WindowsGroup" /&gt;<br />&lt;/authorization&gt;   </pre>
+  </div>
+  <p>Windows 認証を使用する場合、ユーザー名の書式は <i>domainName\userName</i> となります。Windows グループはロールとして使用され、書式は <i>domainName\windowsGroupName</i> です。管理者やユーザーといったような既知のローカル グループはここで示されているような "BUILTIN" （ 公示）接頭辞で参照されます。 </p>
+  <div>
+ <pre>&lt;authorization&gt;<br />&nbsp; &lt;allow users="DomainName\Bob, DomainName\Mary" /&gt;<br />&nbsp; &lt;allow roles="BUILTIN\Administrators, DomainName\Manager" /&gt;<br />&nbsp; &lt;deny users="*" /&gt;<br />&lt;/authorization&gt;   </pre>
+  </div>
+  <h2>コードでロール メンバーシップを確認する</h2>
+  <p>Windows 認証を使用している場合、ユーザーの Windows グループ メンバーシップを使用することで、ロール メンバーシップを確認することができます。つまり、Windows グループはロールの役割を果たします。 コードのロール ベースの認可を実施する場合は、明示的なロール チェックを実施する（<b>User.IsInRole</b> または <b>Roles.IsUserInRole</b>）か、 <b>PrincipalPermission</b> （主要なアクセス許可）要求を使用して実施します。 後者は、メソッドの本体で命令的に行うか、あるいは属性をクラスおよびメソッドに追加することで宣言的に実現できます。</p>
+  <h3>明示的なロール チェックを使用するには：</h3>
+  <ul>
+    <li>現在の HTTP 要求に付属する <b>User</b> （ユーザー）オブジェクトの（ <b>IPrincipal</b> 主要 IP）インターフェイスを使用します。 このアプローチは ASP.NET の第 1.0、1.1、および 2.0 版で機能します。Windows 認証を使用する場合は、必ずユーザー名には <i>domainName\userName</i> （ドメイン名/ユーザー名）フォーマットを、グループ名には <i>domainName\groupName</i> （ドメイン名/グループ名）を使用するようにしてください。<b></b><div><pre>if(User.IsInRole(@"DomainName\Manager"))<br />&nbsp; // Perform restricted operation<br />else<br />&nbsp; // Return unauthorized access error.  </pre></div><li>代替案としては、ここで示されているように似たような <b>Roles.IsUserInRole</b> メソッドをサポートしている ASP.NET 第 2.0 版より導入されたロール マネージャ API を使用します。 <div><pre>if(Roles.IsUserInRole(@"DomainName\Manager"))<br />&nbsp; // Perform restricted operation<br />else<br />&nbsp; // Return unauthorized access error.  </pre></div><p>ロール マネージャ API を使用するには、ロール マネージャを有効にしなければいけません。 Windows 認証の場合は、Windows グループを役割（ロール）として使用する、組込まれている <b>AspNetWindowsTokenRoleProvider</b>（ASP.NET Windows トークン ロール プロバイダー）を使用することができます。 ロール マネージャを有効にしてこのプロバイダーを選択するためには、Web.config ファイルに次の構成を追加します。 </p><div><pre>&lt;roleManager enabled="true"<br />             defaultProvider="AspNetWindowsTokenRoleProvider"/&gt;   </pre></div><p>Windows 認証を使用する際に、認可マネージャ ポリシー収納や SQL Server データベースといったような代替ロール収納で役割（ロール）を収納する必要がある場合には、<b>AuthorizationStoreRoleProvider</b> （認証収納ロール プロバイダー）や<b>SqlRoleProvider</b>（SQL ロール プロバイダー）といったような代替ロール プロバイダーを使用することができます。 </p></li></li>
+  </ul>
+  <h3>PrincipalPermission 要求を使用するには</h3>
+  <ul>
+    <li><b>PrincipalPermission</b> （主要なアクセス許可）オブジェクトを構築してからその<b>Demand</b> （要求）メソッドを呼び出して認可を実行します。 <li>きめ細かい認可の場合は、ここで示されているようにコード内で<b>PrincipalPermission.Demand</b> （主要なアクセス許可要求）を呼び出します。 <div><pre>using System.Security.Permissions;<br />...<br />// Imperative checks <br />PrincipalPermission permCheckUser = new PrincipalPermission(@"Domain\Bob", null);<br />permCheckUser.Demand();  </pre></div><li>代替案としては、ここで示されているように、クラスまたはメソッドを <b>PrincipalPermissionAttribute</b>（主要なアクセス許可属性）で装飾することもできます。 <div><pre>using System.Security.Permissions;<br />...<br /> [PrincipalPermission(SecurityAction.Demand,Role=@"Builtin\Administrators")]   </pre></div><p>このアプローチのメリットは、Permview.exe といったようなツールに対してメソッドのセキュリティ条件が明らかであるということです。 </p></li></li></li>
+  </ul>
+  <h1>Kerberos 認証</h1>
+  <p>IIS で統合 Windows 認証を設定していると、IIS は、クライアントおよびサーバの構成に応じて、NTLM または Kerberos 認証のいずれかを使用します。 Kerberos 認証にはパフォーマンス上のメリットがあるだけでなく、デリゲートの使用や相互認証の使用等、付加機能のサポートを提供します。</p>
+  <h2>Kerberos 認証を使用するには</h2>
+  <ul>
+    <li>全てのサーバは Windows 2000 以降で稼動していなければなりません。 <li>クライアント コンピュータは Internet Explorer 5.5 以降で稼動していなければなりません。 <li>全てのコンピュータは Windows 2000 Server 以降のドメイン内でなければなりません。 <li>Internet Explorer のセキュリティ設定は、統合 Windows 認証を有効にする設定となっていなければいけません。 統合 Windows 認証は Internet Explorer 6 ではデフォルトで有効になっていません。 ブラウザの折衝挑戦への対応ならびに Kerberos 認証を有効にするためには、 <b>Internet Options</b> （インターネット オプション）メニューの<b>Advanced</b> （高度設定）タブの <b>Security</b> （セキュリティ）のセクションにある<b>Enable Integrated Windows Authentication</b> （統合 Windows 認証を有効にする）チェックボックスを選択してブラウザを再起動します。 <li>カスタム サービス アカウントを使用して ASP.NET アプリケーションを実行している場合は、Active Directory 内にそのアカウントのサービス プリンシパル名 (SPN) を登録しなければいけません。 </li></li></li></li></li>
+  </ul>
+  <p>SPN を登録するには、コマンド プロンプトの次のコマンドを実行して Setspn.exe ユーティリティーを使用します: </p>
+  <p>
+    <b>setspn -A HTTP/webservername domain\customAccountName（SPN 設定 – HTTP/ウェブサーバ名 ドメイン\カスタム アカウント名）</b>
+  </p>
+  <p>
+    <b>setspn -A HTTP/webservername.fullyqualifieddomainname domain\customAccountName（SPN 設定 – HTTP/ウェブサーバ名を省略なしのドメイン名でドメイン指定\カスタム アカウント名）</b>
+  </p>
+  <p>複数のウェブ アプリケーションそれぞれで異なる ID を使用し、Kerberos 認証を使用したい場合は、それらのアプリケーションを同一ホスト名で使用することはできませんのでご注意ください。 これは、Kerberos での制限事項ではなく、HTTP での制限事項です。 対処方法としては、同一ホスト名に対して複数の Domain Name System (DNS) 名を使用し、異なる DNS を使用して、各ウェブ アプリケーションの URL を開始してください。 例えば、 http://app1 および http://app2 の代わりに http://site/app1 および http://site/app2を使用します。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

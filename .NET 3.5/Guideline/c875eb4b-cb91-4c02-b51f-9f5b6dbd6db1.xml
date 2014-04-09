@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1180433859" Content_Hash="181711446">
+  <Metadata>
+    <Id>c875eb4b-cb91-4c02-b51f-9f5b6dbd6db1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>バインディングのオプションを知る</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>どのようなバインディング オプションを自分が持っているか、どのオプションが自分のシナリオに適しているかを検討します。</p>
+  <h1>理由</h1>
+  <p>適切なバインディングの選択はセキュリティの観点から重要です。なぜならそれは、メッセージの機密性、完全性および認証を決定する、転送セキュリティのようなセキュリティの選択を促進するためです。</p>
+  <h1>状況</h1>
+  <p>設計時に考慮すべき主要な問題は、特定のシナリオのためにどのバインディングを選択するかということです。 さらに、どの認証および認可オプションを保持しているか、およびあなたのシナリオに適合するのはどれかを検討する必要があります。</p>
+  <h1>対策</h1>
+  <p>バインディングのオプションを把握して、自分のシナリオに最も適切なオプションを選択してください。 バインディングのオプションを把握すると、より信頼性の高い安全な WCF アプリケーションを設計することができます。 </p>
+  <p>次の表は、一般的なバインディングをまとめたものです。</p>
+  <p>
+    <br />
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <p>
+              <strong>バインディング</strong>&nbsp;</p>
+          </td>
+          <td>
+            <p>
+              <strong>説明</strong>
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td>basicHttpBinding&nbsp;</td>
+          <td>ASMX ベースの Web サービスおよびクライアント、およびその他 WS-I Basic Profile 1.1 に適合するサービスとの通信ができる、エンドポイントの構成および公開を行うバインディングを表します。デフォルトではセキュリティが無効になっています。</td>
+        </tr>
+        <tr>
+          <td>wsHttpBinding&nbsp;</td>
+          <td>非二重サービス コントラクトに適した安全かつ信頼性の高い相互運用型のバインディングが定義されます。 このバインディングでは、信頼性用に WS-Reliable Messaging、メッセージ セキュリティおよび認証用に WS-Security の仕様が実装されます。 トランスポートは HTTP、メッセージ エンコーディングは Text/XML エンコーディングとなります。 デフォルトでは、Windows 認証を用いたメッセージ セキュリティが実現できます。</td>
+        </tr>
+        <tr>
+          <td>ws2007HttpBinding&nbsp;</td>
+          <td>非二重サービス コントラクトに適した安全かつ信頼性の高い相互運用型のバインディングが定義されます。 このバインディングでは、信頼性用に WS-Reliable Messaging、メッセージ セキュリティおよび認証用に WS-Security の仕様が実装されます。 トランスポートは HTTP、メッセージ エンコーディングは Text/XML エンコーディングとなります。 ws2007HttpBinding では wsHttpBinding に類似したバインディングが実現できますが、OASIS (Organization for the Advancement of Structured Information Standards) 用の標準が使用されます。 デフォルトでは、Windows 認証を用いたメッセージ セキュリティが実現できます。</td>
+        </tr>
+        <tr>
+          <td>netTcpBinding&nbsp;</td>
+          <td>クロスマシン通信に適した安全かつ信頼性の高い最適化されたバインディングが指定されます。 デフォルトでは、トランスポート セキュリティおよび Windows 認証をデフォルトのセキュリティ設定として用いたランタイム通信スタックが生成されます。 メッセージ送達用の TCP プロトコル、および 2 進メッセージ エンコーディングを使用します。</td>
+        </tr>
+        <tr>
+          <td>netNamedPipeBinding&nbsp;</td>
+          <td>安全かつ信頼性の高い、オンマシン型のクロスプロセス通信に最適化されたバインディングが定義されます。 デフォルトでは、信頼性用に WS-ReliableMessaging&nbsp;、転送セキュリティ用にトランスポート セキュリティ、メッセージ送達用に名前付きパイプ、および 2 進メッセージ エンコーディングを用いたランタイム通信スタックが生成されます。 デフォルトではセキュリティで保護されていません。<br />netMsmqBinding&nbsp;クロスマシン通信に適した、キューを使用したバインディングが定義されます。</td>
+        </tr>
+        <tr>
+          <td>wsFederationHttpBinding&nbsp;</td>
+          <td>連合セキュリティをサポートしたバインディングが定義されます。 認証および認可のために、複数の企業および信頼ドメインを横断して、 ID を流して共有する機能である、フェデレーションの実装に役立ちます。 WCF では、フェデレーションはメッセージ セキュリティおよび混合モード セキュリティ上に実装されますが、トランスポート セキュリティ上には実装されません。 このバインディングを用いて構成されたサービスでは、トランスポートとして HTTP プロトコルを使用しなければいけません。</td>
+        </tr>
+        <tr>
+          <td>ws2007FederationHttpBinding&nbsp;</td>
+          <td>ws2007FederationHttpBinding. wsFederationHttpBinding から派生した、連合セキュリティをサポートするバインディングが定義されます。 認証および認可のために、複数の企業および信頼ドメインを横断して、 ID を流して共有する機能である、フェデレーションの実装に役立ちます。 WCF では、フェデレーションはメッセージ セキュリティおよび混合モード セキュリティ上に実装されますが、トランスポート セキュリティ上には実装されません。 このバインディングを用いて構成されたサービスでは、トランスポートとして HTTP プロトコルを使用しなければいけません。 ws2007FederationHttpBinding では ws2007FederationHttpBinding に類似した&nbsp;バインディングが実現できますが、OASIS (Organization for the Advancement of Structured Information Standards) 用の標準が使用されます。</td>
+        </tr>
+        <tr>
+          <td>wsDualHttpBinding&nbsp;</td>
+          <td>二重サービス コントラクトまたは SOAP 仲介者を経由した通信に適した、安全かつ信頼性の高い相互運用型のバインディングが定義されます。</td>
+        </tr>
+        <tr>
+          <td>customBinding&nbsp;</td>
+          <td>メッセージ スタックを完全に制御できるカスタムのバインディングを作成できます。</td>
+        </tr>
+        <tr>
+          <td>
+          </td>
+          <td>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>バインディングの詳細については、MSDN の「Windows Communication Foundation バインディング」 (<a href="http://msdn.microsoft.com/en-us/library/ms733027.aspx">http://msdn.microsoft.com/ja-jp/library/vstudio/ms733027(v=vs.90).aspx ) を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

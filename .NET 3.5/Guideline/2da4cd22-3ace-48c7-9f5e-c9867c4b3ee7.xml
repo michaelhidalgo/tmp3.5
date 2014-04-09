@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1744828382" Content_Hash="1417587144">
+  <Metadata>
+    <Id>2da4cd22-3ace-48c7-9f5e-c9867c4b3ee7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Web サイト ファイルに適切な ACL を構成する</Title>
+    <Category>認可</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>Web サイトのファイルにアクセス制御リスト（ACL）を構成し、 IIS とASP.NET のファイル認可が適切にこれらのファイルへのアクセスを制御するようにします。&nbsp;&nbsp; </p>
+  <h1>理由</h1>
+  <p>ファイルに適切な&nbsp;アクセス制御の制限&nbsp;を適用しないと、ユーザーが;許可のないはずのファイルの&nbsp読み取り、編集&nbsp;または削除をできるようになる可能性があります。&nbsp;ACL は認可されていないファイルへの&nbsp;アクセスに対する重要な防御レイヤーです。&nbsp;</p>
+  <h1>状況</h1>
+  <p>ASP.NET アプリケーションはすべて、適切なファイルの ACL から利益を得ることができます。&nbsp;ACL は&nbsp;アプリケーションを&nbsp;実装する前の&nbsp;設計&nbsp;フェーズに構築しなければなりません。&nbsp;&nbsp;ACL&nbsp; は展開時に適用されます。&nbsp;</p>
+  <h1>対策</h1>
+  <p />Web サイト ファイル上の正しい ID に対して正しいアクセス制御リスト (ACL) を構成する必要があります。これにより、IIS および ASP.NET ファイルの認可制御がこれらのファイルに適切にアクセスできるようになります。 以下の ID に対してアクセス権を付与する必要があります。<ol><li><p><b>Web アプリケーション ID。</b> ASP.NET アプリケーションの実行にカスタム サービス アカウントを使用している場合には、<b>ga</b> スイッチでAspnet_regiis.exe を実行することで、IIS メタベースとファイル システムに適切なアクセス許可を付与することができます。 </p><li><p><b>アプリケーションのユーザー。</b> ASP.NET ファイル認可は、IIS によって ASP.NET ISAPI 拡張 (Aspnet_isapi.dll) にマッピングされたファイル形式についてのアクセス チェックを実行します。 Windows 認証を使用している場合、認証されたユーザーの Windows アクセス トークン (匿名ユーザーの場合は IUSR_MACHINE のことがある) が、要求された ASP.NET ファイルに付加された ACL でチェックされます。 Forms Authenticationを使用している場合は、アクセスが IUSR_MACHINE に対してチェックされます。</p></li></li></ol><p>以下のステップを使用します:</p><ol><li><p><strong>アプリケーション リソースにアクセスする必要があるユーザー／ロールを決定します。</strong> アプリケーションに全ロールのリストを作成します。&nbsp;アプリケーション リソースへのアクセスを&nbsp;必要とするエンティティは、Web アプリケーションのプロセス&nbsp;IDとアプリケーションのユーザーです。 &nbsp;ASP.NET アプリケーションを&nbsp;実行するためにカスタム サービス アカウントが使用されている場合には、それもリストに加えてください。 IIS メタベースとファイル システムへの適切なアクセス許可が必要です。&nbsp;</p><li><p><strong>各ユーザー／ロールがアプリケーション リソースを使用するために必要なアクセス レベルを評価します。</strong> リソースにアクセスするすべてのエンティティに最小限の特権レベルを割り当てることが重要です。&nbsp; そのためには、一つの軸にロールを、もう一つの軸にリソースを記載したテーブルを作成します。&nbsp; &nbsp; マトリックスのセル内で、それぞれのロールが各リソースの使用に必要なアクセス レベルを説明します（例： 読み取り専用、読み取り／書き込み、フル アクセス等）。&nbsp; これは一般にサブジェクト／オブジェクト マトリックスと呼ばれています。</p><p><table><tbody><tr><td></td><td><strong>オブジェクト</strong></td><td></td></tr><tr><td><strong>サブジェクト</strong></td><td><strong>ユーザー管理</strong></td><td><strong>ページ コンテンツ</strong></td></tr><tr><td><strong>管理者</strong></td><td>作成、削除、変更</td><td></td></tr><tr><td><strong>コンテンツ 作成者</strong></td><td></td><td>作成、削除、変更、読み取り</td></tr><tr><td><strong>閲覧者</strong></td><td></td><td>読み取り</td></tr><tr><td><strong>匿名</strong></td><td></td><td>読み取り</td></tr></tbody></table></p><li><p><strong>これらの制限を実行するために、ACL を適用します。</strong> &nbsp; アプリケーションのアカウントに ASP.NET のアクセス許可を割り当てるには、以下のコマンドを実行します:</p><pre>aspnet_regiis -ga MachineName\AccountName </pre><p> ドメイン アカウントを使用しておりサーバまたはドメイン名がMachineNameで、カスタム アカウントの名前がAccountName の場合。 Aspnet_regiis.exe を -ga スイッチで実行すると、コマンドは以下の権限をアカウントに付与します:</p><ul><li><div>IIS メタベースへのアクセス</div><li><div>%Windir%\Microsoft.NET\Framework\version\Temporary ASP.NET Filesのフォルダに書き込むアクセス許可</div></li></li></ul><p>アカウントはローカル ユーザー グループのメンバーでもあります。 そのため、\Inetpub ディレクトリ ツリー への読み取りアクセスもあります（これらのディレクトリにはユーザー グループに読み取りアクセスを付与する ACL があります）。&nbsp;</p></li></li></li></ol><h1>その他のリソース</h1><ul><li><div>IIS メタベースの概要<a href="http://support.microsoft.com/kb/240941/en-us">http://support.microsoft.com/kb/240941/en-us</a></div></li></ul><h1>関連する規則</h1><ul><li><div><a href="/article/bdff2308-96e1-4787-9162-a115d1366f76">保護されたファイルを取り出せないようにブロックする</a></div><li><div><a href="/article/0def44d6-fea1-45a9-951c-79b54d549e5c">監査およびログ ファイルへのアクセスを限定する</a></div></li></li></ul><hr /><p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

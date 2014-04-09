@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-117942592" Content_Hash="-1577604210">
+  <Metadata>
+    <Id>faada3f5-3f50-42fc-b863-5058e3d848cb</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構成ファイル内の機微データを保護する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>構成ファイルに格納されているすべての機微データを保護します。</p>
+  <h1>理由</h1>
+  <p>構成セクションには一般的に機微データが含まれます (たとえば、 SQL Server リソースの接続文字列にはユーザー名とパスワードが含まれます)。 予防策として、プレーンテキストで保存するべきではありません。攻撃者がサーバに侵入したり、ファイルのコピーを入手した場合、適切に保護されていないとそれらの値を攻撃者が読み取ることができます。</p>
+  <h1>状況</h1>
+  <p>アプリケーションが接続文字列、暗号鍵、ハッシュ化ソルト、ディレクトリ パス、Credential 情報などの機微データを含む構成ファイルを使用する場合。</p>
+  <h1>対策</h1>
+  <p>構成ファイル内の機微データを保護するには、以下の手順を使用します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機微データの識別</strong>: 構成ファイル内に保存されているすべての機微データを見つけます。 機微データの例には、Credential 情報、接続文字列、暗号鍵、ハッシュ化ソルト、ディレクトリ パスが含まれますが、これらに限りません。 <strong>web.config</strong> 内の次の各セクションは、機微データが頻繁に格納される場所として知られています:</p>
+      <ul>
+        <li>
+          <strong>appSettings</strong>
+          <li>
+            <strong>connectionStrings</strong>
+            <li>
+              <strong> identity </strong>
+              <li>
+                <strong>sessionState</strong>
+              </li>
+            </li>
+          </li>
+        </li>
+      </ul>
+      <p>しかし、web.config 内の次の各セクションは、暗号化することが<strong>できません</strong>:</p>
+      <ul>
+        <li>
+          <strong>processModel </strong>
+          <li>
+            <strong>runtime</strong>
+            <li>
+              <strong>mscorlib </strong>
+              <li>
+                <strong>startup</strong>
+                <li>
+                  <strong>system.runtime.remoting</strong>
+                  <li>
+                    <strong>configProtectedData</strong>
+                    <li>
+                      <strong>satelliteassemblies</strong>
+                      <li>
+                        <strong>cryptographySettings</strong>
+                        <li>
+                          <strong>cryptoNameMapping</strong>
+                          <li>
+                            <strong>cryptoClasses</strong>
+                          </li>
+                        </li>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </ul>
+      <li>
+        <p>
+          <strong>構成ファイル内の機微データを暗号化</strong>: 構成ファイル内の機微データを暗号化し、ファイルが漏れた場合にも機密性を確実に保つようにします。 アプリケーションが構成ファイルにアクセスしたら、使用前に機微データの暗号化が解除されるようにしてください。 次のメカニズムを使用してアプリケーションの<strong>web.config</strong>内のセクションを保護します。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>RSAProtectedConfigurationProvider</strong>: RSA暗号化アルゴリズムを使用するこのプロバイダー暗号化構成セクションは、複数のマシンが同じ構成ファイルや鍵を共有する場合に使用する必要があります。 次のプロバイダーを使用して暗号化を行うには<strong>aspnet_regiis</strong>ユーティリティを使用します。</p>
+            <blockquote>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/&lt; your application's name &gt;" -prov "RSAProtectedConfigurationProvider"</pre>
+            </blockquote>
+            <p>さらに、ASP.NETのローカルシステムアカウントがIIS鍵リポジトリへのアクセスを許可する必要があります。 次のコマンドを使用して、アクセスを許可します:</p>
+            <blockquote>
+ <pre>aspnet_regiis -pa "NetFrameworkConfigurationKey" "&lt; ASP.NET's local system account &gt;"</pre>
+            </blockquote>
+            <li>
+              <p>
+                <strong>DataProtectionConfigurationProvider</strong>: このプロバイダーはWindows  DPAPIを使用して構成セクションを暗号化します。さらに構成データが複数のマシンで共用する必要がない場合に使われます。 次のプロバイダーを使用して暗号化を行うには<strong>aspnet_regiis</strong>ユーティリティを使用します。</p>
+              <blockquote>
+ <pre>aspnet_regiis -pe "connectionStrings" -app "/&lt; your application's name &gt;" -prov "DataProtectionConfigurationProvider"</pre>
+              </blockquote>
+              <li>
+                <p>
+                  <strong>Windows identities</strong>: 次の手順に従って、ASP.NETによって実行されるすべてのWindows偽装を保護します。</p>
+                <ol>
+                  <li>
+                    <p>偽装されるWindowsアカウントを識別します。</p>
+                    <li>
+                      <p>
+                        <strong>HKLM\Software</strong> ハイブ内でアプリケーション用のレジストリ鍵を作成します。</p>
+                      <li>
+                        <p>
+                          <strong>aspnet_setreg</strong> ユーティリティを使用して、偽装時に使用される Credential 情報を保存します。 例: </p>
+                        <blockquote>
+ <pre>aspnet_setreg -k:Software\MyApp\identity -u:&lt; username &gt; -p:&lt; password &gt;</pre>
+                        </blockquote>
+                        <li>
+                          <p>
+                            <strong>aspnet_setreg</strong> ユーティリティが提供する属性で、 <strong>web.config</strong> 内の <strong>identity</strong> エレメントをアップデートします。 例: </p>
+                          <blockquote>
+ <pre>&lt;identity impersonate="true" userName="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,userName"<br />                              password="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,password" /&gt;</pre>
+                          </blockquote>
+                        </li>
+                      </li>
+                    </li>
+                  </li>
+                </ol>
+              </li>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>構成ファイルを保護してください</strong>:</p>
+          <ul>
+            <li>
+              <p>
+                <strong>適切なアクセス許可を設定します</strong>。アプリケーションとその管理者のみが構成ファイルにアクセスできるように適切なファイルシステムのアクセス許可を適用します。</p>
+              <li>
+                <p>
+                  <strong>HttpForbiddenHandlerの使用</strong>: HttpForbiddenHandler を使用してHTTPの構成ファイルへのアクセスを制限します。 アプリケーションのカスタム拡張機能で動作するように HttpForbiddenHandler を設定する場合は、次の手順に従います。</p>
+                <ul>
+                  <li>
+                    <p>
+                      <strong>ISAPI フィルター</strong>: アプリケーションのカスタム拡張子に ASP.NET ISAPI フィルターをマップします。</p>
+                    <ol>
+                      <li>IIS 管理ユーティリティを開きます。 <li>アプリケーションの仮想ディレクトリを検索します。 <li>アプリケーションを右クリックして、［<strong>プロパティ</strong>］を選択します。<li><strong>[Directory]</strong> タブにナビゲートします。 <li>［<strong>構成</strong>］を選択します。<li><strong>.aspx</strong> 拡張子を検索します。 <li>［<strong>編集</strong>］を選択します。<li>実行可能ファイルのパスをコピーします。 <li>［<strong>キャンセル</strong>］を選択します。<li><strong>Add</strong> を選択します。<li>実行可能ファイルのパスを貼り付けます。 <li>アプリケーションのカスタム拡張子を指定します。 <li>IIS の管理ユーティリティに到達するまで <strong>OK</strong> を選択します。</li></li></li></li></li></li></li></li></li></li></li></li></li>
+                    </ol>
+                    <li>
+                      <p>
+                        <strong>web.config</strong>: アプリケーションの web.config に次のエレメントを追加します:</p>
+                      <blockquote>
+ <pre>&lt;httpHandlers&gt;  &lt;add path="&amp;#42;.myappextension" verb="&amp;#42;" type="System.Web.HttpForbiddenHandler" validate="true"/&gt;&lt;/httpHandlers&gt;</pre>
+                      </blockquote>
+                    </li>
+                  </li>
+                </ul>
+              </li>
+            </li>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次の部分は、Windows偽装のために有効な Credential 情報を提供する構成セクションを説明しています。 しかし、Credential 情報はweb.config内にプレーンテキストとして保存されてしまいます。 そのため構成ファイルへのアクセスを持つ人は誰でも Credential 情報を入手できます。</p>
+  <blockquote>
+ <pre>&lt;identity impersonate="true" userName="testAcct" password="testPass"/&gt;</pre>
+  </blockquote>
+  <h1>ソリューションの例</h1>
+  <p>次の部分は、Windows偽装のために有効な Credential 情報を提供する構成セクションを説明しています。 開発者はaspnet_setreg ユーティリティを使用して Credential 情報を暗号化し、暗号化された Credential 情報を含むレジストリ鍵を指すweb.configを変形させます。 構成ファイルが漏れてしまっても、攻撃者はWindows Credential 情報の有効なセットを入手できません。</p>
+  <blockquote>
+ <pre>&lt;identity impersonate="true" userName="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,userName"<br />                              password="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,password"/&gt;</pre>
+  </blockquote>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <strong>aspnet_setreg</strong> ユーティリティーに関する詳細情報は、「<a href="http://support.microsoft.com/kb/329290">ASP.NET ユーティリティーを使用して Credential 情報とセッション状態接続文字列を暗号化する方法</a>」を参照してください。<li>HttpForbiddenHandler の構成方法についての詳しい情報は、 <a href="http://support.microsoft.com/kb/815152">ASP.NET を使用してファイル形式を保護する</a>を参照してください。</li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/cd4ccbbb-be9c-4ff4-8b20-d116819b634b">ガイドライン: 安全な鍵の保管場所を使用する</a>
+      <li>
+        <a href="/article/c6f3e32d-57b8-44cf-818a-c346d0014c06">ガイドライン: プレーンテキストで機微データを保存しない </a>
+        <li>
+          <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン: ユーザーに提供されたファイル名とパス入力をすべてフィルタする </a>
+          <li>
+            <a href="/article/693e1ae5-e381-41fd-93f7-844aaeca3ef8">チェックリスト項目: 構成ファイル内の機微データが保護されている</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-852810724" Content_Hash="1888162791">
+  <Metadata>
+    <Id>fd97f26a-1730-46c1-84ca-10fc44206c81</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>役割ベースのセキュリティ チェックが実行される</Title>
+    <Category>認可</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが異なるユーザーの種類に対する特定のロールを作成することを確認してください。 リソースへのアクセスを許可するときに、ユーザー ベースではなくロール ベースでセキュリティ チェックが実行されるように&amp;nbsp;する。</p>
+  <h1>理由</h1>
+  <p>アプリケーション ロールは、複数のユーザーが同じ役割を演じることを可能にします。 このメカニズムによって、与えられたタスクの実行に必要な最小限の特権を探して管理すること、また、アプリケーションのユーザーをより堅固に管理することができるようになります。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順を使用して、アプリケーションがロールベースのアクセス制御を使用するかを特定します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションがユーザー ロールを使用するかを確認してください。</strong> アプリケーションがユーザー ロールを確立してあること、および各ユーザー ロールに適切なアクセス特権を付与していること確認してください。 アプリケーション内のロールとその特権は、アプリケーションのビジネス目的のコンテキストで検査されていることを確認するため、およびそれらを実装した通りのアプリケーションと照合することを可能にするために、ドキュメントで定義する必要があります。 例: </p>
+ <pre>Roles      Actions    Access Controls    Client Accounts<br />--------------------------------------------------------<br />Manager    Connect        Always            Always<br />           Read           Always            Always<br />           Use            Always            Occasionally<br />           Modify         Never             Occasionally <br />Employee   Connect        Always            Always<br />           Read           Always            Always<br />           Use            Always            Always<br />           Modify         Never             Never</pre>
+      <li>
+        <p>
+          <strong>アプリケーションがロールベース セキュリティのポリシーを適用することを確認してください。 </strong>アプリケーションがアクセス制御を確立されたユーザー ロールにマッピングすることを確認してください。&amp;nbsp;使用されるロールがきめ細かく設定されていることを確認してください。 単にアプリケーション全体へのアクセスを制御することではなく、アプリケーション内で特権を区分することが目的であることに留意してください。 ロールは、アプリケーション内の特定のページや機能にマッピングされる必要があります。 アプリケーションの設計によって、アプリケーションがロールベースのセキュリティを適用するかどうかを確認するさまざまな方法があります。 </p>
+        <ul>
+          <li>
+            <p>
+              <strong>プログラム上のロール ベースのセキュリティをチェックします:</strong> アプリケーションのコード ベース内にセキュリティ チェックが組み込まれている場合は、特別な特権を必要とするすべての機能を識別します。 それぞれの保護されている機能にアクセス許可のチェックが関連付けられていることを確認してください。</p>
+            <p>たとえば、次のコードは、適切な財務報告を生成する前に、ユーザーが共有ホルダーであることを検証します。</p>
+            <blockquote>
+ <pre>public void GenerateFinancialReport(DateTime startDate, DateTime endDate)<br />&amp;#123;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; if (HttpContext.Current.User.IsInRole("ShareHolders"))<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &amp;#123;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; // Generate the relevant financial report<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &amp;#125;<br />&amp;#125;<br /></pre>
+            </blockquote>
+            <li>
+              <p />
+              <strong>宣言型のロール ベース セキュリティをチェックします:</strong> アプリケーションが宣言型セキュリティを使用している場合は、その <strong>web.config</strong> ファイルを調べます。 保護されているリソースへのアクセスは、アプリケーションのセキュリティ要件に従って付与されることを確認してください。 構成ファイル内で各リソースが適切なユーザー ロールに関連付けられていることを確認します。<ul><li><strong>roleManager</strong>:  フォーム ベースの認証が使用されている場合、ASP.NET ロール マネージャが  <strong>roleManager</strong> エレメントを使用して構成されていることを確認します。 <li><strong>authorization</strong>: リソースの認可設定が <strong>authorization</strong>  エレメントによってカプセル化されていることを確認します。 <li><strong>allow</strong>: 指定されたリソースへのアクセスを許可されたユーザーとロールが列挙されていることを確認します。 <li><strong>deny</strong>: 指定されたリソースへのアクセスを拒否されたユーザーとロールが列挙されていることを確認します。 <p>例: </p><pre>&lt;configuration&gt;<br />&amp;nbsp; &lt;system.web&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;roleManager enabled="true"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; cacheRolesInCookie="false"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; defaultProvider="ProjectRoleProvider"&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;providers&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;clear /&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;add name="ProjectRoleProvider"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; type="System.Web.Security.SqlRoleProvider"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; connectionStringName="ProjectConnection"<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; applicationName="myapp" /&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;authorization&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;allow roles="Employees, Managers" /&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;deny users="&amp;#42;" /&gt;</pre></li></li></li></li></ul><li><p><strong>Windows によって管理されているロール ベースのセキュリティをチェックします:</strong> アプリケーションで、Windows の <strong>ローカル ユーザーとグループ</strong> を使用してロール ベースのセキュリティ ニーズを管理している場合、アプリケーションの web.config が正しく構成されていることを確認します。</p><p>例: </p><pre>&lt;configuration&gt;<br />&amp;nbsp; &lt;system.web&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;authentication mode="Windows" /&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;authorization&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;allow roles="NTDomain\Employees, NTDomain\Managers" /&gt;<br />&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; &lt;deny users="&amp;#42;" /&gt;</pre></li></li>
+          </li>
+        </ul>
+        <ul>
+        </ul>
+        <li>
+          <p>
+            <strong>ユーザーが適切なロールに割り当てられていることを確認してください。 </strong>アプリケーションのすべてのユーザーをリストします。&amp;nbsp;それぞれのユーザーが適切なロールに割り当てられていることを確認してください。 アプリケーションは実際のユーザーでなく、ユーザー ロールに従ってセキュリティ ポリシーを適用する必要があります。 ロール ベースのアクセス制御を実施するアプリケーションのメカニズムに基づいて、次のいずれかの手法が、アプリケーションのユーザーを管理するために使用されていることを確認 します。</p>
+          <ul>
+            <li>
+              <p>
+                <strong>プログラムを使用する:</strong> ASP.NET ではアプリケーションのユーザーを <strong>Roles</strong> クラスで管理できます。</p>
+              <p>ロールにユーザーを割り当てるために以下のメソッドが使用されていることを確認します。</p>
+              <ul>
+                <li>
+                  <strong>AddUserToRole</strong>
+                  <li>
+                    <strong>AddUserToRoles</strong>
+                    <li>
+                      <strong>AddUsersToRole</strong>
+                      <li>
+                        <strong>AddUsersToRoles</strong>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </ul>
+              <p>ロールからユーザーを削除するために以下のメソッドが使用されていることを確認します。</p>
+              <ul>
+                <li>
+                  <strong>RemoveUserFromRole</strong>
+                  <li>
+                    <strong>RemoveUserFromRoles</strong>
+                    <li>
+                      <strong>RemoveUsersFromRole</strong>
+                      <li>
+                        <strong>RemoveUsersFromRoles </strong>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </ul>
+              <li>
+                <strong>宣言型:</strong> ASP.NET ロール マネージャを使用してアプリケーションのユーザーが管理されていることを確認します。 これを行うには、アプリケーションのロール マネージャをホストするデータベース サーバに接続します。 次のテーブルを使用して、各ユーザーが適切なロールに割り当てられていることを確認します。<ul><li>aspnet_Users<li>aspnet_Roles <li>aspnet_UsersInRoles</li></li></li></ul><li><p><strong>Windows:</strong> アプリケーションが Windows 認証を使用している場合は、Windows の <strong>ローカル ユーザーとグループ</strong> サービスを使用して、アプリケーションのユーザーを管理します。 アプリケーションが、組織の NT ドメインまたは Active Directory フォレストに接続されている場合は、組織のネットワーク管理者にユーザーとロールの管理をデリゲートします。</p><p>Windows の <strong>ローカル ユーザーとグループ</strong> サービスを使用するには、次のステップに従います。</p><ol><li><strong>コントロールパネル -&gt; 管理ツール -&gt; コンピュータの管理</strong> を開きます。 <li>ナビゲーション ツリーの <strong>システム ツール</strong> ノードで、<strong>ローカル ユーザーとグループ</strong> を選択します。  <li><strong>グループ</strong> を選択します。<li>ロールごとに、それぞれのグループをダブルクリックします。 <li>適切なユーザーのみが指定グループのメンバーとして追加されていることを確認します。 <li><strong>キャンセル</strong> をクリックします。<li>アプリケーションのユーザー ロールのすべてに対してステップ 4 ～ 6 を繰り返します。</li></li></li></li></li></li></li></ol></li></li>
+            </li>
+          </ul>
+          <ul>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>下記のセグメントは、あるアプリケーションのアクセス制御ポリシーを表したものです。 アプリケーションはロール ベースのセキュリティを強制しないので、それぞれ別々のユーザーに対してポリシー エントリを持っています。&amp;nbsp;このため、アプリケーションのユーザー数が増えたときにユーザーのアクセス権の管理が非常に難しくなります。</p>
+  <p />
+ <pre>&lt;authorization&gt;<br />  &lt;allow users="NTDomain\joe, NTDomain\sarah, NTDomain\bill, NTDomain\sue" /&gt;<br />  &lt;deny users="&amp;#42;" /&gt;<br />&lt;/authorization&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>web.config 内の roleManager エレメントについての詳細は、MSDNの <a href="http://msdn2.microsoft.com/en-us/library/ms164660(vs.80).aspx">roleManager Element (ASP.NET 設定スキーマ)</a> 関連文書をご覧ください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/17034ef0-8935-4fb2-bbae-d79982e710c7">ガイドライン: ロール ベースのセキュリティ チェックを実行する </a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

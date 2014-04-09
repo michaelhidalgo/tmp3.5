@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="51802287" Content_Hash="-1470501866">
+  <Metadata>
+    <Id>ef6e5177-662a-4789-9ac0-3e7d93822ee6</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ログイン情報を検証する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>正規表現 (Regex)クラスおよび/または独自のカスタム検証コードを使用して、すべてのユーザー ログイン情報を検証してください。 </p>
+  <h1>理由</h1>
+  <p>ユーザー提供のログイン情報の検証により、システム アーキテクチャに応じて、クロスサイト スクリプティング攻撃、SQL インジェクション、およびその他の潜在的な問題を回避することができます。&nbsp; すべての入力は使用前に必ず検証され、表示前にエンコードされなければなりませんが、ログイン情報は高価値のデータ ストアと相互処理するため特に重要です。 </p>
+  <h1>状況</h1>
+  <p>ログイン機能を備えたすべてのアプリケーションが、ユーザーが送信した、およびユーザーが修正可能な全てのログイン情報を検証することをお勧めします。 </p>
+  <h1>対策</h1>
+  <p>ユーザー名およびパスワードを含むユーザー ログイン情報の種類、長さ、形式および範囲を検証してください。&nbsp; サーバで入力を制限するには、正規表現を使用してください。&nbsp; <b>SqlMembershipProvider</b> を使用しておらず、ユーザー格納データベースにアクセスするクエリを作成する場合、SQL インジェクションに対して脆弱になるため、ログイン情報を使用して動的に SQL ステートメントを確立しないでください。&nbsp; 代わりに、入力を検証し、パラメータ化されたストアド プロシージャを使用してください。 </p>
+  <p>スクリプトのインジェクション攻撃から保護するためにユーザーのブラウザにエコーバックする前にログイン情報をエンコードします。 たとえば、こちらに記載されているように、Microsoft AntiXSS Libraryを使用します。 </p>
+ <pre>Response.Write(Microsoft.Security.Application.AntiXSSLibrary.HtmlEncode("Welcome " + Request.Form["username"]));</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

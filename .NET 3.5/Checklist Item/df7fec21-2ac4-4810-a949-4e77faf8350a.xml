@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="843515482" Content_Hash="-1034063130">
+  <Metadata>
+    <Id>df7fec21-2ac4-4810-a949-4e77faf8350a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>トレーシングは無効です&lt;trace Enable="false"/&gt;</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>運用サーバで Machine.config のトレーシングが無効になっていることをチェックしてください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>Machine.config のトレーシングの設定は、<b><trace></b>エレメントを使用して行います。 トレーシングは開発サーバやテストサーバでは便利ですが、システムレベルのトレース情報は攻撃者がアプリケーションをプロファイル化し、弱点を探るのに大いに役立つため、運用サーバではトレーシングを有効にしないでください。</p>
+  <p>運用サーバでは以下の構成を使用してください。</p>
+  <div>
+ <pre>&lt;trace enabled="false" localOnly="true" pageOutput="false"<br />        requestLimit="10" traceMode="SortByTime"/&gt;</pre>
+  </div>
+  <p>運用サーバに<b>enabled="false"</b> を設定してください。 ライブ アプリケーションの問題をトレーシングする必要がある場合は、テスト環境で問題をシミュレーションするか、必要な場合は、トレースの詳細がリモート クライアントに返されないように、トレーシングを有効にして <b>localOnly="true"</b> を設定してください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

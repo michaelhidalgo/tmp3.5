@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-3671244" Content_Hash="-273437408">
+  <Metadata>
+    <Id>08562493-1581-4acb-b136-8f78508861b1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>DPAPIを使用して構成セクションを暗号化する方法</Title>
+    <Category>構成</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>概要</h1>
+  <p>このハウツーは、Windows データ保護アプリケーション プログラミング インターフェイス（DPAPI）保護された構成プロバイダーの使用方法と、 Aspnet_regiis.exe ツールで構成ファイルのセクションを暗号化する方法を示します。 Web.config と Machine.config ファイルに保持された、接続文字列など機微データを暗号化するための Aspnet_regiis.exe ツールを使用することができます。 DPAPI保護の構成プロバイダーは鍵ストレージ用のマシンレベルおよびユーザーレベルのストアをサポートしています｡ ストアの選択は、アプリケーションが他のアプリケーションとサーバを共有しているかどうか、および機微データをアプリケーションごとに非公開にする必要があるかどうかによって大きく異なります。 なお、アプリケーションがウェブファームに展開されている場合、RSA鍵が簡単にエキスポートできるため、RSA保護の構成プロバイダーを使用することをお勧めします｡</p>
+  <h1>目次</h1>
+  <ul>
+    <li>目的<li>概要<li>手順の概要<li>手順 1:  暗号化すべき構成セクションを識別してください<li>手順 2:  マシンまたはユーザーストアを選んでください<li>手順 3:  構成ファイルデータを暗号化してください<li>ウェブファームのシナリオ<li>その他のリソース<li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>DPAPI保護構成プロバイダーを使用してどのセクションが暗号化でき、またはできないかを知ってください｡ <li>ユーザーレベルとマシンレベルのDPAPI鍵ストレージのいずれかを選んでください。 <li>DPAPI保護構成プロバイダーを使用して、構成ファイルのセクションを暗号化してください｡ <li>ウェブファームの制約について学習してください。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>Web.config ファイルなどの構成ファイルは、ユーザー名、パスワード、データベース接続文字列および暗号鍵を含む機微情報を保持するためにしばしば使用されます この情報を保護しない場合､アカウントユーザー名やパスワード、データベース名やサーバ名のような機微な情報を、攻撃者や悪意のあるユーザーが取得する危険にさらされます 暗号化する必要のある機微な情報を一般的に含むセクションには、以下のようなものがあります:</p>
+  <ul>
+    <li>&lt;appSettings&gt;. このセクションはカスタム･アプリケーション設定を含みます。 <li>&lt;connectionStrings&gt;. このセクションは接続文字列を含みます｡ <li>&lt;ID&gt;. このセクションはなりすましの Credential 情報を含む可能性があります。 <li>&lt;sessionState&gt;. このセクションはプロセス外セッション状態プロバイダー用の接続文字列を含みます｡ </li></li></li></li>
+  </ul>
+  <p>データの暗号化と復号化をすると、パフォーマンスのオーバーヘッドが発生します。 このオーバーヘッドを最小限に抑えるには、構成ファイルのうち、機微データが保存されているセクションのみを暗号化してください。</p>
+  <h1>手順の概要</h1>
+  <p>DPAPIデータ保護プロバイダーを使用して構成セクションを暗号化するには、以下の手順を行ってください:</p>
+  <ul>
+    <li>手順 1:  暗号化する構成のセクションを特定します。 <li>手順 2:  マシンまたはユーザー ストアを選択します。 <li>手順 3:  構成ファイルのデータを暗号化します。 </li></li></li>
+  </ul>
+  <h1>手順 1:  暗号化すべき構成セクションを識別してください</h1>
+  <p>データの暗号化と復号化をすると、パフォーマンスのオーバーヘッドが発生します。 このオーバーヘッドを最小限に抑えるには、構成ファイルのうち、機微データが保存されているセクションのみを暗号化してください。</p>
+  <h2>保護構成を使用して暗号化できないセクション</h2>
+  <p>次のいずれかの構成セクションに機微データを格納する場合、保護された構成およびAspnet_regiis.exeツールを使用してそれを暗号化することはできません：</p>
+  <ul>
+    <li>&lt;<b>processModel</b>&gt; <li>&lt;<b>runtime</b>&gt; <li>&lt;<b>mscorlib</b>&gt; <li>&lt;<b>startup</b>&gt; <li>&lt;<b>system.runtime.remoting</b>&gt; <li>&lt;<b>configProtectedData</b>&gt; <li>&lt;<b>satelliteassemblies</b>&gt; <li>&lt;<b>cryptographySettings</b>&gt; <li>&lt;<b>cryptoNameMapping</b>&gt; <li>&lt;<b>cryptoClasses</b>&gt; </li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <p>リストされている構成セクションでは、NET Frameworkの前バージョンでも使用できるAspnet_setreg.exeツールを使用する必要があります。 </p>
+  <p>これら構成セクション内のデータを暗号化する Aspnet_setreg ツールの使用に関する詳細は、Microsoft Knowledge Base の記事 329290「Credential 情報およびセッション状態の接続文字列を暗号化する ASP.NET ユーティリティの使用方法」を参照してください。</p>
+  <h1>手順 2:  マシンまたはユーザーストアを選んでください</h1>
+  <p><b>DataProtectionConfigurationProvider</b> は、鍵保管のためにマシンレベルおよびユーザーレベルのストアをサポートします。 ストアの選択は、アプリケーションが他のアプリケーションとサーバを共有しているかどうか、および機微データをアプリケーションごとに非公開にする必要があるかどうかによって大きく異なります。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ユーザー鍵が格納されている場所についての情報は、<a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnsecure/html/windataprotection-dpapi.asp">Windows データ保護</a> を参照してください。</blockquote>
+  <h2>マシンストア</h2>
+  <p>以下の状況ではマシンレベルの鍵ストレージを使用してください:</p>
+  <ul>
+    <li>アプリケーションは、他のアプリケーションが実行されない、専用サーバで実行されます。 <li>同一サーバで実行する複数のアプリケーションがあり、それらが機微な情報を共有できるように希望します。 </li></li>
+  </ul>
+  <h2>ユーザーストア</h2>
+  <p>アプリケーションを共有ホスティング環境で実行して、アプリケーションの機微データをサーバ上にある他のアプリケーションからアクセスできないように保証したい場合は、ユーザーレベルの鍵ストレージを使用します。 この状況では、各アプリケーションは別々の ID で実行され、アプリケーションのリソース（ファイル、データベースなど）はその ID に制限されている必要があります。</p>
+  <h1>手順 3:  構成ファイルデータを暗号化してください</h1>
+  <p>このステップは、Web.config ファイルで接続文字列を暗号化する際、最初にマシン ストアを使用する場合、次にユーザー ストアを使用する場合を示します。</p>
+  <h2>マシンストアとDPAPIを使用したWeb.config内の接続文字列の暗号化</h2>
+  <p>デフォルトで、<b>DataProtectionConfigurationProvider</b> はマシン ストアでDPAPIを使用するように構成されています。 </p>
+  <h3>Web.configの接続文字列セクションを暗号化するには</h3>
+  <ol>
+    <li>MachineDPAPIという名の新規 Web サイトを作成します。 このディレクトリが仮想ディレクトリとして設定されていることを確認してください。 <li>このディレクトリにWeb.config構成ファイルを追加します。 <li>以下の例と同様のサンプル <b>connectionString</b> を追加します。 <div><pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="MyLocalSQLServer" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="Initial Catalog=aspnetdb;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data source=localhost;Integrated Security=SSPI;" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;   </pre></div><li><b>connectionStrings</b> セクションを暗号化するには、.NET コマンド プロンプトから次のコマンドを実行します: <p><b>aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</b></p></li></li></li></li>
+  </ol>
+  <p><b>-app</b> スイッチの伴う上記コマンドは、MachineDPAPI と呼ばれる IIS 仮想ディレクトリがあることを前提としています。 IIS の代わりに Visual Studio Web サーバを使用している場合は、構成ファイルの物理的なディレクトリの場所を指定することができる <b>-pef</b> スイッチを使用します。</p>
+  <p>
+    <b>aspnet_regiis.exe -pef "connectionStrings" C:\Projects\MachineDPAPI -prov "DataProtectionConfigurationProvider"</b>
+  </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;Aspnet_regiis.exe ユーティリティ ツールは、次のディレクトリにあります:</blockquote>
+  <blockquote>%WinDir%\Microsoft.NET\Framework\&lt;<i>versionNumber</i>&gt;</blockquote>
+  <ul>
+    <li><b>-pe</b> スイッチは暗号化する構成セクションを指定します。 <li><b>-pef</b> スイッチは、暗号化する構成セクションを指定し、構成ファイル用に物理ディレクトリ パスを提供することができます。 <li><b>-app</b> スイッチは Web アプリケーションの仮想パスを指定します。 入れ子型アプリケーションの場合は、 それがネストされたアプリケーションの場合は、ルート ディレクトリからネストされたパス、例えば<b>"/test/aspnet/MachineDPAPI"</b> を指定する必要があります。 <li><b>-prov</b> スイッチはプロバイダー名を指定します。 <p>コマンドが正常に実行された場合は、次の出力が表示されます。</p><div><pre>Encrypting configuration section...Succeeded!  </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;DPAPI のマシン鍵は次の場所に格納されています:</blockquote><blockquote>%windir%\system32\Microsoft\Protect\S-1-5-18</blockquote></li></li></li></li>
+  </ul>
+  <ol>
+    <li>Web.config ファイルを見直して変化を調べます。 次のエレメントが作成されています:<ul><li>&lt;<b>EncryptedData</b>&gt; <li>&lt;<b>CipherData</b>&gt; <li>&lt;<b>CipherValue</b>&gt; </li></li></li></ul><p><b>connectionStrings</b> セクションが暗号化されている、変更された Web.config ファイルは、次の例のようになります。 </p><div><pre>...<br />&lt;connectionStrings configProtectionProvider="DataProtectionConfigurationProvider"&gt; <br />&nbsp; &lt;EncryptedData&gt; <br />&nbsp;&nbsp;&nbsp; &lt;CipherData&gt; <br />&lt;CipherValue&gt;AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAexuIJ/8oFE+sGTs7jBKZdgQAAAACAAAAAAADZgAAqAAAA<br />BAAAAA<br />Kms84dyaCPAeaSC1dIMIBAAAAAASAAACgAAAAEAAAAKaVI6aAOFdqhdc6w1Er3HMwAAAAcZ00MZOz1dI7kYRvkMIn/<br />BmfrvoHNUwz6H9rcxJ6Ow41E3hwHLbh79IUWiiNp0VqFAAAAF2sXCdb3fcKkgnagkHkILqteTXh&lt;/CipherValue&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/CipherData&gt;<br />&nbsp; &lt;/EncryptedData&gt;<br />&lt;/connectionStrings&gt;<br />...</pre></div><li>以下の Default.aspx Web ページをアプリケーションの仮想ディレクトリに追加してから、暗号化と復号が正常に動作したことを確認するために、このページを参照します。 <div><pre>&lt;%@ Page Language="C#" %&gt;<br /><br />&lt;script runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Response.Write("Clear text connection string is: " + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ConfigurationManager.ConnectionStrings<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ["MyLocalSQLServer"].ConnectionString);<br />&nbsp;&nbsp;&nbsp; }<br />&lt;/script&gt;<br />&lt;html&gt;<br />&nbsp; &lt;body/&gt;<br />&lt;/html&gt;   </pre></div><li><p>MyLocalSQLServer は、Web.config ファイルで以前指定された接続文字列の名前です。  </p><li><b>connectionStrings</b> セクションを元の平文に戻すには、コマンド プロンプトから次のコマンドを実行します:<p><b>aspnet_regiis -pd "connectionStrings" -app "/MachineDPAPI"</b></p><p>コマンドが正常に実行された場合は、次の出力が表示されます。</p><div><pre>Decrypting configuration section...<br />Succeeded!</pre></div></li></li></li></li>
+  </ol>
+  <p>アプリケーションの構成ファイルへの物理パスを指定する<b>connectionStrings</b> セクションを復号化するには、ここに示すように <b>-pdf</b> スイッチを使用します。</p>
+  <p>
+    <b>aspnet_regiis -pdf "connectionStrings" C:\Projects\MachineDPAPI</b>
+  </p>
+  <h2>ユーザーストアとDPAPIを使用してWeb.Configの接続文字列を暗号化</h2>
+  <p>デフォルトで、ASP.NET アプリケーションは NT AUTHORITY\Network Service アカウントの下で起動します。 DPAPI をユーザー ストアで使用して、暗号化された構成セクションにアクセスする場合は、データの暗号化に使用したアカウントと同じユーザー ID でアプリケーションが実行されていることを確認してください。</p>
+  <p><b>DataProtectionConfigurationProvider</b> およびDPAPI をユーザー ストアと共に使用するには Web.config ファイルに少量の追加構成が必要です。</p>
+  <h3>Web.configの接続文字列セクションを暗号化するには</h3>
+  <ol>
+    <li>UserDPAPIという名の新しい Web サイトを作成します。 このディレクトリが仮想ディレクトリとして設定されていることを確認してください。 <li>このディレクトリにWeb.config構成ファイルを追加します。 <li>以下の例と同様のサンプル <b>connectionString</b> を追加します。 <div><pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="MyLocalSQLServer" connectionString="Initial Catalog=aspnetdb;<br />data source=localhost;Integrated Security=SSPI;" providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;   </pre></div><li>ユーザーストアを使用するには、保護構成プロバイダーを追加し構成してください。 これを行うには、次の &lt;<b>configProtectedData</b>&gt; を追加します。 セクションが備わっていることを確認します。 ユーザー ストアを使用するようにプロバイダーに指示するには<b>useMachineProtection</b>=<b> "false"</b> に設定する必要があります。 ユニークなプロバイダー名を使用する必要があります。使用しない場合、ランタイムエラーが発生します。 <div><pre>&lt;configProtectedData&gt; <br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add useMachineProtection="false" keyEntropy="" name="MyUserDataProtectionConfigurationProvider" <br />type="System.Configuration.DpapiProtectedConfigurationProvider, System.Configuration,<br />		 Version=3.5.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" /&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/configProtectedData&gt;   </pre></div><li><b>connectionStrings</b> セクションを暗号化するには、コマンド プロンプトから次のコマンドを実行します: <p><b>Aspnet_regiis -pe "connectionStrings" -app "/UserDPAPI" -prov "MyUserDataProtectionConfigurationProvider"</b></p><ul><li> -<b>pe</b> スイッチは、暗号化する構成セクションを指定します。 <li> -<b>app</b> スイッチは、Web アプリケーションの仮想パスを指定します。  入れ子型アプリケーションの場合は、 それがネストされたアプリケーションの場合は、ルート ディレクトリからネストされたパス、例えば <b>"/test/aspnet/UserDPAPI"</b> を指定する必要があります。<li> -<b>prov</b> スイッチはプロバイダー名を指定します。 この場合は、ステップ 3 でプロバイダーを構成する際に指定した名前である <b>"MyUserDataProtectionConfigurationProvider"</b> に設定されます。  </li></li></li></ul><p>コマンドが正常に実行された場合は、次の出力が表示されます。</p><div><pre>Encrypting configuration section...Succeeded!</pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;ユーザー鍵が格納されている場所の詳細については、以下の URL を参照してください: <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnsecure/html/windataprotection-dpapi.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnsecure/html/windataprotection-dpapi.asp</a></blockquote></li></li></li></li></li>
+  </ol>
+  <p>アプリケーションはデータを暗号化するために使用したIDと同一のIDを使用してデータにアクセスする必要があるので､アプリケーションのサービスアカウントIDを使用して暗号化コマンドを実行する必要があるかもしれません｡ そうするためには、<b>runas</b> コマンドを使用し、次のように適切なドメインとユーザー名を指定して、コマンド ウィンドウを起動することができます: </p>
+  <p>
+    <b>Runas /profile /user:domain\user cmd</b>
+  </p>
+  <p>結果のコマンド ウィンドウから Aspnet_regiis を実行する際は、暗号化を実行するための指定された ID を使用します。 これにより、アプリケーションが同一のIDを使用してランタイムでデータの解読ができるようになります｡ </p>
+  <ol>
+    <li>Web.config ファイルを見直して変化を調べます。 次のエレメントが作成されています:<ul><li>&lt;<b>EncryptedData</b>&gt; <li>&lt;<b>CipherData</b>&gt; <li>&lt;<b>CipherValue</b>&gt; </li></li></li></ul><p><b>connectionStrings</b> セクションが暗号化されている、変更された Web.config ファイルは、以下の例のようになります。 </p><div><pre>...<br />&lt;connectionStrings configProtectionProvider="MyUserDataProtectionConfigurationProvider"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;EncryptedData&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;CipherData&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;CipherValue&gt;AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAWuizHyLxzk+U4/8NnMRAjQAAAAACAAAAA<br />AADZgAAqAAAABAAAADLFqu00qT0BeGh6wmHHGySAAAAAASAAACgAAAAEAAAAM56z6ezglmufZGcta83RKGgAQAA<br />tvDpExhD6h95lfWBt0FqZYzxupI2IepH/XlhLB5rsuuQDCJUL7XGIIsaVW2oNQxgNCPXxRSuCxHQ7vqgbh4G7xH<br />k0wdyws5Ax4T/RYJbfYEF5KAPzShdmdoZdkY/FOWrVEgAr7LzKFBoDcPJBvgX+lfsJdBNeWRB5BqRX552dUFjtDl<br />p8u3K/dA9twWDU2w/cRLMXJtVZ/y/ICI1fzXjX3u7sY9K1IC+5Hbi7nouCK6Ze5RLBnL0Zfdq0PyGlj2To4ftAYA<br />T0SzkBaxlXRQSzMhX+7c+rgKpMqtG9XjAW26x3IJAp2/uAr2zOZqH+tskamHYSruhTicHJDTtP+r6Rs21y2QkRT9<br />Hb9oPd9B5mDIzGtDkifWBbmwLv4XFuYcna1Zgny7McSxMI62jxayVlZKcS5dXV0shwLoUjbTDcXQmFKsRvo2sCW8<br />6wcN8ad02jhKCQMf9SWnZpd849mlqgMFiQQSFlZ6Q+vJLrXqVb8zmVZemQPQcY/DktgjOvjn0iOZ3zhl20fRENOa<br />3ZIWvvK8p9pblz3sEfS19MAW0JtYUAAAAayvNPot3An7LaCTdFYrEip+fTU4=&lt;/CipherValue&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/CipherData&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/EncryptedData&gt;<br />&nbsp; &lt;/connectionStrings&gt;<br />...</pre></div><li>以下のDefault.aspx ウェブページをアプリケーションの仮想ディレクトリに追加し、その後、このページを参照して暗号化と復号が正しく機能するか確認します。 <div><pre>&lt;%@ Page Language="C#" %&gt;&lt;script runat="server"&gt;<br />&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; Response.Write("Clear text connection string is: " + <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ConfigurationManager.ConnectionStrings<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ["MyLocalSQLServer"].ConnectionString);<br />&nbsp; }<br />&lt;/script&gt;<br />&lt;html&gt;<br />&nbsp; &lt;body/&gt;<br />&lt;/html&gt;   </pre></div><p>MyLocalSQLServer は、Web.config ファイルで以前指定された接続文字列の名前です。  </p><p>それから、次の例に示すように、Web.config ファイルで偽装を有効にする必要があります。 </p><div><pre>&lt;system.web&gt;<br />&nbsp; ...<br />&nbsp; &lt;identity impersonate="true" /&gt;<br />&nbsp; ...<br />&lt;/system.web&gt;   </pre></div><li><p>アプリケーションをデータを暗号化するために使用したもの以外のアカウント下で実行する場合､ASP.NETはDPAPI鍵が保持されているユーザーストアにはアクセスできず､次のエラーを発生させます:</p><div><pre>Failed to decrypt using provider 'MyUserDataProtectionConfigurationProvider'.<br />&nbsp;Error message from the provider: Key not valid for use in specified state. <br />(Exception from HRESULT: 0x8009000B)   </pre></div><li><b>connectionStrings</b> セクションを元の平文に戻すには、コマンド プロンプトから次のコマンドを実行します:<p><b>aspnet_regiis -pd "connectionStrings" -app "/UserDPAPI"</b></p><p>コマンドが正常に実行された場合は、次の出力が表示されます。</p><div><pre>Decrypting configuration section...<br />Succeeded!  </pre></div></li></li></li></li>
+  </ol>
+  <h1>ウェブファームのシナリオ</h1>
+  <p>Web ファーム内の複数のサーバで同じ暗号化された構成ファイルを展開する場合は、 <b>RSAProtectedConfigurationProvider</b> を使用する必要があります。このプロバイダーを使用すれば､1つのサーバ コンピュータ上でデータを簡単に暗号化し､次にデータを解読するのに必要なRSA私有鍵をエキスポートできます｡ その後､構成ファイルおよびエキスポートした鍵を目標サーバに展開し､次に鍵を再インポートできます｡</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1349751045" Content_Hash="-1896395779">
+  <Metadata>
+    <Id>f216d7ae-c152-4ad1-9be2-8c214e211f9f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>管理インターフェイスのセキュリティ保護</Title>
+    <Category>構成</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>どのように管理インターフェイスがセキュリティ保護されているかを調査してください。 </p>
+  <h1>理由</h1>
+  <p>管理インターフェイスに対するセキュリティ違反が発生すると、攻撃者が管理者特権を使用して実行し、サイト全体への直接アクセスを持つことになる可能性が高いため、危険な結果を招くことがあります。</p>
+  <h1>状況</h1>
+  <p>リモート管理が設計で指定されている場合は、管理インターフェイスを通じてアクセス可能な操作とデータの機微な性質のため、管理インターフェイスをセキュリティで保護する必要があります。</p>
+  <h1>対策</h1>
+  <p>許可されたオペレーターや管理者以外、構成管理機能を利用できないようにすることが重要です。 重要なのは、証明書を使用するなどして、管理インターフェイスに対して強力な認証を実施することです。</p>
+  <p>可能であれば、リモート管理の使用を制限または無効にして、管理者がローカルにログインする必要があるようにします。 リモート管理をサポートする必要がある場合、管理インターフェイスを介して渡されるデータの機密性から、SSL  や VPN による暗号化チャネルを使用します。 また、IPSec ポリシーを使用して内部ネットワーク上のコンピュータにリモート管理を制限し、リスクをさらに削減することも検討してください。</p>
+  <p>リモート管理設計の以下の側面をレビューしてください:</p>
+  <ul>
+    <li>
+      <b>強力な認証を使用しているかどうか。</b>
+      <p>すべての管理インターフェイス ユーザーは認証されなければなりません。 Windows やクライアント証明書認証など、強力な認証を使用してください。 </p>
+      <li>
+        <b>ネットワーク トラフィックを暗号化しているかどうか。</b>
+        <p>IPSec によって提供されるものや仮想プライベート ネットワーク (VPN) 接続など、暗号化された通信チャネルを使用してください。 セキュリティで保護されていないチャネルを通じたリモート管理はサポートしないでください。 IPSec は、サーバーを管理するために使用できるクライアント マシンの ID と台数を制限できるようにします。 </p>
+      </li>
+    </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>「Design Guidelines for Secure Web Applications (セキュリティ保護された Web アプリケーションの設計ガイドライン)」<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a><li>「Architecture and Design Review for Security (セキュリティのためのアーキテクチャと設計レビュー)」<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="894364246" Content_Hash="616043258">
+  <Metadata>
+    <Id>3ad0f969-2260-4ce0-a090-308e68d1ba6a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>必要な場所以外で APTCA の使用が避けられている。</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>必要な場所以外で APTCA の使用が避けられていることを確認します。これは、Attack Surface (攻撃対象領域) が増え、一部しか信頼していない呼び出し元にコードが提示されてしまうためです。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>以下に示すとおり、アセンブリに<b>AllowPartiallyTrustedCallersAttribute</b> (APTCA) を追加することにより、完全に信頼するためにリンク要求をオーバーライドすることができますが、絶対に必要な場合のみにしてください。</p>
+  <p>APTCA を使用すると Attack Surface (攻撃対象領域) が増え、一部しか信頼していない呼び出し元にコードが提示されてしまいます。</p>
+  <p>以下の両方の条件が該当する場合のみ、APTCA を使用してください。</p>
+  <ul>
+    <li>一部しか信頼されていない呼び出し元に、どうしても厳密名が付けられたアセンブリを使用させたい。 たとえば、ファイル共有上で実行されているアプリケーションが、グローバル アセンブリ キャッシュにあるアセンブリにアクセスする必要がある場合などです。 ただし、完全に信頼している呼び出し元のみにコードを使用させたい場合は、APTCA で Attack Surface (攻撃対象領域) を開かないでください。 <li>セキュリティ コード レビューを入念に実行しており、セキュリティの脆弱性についてコードが厳重に監査されている。 アセンブリによって実行されるリソース アクセスとその他の特権操作を調査して、他のコード アクセス セキュリティ要求を使用することにより、これらの操作へのアクセスを承認することを検討してください。 </li></li>
+  </ul>
+  <p>APTCA 属性を以下に示します。</p>
+  <div>
+ <pre> [assembly: AllowPartiallyTrustedCallersAttribute()]</pre>
+  </div>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

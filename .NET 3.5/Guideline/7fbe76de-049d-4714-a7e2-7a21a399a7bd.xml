@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="369375366" Content_Hash="-1400363722">
+  <Metadata>
+    <Id>7fbe76de-049d-4714-a7e2-7a21a399a7bd</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows 認証を用いたファイル認可を使用する</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>Windows 認証を使用する際は､ファイル認可を使用してください。 </p>
+  <h1>理由</h1>
+  <p>Windows 認証を用いたファイル認証を使用することで、アプリケーション内のファイル毎の認可を制御すために、会社の Active Directory で定義されるグループおよびロールを活用できるようになります。&nbsp; 認可の全てのニーズにとって必ずしも十分ではなくても、非常に強力なツールになり得ます｡ </p>
+  <h1>状況</h1>
+  <p>Windows 認証を使用するすべてのアプリケーションは、認可ツールキットの一部としてファイル認可を使用することをお勧めします｡ </p>
+  <h1>対策</h1>
+  <p>ファイル認可は、Windows 認証を使用しているときには自動的に動作します。元のファイルを偽装する必要はありません。&nbsp; <b>FileAuthorizationModule</b> は、要求されたファイルに対してのみアクセス チェックを実行します。&nbsp; 例えば、Default.aspx を要求し、これに埋め込みユーザー制御 (Usercontrol.ascx) とイメージ タグ (Image.gif を指す) が含まれている場合、<b>FileAuthorizationModule</b> は Default.aspx と Usercontrol.ascx に対してアクセス チェックを実行します。これらのファイル形式が IIS によって ASP.NET ISAPI 拡張にマッピングされているためです。&nbsp; <b>FileAuthorizationModule</b> は、Image.gif に対してチェックを実行しません。これは IIS によって内部で処理される静的ファイルであるためです。&nbsp; ただし、静的ファイルのアクセス チェックは IIS が実行するため、認証ユーザーには、適切に構成された ACL によりそのファイルへの読み取りアクセス許可が付与されていなければなりません。 </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

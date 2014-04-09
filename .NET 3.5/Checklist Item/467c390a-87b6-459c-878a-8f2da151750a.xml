@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="45540731" Content_Hash="1908119068">
+  <Metadata>
+    <Id>467c390a-87b6-459c-878a-8f2da151750a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>要求検証に依存しない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ASP.NET 要求検証機能は追加の予防措置としてのみ使用すべきであることに&amp;nbsp;留意し&amp;nbsp;、アプリケーションが入力を適切に検証することを確認します。 </p>
+  <h1>理由</h1>
+  <p>ASP.NET 要求検証機能は基本的な入力検証のみを実行するものであり、あらゆる種類の悪意のあるデータを検出するものとして依存すべきではありません。 これは、クロスサイト スクリプティングおよび SQL インジェクションなどの攻撃を防止するには十分ではありません。各アプリケーションには特有の検証ニーズがあり、あるアプリケーションにとっては良い入力が、別のアプリケーションにとっては悪い入力である場合があります。</p>
+  <h1>チェック方法</h1>
+  <p>Machine.config.comments ファイルの <strong>&lt; pages&gt;</strong> エレメントで true に設定されている、または <strong>Request.ValidateInput() 呼び出しを使用してサーバにより明確に呼び出される、validateRequest</strong> 属性を調べることにより、<strong> </strong> <strong> </strong>要求検証機能がデフォルトで有効化されていることを確認します。 </p>
+  <p>特定のページについてこの機能を無効化したい場合は、次のように <strong>@Page</strong> 指示を使用して <strong>ValidateRequest</strong> が <strong>false</strong> に設定されていることを確認します。</p>
+ <pre>&lt;%@ Page Language="C#" ValidateRequest = "false" %&gt;</pre>
+  <p>ASP.NET 要求検証機能が有効化されている場合でも、これらのステップに従って入力が適切に有効化されることを確認します。</p>
+  <ol>
+    <li>正規表現を使用して、入力の範囲、長さ、種類および形式が厳格に検証されることを確認します。 <li>特に入力が動的 SQL クエリーで使用される場合は、データベースへのすべての SQL クエリーがパラメーター化されていることを確認し、また、可能な場合はストアド プロシージャが使用されることを確認します。 <li>セキュリティに関する意思決定がユーザー入力に基づいて行われていないことを確認します。これにより、攻撃者がこれらの意思決定の結果を変更する、もしくは影響を与えることを防ぎます。 <li>ファイル名またはパス入力がユーザーにより取得されていないことを確認します。 これが不可能な場合は、ユーザーから取得されたファイル名およびパス入力が適切に検証されていることを確認します。</li></li></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>&amp;nbsp;オンライン ショッピング カートの例では、カート コンポーネントは 2 つのコンポーネントで構成されています。</p>
+  <ol>
+    <li>
+      <p>注文処理のため送信するすべてのフィールドを含むHTMLフォーム:</p>
+ <pre>&lt;html&gt;<br />  &lt;head&gt;<br />    &lt;title&gt;Widget shopping cart&lt;/title&gt;<br />  &lt;/head&gt;<br />  &lt;body&gt;<br />    &lt;H1&gt;welcome to the most boring shopping cart on the web!&lt;/H1&gt;<br />     A widget's current price is $19.95 USD. Please use the following form to submit an order.<br />    &lt;form action="process_order.aspx" method="POST"&gt;<br />       &lt;p&gt;Please enter the number of widgets you would like to purchase:&lt;/p&gt;<br />      quantity:&lt;br/&gt;<br />      &lt;select name="WidgetQuantity"&gt;<br />        &lt;option value="1"&gt;1&lt;/option&gt;<br />        &lt;option value="2"&gt;2&lt;/option&gt;<br />        &lt;option value="3"&gt;3&lt;/option&gt;<br />        &lt;option value="4"&gt;4&lt;/option&gt;<br />      &lt;/select&gt;<br />      ...<br />      &lt;input type="submit" value="order"/&gt;<br />    &lt;/form&gt;<br />  &lt;/body&gt;<br />&lt;/html&gt;</pre>
+      <li>
+        <p>要求検証機能に依存し、フォーム送信を処理して注文を作成するために必要なステップを実行する ASP.NET ページ:</p>
+ <pre>......<br />try<br />{<br />   Request.ValidateInput();<br />}<br />catch(HttpRequestValidationException e)<br />{<br />   //error out<br />}<br />int d<br />Quantity = Request("WidgetQuantity");<br />double dPrice = 19.95;<br />double dCost = d<br />Quantity * d<br />Price;<br />......</pre>
+      </li>
+    </li>
+  </ol>
+  <p>このサーバ側のページは、ASP.NET 要求検証機能のみに依存しているため問題となります。 量フィールドにより注文量の範囲制限が常に有効であることが保証されるため、ユーザーが規則に従って操作し、表示されているとおりにフォームを提出する場合、アプリケーションは正常に動作します。 しかし、賢いユーザーが自分だけのフォームを構築することを決め、負の数のWidgetQuantity フィールドを送信すると、マイナス残高が発生します。 使用する電子商取引システムによっては、これによりユーザーのアカウントにクレジットが発生する可能性があります。 これは、重大な影響を伴い後になって費用負担が発生すると思われる、マイナスの差額を会社の在庫から差し引く場合もあります。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>要求検証の詳細については、MSDN の <a href="http://msdn2.microsoft.com/en-us/library/ms998258.aspx#pagguidelines0001_donotrelyonaspnetrequestvalidation">「セキュリティ ガイドライン: ASP.NET 要求検証に依存しない」</a> を参照してください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

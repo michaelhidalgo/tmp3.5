@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="552114844" Content_Hash="-1202299423">
+  <Metadata>
+    <Id>dd8cba41-07fb-49e4-9126-770a4d6c0807</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Web ファーム内の全サーバに同一の MachineKey を使用する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>各サーバの構成ファイルが必ずハッシュ化と暗号鍵を共有しているようにしてください。 </p>
+  <h1>理由</h1>
+  <p>ASP.NETにより使用され、ViewStateおよびForms Authenticationチケットを保護します。 連続的な要求を処理するサーバがどれか明確でないため、マニュアルで生成された共通の鍵が必要です。 </p>
+  <h1>状況</h1>
+  <p>アプリケーションがウェブ ファームで展開されている場合は常に有効です。</p>
+  <h1>ソリューションの例</h1>
+  <p>手動で生成された鍵の値の場合、&lt;MACHINEKEY&gt;設定は次の例に似たものになっているはずです:</p>
+ <pre>&lt;machineKey validationKey="21F090935F6E49C2C797F69BBAAD8402ABD2EE0B667A8B4<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 4EA7DD4374267A75D7AD972A119482D15A4127461DB1DC347C1A63AE5F1CCFAACFF1B72A7F0A281B"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; decryptionKey="261F793EB53B761503AC445E0CA28DA44AA9B3CF06263B77"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; decryption="3DES"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; validation="SHA1" /&gt; </pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

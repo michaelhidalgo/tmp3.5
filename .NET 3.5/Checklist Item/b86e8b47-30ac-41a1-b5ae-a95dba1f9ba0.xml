@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="230332063" Content_Hash="-1441152826">
+  <Metadata>
+    <Id>b86e8b47-30ac-41a1-b5ae-a95dba1f9ba0</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>呼び出し元に詳細なエラーメッセージを表示することを防ぐために、CustomErrors のモード属性は[オン]に設定されています</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>呼び出し元に詳細なエラーメッセージが届くことを防ぐために、アプリケーションの[<b>customErrors</b>] モード属性が[<strong>オン</strong> ]に設定されていることを確認してください。</p>
+  <h1>修正方法</h1>
+  <p>詳細なエラー メッセージを防ぐために、以下のステップを使用します：</p>
+  <ol>
+    <li>
+      <p>
+        <strong>CustomErrors を設定します。 </strong> <b>&lt;</b> <b> customErrors&gt;</b> エレメントの<strong> mode 属性を [オン] に設定して、詳細なエラー メッセージの表示を防ぎます。 </strong>それにより、&nbsp;呼び出し元はフィルタされた例外情報だけを受信します。&nbsp; <b>mode="Off"</b>  を使用しないでください。これは、システム レベルの情報を含むアプリケーション開発者向けの詳しいエラー ページをクライアントに返すためです。 </p>
+      <li>
+        <p>
+          <strong>既定のエラー ページを選択します。</strong>  以下のコードの例に示されているように、Web.config ファイルの<b>&lt;customErrors&gt;</b> セクションを使用して、既定で表示するエラー ページ、また特定のエラーを示すHTTP 応答コードの他の必須のエラー ページを指定します。 </p>
+        <p>以下の例は、<b>&lt;customErrors&gt;</b> が正しく設定され、カスタム エラーページも指定されていることを示しています：</p>
+ <pre>&lt;customErrors mode="On" defaultRedirect="ErrDefault.aspx"&gt;<br />    &lt;error statusCode="401" redirect="ErrUnauthorized.aspx" /&gt;<br />    &lt;error statusCode="404" redirect="ErrPageNotFound.aspx" /&gt;<br />    &lt;error statusCode="500" redirect="ErrServer.htm" /&gt;<br />&lt;/customErrors&gt;</pre>
+        <p> <b>defaultRedirect</b> 属性によって、例えば、サポートの連絡先詳細を含んでいる可能性のあるカスタム エラー ページをアプリケーションに使用することができます。&nbsp; これらのアプリケーション ワイドなエラー ページを使用して、構造化されたイベント処理では見つけられないエラーに対して、ユーザーにわかりやすい応答を提供します。 </p>
+      </li>
+    </li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

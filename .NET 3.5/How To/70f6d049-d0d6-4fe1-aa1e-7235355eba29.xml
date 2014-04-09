@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1528448121" Content_Hash="-1425283027">
+  <Metadata>
+    <Id>70f6d049-d0d6-4fe1-aa1e-7235355eba29</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>X.509 証明書を作成する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>WCF サービスの開発およびデバッグを助けるため、 X.509 証明書を作成する必要があるかもしれません。 一時証明書は信頼済みの CA (認証局) が発行する証明書よりも作成が簡単で安価なので、開発環境に最適です。</p>
+  <p>開発環境で一時 X.509 証明書を作成するには、MakeCert ユーティリティを使用してください。 運用環境では、 VeriSign のような CA (認証局) が発行したX.509 証明書を使用してください。</p>
+  <p>
+    <strong>注記</strong>: 悪意のあるスプーフィング、スニッフィングおよびタンパリングに通信チャンネルを晒してしまいますので、運用環境では一時開発証明書は使用しないでください。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、<a href="http://www.codeplex.com/WCFSecurityGuide/">http://www.codeplex.com/WCFSecurityGuide/ にある「開発中に メッセージ セキュリティ用にWCFで一時証明書を作成しインストールする方法」 および 「開発中に トランスポート セキュリティ用にWCFで一時証明書を作成しインストールする方法」を参照してください。</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=How%20Tos&referringTitle=Home"></a><li>詳細は、<a href="http://msdn2.microsoft.com/en-us/library/bfsktky3(VS.80).aspx">http://msdn2.microsoft.com/en-us/library/bfsktky3(VS.80).aspx にある 「証明書作成ツール」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

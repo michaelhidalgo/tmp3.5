@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1272376986" Content_Hash="1106378532">
+  <Metadata>
+    <Id>eaff11aa-1469-4daa-8d29-3546df12cc8d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>エンタープライズ ポリシーを修正して展開する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アプリケーションが必要とするアクセス許可だけを含む新しいアクセス許可セットを作成することで企業ポリシーを変更でき、その後変更済みのアクセス許可セットを使用するように<b>All_Code</b>コード グループを変更できます。 </p>
+  <p>
+    <b>企業ポリシーを変更および展開する:</b>
+  </p>
+  <ol>
+    <li><b>Administrative Tools</b>（管理ツール）から <b>Microsoft .NET Framework Configuration</b> （Microsoft .Net Framework 構成）を選択します。<li><b>Microsoft .NET Framework Configuration</b> （Microsoft .Net Framework 構成）ダイアログボックス内で、画面左側のツリーをダブルクリック（または展開）し、その後<b>Runtime Security Policy</b>（実行時間セキュリティ ポリシー）をダブルクリックします。<li><b>Enterprise</b>（企業）をダブルクリック（または展開）します。<li><b>Permission Sets</b>（アクセス許可セット）を右クリックし、<b>New</b>（新規）をクリックします。<li><b>Create Permission Set</b> （アクセス許可セットの作成）ダイアログボックスで、XMLファイルからアクセス許可セットをインポートするか、新しいアクセス許可セットを作成します。 アプリケーションに使いたい適切なアクセス許可セットを選択することで、アクセス許可セット作成のウィザードを使用できます。 <li>画面左の<b>Enterprise</b> （企業）ノードで、<b>Code Group</b>（コード グループ）をダブルクリック（または展開）します。<li><b>All_Code</b> （すべてのコード）ノードを選択し、画面右の<b>Tasks</b> （タスク）セクションで、<b>Edit Code Group Properties</b>（コード グループ プロパティの編集）をクリックします。<li><b>All_Code Properties</b> （全コードのプロパティ）ダイアログボックスで、<b>Permission Set</b> （アクセス許可セット）タブをクリックします。 <li><b>Permission set</b> （アクセス許可セット）ドロップダウンボックスで、新しく作成したアクセス許可セットを選択し、<b>Apply</b>（適用する）をクリックします。</li></li></li></li></li></li></li></li></li>
+  </ol>
+  <p>組織内全体に企業ポリシーを展開する場合、2通りのオプションがあります。 グループポリシーまたはSMSを使用することで.msi ファイルを作成して展開することが可能です。 別の方法としては、CasPol.exeを使用してバッチファイル スクリプトを作成してセキュリティ ポリシーの変更を適用することが可能です。 各コンピュータでスクリプトを実行します。 </p>
+  <p>
+    <b>.msi 展開パッケージを作成する:</b>
+  </p>
+  <ol>
+    <li><b>Runtime Security Policy</b> （動作時間セキュリティ ポリシー）ノードを右クリックし、<b>Create Deployment Package</b>（展開パッケージの作成）をクリックします。<li><b>Deployment Package Wizard</b> （展開パッケージ ウィザード）ダイアログボックスで、企業として展開するセキュリティ ポリシー レベルを選択します。 <li>MSIのフォルダおよびパッケージを指定し、<b>Next</b> および <b>Finish</b>をクリックします。</li></li></li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

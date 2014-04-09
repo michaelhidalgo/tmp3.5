@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2128132269" Content_Hash="-1370545252">
+  <Metadata>
+    <Id>b2522586-6633-4994-a096-1ea757ce6970</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データはオンデマンドで取得する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Web アプリケーション</li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>アプリケーションがどのように秘密にアクセスし、どのくらいの期間平文の書式でメモリに保持しているかを検証します。 </p>
+  <h1>理由</h1>
+  <p>一般的に秘密は、アカウントのパスワードや暗号鍵などといったアプリケーション構成データを含むことから、要求ごとに取得され、可能な限り短い期間使用され、その後破棄されなければなりません。 機微データは暗号化された書式で保存およびやり取りされる必要があります。 そうでなければ、盗難を誘発します。 </p>
+  <h1>状況</h1>
+  <p>アプリケーションに秘密が含まれている場合、秘密の保存が絶対必要であるのか設計を見直します。 コードに秘密を保存する必要がある場合、要求ごとに取得できるかどうかをチェックします。 </p>
+  <h1>対策</h1>
+  <p />好ましいアプローチは、機微データをメモリに保持したりキャッシュしたりしておくのではなく、必要なときにオンデマンドで取得することです。 たとえば、暗号化された機密情報は必要なときに取得して復号化し、使用したら、プレーンテキストの機密を保持するために使用されたメモリ (変数) をクリアします。 パフォーマンスが問題になる場合は、次のオプションを検討します。<ul><li><b>暗号化済みの秘密をキャッシュする</b>。<li><b>プレーン テキストの秘密をキャッシュする</b>。</li></li></ul><h2>暗号化された機密情報をキャッシュする</h2><p>アプリケーションが読み込まれるときに、暗号化された機密をしてキャッシュし、使用する際に復号化します。 不要になったらプレーンテキストのコピーをクリアします。 このアプローチでは、要求ごとにデータ ストアにアクセスすることを避けられます。</p><h2>プレーンテキストの機密情報をキャッシュする</h2><p>機密を複数回復号化するオーバーヘッドを避け、機密をプレーンテキストのコピーとしてメモリに保管します。 これはセキュリティが最も低いアプローチですが、パフォーマンスは最高になります。 パフォーマンスの向上がセキュリティ リスクの増加に見合うものであると推察する前に、他のアプローチをベンチマークしてください。</p><h1>その他のリソース</h1><ul><li>「Design Guidelines for Secure Web Applications (セキュリティ保護された Web アプリケーションの設計ガイドライン)」<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a><li>「Architecture and Design Review for Security (セキュリティのためのアーキテクチャと設計レビュー)」<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a><li>「Security Question List: ASP.NET 2.0 (セキュリティ質問リスト: ASP.NET 2.0)」<a href="http://msdn2.microsoft.com/en-us/library/ms998375.aspx">http://msdn2.microsoft.com/en-us/library/ms998375.aspx</a></li></li></li></ul><hr /><p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

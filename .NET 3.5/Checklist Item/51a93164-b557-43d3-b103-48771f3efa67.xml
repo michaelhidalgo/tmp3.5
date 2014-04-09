@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1500807625" Content_Hash="1007132873">
+  <Metadata>
+    <Id>51a93164-b557-43d3-b103-48771f3efa67</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切な場所で、.NET リモート処理の TCP チャンネルに System.Net.Security.NegotiateStream クラスを使用する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>.NET リモート処理の TCP チャンネルに System.Net.Security.NegotiateStream クラスを使用して、呼び出し元の暗号化と認証を行えるようにする。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>TCP チャンネルを使用するリモート処理アプリケーションは、デフォルトでは認証または暗号化を行いません。 .Net Framework では、リモート処理のフレームワークは､<b>System.Net.Security.NegotiateStream</b> クラスを使用して、チャンネル経由で伝達されるデータを暗号化してそれに署名し、呼び出し元を認証します。 この機能を使用するには、<b> </b>設定をコンピュータ上のすべてのアプリケーション全体に適用するか特定のアプリケーションに適用するかに に応じて､Machine.config ファイル、Web.config ファイル、または App.config ファイルの中の &lt;channel&gt; エレメントを構成します。</p>
+  <p>次の例は､サーバ側での認証の要求および暗号化でチャンネルを保護する方法を示しています。</p>
+  <div>
+ <pre>&lt;channel ref="tcp" port="1234"<br />          authenticationMode="IdentifyCallers" secure="true" /&gt;  </pre>
+  </div>
+  <p>ドメインの Credential 情報を使用してクライアントを認証するには、<b> </b>クライアント構成ファイル中の &lt;<b>channel</b>&gt; 属性を ｢true｣に設定する必要があります。 次の例は､クライアント構成ファイルのサンプルを示しています。</p>
+  <div>
+ <pre>&lt;channel ref="tcp" useDefaultCredentials="true" secure="true"<br />          impersonationLevel="Identify" /&gt;  </pre>
+  </div>
+  <p>Kerberos 認証を使用するには、クライアントはサービス プリンシパル名 (SPN) を指定する必要があります。 この指定は、プログラム的に行うことも、または次の例のようにクライアント構成ファイルで行うこともできます。</p>
+  <div>
+ <pre>&lt;channel ref="tcp"<br />          useDefaultCredentials="true"<br />          impersonationLevel="Identify"<br />          spn="someService/somehost.com" /&gt;  </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;.NET リモート処理の使用は、インタープロセスまたはサーバ間の通信にはお勧めしません。 .NET リモート処理は、プロセス内部でのクロス アプリケーション ドメイン通信に向いています。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

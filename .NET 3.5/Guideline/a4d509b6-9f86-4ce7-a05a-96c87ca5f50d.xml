@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="800778074" Content_Hash="-847806716">
+  <Metadata>
+    <Id>a4d509b6-9f86-4ce7-a05a-96c87ca5f50d</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>アプリケーションの実行に最小限の特権付きアカウントを使用する</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <h1>行うべき事柄</h1>
+  <p>ASP.NET アプリケーションの実行に必要な最小限の特権レベルのアカウントを使用します。</p>
+  <h1>理由</h1>
+  <p>最小特権の原則とはユビキタス セキュリティ概念のことです。 この原則をアプリケーションの実行に適用すると、アプリケーションが脅威にさらされた場合に攻撃者から与えられる損害を軽減することができます。</p>
+  <h1>状況</h1>
+  <p>すべての ASP.NET ウェブ アプリケーションを最小限の特権レベルで実行すべきです。</p>
+  <h1>対策</h1>
+  <p>ASP.NET は、次の構成で実行されます。</p>
+  <ul>
+    <li>IIS 5：アプリケーションは、デフォルトで最小限の特権付き ASPNET アカウントを使用して実行されます。 <li>IIS 6 以降：アプリケーションは、最小限の特権付き Network Service アカウントを使用したアプリケーション プール内で実行されます。 カスタム サービス アカウントを使用して ASP.NET Web アプリケーションを実行する必要がある場合は、最小限の特権付きアカウントを作成してください。 カスタム サービス アカウントを作成して、お使いのアプリケーションを同一サーバ上にある別のアプリケーションから分離したり、各アプリケーションの監査を別々に行ったりできるようにする必要があるかもしれません。 </li></li>
+  </ul>
+  <p>最小限の特権付きアカウントを作成するには、以下の操作を実行してください。</p>
+  <ol>
+    <li>
+      <p>ローカルまたはドメインの Windows アカウントを作成します。</p>
+      <li>
+        <p>次の <strong>aspnet_regiis.exe</strong> ユーティリティーを実行して、関連する ASP.NET アクセス許可をアカウントに割り当てます。</p>
+        <blockquote>
+ <pre>aspnet_regiis.exe -ga machineName\userName</pre>
+        </blockquote>
+        <p>Windows Server では、<strong>aspnet_regiis.exe -ga</strong> コマンドを実行すると IIS_WPG グループにアカウントが追加されます。 IIS_WPGグループでは、「<strong>バッチ ジョブとしてログオンする</strong>」というユーザー権限が提供され、必要なファイル システムのアクセス許可が付与されます。</p>
+        <li>
+          <p>[ローカル セキュリティ ポリシー] ツールを使用して、Windows アカウントに「<strong>ローカルでログオンを拒否する</strong>」というユーザー権限を付与します。 こうすることで、アカウントの特権が減少し、すべてのユーザーがアカウントを用いてローカルで Windows にログオンすることができなくなります。</p>
+          <li>
+            <p>お使いのアプリケーションが IIS 6 でホストされている場合は、IIS マネージャを使用して、新規アカウントの ID のもとで実行されるアプリケーション プールを作成し、ASP.NET アプリケーションをプールに割り当てます。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は会社の株をつかってドキュメントを保存する HR （人事）アプリケーションです。 アプリケーションがタスクを完了させるために最低限必要となる特権を上回る特権で稼動しています。 正規化攻撃では、侵入者はアプリケーションのレポート ダウンロード機能をエクスプロイトして、本来は上級スタッフのみが利用できる重要な会社の記録にアクセスすることができます。</p>
+  <h1>ソリューションの例</h1>
+  <p>MyApp は会社の株をつかってドキュメントを保存する HR （人事）アプリケーションです。 アプリケーションは、タスクの実行に必要な最小限の特権セットで稼働しています。 正規化攻撃では、侵入者はアプリケーションのレポート ダウンロード機能をエクスプロイトして、会社の共有上にある任意のファイルにアクセスすることができます。 アプリケーションのアカウント特権により、侵入者は MyApp で利用できるファイルにしかアクセスできず、それ以上はアクセスできません。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>システム アカウント、およびアプリケーションを Windows サーバ プラットフォーム上に安全に展開する方法の詳細については、Microsoft の TechNet にある「<strong>サーバ セキュリティに関するセキュリティ ガイダンス</strong>」の記事のなかの「<a href="http://www.microsoft.com/technet/security/guidance/serversecurity/serviceaccount/sspgch02.mspx">サービスをより安全に実行するためのアプローチ</a>」および「<a href="http://www.microsoft.com/technet/security/guidance/serversecurity/serviceaccount/sspgch03.mspx#EHFAC">サービスをより安全に実行する方法</a>」の 2 つの章を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/0c6693ed-e3c2-4640-a795-c7c9c2a63cbc">ガイドライン：セキュリティ ポリシーを定義する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

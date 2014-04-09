@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="644352411" Content_Hash="1464169640">
+  <Metadata>
+    <Id>6dca6ecd-c3b1-46f7-a648-9e23e434b409</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>必要に応じて、秘密を保護し、鍵管理を軽減またはなくすためにDPAPI が使用される。</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>お使いのアプリケーションで機微データの暗号化のためにDPAPI が使用され、鍵管理を回避していることを確認してください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>DPAPI を使用してメモリまたは persistent store (構成ファイルやレジストリ等) 内にある機微データを暗号化することで、暗号鍵の管理および保護を行わずに済みます。 DPAPI を使用した場合、オペレーティング システムによって鍵の管理および保護が行われます。</p>
+  <p>ASP.NET Web.config ファイルに保存されている機微データの場合は、Aspnet_regiis ツール、および ASP.NET 3.5 で提供されるデータ保護機能を使用することができます。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;DPAPI 暗号化は、マシンとの親和性の観点から、Web ファーム シナリオでの使用には推奨されません。 代わりに、Aspnet_regiis によって同様にサポートされている RSA 暗号化を使用すべきです。<b></b></blockquote>
+  <p>メモリ内に保存されている機微データの場合は、DPAPI でデータを暗号化するためのマネージ ラッパー が提供される <b>ProtectedMemory </b> クラスを使用することができます。 テキストベース データの場合は、代わりに<b> SecureString </b>を使用することを検討してください。<b> SecureString</b> では、メモリ内のテキストを暗号化するために <b>ProtectedMemory</b> クラスが使用されます<b>。</b></p>
+  <p>次の例で、<b>ProtectedMemory</b> クラスをメモリ内のデータの暗号化および復号に使用する方法を示します。</p>
+  <div>
+ <pre>using System.Security.Cryptography;<br />using System.Text;<br />...<br />byte[] optionalEntropy = {7,5,4,9,0};<br />byte[] dataToBeEncrypted = Encoding.Unicode.GetBytes("Test String 1211");<br />ProtectedMemory.Protect(dataToBeEncrypted, MemoryProtectionScope.SameLogon);<br />ProtectedMemory.Unprotect(dataToBeEncrypted, MemoryProtectionScope.SameLogon);<br />string originalData = Encoding.Unicode.GetString(dataToBeEncrypted);  </pre>
+  </div>
+  <p>これ以外のデータ ストア内に保存されている機微データの場合は、次の例に示す <b>ProtectedData </b> クラスを使用してください。</p>
+  <div>
+ <pre>using System.Security.Cryptography;<br />using System.Text;...byte[] optionalEntropy = {7,5,4,9,0};<br />byte[] dataToBeEncrypted = Encoding.Unicode.GetBytes("Test String");<br />byte[] encryptedData = ProtectedData.Protect(dataToBeEncrypted, <br />		optionalEntropy, DataProtectionScope.CurrentUser);<br />byte[] decryptedData = ProtectedData.Unprotect(encryptedData, <br />		optionalEntropy, DataProtectionScope.CurrentUser);<br />            string originalData = Encoding.Unicode.GetString(decryptedData);  </pre>
+  </div>
+  <p>DPAPI を使用する場合は、マシン鍵ストアまたはユーザー鍵ストアを使用することができます。 以下の状況ではマシンレベルの鍵ストレージを使用してください:</p>
+  <ul>
+    <li>アプリケーションは、他のアプリケーションが実行されない、専用サーバで実行されます。 <li>複数のアプリケーションを同一サーバ上で使用しており、アプリケーション相互間で機微情報を共有させたい。 </li></li>
+  </ul>
+  <p>アプリケーションを共有ホスティング環境で実行して、アプリケーションの機微データをサーバ上にある他のアプリケーションからアクセスできないように保証したい場合は、ユーザーレベルの鍵ストレージを使用します。 この状況では、各アプリケーションは別々の ID で実行され、アプリケーションのリソース（ファイル、データベースなど）はその ID に制限されている必要があります。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

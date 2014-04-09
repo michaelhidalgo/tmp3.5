@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1976970964" Content_Hash="-928934679">
+  <Metadata>
+    <Id>1fe40372-6648-4496-8552-794f91ff6bbf</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>接続文字列が安全である</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>バックエンド データベース サーバに対するアプリケーションの Credential 情報が保護されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>攻撃者がアプリケーションのバックエンド データベースへのCredential 情報にアクセスすると、攻撃者はアプリケーションに関して許可されているすべてのアクセス許可を用いてデータベースにアクセスすることができます。</p>
+  <h1>チェック方法</h1>
+  <p>アプリケーションでバックエンド データベース サーバーへの接続が行われる場合、アプリケーションの接続文字列を保護する必要があります。 以下の手順を実行して、アプリケーションの接続文字列がセキュアであることを確認してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>可能な場合は Windows 認証が使用されていることをチェックします。 </strong>Windows 認証をアプリケーションに使用する最大の利点は、接続文字列にCredential 情報を入れる必要がないということです。 </p>
+      <li>
+        <p>
+          <strong>接続文字列がセキュアに格納されていることを確認します。 </strong>接続文字列がアプリケーションのコード ベース全体でセキュアに処理されるようにします。 下記の各項目に着目してください。</p>
+        <ul>
+          <li>
+            <p />
+            <strong>文字列がハードコードされていない：</strong>接続文字列がアプリケーションのコード ベースにハードコードされていないことを確認します。 以下に、ハードコードされている接続文字列の例を示します。<p /><pre>  static void Main()<br />  &amp;#123;<br />        string connectionString = GetConnectionString();<br />        string queryString = "SELECT CategoryID, CategoryName FROM Categories;";<br />        ....<br />  &amp;#125;<br /><br />  static private string GetConnectionString()<br />  &amp;#123;<br />        return "Data Source=myds;Database=mydb;Uid=myuname;Pwd=mypwd;";<br />  &amp;#125;</pre><li><p><strong>文字列が構成ファイルに保存され、暗号化されている：</strong>アプリケーションが接続文字列を構成ファイルに保存することを確認します。 キー ストア用の&amp;nbsp;パスワードは、その他のアプリケーションの&amp;nbsp;プロパティ ファイルとは別のファイルに保管することをお勧めします。 この方法により、他のアプリケーション ファイルと比較してセキュリティが強化されます。&amp;nbsp;接続文字列が web.config ファイルに保存される際に、アプリケーションの展開方法に応じて DPAPI または RSA のいずれかを使用して暗号化されており、簡単に読み取られないことを確認します。 下記のような内容になります。</p><pre>&lt;connectionStrings&gt;<br />  &lt;EncryptedData&gt;<br />    &lt;CipherData&gt;<br />      &lt;CipherValue&gt;GHAFQEW234A21...&lt;/CipherValue&gt;<br />    &lt;/CipherData&gt;<br />  &lt;/EncryptedData&gt;<br />&lt;/connectionStrings&gt;</pre></li></li>
+        </ul>
+        <li>
+          <p>
+            <strong>構成ファイルが保護されていることを確認します。 </strong>以下の点を確認します。</p>
+          <ul>
+            <li>アプリケーションとアプリケーション管理者のみが構成ファイルにアクセスできるように、構成ファイルに適切なファイルシステム アクセス許可が設定されている。 <li>構成ファイルはウェブからアクセスできない別のディレクトリに置かれている。</li></li>
+          </ul>
+          <li>
+            <p>
+              <strong>データベース サーバへの接続が暗号化されていることを確認します。 </strong>アプリケーションとデータベース サーバー間の接続を暗号化することで、バックエンド データベースに対して最初に認証が行われる際にデータベース資格情報が保護されます。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションでは、　web.config ファイルに次の接続文字列が含まれています。</p>
+ <pre>&lt;appSettings&gt;<br />  &lt;add key="ConnectionString" value="Data Source=myds;Database=mydb;Uid=myuname;Pwd=mypwd;"/&gt;<br />&lt;/appSettings&gt;</pre>
+  <p>ユーザー名およびパスワードはプレーンテキストであるため、サーバにアクセス可能なあらゆる攻撃者が簡単に読み取ることができます。</p>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/e1992e93-39c6-4508-9b16-0e07b0939c37">ガイドライン: 安全な接続文字列</a>
+      <li>
+        <a href="/article/693e1ae5-e381-41fd-93f7-844aaeca3ef8">チェックリスト アイテム: 構成ファイル内の機微データが保護されている</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1366611282" Content_Hash="-174066516">
+  <Metadata>
+    <Id>cf0acf4b-6085-4a5f-84e9-e0eb38d33bb3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SQL 認証を使用する場合、構成ファイル内の Credential 情報を保護する</Title>
+    <Category>データ アクセス</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アプリケーションがSQL認証を使用する場合、Credential 情報は構成ファイル内で保護されていなければなりません。 保護された&nbsp;構成プロバイダー&nbsp;を使用して&nbsp;、接続文字列を構成ファイルに格納する前に暗号化します。 </p>
+  <h1>理由</h1>
+  <p>接続文字列には機微なリソース アクセス Credential 情報 (ユーザー名とパスワードを含む、SQL Serverリソース向け接続文字列)が含まれます。サーバに害を与える攻撃者が接続文字列を読み取れるため、プレーン テキストで保存される接続文字列は危険です。 マシンが侵害されていなくても、プレーンテキストで保存された接続文字列はホストマシンやWindowsドメイン上で管理者やその他ユーザーに十分な特権をもってアクセス可能です。&nbsp;</p>
+  <h1>状況</h1>
+  <p>接続文字列は常に暗号化してください。 Windows データ保護 API (DPAPI) は、デフォルトのプロバイダーであり、大部分の状況下において保護構成プロバイダーの選択時に&nbsp;容認可能な選択肢です。 しかし、Web ファーム環境においては、&nbsp;RSA 保護構成プロバイダーが適切です。なぜなら、RSA ベースのプロバイダーは、非対称の公開&nbsp;鍵暗号化を使用して、サーバ間でエクスポートおよびインポート可能なデータ鍵を暗号化および復号するためです。 これらのいずれも十分でない場合は、独自のカスタム プロバイダーを作成できます。</p>
+  <h1>対策</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>暗号化する構成のセクションを特定します。</strong> データの暗号化と復号化をすると、パフォーマンスのオーバーヘッドが発生します。 このオーバーヘッドを最小限に抑えるには、構成ファイルのうち、機微データが保存されているセクションのみを暗号化してください。 この場合、私たちは Web.config ファイルの &lt;connectionStrings&gt; エレメントの暗号化に関心があります。なぜなら、それはデータベース接続文字列が存在する場所であるためです。 </p>
+      <li>
+        <p>
+          <strong>保護構成のプロバイダーを選択します。 </strong>ほとんどの状況ではDPAPI で十分です。もっとも、複数のサーバを使用したウェブ ファームではRSA によって保護された構成の使用が論理的です。 .NET Framework には保護構成機能が含まれており、この機能を使用すれば、コマンド ラインのツールを使用することによって構成ファイルの機微なデータを暗号化することができます。 以下の 2 つの保護構成プロバイダーが提供されていますが、カスタムのプロバイダーを実装することもできます。</p>
+        <p>
+          <strong>RSA 保護構成プロバイダー。</strong> このプロバイダーは、RSA 公開&nbsp;鍵暗号化を使用してデータを暗号化および復号し、Web ファーム環境にとって適切です。 </p>
+        <p>
+          <strong>DPAPIProtectedConfigurationProvider。</strong> これはデフォルトのプロバイダーであり、Windows データ保護 API (DPAPI) を使用してデータを暗号化および復号します。 このセクションでは、DPAPI を使用して接続文字列を暗号化する方法について説明します。 RSA 保護構成プロバイダーと DPAPI の使用に関する詳細情報は、関連ガイドラインを参照してください。</p>
+        <li>
+          <p>
+            <strong>マシンまたはユーザー ストアを選択します。</strong> DataProtectionConfigurationProviderは、マシンレベルおよびユーザーレベルの鍵のストアに対応しています。 ストアの選択は、アプリケーションが他のアプリケーションとサーバを共有しているかどうか、および機微データをアプリケーションごとに非公開にする必要があるかどうかによって大きく異なります。 </p>
+          <ul>
+            <li>
+              <strong>マシン ストア。 </strong>デフォルトで、DataProtectionConfigurationProvider はマシン ストアで DPAPI を使用するように構成されています。 以下の状況ではマシンレベルの鍵ストレージを使用してください:<p /><ul><li>アプリケーションは、他のアプリケーションが実行されない、専用サーバで実行されます。 <li>同一サーバで実行する複数のアプリケーションがあり、それらが機微な情報を共有できるように希望します。</li></li></ul><li><p><strong>ユーザー ストア。 </strong>アプリケーションを共有ホスティング環境で実行して、アプリケーションの機微データをサーバ上にある他のアプリケーションからアクセスできないように保証したい場合は、ユーザーレベルの鍵ストレージを使用します。 この状況では、各アプリケーションは別々の ID で実行され、アプリケーションのリソース（ファイル、データベースなど）はその ID に制限されている必要があります。</p></li></li>
+          </ul>
+          <li>
+            <p>
+              <strong>構成ファイルのデータを暗号化します。</strong> マシン ストアで DPAPI を使用して Web.config の connectionStrings セクションを暗号化するには、.NET コマンド プロンプトから次のコマンドを実行します。</p>
+ <pre>   aspnet_regiis -pe "connectionStrings" -app "/MachineDPAPI" -prov "DataProtectionConfigurationProvider"</pre>
+            <p>-app スイッチの伴う上記コマンドは、MachineDPAPI と呼ばれる IIS 仮想ディレクトリがあることを前提としています。 IIS の代わりに Visual Studio .NET Web サーバを使用している場合、構成ファイルの物理ディレクトリの場所の指定を可能にする -pef スイッチを使用します。</p>
+ <pre>   aspnet_regiis.exe -pef "connectionStrings" C:\Projects\MachineDPAPI -prov "DataProtectionConfigurationProvider"&nbsp;&nbsp;&nbsp;&nbsp;</pre>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>サンプルの Web アプリケーションが&nbsp;ホストされた Web 環境において起動していると仮定します。 アプリケーションは、SQL データベース インスタンスを使用し、同じシステム上で他のアプリケーションにアクセスできない機微データを持ちます。&nbsp;web.config ファイルには、&nbsp;アプリケーションが SQL データベースにアクセスするために使用する connectionString セクションが含まれています。</p>
+ <pre>&lt;connectionStrings&gt; <br />	&lt;add name="MyLocalSQLServer"         <br />			connectionString="Initial Catalog=pubs;<br />			User Id=sa;<br />			Password=asdasd;       <br />			data source=localhost;<br />			Integrated Security=SSPI;"        <br />	providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;</pre>
+  <p>この接続文字列は危険です。アプリケーションの web.config ファイルを読み取ることができる者は誰でも、データベース、ユーザー名、およびデータベース インスタンスのパスワードを識別することができ、アプリケーションと同じレベルの特権で命令文を実行することができるからです。</p>
+  <h1>ソリューションの例</h1>
+  <p>このアプリケーションは共有ホスティング環境下にあるため、鍵ストレージの観点から、ユーザー ストアを選択するのが適切です。 デフォルトで、ASP.NET アプリケーションは NT AUTHORITY\Network Service アカウントの下で起動します。 DPAPI をユーザー ストアで使用して、暗号化された構成セクションにアクセスする場合は、データの暗号化に使用したアカウントと同じユーザー ID でアプリケーションが実行されていることを確認してください。</p>
+  <p>DataProtectionConfigurationProvider および DPAPI をユーザー ストアと共に使用するには、Web.config ファイルに少量の追加構成が必要になります。</p>
+  <p>まず、保護構成プロバイダーを追加して、ユーザー ストアを使用するように構成します。 これを行うには、以下の &lt;configProtectedData&gt; セクションが追加され、&nbsp;useMachineProtection= "false" 命令がプロバイダーにユーザー ストアを使用するよう指示します。 一意のプロバイダー名を使用することが不可欠です。そうしなければ、ランタイム エラーが発生します。</p>
+ <pre>&lt;configProtectedData&gt; <br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add useMachineProtection="false" keyEntropy="" name="MyUserDataProtectionConfigurationProvider" <br />		type="System.Configuration.DpapiProtectedConfigurationProvider, System.Configuration, <br />		Version=3.5.0.0, Culture=neutral, <br />PublicKeyToken=b03f5f7f11d50a3a" /&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/configProtectedData&gt;&nbsp; </pre>
+  <p>下記のコマンドがコマンド プロンプトから実行され、connectionStrings セクションが暗号化されます。</p>
+ <pre>Aspnet_regiis -pe "connectionStrings" -app "/UserDPAPI" -prov "MyUserDataProtectionConfigurationProvider"</pre>
+  <ul>
+    <li>-pe スイッチは、暗号化する構成セクションを指定します。 <li>-app スイッチは、Web アプリケーションの仮想パスを指定します。 入れ子型アプリケーションの場合は、 たとえば、"/test/aspnet/UserDPAPI" などです。 <li>-prov スイッチはプロバイダー名を指定します。 この場合、これは前に指定した "MyUserDataProtectionConfigurationProvider" に設定されます。</li></li></li>
+  </ul>
+  <p>ここで、接続文字列は暗号化済みであり、それは web.config ファイルを調べることにより確認できます。&nbsp;&nbsp; </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>Windows データ保護 <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnsecure/html/windataprotection-dpapi.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnsecure/html/windataprotection-dpapi.asp</a><li>ASP.NET ユーティリティを使用して Credential 情報およびセッション状態接続文字列を暗号化する方法 <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;329290">http://support.microsoft.com/default.aspx?scid=kb;en-us;329290</a></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/a4ebbfd1-a7c3-48b6-8552-9eb776b570a2">SQL 認証使用時はネットワークを通して Credential 情報を保護する</a>
+      <li>
+        <a href="/article/f10679b7-5390-49ee-b529-7a2f7c059ce7">接続文字列を暗号化する</a>
+        <li>
+          <a href="/article/1fe40372-6648-4496-8552-794f91ff6bbf">接続文字列が安全な状態である</a>
+          <li>
+            <a href="/article/e963466f-3c57-48a5-bdf9-1f66136c12d3">Web ファーム環境において RSA 保護構成プロバイダーを使用する</a>
+            <li>
+              <a href="/article/e1992e93-39c6-4508-9b16-0e07b0939c37">接続文字列を安全な状態にする</a>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

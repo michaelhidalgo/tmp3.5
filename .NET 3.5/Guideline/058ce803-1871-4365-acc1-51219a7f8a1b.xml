@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1384319164" Content_Hash="1750571280">
+  <Metadata>
+    <Id>058ce803-1871-4365-acc1-51219a7f8a1b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>テスト アカウントを削除する</Title>
+    <Category>認証</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>配置したアプリケーションからすべてのテスト アカウントを削除します。</p>
+  <h1>理由</h1>
+  <p>テスト アカウントは、開発時にアプリケーションの機能にアクセスするために使用します。 セキュアに保たれていないことが多いため、攻撃者のかっこうの攻撃対象となっています。</p>
+  <h1>状況</h1>
+  <p>アプリケーションのテスト時にテスト アカウントを使用する場合、配置前にそれらのアカウントが削除されていることを確認します。</p>
+  <h1>対策</h1>
+  <p>以下の手順を使用して、テスト アカウントを削除します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>全アカウントを列挙する</strong>：アプリケーションの全ユーザーを一覧表示します。 このリストは、アクティブなユーザー、非アクティブなユーザー、確認待ちのユーザー、テスト アカウントを含む（これらに限らない）完全で包括的なリストにする必要があります。</p>
+      <li>
+        <p>
+          <strong>アカウントの使用を特定する</strong>：各アカウントの使用／ステータスを調べます。 使用状況/ステータスに応じてアカウントをグループ分けします。</p>
+        <li>
+          <p>
+            <strong>使用されないアカウントを削除する</strong>：アカウントがグループに保存されると、テストの目的に使用されるアカウントをすべて一覧表示します。 すべてのテスト アカウントを特定したら、アプリケーションのデータベースから該当するアカウントを削除します。</p>
+          <li>
+            <p>
+              <strong>残りのアカウントに強力なパスワードを強制する</strong>：テスト アカウントをすべて削除した後、アプリケーション内の残りのアカウントに強力なパスワードを強制します。 堅牢なパスワードにより、有効なパスワードが被害を受ける可能性を減らします。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のセグメントに、マルチユーザー アプリケーションのユーザー データベースを示します。 ユーザーの説明、ステータスなどのユーザー テーブルにある他のデータを確認することによって、どのアカウントが必要なアカウントであり、どのアカウントがテストの目的のためにのみ存在するアカウントであるかを推測することができます。 この例におけるユーザー データベースの問題は、アプリケーション展開後におけるテスト アカウントの存在ですが、これはステータス列のデータを確認することによって判別することができます。</p>
+ <pre>sql&gt; select username, status from users;<br />&amp;#43;----------&amp;#43;-----------&amp;#43;<br />&amp;#124;username &amp;#124; status    &amp;#124;<br />&amp;#43;----------&amp;#43;-----------&amp;#43;<br />&amp;#124;joe      &amp;#124; active    &amp;#124;<br />&amp;#124;adam     &amp;#124; active    &amp;#124;<br />&amp;#124;john     &amp;#124; inactive  &amp;#124;<br />&amp;#124;bob      &amp;#124; active    &amp;#124;<br />&amp;#124;jim      &amp;#124; active    &amp;#124;<br />&amp;#124;sean     &amp;#124; inactive  &amp;#124;<br />&amp;#124;ellen    &amp;#124; active    &amp;#124;<br />&amp;#124;mary     &amp;#124; active    &amp;#124;<br />&amp;#124;susan    &amp;#124; active    &amp;#124;<br />&amp;#124;julie    &amp;#124; active    &amp;#124;<br />&amp;#124;test01   &amp;#124; test      &amp;#124;<br />&amp;#124;test02   &amp;#124; test      &amp;#124;<br />&amp;#124;test03   &amp;#124; test      &amp;#124;<br />&amp;#43;----------&amp;#43;-----------&amp;#43;</pre>
+  <h1>ソリューションの例</h1>
+  <p>以下のセグメントに、マルチユーザー アプリケーションのユーザー データベースを示します。 ユーザー データベースにはアクティブなユーザーが入力され、テスト アカウントは入力されません。</p>
+ <pre>sql&gt; select username, status from users;<br />&amp;#43;----------&amp;#43;-----------&amp;#43;<br />&amp;#124;username &amp;#124; status    &amp;#124;<br />&amp;#43;----------&amp;#43;-----------&amp;#43;<br />&amp;#124;joe      &amp;#124; active    &amp;#124;<br />&amp;#124;adam     &amp;#124; active    &amp;#124;<br />&amp;#124;bob      &amp;#124; active    &amp;#124;<br />&amp;#124;jim      &amp;#124; active    &amp;#124;<br />&amp;#124;ellen    &amp;#124; active    &amp;#124;<br />&amp;#124;mary     &amp;#124; active    &amp;#124;<br />&amp;#124;susan    &amp;#124; active    &amp;#124;<br />&amp;#124;julie    &amp;#124; active    &amp;#124;<br />&amp;#43;----------&amp;#43;-----------&amp;#43;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>アプリケーションのアカウントのセキュリティ保護の詳細については、「<a href="http://msdn.microsoft.com/en-us/library/aa302432.aspx#c16618429_013">Web サーバをセキュリティで保護する</a>」を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/880d6dff-ebeb-40b9-9bc2-d41997813dee">ガイドライン：テスト用インターフェイスを削除する</a>
+      <li>
+        <a href="/article/ba207c2f-46a0-473d-9631-7292426b2dad">ガイドライン：アクティブでないユーザー アカウントを自動的にロックする</a>
+        <li>
+          <a href="/article/485a8261-d637-4a47-8643-de094828bf56">ガイドライン: パスワード更新を強制する</a>
+          <li>
+            <a href="/article/485a8261-d637-4a47-8643-de094828bf56">ガイドライン：パスワードの更新を強制する</a>
+            <li>
+              <a href="/article/7cdd14b9-87b6-47ea-987b-934ee0831abb">チェックリスト項目：テスト用アカウントは削除される</a>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

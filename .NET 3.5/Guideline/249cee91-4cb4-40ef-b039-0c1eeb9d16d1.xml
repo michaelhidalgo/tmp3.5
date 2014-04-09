@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="841900747" Content_Hash="1520714306">
+  <Metadata>
+    <Id>249cee91-4cb4-40ef-b039-0c1eeb9d16d1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>可能な場合、System.String ではなく SecureString を使用する</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>メモリで秘密を保護するために <b>System.Security.SecureString</b> 型の使用を検討してください。 <b>SecureString</b> オブジェクトは、メモリ中に暗号化されたフォーマットでデータを保存するため DPAPI 暗号化を使用します。 アクセスされる時のみ復号されます。</p>
+  <h1>理由</h1>
+  <p>データを使用するには復号する必要がありますが、<b>System.String</b> ではなく <b>SecureString</b> を使用することにより多くの利点が得られます。</p>
+  <ul>
+    <li>メモリ内に保持される秘密のコピーの数を最小化することができ、Attack Surface (攻撃対象領域) を減らします。 <li>プロセス メモリのアドレス空間もしくはページ ファイルにアクセスできる攻撃者に、秘密が見えている時間を軽減します。 <li>プロセスがクラッシュした場合に、平分バージョンではなく秘密を暗号化したバージョンがダンプ ファイルになる可能性を増やします。</li></li></li>
+  </ul>
+  <blockquote>
+    <p>
+      <b>注意</b>: &nbsp;&nbsp;不運にも、多くのシナリオでは、使用できる前に <b>SecureString</b> を <b>System.String</b> に変換するように強制されます。 例えば、わずかな .NET Framework API メソッドだけが、現在 <b>SecureString</b> をサポートするオーバーロードを提供します。<b>SecureString</b> の使用は、ASP.NET アプリケーションではあまり適切ではありません。 例えば、フォーム関連の API の大部分が <b>System.String</b> ではなく <b>SecureString</b> の使用を許可する関数オーバーロードを持たないため、 Web ページからクレジット カード番号を取得する際に<b>System.String</b> を経由せずに済む可能性は低いです。</p>
+  </blockquote>
+  <p>System.String を機微情報の保存に使用することは、以下の理由から推奨されません。</p>
+  <ul>
+    <li>それはピン止めされないので、ガーベジ コレクタが移動することができ、予測できない時間にわたりメモリにデータを残すことができることを意味します。 <li>暗号化されません。 従って、データはプロセス メモリまたはスワップ ファイルから読み取りできます。 <li>それは不変です。 従って使用後にデータを消去する効果的な方法がありません。 変更は、古いコピーと新しいコピーの両方をメモリに残します。 </li></li></li>
+  </ul>
+  <h1>状況</h1>
+  <p>メモリ内で機微データの処理を行う場合</p>
+  <h1>対策</h1>
+  <h2>SecureString の作成</h2>
+  <p>文字配列にポインターを提供しその配列の長さを提供することにより <b>SecureString</b> を作成できます。 この方法で構築される時、<b>SecureString</b> 型は配列のコピーを取ります。 <b>SecureString</b> が構築されたら、直ちにソース配列をゼロで置換することをお勧めします。 <b>SecureString</b> は既存の文字配列なしで構築することもでき、データは1 文字ずつコピーされます。 次のコード例は、1 文字ずつセキュアな文字列を作成するために <b>AppendChar</b> メソッドを使用する方法を表示します。</p>
+ <pre>using System.Security;<br />...<br />SecureString securePassword = new SecureString(); <br />Console.WriteLine("Enter Password...."); <br />while (true) <br />{<br />&nbsp; ConsoleKeyInfo conKeyInfo = Console.ReadKey(true);<br />&nbsp; if (conKeyInfo.Key == ConsoleKey.Enter)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br />&nbsp; else if (conKeyInfo.Key == ConsoleKey.Escape)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return;<br />&nbsp; else if (conKeyInfo.Key == ConsoleKey.Backspace)<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp; if (securePassword.Length != 0)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; securePassword.RemoveAt(securePassword.Length - 1);<br />&nbsp; }<br />&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp; securePassword.AppendChar(conKeyInfo.KeyChar);<br />}<br />Console.WriteLine(securePassword.Length.ToString());  </pre>
+  <h2>SecureString からデータを取得する</h2>
+  <p>マーシャラを使用して <b>SecureString</b> からデータを読み取ります。 <b>Marshal</b> クラスが拡張されて、<b>SecureString</b> を <b>BSTR</b> データ型、ANSI の生ブロック、もしくは Unicode メモリに変換するメソッドを提供します。 保護されない文字列の使用が終われば、次の例に表示されるように <b>Marshal.ZeroFreeBSTR</b> を呼び出すことによりそのコピーを消去することをお勧めします。<b></b></p>
+ <pre>using System.Security;<br />using System.Runtime.InteropServices;<br />...<br />void UseSecretData(SecureString secret)<br />{<br />&nbsp; IntPtr bstr = Marshal.SecureStringToBSTR(secret);<br />&nbsp; try<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Use the bstr here<br />&nbsp; }<br />&nbsp; finally<br />&nbsp; {<br />&nbsp;&nbsp;&nbsp; // Make sure that the clear text data is zeroed out<br />&nbsp;&nbsp;&nbsp; Marshal.ZeroFreeBSTR(bstr);<br />&nbsp; }<br />}</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「文字列をより安全にする」 (<a href="http://blogs.msdn.com/shawnfa/archive/2004/05/27/143254.aspx">http://blogs.msdn.com/shawnfa/archive/2004/05/27/143254.aspx) を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

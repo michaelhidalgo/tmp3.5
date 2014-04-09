@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2031298323" Content_Hash="-807128911">
+  <Metadata>
+    <Id>d4143ba9-d87b-4455-8053-d888489a0013</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コードが別のアセンブリに分けられています</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションのウェブコントロール、ユーザーコントロール、リソースアクセスコードは、粒度の細かいセキュリティを実現するため、それぞれのアセンブリに分けられていることを確認します。 適切なセキュリティ設定が各アセンブリに割り当てられていることを確認します。</p>
+  <h1>理由</h1>
+  <p>異なるコンポーネントは異なる特権や信頼レベルを必要とすることがあり、一つのセキュリティポリシーではアプリケーションに対応できないことがあります。 アプリケーションを複数のアセンブリにパーティショニングすることで、セキュリティポリシーを作成し実施する際に、より高い柔軟性が実現します。 この方法を行うと、アプリケーションが必要とする最小特権を軽減することが可能で、タスク完了時にコンポーネントの信頼性が増します。</p>
+  <h1>チェック方法</h1>
+  <p>次の手順に従い、アプリケーションが複数のアセンブリに分けられており、適切な信頼レベルを有することを確かめます。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションのすべての主要コンポーネントを特定します。 </strong>アプリケーションの設計を確認します。 すべての主要機能が適切に識別されていることを確認します。</p>
+      <li>
+        <p>
+          <strong>特別なセキュリティ設定をすべて識別します。 </strong>アプリケーションのセキュリティ要件を確認します。 他からの要求でない特定のコンポーネントによって要求されるすべての特権が&amp;nbsp;確実に識別されるようにします。</p>
+        <li>
+          <p>
+            <strong>アプリケーションがパーティショニングされていることを確認します。 </strong>すべての主要機能が異なるアセンブリに適切に分けられ、セキュリティ設定を行うときに高い柔軟性が得られることを確認します。 これにより、各アセンブリに最小限の必要特権を割り当てます。 アセンブリのすべてのエレメント(アセンブリ マニフェスト、メタデータ タイプ、MSILコード、リソース)は単一の.dllファイルにグループ化できます。 ASP.NETは次のタイプのアセンブリを提供します。</p>
+          <ul>
+            <li>
+              <p>
+                <strong>ページアセンブリ:</strong> デフォルトでは、各 ASP.NET ページがそれぞれのアセンブリにコンパイルされ、その後ASP.NETエンジンに読み込まれます。 こういったアセンブリのセキュリティ構成は<strong>web.config</strong> ファイル内に保存されます。 すべての.aspxファイルをウェブアプリケーションで列挙することで、アプリケーション内にすべてのページ アセンブリの包括リストを提供します。</p>
+              <li>
+                <p>
+                  <strong>実行可能アセンブリ:</strong> 一般的に外部ライブラリまたはDLLとして知られ、これらアセンブリはASP.NET 開発以外にも再利用できます。 こういったアセンブリのセキュリティ設定は <strong>app.config</strong> ファイルおよび <strong>caspol.exe</strong> ユーティリティを介して管理されます。<br />ソースツリー内でアプリケーションの各app.configファイルを、使用されるバイナリ専用DLLと併せて見つけることで、アプリケーション内で実行可能なアセンブリの総合一覧が得られます。</p>
+              </li>
+            </li>
+          </ul>
+          <li>
+            <p>
+              <strong>適切なセキュリティ設定が適用されていることを確認します。 </strong>適切なセキュリティポリシーが、個別のセキュリティ要件に基づいて各アセンブリに適用されていることを確認します。 これを実現するには <strong>caspol.exe</strong> ユーティリティ、アプリケーションの <strong>web.config</strong>、またはアセンブリの <strong>app.config</strong> を使用します。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <strong>注記: </strong>このチェックは、 「<a href="/article/257481d8-fcc5-4ed2-a8d8-c198bb399c77">セキュリティ ポリシーが定義されている</a>」のチェック項目の事前要件です。</p>
+  <h1>問題の例</h1>
+  <p>MyApp は MyCorpのHRアプリケーションです。 従業員の記録を追跡する基本機能の一つに、文書やカレンダーの共有を可能にするアプリケーションがあり、MyCorpのHRスタッフの最新の情報を基にした日常業務が可能になります。 アプリケーションが単一のアセンブリとしてコンパイルされるため、文書およびカレンダー共有機能に異なるセキュリティ設定を割り当てるのは不可能です。 つまり、カレンダー機能で脆弱性のエクスプロイトが起こると、共有ドキュメントが危険にさらされます。 以下でMyAppのセキュリティ ポリシーの展開を紹介します。</p>
+  <p />
+ <pre>&lt;location allowOverride="true"&gt;<br />   &lt;system.web&gt;<br />      &lt;securityPolicy&gt;<br />         &lt;trustLevel name="MyAppTrustLevel" policyFile="myapp_customtrust.config" /&gt;<br />      &lt;/securityPolicy&gt;<br />      &lt;trust level="MyAppTrustLevel" originUrl="" /&gt;<br />   &lt;/system.web&gt;<br />&lt;/location&gt;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>.NETアセンブリについての詳細は、MSDNの<a href="http://msdn2.microsoft.com/en-us/library/zst29sk2(vs.80).aspx">アセンブリ コンテンツ</a>をご覧ください。</li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

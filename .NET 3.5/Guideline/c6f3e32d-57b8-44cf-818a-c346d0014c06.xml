@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="251459405" Content_Hash="1894016880">
+  <Metadata>
+    <Id>c6f3e32d-57b8-44cf-818a-c346d0014c06</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>プレーンテキストの機微データを格納しない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>暗号化を使用することで、プレーンテキストの機微データをアプリケーション構成ファイルまたはデータベースに格納することを回避します。</p>
+  <h1>理由</h1>
+  <p>プレーン テキストに格納された場合、機微なデータに危害が与えられてしまう可能性があります。 ユーザーまたは攻撃者からの認可されていないアクセスは、情報漏えいにつながる可能性があります。</p>
+  <h1>状況</h1>
+  <p>お使いのアプリケーションで、データを所有するユーザーまたはその他権限を持つ当事者以外の者によって読み取られるべきでない、ユーザーの機微データまたはプライベート データの受け入れまたは処理を行う場合。 </p>
+  <h1>対策</h1>
+  <p>機微データを格納する場合は、以下の手順を使用します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機密情報を識別します。</strong> 機微データとは、秘密に保たれており、認可されている当事者にのみ開示するべき情報のことです。 機微データの一般的な例としては、顧客名、政府発行の ID 番号、クレジット カードなどの財務情報、および私有鍵がありますが、これらに限られません。 <u>注記</u>:パスワードの格納は絶対に行わないことが推奨されます。</a>」のガイドラインを参照してください。</p>
+      <p>ヘルス ケアや銀行など一部の業界では、機密情報を定義する規制基準を設けています。 アプリケーションに規制要件が適用される場合、規制要件に従って機微データを識別します。 機微データは次のように定義されます:</p>
+      <ul>
+        <li>Personally Identifiable Informationが含まれるか、またはPersonally Identifiable Informationの導出に使用できる、他者と共有すべきでない情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。</li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>適切な保護メカニズムを選択します。</strong> 選択する適切な保護機構は、機微データの目的や用途によって異なります。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>アプリケーション データをハッシュ化します。</strong> アプリケーション データを比較目的にのみ使用する場合、ハッシュ化を使用します。 ハッシュ化を使用する場合、16 ビット以上の長いソルトを選択します。 生成されたハッシュが危険にさらされたと仮定して、攻撃者が機微データへアクセスする場合､長いソルトの方がより難しいのです。 アプリケーションでランダムに生成されたソルトが使用される場合、ランダムなソルトが暗号化されて構成ファイルに格納されることを確認します。 必ず RNGCryptoServiceProvider 等の、暗号学的にセキュアな乱数ジェネレーターを使用してソルトを生成してください。 例: </p>
+            <blockquote>
+ <pre>public static byte&amp;#91;&amp;#93;GenerateSalt()<br />&amp;#123;<br />    byte&amp;#91;&amp;#93;randBytes = new byte&amp;#91;4&amp;#93;;<br />    RNGCryptoServiceProvider gen = new RNGCryptoServiceProvider();<br />    gen.GetNonZeroBytes(randBytes);<br />    return randBytes;<br />&amp;#125;</pre>
+            </blockquote>
+            <li>
+              <p>
+                <strong>アプリケーション データの暗号化:</strong> アプリケーション データを後で回収する場合、暗号化を使用します。 暗号化したデータは、ファイルシステム内の構成ファイルか、またはデータベースに格納することができます。 両方のシナリオを以下に説明します。</p>
+              <p>
+                <strong>暗号化された構成ファイルを使用する</strong>：ASP.NET アプリケーションでは、暗号化機能を提供するライブラリとして&amp;#8212;DPAPI および RSA の 2 つがあります。 アプリケーションがウェブ ファームに展開される場合、RSA 鍵は簡単にエクスポートできるため、RSA 保護された構成プロバイダーを使用することをお勧めします。 それ以外の場合、DPAPI 保護された構成プロバイダーを使用することをお勧めします。 </p>
+              <p>
+                <strong>データベース内で暗号化を使用する</strong>：暗号化されたデータを SQL Server 2005 以降に格納するには、「<a href="/article/c6f3e32d-57b8-44cf-818a-c346d0014c06">データベース内の機微データを暗号化する</a>」ガイドラインを参照してください。</p>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <p>
+            <strong>適切な保護機構を適用します。</strong> コードを評価して、機微データが送信される場所を判断します。 それぞれの場所で実証済みの保護メカニズムを適用します。</p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションでは、 web.config ファイルに次の  <strong>appSettings</strong> エレメントが含まれています。</p>
+  <blockquote>
+ <pre>&lt;appSettings&gt;<br />    &lt;add key="Name" value="John Doe" /&gt;<br />    &lt;add key="SSN" value="123-45-6789" /&gt;<br />&lt;/appSettings&gt;</pre>
+  </blockquote>
+  <p>名前および社会保障番号はプレーン テキストであるため、サーバへのアクセス権を持つあらゆる攻撃者が簡単に読み取ることができるでしょう。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションには、<strong>appSettings</strong> エレメントに代えて次のようなものが web.config ファイル内に含まれています。</p>
+  <blockquote>
+ <pre>  &lt;EncryptedData&gt; <br />    &lt;CipherData&gt; <br />      &lt;CipherValue&gt;AQAAANCMnd8BFdERjHoAwE/Cl&amp;#43;sBAAAAexuIJ/8oFE&amp;#43;sGTs7j<br />&amp;#9;&amp;#9;BKZdgQAAAACAAAAAAADZgAAqAAAABAAAAAKms84dyaCPAeaSC1dIMI<br />&amp;#9;&amp;#9;BAAAAAASAAACgAAAAEAAAAKaVI6aAOFdqhdc6w1Er3HMwAAAAcZ00M<br />&amp;#9;&amp;#9;ZOz1dI7kYRvkMIn/BmfrvoHNUwz6H9rcxJ6Ow41E3hwHLbh79IUWii<br />&amp;#9;&amp;#9;Np0VqFAAAAF2sXCdb3fcKkgnagkHkILqteTXh&lt;/CipherValue&gt;<br />    &lt;/CipherData&gt;<br />  &lt;/EncryptedData&gt;</pre>
+  </blockquote>
+  <p>名前および社会保障番号は、aspnet_regiis ユーティリティーを使用して暗号化されているため、サーバにアクセスできる攻撃者によって簡単に読み取られないようになっています。</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/cd4ccbbb-be9c-4ff4-8b20-d116819b634b">ガイドライン：安全な鍵保管場所を使用する</a>
+      <li>
+        <a href="/article/faada3f5-3f50-42fc-b863-5058e3d848cb">ガイドライン：構成ファイル内の機微データを保護する</a>
+        <li>
+          <a href="/article/e1992e93-39c6-4508-9b16-0e07b0939c37">ガイドライン：安全な接続文字列 </a>
+          <li>
+            <a href="/article/15880c2e-33cb-4bde-9744-5f9239c7f03d">チェックリスト項目：プレーンテキストの機微データが格納されていない</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

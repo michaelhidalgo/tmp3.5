@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1673138019" Content_Hash="-420403510">
+  <Metadata>
+    <Id>ab7b0361-a2af-455f-af64-6fcc319c5c52</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>出力にデバッグ データが含まれていない</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>攻撃者がアクセスできる可能性のある出力からデバッグ データが削除されていることを確認します。 攻撃者がさらなる攻撃に活用できるようなデバッグ情報がないか、すべてのエラー メッセージまたはその他の出力データを確認してください。 </p>
+  <h1>理由</h1>
+  <p>攻撃者は、デバッグ データを使用して Web アプリケーションに関する重要な情報を知ることができ、それをさらなる攻撃に活用することができます。 デバッグ データは、アプリケーションがどのモジュールを使用しているかを攻撃者に知らせる可能性があります。 攻撃者は、この情報を使用して、これら特定のモジュール内の見えないセキュリティ バグを調査することができます。また、アプリケーションが特定の入力をどのように処理しているかを知ることができ、それによってエンコーディング、暗号化、認証などのセキュリティ モジュールをバイパスできる可能性があります。</p>
+  <h1>チェック方法</h1>
+  <p>デバッグ情報は多くの場合、デバッグ プロセスを加速するために、開発中にエラー メッセージに表示されます。 展開後、通常はアクセスできないアプリケーションに関する詳細を公開することで、このような出力が攻撃者の手助けをしてしまう場合があります。 以下の内容を確認して、このような情報漏えいを回避します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>デバッグが無効になっていることを確認します。 </strong>アプリケーションの Web.config でデバッグ フラグがfalseに設定されていることを確認します。</p>
+ <pre>&lt;configuration&gt;&lt;system.Web&gt;&lt;compilation debug="false"&gt;</pre>
+      <li>
+        <p>
+          <strong>デバッグ情報がエラー メッセージに開示されないことを確認します。 </strong>エラー メッセージ内のデバッグ情報をチェックする方法の詳細な手順については、<a href="/article/98fb697a-6278-4f73-8937-291b2b83cdb4">貴重な情報がエラー メッセージに開示されない</a> チェックリストを参照してください。</p>
+        <li>
+          <p>
+            <strong>例外の詳細がクライアントに漏えいされていないことを確認します。 </strong>すべての <strong>catch</strong> および<strong>finally</strong> 句を識別し、デバッグ メッセージがクライアントに送信されないことを確認します。 次の重要なステップの詳細については、<a href="/article/edb7f620-21a6-4599-aebd-2966c47ec2e3">例外の詳細がクライアントに開示されない</a> チェックリストを参照してください。</p>
+          <ol>
+            <li>予想されるすべての例外が取得されていることを確認します。 <li>グローバル例外ハンドラーが使用されていることを確認してください。 <li>ダイナミックに生成されたエラー メッセージが十分に一般的であることを確認します。 <li>エラー ページが十分に一般的であることを確認します。</li></li></li></li>
+          </ol>
+          <li>
+            <p>
+              <strong>適切な場合、デバッグ情報を収集するためにログ記録メカニズムを使用します。 </strong>後で解析するためにデバッグ情報を収集する必要がある場合は、ログ機構を使用することで、攻撃者が情報にアクセスする危険性を低減することができます。 </p>
+            <ol>
+              <li>ログ記録するのに適切なデバッグ情報を識別するには、<a href="/article/a053c4e4-2aad-41b9-b60b-e0fdeffd39f4">重要なセキュリティ操作をログ記録</a> ガイドラインを参照してください。  <li>アプリケーションの設計を調べて、デバッグ メッセージのログを作成するために適切なフレームワークを判断します。 <li>識別された情報が、アプリケーションのログ記録フレームワークを介して収集されていることを確認します。 <li><a href="/article/a19926c9-3e4f-4d5c-8dc1-1baa3748bcda">ログファイルは保護されている</a> チェックリストを使って、必要なユーザーだけがログ ファイルへのアクセス権をもっていることを確認します。</li></li></li></li>
+            </ol>
+            <li>
+              <p>
+                <strong>追跡施設へのアクセス権が制限されていることを確認します。 </strong>アプリケーションが ASP.NET トレーシングを使用する場合は、アプリケーションの <strong>web.config</strong> 内にある <strong>trace</strong> エレメントが <strong>true</strong> に設定された <strong>localOnly</strong> 属性を持つことを確認してください。</p>
+ <pre>&lt;trace enabled="true" pageOutput="false" traceMode="SortByTime" <strong>localOnly="true"</strong>/&gt;</pre>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>web.config ファイル内の以下のエントリは、デバッグ情報を最終プロジェクトにコンパイルして、アプリケーションの追跡を有効にします。 さらに、それによってリモート ホストがアプリケーション トレースを観察できるようになるため、 攻撃者はアプリケーションの root ディレクトリで Trace.axd ファイルを取得し、アプリケーションについての内部情報を入手することができます。</p>
+ <pre>&lt;configuration&gt;<br />   &lt;system.Web&gt;<br />      ...<br />      &lt;compilation debug="true"&gt;<br />      ...<br />      &lt;trace enabled="true" localOnly="false" ... /&gt;<br />      ...</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>アプリケーションの web.config ファイルに secure 属性を設定する方法の詳細については、 <a href="http://www.devx.com/dotnet/Article/32493/0/page/1"> .NET 構成ファイル内のセキュリティ脆弱性トップ10</a> を参照してください。 </li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/e706145e-6465-4261-96af-a66d6a19a637">ガイドライン: 出力ファイルにデバッグ データを含めない </a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

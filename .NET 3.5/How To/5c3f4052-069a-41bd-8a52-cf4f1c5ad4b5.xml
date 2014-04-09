@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1792161180" Content_Hash="-508089018">
+  <Metadata>
+    <Id>5c3f4052-069a-41bd-8a52-cf4f1c5ad4b5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>メッセージ暗号化のレベルを制御する方法</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>メッセージ セキュリティを使用している場合は、[ServiceContract(ProtectionLevel)] 属性を使用して、インターフェイスまたは操作レベルでのメッセージ セキュリティ保護レベルを指定ください。</p>
+  <p>使用できる保護レベルオプションは以下の通りです。</p>
+  <ul>
+    <li>
+      <strong>None</strong>。操作またはインターフェイスで署名と暗号化をオフにするには、None を使用します。
+<li><strong>Sign</strong>。インターフェイスまたは操作に署名して、暗号化はしない場合は、Sign を使用します。
+<li><strong>EncryptAndSign</strong>。インターフェイスまたは操作に暗号化と署名の両方を行うには、EncryptAndSign を使用します。</li></li></li>
+  </ul>
+  <p>トランスポート セキュリティを使用している場合は、メッセージを部分的に暗号化することはできません。</p>
+  <ol>
+    <li>保護レベルが Sign に設定されたインターフェイスを作成するには、次のステップを実行してください。
+<ol><pre>[ServiceContract(ProtectionLevel=ProtectionLevel.Sign]<br />public interface IService<br />{<br /> string GetData(int value); <br />}</pre></ol><li>保護レベルが Sign に設定された操作は、次のステップを実行してください。
+<ol><pre>[OperationContract(ProtectionLevel=ProtectionLevel.Sign]<br />string GetData(int value);</pre></ol></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>保護レベルおよび部分暗号化の詳細については、「保護レベルの理解」 (<a href="http://msdn.microsoft.com/en-us/library/aa347692.aspx"> http://msdn.microsoft.com/ja-jp/library/aa347692.aspx) を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

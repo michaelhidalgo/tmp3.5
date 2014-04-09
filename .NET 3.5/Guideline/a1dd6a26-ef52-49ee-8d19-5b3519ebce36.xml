@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1985172466" Content_Hash="1782168202">
+  <Metadata>
+    <Id>a1dd6a26-ef52-49ee-8d19-5b3519ebce36</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>デリゲートの呼び出し前に、アクセス許可をアサートしないようにする</Title>
+    <Category>デリゲート</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>デリゲートを呼び出す前にアクセス許可をアサートすることは避ける。</p>
+  <h1>理由</h1>
+  <p>デリゲートを呼び出したときに実行されるコードの性質や信頼レベルに関するナレッジがないため、デリゲートを呼び出す前にアクセス許可をアサートするのは危険です。 デリゲートを渡すコードは、コール スタック上にあるため、適切なセキュリティ要求で確認することができます。 しかし、信頼レベルやデリゲートコード自体に付与されるアクセス許可を知る方法はありません。</p>
+  <h1>状況</h1>
+  <p>アセンブリがデリゲートまたはイベントを公開する時。</p>
+  <h1>対策</h1>
+  <p>部分信頼の呼び出し元を許容する場合、デリゲートへのアクセス許可の制約を検討するようお勧めします。 デリゲートをコードに渡す時に適切なアクセス許可要求を使用して外部コードを認可するか、もしくは拒否または許可のみのスタック モディファイアを使用して、デリゲートのアクセス許可を呼び出し直前にだけ制約することができます。</p>
+  <p>次のコードはデリゲート コードに実行のみのアクセス許可を付与して、能力を制約します。</p>
+ <pre>using System.Security;<br />using System.Security.Permissions;<br />...</pre>
+ <pre>// Delegate definition<br />public delegate void SomeDelegate(string text);<br />&nbsp;&nbsp;&nbsp; <br />public void ExecDelegateWithExcePerm()</pre>
+ <pre>{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Permit only execution, prior to calling the delegate. This prevents the<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // delegate code accessing resources or performing other privileged<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // operations<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new SecurityPermission(SecurityPermissionFlag.Execution).PermitOnly();</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Now call the "constrained" delegate<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SomeDelegate del = new SomeDelegate(DisplayResults);</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Revert the permit only stack modifier<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CodeAccessPermission.RevertPermitOnly();<br />}</pre>
+ <pre>private void DisplayResults(string result)<br />{<br />...<br />}</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

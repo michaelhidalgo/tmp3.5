@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1654314737" Content_Hash="-941155489">
+  <Metadata>
+    <Id>0e57f34c-4607-4fef-a82f-4d2053b61118</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアントから送られたすべての値を確認する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>アプリケーションが、正規およびHiddenフィールド、クエリ文字列、Cookieなど、すべての入力パラメータを検証することをチェックします。</p>
+  <h1>理由</h1>
+  <p>SQL インジェクションおよびXSSを含め、DoS攻撃およびコード インジェクション攻撃からアプリケーションを保護するために。</p>
+  <h1>状況</h1>
+  <p>これは重要なガイドラインであり、常に従うようにしてください。&nbsp;</p>
+  <h1>対策</h1>
+  <p>ユーザーが入力、変更できるフィールドを制限し、クライアントからのすべての値を確認します。 フォーム フィールドに事前定義された値がある場合、ユーザーはその値を変更してPOSTし直し、別の結果を取得できます。 可能な場合は常に、既知の正しい値のみを許可します。 たとえば、入力フィールドが州を表している場合は、州の郵便番号に一致する入力だけを許可することをお勧めします。</p>
+  <p><b>System.Text.RegularExpressions.Regex</b> クラスは入力パラメータの検証を支援します。 たとえば、次のコードはこのクラスをどのように使用してクエリ文字列パラメータに渡される名前を検証するかを示します。 Cookieやフォーム フィールドなど、その他のパラメータ入力形態を検証するために、同様の手法が使用できます。 たとえば、Cookie パラメータを検証するには、<b>Request.QueryString</b> の代わりに<b>Request.Cookies</b>を使用します。</p>
+  <div>
+    <div>
+    </div>
+    <div>
+ <pre>System.Text.RegularExpressions の使用<br />. . . <br />private void Page_Load(object sender, System.EventArgs e)<br />{<br />&nbsp; // Name must contain between 1 and 40 alphanumeric characters<br />&nbsp; // together with (optionally) special characters '`´ for names such<br />&nbsp; // as D'Angelo<br />&nbsp; if (!Regex.IsMatch(Request.QueryString["name"], <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @"^[a-zA-Z'`-´\s]{1,40}$"))<br />&nbsp;&nbsp;&nbsp; throw new Exception("Invalid name parameter");<br />&nbsp; // Use individual regular expressions to validate all other<br />&nbsp; // query string parameters<br />&nbsp; . . . <br />}<br /></pre>
+    </div>
+  </div>
+  <p>正規表現に関する情報、および入力データの検証方法については、「<a href="http://msdn2.microsoft.com/en-us/library/aa302426.aspx#c10618429_006">入力検証</a>」を参照してください。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」を参照してください。<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-232055168" Content_Hash="696465978">
+  <Metadata>
+    <Id>5df90a51-bcb6-4f51-98b1-9d5dd0a1e2ec</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>fault contract を用いてチャンネルの障害を防ぐ方法</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>WCF サービスの呼び出し時に、そのサービスによってスローされた例外がある場合は、通信チャンネルが障害状態に移行し、以降の呼び出しにはプロキシを使用できません。 サービス オペレーション内で FaultException をスローすることで、この問題を回避することができます。 FaultException をスローするサービス オペレーションは、1 つ以上の FaultContract 属性でデコレートされなければいけません。</p>
+  <ol>
+    <li>FaultContract 属性を直接コントラクト オペレーションに適用すること、また下に表示されるようにメソッドに種類を説明しているエラーを指定することにより、フォールト コントラクトを定義します。
+<ol><pre>[ServiceContract]<br />interface ICalculator<br />{<br />   [OperationContract]<br />   [FaultContract(typeof(DivideByZeroException))]<br />   double Divide(double number1,double number2);<br />}</pre></ol><li>フォールトをスローするDivide オペレーションを実装し、フォールト コントラクトにリストされているものと詳細がまったく同一の種類のものをスローして、クライアントに伝達させてください。
+<ol><pre>class MyService : ICalculator<br />{<br />   public double Divide(double number1,double number2)<br />   {<br />      throw new FaultException&lt;DivideByZeroException&gt;(new DivideByZeroException());<br />   }<br />}</pre></ol><li>FaultException、およびその他サービス オペレーションの呼び出し時に発生する可能性のある通信例外をキャッチすることで、クライアント側にある障害を処理します。
+<ol><pre>try<br />{<br />  proxy.Divide();<br />}<br />catch (FaultException&lt;DivideByZeroException&gt; ex)<br />{<br />  // only if a fault contract of type DivideByZeroException was specified <br />}</pre><pre>catch (FaultException ex)<br />{<br />  // any other faults <br />}</pre><pre>catch (CommunicationException ex)<br />{<br />  // any communication errors? <br />}</pre></ol></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>フォールト コントラクトの詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms733721.aspx">http://msdn.microsoft.com/en-us/library/ms733721.aspx にある「コントラクトとサービスのフォールトを指定し処理する」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

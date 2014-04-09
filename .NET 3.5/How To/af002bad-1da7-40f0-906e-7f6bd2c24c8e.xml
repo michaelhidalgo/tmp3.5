@@ -1,0 +1,810 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-896666417" Content_Hash="1774935976">
+  <Metadata>
+    <Id>af002bad-1da7-40f0-906e-7f6bd2c24c8e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>LDAP インジェクション バグのテスト方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>該当項目:</span>
+  </h1>
+  <ul>
+    <li>
+      <span>ライトウェイト ディレクトリ アクセス プロトコル (LDAP) を使用するアプリケーション。<span>&nbsp; </span>これらのアプリケーションは通常、C/C++、ASP、.Net、Java、PHP、Python、および Ruby を使用して開発されます。</span>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>
+    <span>ライトウェイト ディレクトリ アクセス プロトコル (LDAP) は、TCP/IP 上で実行されるディレクトリ サービスをクエリーおよび管理するために使用されるプロトコルです。 企業環境は、一般的に LDAP ディレクトリ ツリーを使用して、ユーザー アカウント、オフィス所在地、書式単位、プリンター、およびファックス マシンなどの組織情報を保存します。 LDAP ツリーを検索するために、アプリケーションは前置 (またはポーランド) 記法で書かれた LDAP 検索フィルターから成るクエリーを作成します。 <span>&nbsp;&nbsp;</span>LDAP 検索フィルターは、カッコおよび AND と OR (「&」と「|」でそれぞれ表現される) のような論理演算子などのメタ文字のセットから成ります。<span> </span>たとえば、以下のクエリーは、一意識別子 (uid) が何であろうと、タイプがユーザーのオブジェクトのリストを返します。</span>
+  </p>
+ <pre>
+    <span>(&(objectClass=user)(uid=*))</span>
+  </pre>
+  <p>
+    <span>LDAP クエリーのさらなる詳細については、RFC 1960 は LDAP 検索フィルターの構文と意味の詳細を指定します。[i]</span>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>アプリケーションがサニタイジングされていないユーザー データを渡して LDAP クエリーを作成する場合、攻撃者は元のクエリーに追加のステートメントを挿入することができます。 LDAP インジェクションの脆弱性は、脆弱なディレクトリ サービスに対して任意の LDAP ステートメントを実行するためにエクスプロイトされます。<span>&nbsp; </span>この脆弱性は、実際の LDAP サーバーではなく、LDAP サーバーに接続するアプリケーションに影響を与えるため、あらゆる LDAP のバージョンで発生する可能性があります。 適切に LDAP インジェクションの脆弱性のテストを実行するために、以下の手順に従うことが推奨されます。</span>
+  </p>
+  <ul>
+    <li>
+      <span>手順 1: 攻撃のシナリオを理解する</span>
+      <li>
+        <span>手順 2: 原因と対策の解析</span>
+        <li>
+          <span>手順 3: テストと調査の開始</span>
+          <li>
+            <span>手順 4: テスト ケースの微調整</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 1: <span> </span>攻撃シナリオを理解する</span>
+  </h1>
+  <p>
+    <span>最初に、LDAP インジェクション攻撃のシナリオの詳細を理解する必要があります。 SQL と XPath インジェクションと同じように、2 種類の LDAP インジェクション攻撃があります。</span>
+  </p>
+  <ul>
+    <li>
+      <span>標準 LDAP インジェクション</span>
+      <li>
+        <span>ブラインド LDAP インジェクション</span>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 1: 標準 LDAP インジェクション</em>
+    </span>
+  </h2>
+  <p>
+    <span>このシナリオに適切に従うには、LDAP クエリーと検索フィルターの背景を理解する必要があります。 LDAP クエリーは、前置 (またはポーランド) 記法で書かれている検索フィルターから成ります。 たとえば、以下の疑似クエリーは、パスワードが「abc」に設定されている「Bob」という名前のクライアントがあるかどうかを確認します。</span>
+  </p>
+ <pre>
+    <span>find("cn=Bob & password=abc")</span>
+  </pre>
+  <p>
+    <span>同等の LDAP クエリーが前置記法で書かれています (メタ文字が最初)。</span>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>find("(&(cn=Bob)(password=abc))")</span>
+  </pre>
+  <p>
+    <span>LDAP は以下のメタ文字を使用して、ブール条件とグループ集計を示します [ii]。</span>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+ <pre>
+            <span>Meta-char</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Meaning</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>&</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Boolean AND</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>|</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Boolean OR</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>!</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Boolean NOT</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>=</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Equals</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>~=</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Approximately</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>&gt;=</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Greater than</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>&lt;=</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Lower than</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>*</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Any character</span>
+          </pre>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>( )</span>
+          </pre>
+        </td>
+        <td>
+ <pre>
+            <span>Grouping</span>
+          </pre>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+ <pre>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>これで、たとえばアプリケーションが LDAP クエリーを作成して認証を確認するとします。 クエリーは、2 つの入力値に対応する共通名 <i>(cn)</i> とパスワード <i>(userPassword)</i> LDAP エントリがあるかどうかを確認します。</span>
+  </p>
+ <pre>
+    <span>
+      <span>&nbsp;</span>(&(cn=<strong>input_value1</strong>)(userPassword=<strong>input_value2</strong>))</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>LDAP クエリーを実装するために、PHP ページは Web フォームを使用して</span>
+    <span>user</span>
+    <span> と</span>
+    <span>pass </span>
+    <span>変数を収集し、ログイン クエリーを作成します。</span>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>searchlogin = "(&(cn=" . $_POST['user'] . ")(userPassword=" . $_POST['pass'] . "))";</span>
+  </pre>
+  <p>
+    <span>次に、攻撃者は Web フォームを使用して以下の値を渡します。</span>
+  </p>
+ <pre>
+    <span>user = "<span><strong>*)(cn=*))(|(cn=*</strong></span>"</span>
+  </pre>
+ <pre>
+    <span>password = "any"</span>
+  </pre>
+  <p>
+    <span>結果として、Web アプリケーションは以下のステートメントを作成します。</span>
+  </p>
+ <pre>
+    <span>searchlogin = "(&(cn=<span><strong>*)(cn=*))(|(cn=*</strong></span>)(userPassword=any)))"</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>この LDAP クエリーは必ず <i>true</i> であり、攻撃者が有効な資格情報なしで認証をバイパスすることを可能になります。</span>
+  </p>
+  <p>
+    <span>標準 LDAP インジェクションに似たバリエーションは、情報漏えいにつながります。 アプリケーションは単純な LDAP クエリーを使用して、1 人のユーザーの個人情報を表示します。</span>
+  </p>
+ <pre>
+    <span>searchfilter = "(uid=" . $_GET['username'] . ")";</span>
+  </pre>
+  <p>
+    <span>通常の条件、たとえば</span>
+    <i>
+      <span>Bob</span>
+    </i>
+    <span> という名前のクライアントなどでは、アプリケーションは安全なクエリーを作成します。</span>
+  </p>
+ <pre>
+    <span>searchfilter = "(uid=Bob)";</span>
+  </pre>
+  <p>
+    <span>ただし、攻撃者は</span>
+    <i>
+      <span>username</span>
+    </i>
+    <span> パラメータをタンパリングすることで、結果の検索フィルターが以下のようになるようにします。</span>
+  </p>
+ <pre>
+    <span>searchfilter = "(uid=<span><strong>*</strong></span>)";</span>
+  </pre>
+  <p>
+    <span>これにより、アプリケーションが LDAP ディレクトリ ツリー内の全ユーザーの個人情報で攻撃者に応答することになります。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 2: ブラインド LDAP インジェクション</em>
+    </span>
+  </h2>
+  <p>
+    <span>ブラインド SQL や XPath インジェクションと同様で、LDAP インジェクションは LDAP ディレクトリ ツリーからのデータを推測するための単純な true または false の比較の使用から成ります。<span>&nbsp; </span></span>
+  </p>
+  <p>
+    <span>このシナリオでは、アプリケーションは以下のフィルターを使用してプリンター情報 [iii] を表示します。</span>
+  </p>
+ <pre>
+    <span>(&(printerID=<strong>printer_id</strong>)(objectclass=printer))</span>
+  </pre>
+  <p>
+    <span>アプリケーションは PHP ページを使用し、</span>
+    <i>
+      <span>printer_id</span>
+    </i>
+    <b>
+      <span>
+      </span>
+    </b>
+    <span>変数の値を URL から取得することで、LDAP クエリーを作成します。</span>
+  </p>
+ <pre>
+    <span>printerfilter = "(&(printerID=" . $_GET['<strong>printer_id</strong>'] . ")(objectclass=printer))";</span>
+  </pre>
+  <p>
+    <span>クライアントが<span> </span></span>
+    <i>
+      <span>HPLaserJet3015</span>
+    </i>
+    <span>
+    </span>
+    <span>を</span>
+    <span>
+      <i>printerID </i>
+    </span>
+    <span>パラメーター内で渡すと、結果の LDAP クエリーは以下のようになります。</span>
+  </p>
+ <pre>
+    <span>(&(printerID=HPLaserJet3015)(objectclass=printer))</span>
+  </pre>
+  <p>
+    <span>攻撃者は追加の AND 条件を渡し、LDAP ディレクトリに</span>
+    <span>accounts</span>
+    <span>という名前の属性があるかどうかを調査します。</span>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <strong>
+      <span>HPLaserJet3015)(users=*))</span>
+      <span>
+      </span>
+    </strong>
+  </pre>
+  <p>
+    <span>結果として、アプリケーションは以下のフィルターを作成します。</span>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>(&(printerID=<strong><span>HPLaserJet3015)(users=*))</span></strong>(objectclass=printer))</span>
+  </pre>
+  <p>
+    <span>最初の AND 条件のみが処理されるため、<i> </i>LDAP ディレクトリ ツリーに<i></i></span>
+    <i>
+      <span>users</span>
+      <span>
+      </span>
+    </i>
+    <span>の属性がある場合、LDAP クエリーは true を返します。 もし</span>
+    <i>
+      <span>users</span>
+    </i>
+    <span> 属性が実際に存在する場合、以下の文字列は <i>root</i> という名前のユーザーがいるかどうかを確認することで、攻撃を拡張します。</span>
+  </p>
+ <pre>
+    <strong>
+      <span>HPLaserJet3015)(users=root))</span>
+      <span>
+      </span>
+    </strong>
+  </pre>
+  <p>
+    <span><i>root</i> という名前のユーザーが LDAP ディレクトリで存在する場合、クエリーは <i>true</i> を返します。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 2: 原因と対策の解析</span>
+  </h1>
+  <p>
+    <span>LDAP インジェクションの脆弱性のテストを実行する次の手順は、何がそれらを発生させるか、およびそれらに対する保護方法を理解することです。</span>
+  </p>
+  <h2>
+    <span>
+      <em>LDAP インジェクションの原因</em>
+    </span>
+  </h2>
+  <p>
+    <span>LDAP インジェクションは、LDAP クエリーで使用されるパラメーターを適切に検証およびサニタイジングすることに失敗することによって発生します。 LDAP アプリケーションは、LDAP サーバーとの LDAP 接続を初期化し、ユーザーによって提供されたデータから作成されたクエリーをサーバーに提出することによって機能します。 LDAP クエリーは一般的に、テキスト フィールド、Web フォーム、URL パラメーター、GUI 要素、およびファイルまたはデータベースからのデータような間接的ユーザー入力などに基づいて検索フィルターを作成することで作られます。 LDAP クエリーを築く際にユーザー入力の検証とサニタイジングを怠ることが、この脆弱性の原因です。</span>
+  </p>
+  <h2>
+    <span>
+      <em>LDAP インジェクション対策</em>
+    </span>
+  </h2>
+  <p>
+    <span>LDAP インジェクション攻撃に対して適切に保護するには、LDAP 検索文字列を作成する際に使用されるあらゆる入力データを検証およびサニタイジングする必要があります。 ユーザー データを検証およびサニタイジングするには、ブラックリスティングとホワイトリスティングの 2 つの方法があります。<span>&nbsp; </span>ブラックリスティングは、あらゆる危険な文字を制限することから成ります。<span> </span>LDAP インジェクションの場合では、これらの文字はすべてのメタ文字、特にグループ化カッコ、AND 演算子 (&)、および OR 演算子 (|) を含む必要があります。 ただし、すべての危険なバリエーションの 100 パーセントを占めない限り、ブラックリスティングは完全にセキュアではありません。 代案として、ホワイトリスティングは安全な構造のみをリストし、安全な形式に一致しないあらゆる構造を拒否することから成ります。 ホワイトリスティングは、すべての危険なバリエーションを占めることとは関係ありません。 ホワイトリストは何が安全であるかのみを示し、安全な形式に一致しないあらゆる入力は自動的に拒否されます。 <span>&nbsp;&nbsp;</span>ただし、ホワイトリストを適切に実装することは困難であることがあるため、この保護を使用する場合は注意する必要があります。<span> </span><span>&nbsp;&nbsp;</span>以下の例では、タイプ (入力タイプが整数かどうかの確認)、電子メール、およびドメイン値のホワイトリストとして機能する 3 つの式を示します [iv]。</span>
+  </p>
+ <pre>
+    <span>int userinput = Convert.ToInt32(Request.Querystring("userinput"))</span>
+  </pre>
+ <pre>
+    <span>string email = Regex.IsMatch(Request.Querystring("email")," ^.+@[^\.].*\.[a-z]{2,}$" )</span>
+  </pre>
+ <pre>
+    <span>string country = Request.Querystring("country") in {"USA", "UK"}</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>入力検証とサニタイジングに加えて使用する追加の LDAP インジェクション対策は、LDAP ディレクトリ ツリーのアクセス許可を強化することから成ります。<span>&nbsp; </span>LDAP ディレクトリ ツリーにはさまざまな属性の種類があり、これらの属性がどのように機能するかを理解し、それらにどのアクセス許可を割り当てるかを決定することが重要です。<span> </span>さらに、LDAP インジェクション攻撃の潜在的影響を低減させるために、LDAP サーバーの接続にアプリケーションによって使用されるアクセス レベルは必要最小限度にする必要があります。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 3: テストと調査の開始</span>
+  </h1>
+  <p>
+    <span>LDAP インジェクション攻撃のシナリオについて知り、その原因と対策を認識できるようになった上で、アプリケーションがどのように反応するかを観察しつつ、基本的なテスト ケースの実行により続行する必要があります。</span>
+  </p>
+  <h2>
+    <span>
+      <em>単純なテスト文字列で開始する</em>
+    </span>
+  </h2>
+  <p>
+    <span>他のインジェクション バグのテストを実行するときと同様に、最初のテスト ケースはアプリケーションがインジェクション文字 (この場合では LDAP メタ文字) の検証を実行するかどうかを確認する必要があります。 そのため、以下のような単純なテスト文字列で開始することが推奨されます。</span>
+  </p>
+ <pre>
+    <span>|&)(*!</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>次に、アプリケーションによって生成されたエラーを探します。 特に、無効な LDAP クエリーの実行を示すエラー メッセージを探す必要があります。これは、テスト ケース データがクエリーの一部として使用されているという証拠になります (つまり、LDAP インジェクションが可能です)。<span>&nbsp; </span>LDAP メタ文字の挿入に成功したら、次のテスト ケースに進んでください。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>標準 LDAP インジェクション認証バイパスのテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>標準 LDAP インジェクションによる認証バイパスのテストを実行するには、以下の手順に従う必要があります。</span>
+  </p>
+  <ol>
+    <li>
+      <span>LDAP を認証に使用するクライアントを開きます (これは LDAP が Web アプリケーションとして実装されている場合は Web ブラウザー、従来の非 Web LDAP クライアント/サーバー アプリケーションの場合はクライアント LDAP アプリケーションを使用できます)。</span>
+      <li>
+        <span>LDAP 認証クエリーの結果を <i>true</i> に変更する追加のコマンドを含む文字列を入力します。<span>&nbsp; </span>例:</span>
+        <ul>
+          <li>
+            <span>
+              <p>
+                <span>
+                </span>
+                <span>
+                  <span>admin*)((|userPassword=*) </span>
+                </span>
+              </p>
+            </span>
+            <li>
+              <span>
+                <p />
+                <span>
+                  <span>
+                  </span>
+                </span>
+              </span>
+              <span>
+                <span>
+                  <span>*)(uid=*))(|(uid=*</span>
+                  <span>&nbsp;</span>
+                </span>
+                <p />
+              </span>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <span>
+            <span>
+              <span>サーバーに認証フォームを送信します。</span>
+            </span>
+          </span>
+          <span>
+            <span>
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+            </span>
+          </span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>アプリケーションはクライアントを認証しないはずです。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>標準 LDAP インジェクション情報漏えいのテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>標準 LDAP インジェクションによる情報漏えいのテストを実行するには、以下の手順に従う必要があります。</span>
+  </p>
+  <ol>
+    <li>
+      <span>ユーザー情報の表示に LDAP を使用するクライアントを開きます (これは LDAP が Web アプリケーションとして実装されている場合は Web ブラウザー、従来の非 Web LDAP クライアント/サーバー アプリケーションの場合はクライアント LDAP アプリケーションを使用できます)。</span>
+      <li>
+        <span>使用中のフィルターを変更して、他のクライアントを含むように検索を拡張します。<span>&nbsp; </span>例:</span>
+        <ul>
+          <li>
+            <span>
+              <blockquote>
+ <pre>
+                  <span>&nbsp;</span>
+                  <span>*</span>
+                </pre>
+              </blockquote>
+            </span>
+            <li>
+              <span>
+                <blockquote>
+ <pre>
+                    <span>
+                    </span>
+                    <span>*|</span>
+                  </pre>
+                </blockquote>
+              </span>
+              <li>
+                <span>
+                  <blockquote>
+ <pre>
+                      <span>
+                      </span>
+                      <span>*(|(objectclass=*))</span>
+                    </pre>
+                  </blockquote>
+                </span>
+                <li>
+                  <span>
+                    <blockquote>
+ <pre>
+                        <span>
+                        </span>
+                        <span>*(|(mail=*))</span>
+                        <span>
+                        </span>
+                      </pre>
+                    </blockquote>
+                  </span>
+                </li>
+              </li>
+            </li>
+          </li>
+        </ul>
+        <li>
+          <span>フォームをサーバーに提出します。</span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>アプリケーションは他のクライアントや LDAP 属性に関する情報など、追加の情報を表示しないはずです。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>ブラインド LDAP インジェクション情報漏えいのテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>ブラインド LDAP インジェクションによる情報漏えいのテストを実行するには、以下の手順に従う必要があります。</span>
+  </p>
+  <ol>
+    <li>
+      <span>ユーザー情報の表示に LDAP を使用するクライアントを開きます (これは LDAP が Web アプリケーションとして実装されている場合は Web ブラウザー、従来の非 Web LDAP クライアント/サーバー アプリケーションの場合はクライアント LDAP アプリケーションを使用できます)。</span>
+      <li>
+        <span>使用中のフィルターを LDAP 属性などの機微データの推測を図る true または false 条件で変更します。<span>&nbsp; </span>たとえば、ユーザー名が </span>
+        <span>Bob</span>
+        <span> の場合は、以下の文字列を使用して、</span>
+        <span>account</span>
+        <span> の属性が存在するかどうかを確認します [v]。</span>
+        <span>&nbsp;</span>
+        <ul>
+          <li>
+ <pre>
+              <span>&nbsp;Bob)(account=*))</span>
+            </pre>
+          </li>
+        </ul>
+        <li>
+          <span>フォームをサーバーに提出します。</span>
+          <li>
+            <span>機微な情報が漏れるまで、手順 2 と 3 を繰り返します。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>アプリケーションは追加の true と false 条件の挿入を許可しない必要があります。</span>
+  </p>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>手順 4: テスト ケース データの微調整</span>
+  </h1>
+  <p>
+    <span>最終手順では、テストしているエントリ ポイントに応じてテスト ケース データを微調整する必要があります。<span>&nbsp; </span>たとえば、URL パラメーターを通してテストする場合、URL パラメーターの名前/値の区切り文字 (&) と間違われないように、AND のメタ文字を URL エンコードする必要がある可能性があります。</span>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>*)(&(name=*))</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(before encoding)</span>
+  </pre>
+ <pre>
+    <span>*)(%26(name=*))</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(after URL encoding)</span>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>以下に、いくつかの他の LDAP インジェクション 16 進エンコードのテスト文字列を挙げます [vi]。</span>
+  </p>
+ <pre>
+    <span>%28</span>
+  </pre>
+ <pre>
+    <span>%29</span>
+  </pre>
+ <pre>
+    <span>%26</span>
+  </pre>
+ <pre>
+    <span>%21</span>
+  </pre>
+ <pre>
+    <span>%7C</span>
+  </pre>
+ <pre>
+    <span>%2A%7C</span>
+  </pre>
+ <pre>
+    <span>%2A%28%7C%28mail%3D%2A%29%29</span>
+  </pre>
+ <pre>
+    <span>%2A%28%7C%28objectclass%3D%2A%29%29</span>
+  </pre>
+ <pre>
+    <span>*()|%26'</span>
+    <span>
+    </span>
+  </pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <span>最後に、Web フォーム、URL パラメーター、GUI テキスト ボックス、および間接的入力ソースなどのすべてのエントリ ポイントを通して、アプリケーションをテストする必要があります。 フォームの LDAP URL を通してテストすることに留意してください。</span>
+  </p>
+ <pre>
+    <span>ldap://host:port/DN?attributes?scope?<span><strong>filter</strong></span>?extensions</span>
+  </pre>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>追加の LDAP ステートメントの挿入を試行するために、LDAP URL のフィルター部分を変更する必要があります。</span>
+    <span>
+    </span>
+  </p>
+ <pre>&lt;CODE&gt;<span>ldap://ldap.example.com/cn=John%20Doe,dc=example,dc=com</span>&lt;/CODE&gt; <span></span></pre>
+ <pre>&lt;CODE&gt;<span>ldap://ldap.example.com/cn=John%20Doe)(users=*,dc=example,dc=com</span>&lt;/CODE&gt; <span></span></pre>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>
+    <span>LDAP インジェクションの脆弱性は、認証のバイパスと LDAP ディレクトリ ツリーに関する情報漏えいなどの、さまざまな攻撃のシナリオを可能にします。<span>&nbsp; </span>この脆弱性の原因は、ユーザー入力を適切に検証およびサニタイジングすることに失敗し、それが LDAP クエリーを築くために使用されていることにあります。 LDAP 特有のエラーを強制させることが目的の基本的なテスト文字列を提出することで、LDAP インジェクション バグのテストを開始することが推奨されます。 次に、標準とブラインド インジェクションのようなさまざまな種類の LDAP インジェクションのテストを実行することで続行します。 テストしているエントリ ポイントに応じてテスト ケース データを微調整することで完了します。</span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <div>
+    <br />
+  </div>
+  <div>
+    <hr />
+  </div>
+  <p>
+    <span>[i] <strong>LDAP 検索フィルターの文字列表記</strong>。 <a href="http://www.ietf.org/rfc/rfc1960.txt">http://www.ietf.org/rfc/rfc1960.txt</a></span>
+  </p>
+  <p>
+    <span>[ii] </span>
+    <span>
+      <strong>LDAP インジェクションのテスト</strong>。 </span>
+    <span>(OWASP) </span>
+    <a href="http://www.owasp.org/index.php/Testing_for_LDAP_Injection">
+      <span>http://www.owasp.org/index.php/Testing_for_LDAP_Injection</span>
+    </a>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>[iii]&nbsp;</span>
+    <span>
+      <strong>Web アプリケーションにおける LDAP インジェクションとブラインド LDAP インジェクション</strong>。 </span>
+    <span>Chema Alonso、Rodolfo Bordón、Antonio Guzmán、Marta Beltrán 著。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>[iv]&nbsp;</span>
+    <span>
+      <strong>LDAP インジェクションの概要</strong>。<span>&nbsp; </span>Ravikanth のブログ。 </span>
+    <span>
+      <a href="http://weblogs.asp.net/dvravikanth/archive/2005/12/27/434036.aspx">
+        <span>http://weblogs.asp.net/dvravikanth/archive/2005/12/27/434036.aspx</span>
+      </a>
+    </span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>[v]&nbsp;</span>
+    <span>
+      <strong>LDAP インジェクション – あなたの Web アプリケーションは脆弱ですか?</strong>
+      <span>&nbsp;</span>
+    </span>
+    <span>Sacha Faust 著、SPI Dynamics。 </span>
+    <span>
+      <a href="http://www.networkdls.com/Articles/LDAPinjection.pdf">
+        <span>http://www.networkdls.com/Articles/LDAPinjection.pdf</span>
+      </a>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
+    </span>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>[vi]&nbsp;</span>
+    <span>
+      <strong>OWASP テスト ガイド付録 C: ファズ ベクトル</strong>。 </span>
+    <span>OWASP</span>
+    <span> に追加コマンドを注入できます。<span> </span></span>
+    <a href="http://www.owasp.org/index.php/OWASP_Testing_Guide_Appendix_C:_Fuzz_Vectors">
+      <span>http://www.owasp.org/index.php/OWASP_Testing_Guide_Appendix_C:_Fuzz_Vectors</span>
+    </a>
+    <span>
+    </span>
+  </p>
+  <p>&nbsp;</p>
+  <p>
+    <span>&nbsp;</span>
+  </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

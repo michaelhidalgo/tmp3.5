@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2112440452" Content_Hash="-1581964872">
+  <Metadata>
+    <Id>9127bdef-3fc5-4f20-a65b-3095ff9d507e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーがカスタムストア内にいる場合、カスタムバリデータを含むユーザー名認証の使用を考慮する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>ユーザーがカスタム ストアにいる場合は、カスタム バリデーターでユーザー名認証を使用することを検討します。</p>
+  <h1>状況</h1>
+  <p>ユーザーがカスタム ストアにいる時は、このガイドラインの使用を検討します。</p>
+  <h1>対策</h1>
+  <p>カスタム 認証ストアを使用する必要がある場合は、カスタム ユーザー名とパスワード バリデーターを用いるユーザー名認証を使用することを検討します。 サービス動作にカスタム バリデーターを構成し、クラス ライブラリで実装します。 ユーザー名とパスワード バリデーターは、カスタム ユーザー ストアに基づいてユーザーを認証するために、サービスによって使用されます。</p>
+  <p>次の構成スニペットは、WCF サービス用のカスタム バリデーターを構成する方法を示しています。</p>
+ <pre>&lt;serviceCredentials&gt;<br />   &lt;userNameAuthentication   <br />    userNamePasswordValidationMode="Custom"<br />   customUserNamePasswordValidatorType="MyUserNamePasswordValidator,Host"/&gt;<br />&lt;/serviceCredentials&gt;</pre>
+  <p>次のコード スニペットは、カスタム ユーザー名とパスワード バリデーターを実装する方法を示しています。</p>
+ <pre>using System;<br />using System.Collections.Generic;<br />using System.IdentityModel.Selectors;<br />using System.IdentityModel.Tokens;<br />using System.Text;</pre>
+ <pre>namespace DerivativesCalculator<br />{<br />    public class MyUserNamePasswordValidator : UserNamePasswordValidator<br />    {<br />        public override void Validate(string userName, string password)<br />        {<br />            Console.Write("\nValidating username, {0}, and password, {1} ... ", userName, password);<br />            if ((string.Compare(userName, "don", true) != 0) || (string.Compare(password, "hall", false) != 0))<br />            {<br />                throw new SecurityTokenException("Unknown user.");<br />            }<br />            Console.Write("Done: Credentials accepted. \n");<br />        }<br />    }<br />}</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

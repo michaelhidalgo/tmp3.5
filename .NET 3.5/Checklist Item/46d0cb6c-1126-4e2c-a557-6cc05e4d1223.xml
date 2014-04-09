@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-238803621" Content_Hash="-479430983">
+  <Metadata>
+    <Id>46d0cb6c-1126-4e2c-a557-6cc05e4d1223</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>サーバ上でコード アクセス セキュリティが有効化されています。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>Security.configファイルの構成を判断することで、コード アクセス セキュリティの有効化をチェックします。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>マシンレベルのコード アクセス セキュリティ ポリシーは、%windir%\Microsoft.NET\Framework\{version}\CONFIG のディレクトリ内に位置するSecurity.configファイルでの設定により決定されます。</p>
+  <p>次のコマンドを実行して、サーバ上でコード アクセス セキュリティが有効化されていることを確認します。</p>
+  <p>
+    <b>caspol -s On</b>
+  </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li> ASP.NET ウェブ アプリケーション向けのコード アクセス セキュリティの設定についての詳細は、第9章の「<a href="http://msdn2.microsoft.com/en-us/library/aa302425.aspx">ASP.NETでコード アクセス セキュリティを使用する</a>」を参照してください。</li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

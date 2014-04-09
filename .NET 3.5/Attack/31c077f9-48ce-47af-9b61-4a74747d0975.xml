@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1684848784" Content_Hash="-1656453444">
+  <Metadata>
+    <Id>31c077f9-48ce-47af-9b61-4a74747d0975</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>書式文字列攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>形式指定子を受け取る文字列メソッドを提供する言語で記述されたアプリケーション。</p>
+  <h1>説明</h1>
+  <p>書式文字列攻撃は脆弱性の一種であり、これを利用してプログラムをクラッシュさせたり、有害なコードを実行したりできます。 フィルタリングされていないユーザー入力が、printf() などの書式設定を実行する C 関数の書式文字列パラメータとして使用される場合、攻撃者は &amp;#37;s, &amp;#37;x、およびその他の書式トークンを利用し、スタックや、時にはその他のメモリ ロケーションからデータを印刷できます。 書式設定されたバイト数を、提供されたポインター引数に書き込むことを指定するために使用される &amp;#37; n 書式トークンを利用して、任意のデータをメモリのどこにでも書き込むことができます。 さらに多くのスタック操作が必要ですが、この引数は書式文字列攻撃の一部として挿入できます。 &amp;#91;<a href="http://en.wikipedia.org/wiki/Format_string_attacks">http://en.wikipedia.org/wiki/Format_string_attacks</a>&amp;#93;</p>
+  <h1>影響</h1>
+  <ul>
+    <li>特権の昇格<li>メモリの機密情報を読み書きする<li>任意のコードの実行</li></li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>信頼されていないユーザー入力を書式文字列パラメータに挿入する。</li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>書式文字列をハード コードする。 <li>書式文字列にはユーザーが制御するデータを含めないようにしてください。</li></li>
+  </ul>
+  <h1>例</h1>
+ <pre>printf (varUserSuppliedData);</pre>
+  <p>これにより、ユーザーまたは攻撃者は 形式指定子を提供できます。 ここで、攻撃者は &amp;#37;x や &amp;#37;n のような書式文字列トークンを使用して、アプリケーションのセキュリティを侵害することができます。</p>
+  <p>コードのこの行を正しく記述する方法は、形式指定子を自分で与えることです。</p>
+ <pre>printf ("&amp;#37;s", varUserSuppliedData);</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>書式文字列の脆弱性の発見に関する詳細は、次を参照してください。<a href="http://www.owasp.org/index.php/Format_String_Testing_AoC">Format String Testing</a><li>書式文字列の脆弱性のエクスプロイトに関する詳細は、次を参照してください。<a href="http://doc.bughunter.net/format-string/exploit-fs.html">書式文字列の脆弱性のエクスプロイト</a><li>C 以外の言語の書式文字列の脆弱性に関する詳細は、次を参照してください。<a href="http://www.ddj.com/dept/security/197002914">Programming Language Format String Vulnerabilities</a></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/b431b7df-36d8-461b-a437-675a20e9548b">ガイドライン: データベースに渡されるすべての入力を検証する</a>
+    </li>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

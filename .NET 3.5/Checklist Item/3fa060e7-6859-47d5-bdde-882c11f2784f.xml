@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1456595576" Content_Hash="1644400649">
+  <Metadata>
+    <Id>3fa060e7-6859-47d5-bdde-882c11f2784f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切な ACL が Web サイト ファイルで構成されている</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが Web サイト ファイル上の正しい ID に対して正しいアクセス制御リスト (ACL) を構成していることを確認する。</p>
+  <h1>修正方法</h1>
+  <p>Web サイト ファイル上の正しい ID に対して正しいアクセス制御リスト (ACL) を構成する必要があります。これにより、IIS および ASP.NET ファイルの認可制御がこれらのファイルに適切にアクセスできるようになります。 以下の ID に対してアクセス権を付与する必要があります。</p>
+  <ul>
+    <li>
+      <b>Web アプリケーション ID。</b> カスタム サービス アカウントを使用して ASP.NET アプリケーションを実行している場合、Aspnet_regiis.exe を -<b>ga</b> スイッチ付きで実行することにより、適切なアクセス許可を IIS メタベースおよびファイル システムに付与できます。 <li><b>アプリケーションのユーザー。</b> ASP.NET ファイル認可は、IIS によって ASP.NET ISAPI 拡張 (Aspnet_isapi.dll) にマッピングされたファイル形式についてのアクセス チェックを実行します。 Windows 認証を使用している場合、認証されたユーザーの Windows アクセス トークン (匿名ユーザーの場合は IUSR_MACHINE のことがある) が、要求された ASP.NET ファイルに付加された ACL でチェックされます。 Forms Authenticationを使用している場合は、アクセスが IUSR_MACHINE に対してチェックされます。 </li></li>
+  </ul>
+  <p>ファイル認可は、Windows 認証を使用しているときには自動的に動作します。元のファイルを偽装する必要はありません。 <b>FileAuthorizationModule</b> は、要求されたファイルに対してのみアクセス チェックを実行します。 例えば、Default.aspx を要求し、これに埋め込みユーザー制御 (Usercontrol.ascx) とイメージ タグ (Image.gif を指す) が含まれている場合、<b>FileAuthorizationModule</b> は Default.aspx と Usercontrol.ascx に対してアクセス チェックを実行します。これらのファイル形式が IIS によって ASP.NET ISAPI 拡張にマッピングされているためです。 <b>FileAuthorizationModule</b> は、Image.gif に対してチェックを実行しません。これは IIS によって内部で処理される静的ファイルであるためです。 ただし、静的ファイルのアクセス チェックは IIS が実行するため、認証ユーザーには、適切に構成された ACL によりそのファイルへの読み取りアクセス許可が付与されていなければなりません。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

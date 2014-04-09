@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-539334405" Content_Hash="1205026047">
+  <Metadata>
+    <Id>e7d2ddf8-f907-4c01-b901-99436f19c4c2</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>コードは、コール スタックの上位にあるフィルタがfinally ブロックのコードの前に実行される、例外フィルタの問題の影響を受けません。</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションのコードが、コール スタックの上位にあるフィルタがfinally ブロックのコードの前に実行される、例外フィルタの問題の影響を受けないことを確認してください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>コードが例外を捕らえ損ねて、偽装を使用する場合、悪意のあるユーザーが例外フィルタを使用して、<b>finally</b> ブロックの偽装を取り消そうとしているにもかかわらず、偽装されたセキュリティ コンテキストのもとでコードを実行する可能性があります。 これは、コードが特権のあるアカウントを偽装している場合には特に深刻です。 コードが例外を捕らえられない場合、コール スタックの上位にある例外フィルタが <b>finally</b> ブロックのコードが実行されるより前に実行できてしまいます。</p>
+  <p>プログラム的な偽装を使用する場合、構造化例外処理を使用して、偽装コードを <b>try</b> ブロック内に置いてください。 <b>catch</b> ブロックを使用して例外を取り扱い、例外の伝播を回避してください。 <b>finally</b> ブロックを使用して、次の例に表示されるように偽装が取り消されることを確認してください。</p>
+ <pre>using System.Security.Principal;<br />. . .<br />WindowsIdentity winIdentity = new WindowsIdentity("username@domainName");<br />WindowsImpersonationContext ctx = null;<br />try<br />{<br /><br />&nbsp; ctx = winIdentity.Impersonate();<br />&nbsp; // Do work.<br />&nbsp; ...<br />}<br />// Do not let the exception propagate. Catch it here.<br />catch(Exception ex)<br />{<br />&nbsp; ...<br />}<br />finally<br />{<br />&nbsp; // Stop impersonating.<br />&nbsp; ctx.Undo();<br />}</pre>
+  <div>&nbsp;</div>
+  <div><b>finally</b> ブロックを使用して、例外が生成されても偽装トークンが現在のスレッドから削除されるように確認してください。 例外が <b>catch</b> ブロックから伝播することを防止することにより、スレッドがそれに付けられた偽装トークンをまだ保持している間に、コール スタックの上位にある例外フィルタのコードが実行されないように確認してください。</div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;例外フィルタは、Microsoft中間言語 (MSIL) および Visual Basic .NET にサポートされています</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

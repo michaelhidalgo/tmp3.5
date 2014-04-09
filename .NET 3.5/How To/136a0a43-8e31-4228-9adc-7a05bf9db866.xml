@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1943845469" Content_Hash="-1217003690">
+  <Metadata>
+    <Id>136a0a43-8e31-4228-9adc-7a05bf9db866</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET でロール マネージャを使用する方法</Title>
+    <Category>ロールマネージャの設定</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft Windows Server 2003 オペレーティング システムまたはそれ以降のオペレーティング システム<li>Microsoft Windows XP Professional サービスパック 1 またはそれ以降のオペレーティング システム</li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、ASP.NET Version のロール マネージャの使用方法について説明します。 ロール マネージャは、アプリケーションにおいて、ロール管理およびロールベースの認可を行うのに便利です。 本ガイドでは、各種ロール プロバイダーをウェブ アプリケーションで使用するための設定方法、新規ロールの作成方法、ロールにユーザーを追加する方法、およびロールベースの認可にロール管理 API を使用する方法について説明します。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  ロール ストアを設定する </div>
+            <li>
+              <div>手順 2:  Web.config でロール プロバイダーを設定する </div>
+              <li>
+                <div>手順 3:  ロールの作成と割り当て </div>
+                <li>
+                  <div>手順 4:  ロールベースの認可を実行する </div>
+                  <li>
+                    <div>追加考慮事項</div>
+                    <li>
+                      <div>その他のリソース</div>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li>ロール管理を使用するための設定を ASP.NET ウェブ アプリケーションで行う。 <li><b>SqlRoleProvider</b>、 <b>WindowsTokenRoleProvider</b> および <b>AuthorizationStoreRoleProvider</b> の構成の方法を学習してください。<li>ASP.NET のコンフィグレーション ツール、SQL スクリプト、ロール管理 API を使用したロールの作成と割り当てを行います。 <li>ASP.NET ウェブ アプリケーションにおいてロールベースの認可を実行します。 </li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET&nbsp; には新しいロール管理機能が用意されています。このロール管理機能には、ロールの作成、削除、ユーザーの追加や削除を可能にするロール管理 API が含まれています。 ロール マネージャは、データを基本データ ストアに格納するので、そのデータ ストアに適切なロール プロバイダーを通じてアクセスします。</p>
+  <p>ロール マネージャの主な利点は、コードの入力および保持なしで、ユーザーのロールが確認できることです。 また、ロール プロバイダーによる一定の方法で、基本データ ストアに関係なく、ユーザーのロール メンバーシップを確認できます。 このため、将来的にロール ストアを変更することがあっても、コンフィグレーションの設定を変更するだけでコードを使うことができます。</p>
+  <p>用意されているロール プロバイダーには次のようなものがあります。 </p>
+  <ul>
+    <li>
+      <b>SqlRoleProvider</b> ロール ストアが SQL Server で管理されている場合に使用します。 <li><b>WindowsTokenRoleProvider</b> このプロバイダーは読み取り専用のプロバイダーで、アカウントの Windows セキュリティ グループ メンバーシップに基づき Windows のユーザー アカウントのロール情報を取得します。 このプロバイダーでは、ロールの作成、追加、削除ができません。 <li><b>AuthorizationStoreRoleProvider</b> これは、アプリケーションが認可マネージャ(AzMan)を使用する時に使用されます。 AzMan ポリシー ストアを、ロール ストアとして XML ファイル、Active Directory、または Active Directory アプリケーション モード(ADAM)を用いて使用します。 通常、認証に Windows 認証と Active Directory を使用するイントラネットまたはエクストラネットのシナリオで使用されます。 </li></li></li>
+  </ul>
+  <p>ロール管理を行うには、ASP.NET アプリケーションは何らかの方法でユーザーを一意に認識し、認証を行うことができなければいけません。 たとえば、Windows 認証または Forms Authentication を使用するといった選択肢があります。</p>
+  <p>本ガイドでは、ロール ストアとロール プロバイダーのセットアップおよび設定方法、ASP.NET アプリケーションでロールベースの認可を使用する方法について説明します。 また、ロールに関する操作をプログラム的に行う場合に使用する基本ロール API 呼び出しについてもいくつか紹介します。</p>
+  <h1>手順の概要</h1>
+  <p>アプリケーションでロール マネージャを使用するために、以下のステップを実行してください。</p>
+  <ul>
+    <li>手順 1:  ロール ストアを設定する。 <li>手順 2:  Web.config でロール プロバイダーを設定する。 <li>手順 3:  ロールの作成と割り当て。 <li>手順 4:  ロールベースの認可を実行する。 </li></li></li></li>
+  </ul>
+  <h1>手順 1:  ロール ストアを設定する </h1>
+  <p>このステップでは、ロールに関する詳細の保持に使用するロール ストアを準備します。 セットアップの詳細は、選択したストアと関連プロバイダーによって異なります。</p>
+  <h2>SqlRoleProvider を使用する</h2>
+  <p>ロールを SQL Server に保存したい場合､<b>SqlRoleProvider</b> を使用します。デフォルトでは、ロールは、アプリケーションの仮想ディレクトリの root フォルダの下にある \app_data フォルダのSQL Express データベース インスタンスの Aspnetdb という名のデータベースに保存されます｡ <b>SqlRoleProvider</b> を構成しても、SQL Server のローカルまたはリモートのインスタンスを使用できます。</p>
+  <h3>SQL Express データベース ロール ストアを ウェブ サイトの \app_data フォルダ内で使用するには </h3>
+  <p>データベースを作成または設定する必要はありません。 ロール管理 API を使用する操作を初めて行う時､ ASP.NET は Aspnetdb という名のデータベースを作成し、それを構成し、適切なアクセス許可を設定します。 </p>
+  <p>ASP.NET は、ASP.NET アプリケーション(Windows Server 2003 以降上の Network Service および Windows 2000 上の ASP.NET)を実行するために使用するデフォルト アカウント用のデータベース ログインを含む SQL Express データベースを構成し、Aspnetdb データベースへの完全アクセスを付与します。 </p>
+  <p>ASP.NET がカスタム サービス アカウントを使用して実行するように構成した場合､そのアカウント用に SQL ログインを作成し、Aspnetdb データベースの <b>aspnet_Roles_FullAccess</b> ロールへのログインを追加する必要があります。 </p>
+  <p>
+    <b>ロール管理データベースを SQL Server にインストールするには</b>
+  </p>
+  <ol>
+    <li>SQL Server インスタンスの管理者権限を持つアカウントを使用して Windows にログオンします。 <li>コマンド プロンプト ウインドウをオープンし、次のコマンドを実行してロール管理データベースをインストールします。 <p><b>Aspnet_regsql.exe</b>-<b>E</b>-<b>S</b><i>sqlinstance</i>-<b>A r</b></p><p>このプログラムは､<b>%windir%\Microsoft.NET\Framework\{version}</b> フォルダにあることに留意してください。 </p><p>コマンドを入力する際は、<i>version</i> に実際に使用している .NET Framework のバージョンを、<i>sqlinstance</i> にはロール管理データベースをインストールしたい SQL Server インスタンス名を指定してください。 </p><p>次のアウトプットが表示されます:</p><div><pre>Start adding the following features:<br />Rolemanager<br />............<br />Finished.  </pre></div><blockquote><b>注意</b>: &nbsp;&nbsp;Aspnet_regsql.exe 用のスイッチの詳細を知るには､<b>Aspnet_regsql.exe ? と入力してください。</b> at the command prompt.</blockquote></li></li>
+  </ol>
+  <p>
+    <b>データベースで権限を付与するには</b>
+  </p>
+  <p>ウェブ アプリケーションのプロセス アカウントのデータベース ログインを作成する必要があります。 デフォルトでは、これは Network Service アカウントです。 ASP.NET の実行にカスタム アカウントを設定している場合は、そのアカウントに対して権限を付与しなければいけません。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ASP.NET アプリケーションで偽装を使用するための設定を行っている場合、ASP.NET アプリケーションは最初の呼び出し元のセキュリティ コンテキストを使用して実行されます。 SQL Server データベースのデータにアクセスするには、通常、最初の呼び出し元のデータベース ログインを作成した上で、必要データへのアクセス権を付与しなければいけません。</blockquote>
+  <blockquote>しかしながら、ロール管理システムは､アプリケーションが偽装を使用するかどうかに関わらず、プロセス ID を使用することにより Aspnetdb データベース にアクセスします。 </blockquote>
+  <ol>
+    <li>SQL Server Enterprise Manager を開き､<b>Security</b> のフォルダを広げ、次に <b>Logins</b> を広げてロール管理データベースをホストするサーバを表示させます｡ ウェブ アプリケーションのプロセス アカウント(例えば､<b>NT AUTHORITY/Network Service</b>)用の新規ログインを作成してください。<li>デフォルトのデータベースを <b>Aspnetdb</b> に設定してください｡<li>Enterprise Manager の <b>Databases</b> ノードの下で､<b>Aspnetdb</b> データベース エントリを広げ､次に <b>Roles</b> をクリックしてください。<b>aspnet_Roles_FullAccess</b> を右クリックして、次に <b>Properties</b> をクリックしてください。<b>Database Role Properties</b> ダイアログ ボックスで、<b>Add</b> をクリックし、次に以前のステップで作成したデータベース ログインを選択してそのロールへログインを追加してください｡ <blockquote><b>注意</b>: &nbsp;&nbsp;Aspnet_regsql.exe は、ロール管理データベースへの異なるアクセスレベルを持つ 3 つのデータベース ロールを作成します。</blockquote><ul><li><b>FullAccess</b> ロールの作成と削除、さらに作成したロールに対するユーザーの追加と削除を行う権限を与えます。 <li><b>BasicAccess</b> 現在のユーザーに対してのみロール メンバーシップ チェックが可能になります。 <li><b>ReportingAccess</b> ページから、どのようなロールが存在しているか、ロールの所属ユーザーなどをチェックすることができます。 </li></li></li></ul></li></li></li>
+  </ol>
+  <h2>WindowsTokenRoleProvider を使用する</h2>
+  <p>Windows 認証を使用するASP.NET アプリケーションを持つ <b>WindowsTokenRoleProvider</b> を使用します。 このプロバイダーは、Windows セキュリティ グループに基づく Windows ユーザーのロール情報を取得する読み取り専用のプロバイダーです。 このプロバイダーでは、ロールの作成、追加、削除ができません。 代わりに、Windows Computer Management またはActive Directory Users and Computers管理ツールを使用しなければいけません。</p>
+  <p>このプロバイダーの場合、Windows セキュリティ システムがロール ストアの役割を果たします。そのため、ロール ストアをセットアップするためにコンフィグレーションを別途行う必要はありません。</p>
+  <h2>AuthorizationStoreRoleProvider を使用する</h2>
+  <p><b>AuthorizationStoreRoleProvider</b> を使用して、AzMan ポリシー ストアのロール データを、XML ファイル､Active Directory または ADAM に保存してください｡ </p>
+  <p>AzMan は、Windows 2000 Server 以降 および Windows XP Professional 上でサポートされます。&nbsp; </p>
+  <h1>手順 2:  Web.config でロール プロバイダーを設定する </h1>
+  <p>このステップにより、適切なロール プロバイダーをアプリケーションのWeb.config ファイルで構成します。</p>
+  <h2>SqlRoleProvider を使用する</h2>
+  <p>ウェブ サイトの \app_dir フォルダにあるデータベースにおいて、デフォルトの SQL Express インスタンスのロール ストアを使用するには、次の構成ファイルをアプリケーションのWeb.config ファイルに追加してください｡</p>
+  <div>
+ <pre>&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; &lt;roleManager enabled="true" /&gt;<br />&lt;/system.web&gt;   </pre>
+  </div>
+  <p>この構成はロール管理を有効にし、アプリケーションが、Machine.config ファイルで定義される <b>AspNetSqlRoleProvider</b> という名のデフォルトのプロバイダーを使用するようにします。 ここでは、ローカル SQL Express インスタンスが使用されます。</p>
+  <p>SQL Server のロール ストアを使用するには、接続文字列を追加してロール データベースを指し示すようにし、ここに表示されるようにWeb.config ファイルにロール プロバイダーの定義を追加してください｡</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp; &lt;connectionStrings&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="SqlRoleManagerConnection" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="Data Source=sqlinstance;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Initial Catalog=aspnetdb;Integrated Security=SSPI;"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/add&gt;<br />&nbsp; &lt;/connectionStrings&gt;<br />&lt;/configuration&gt;</pre>
+  </div>
+ <pre>&lt;roleManager enabled="true" defaultProvider="SqlRoleManager"&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="SqlRoleManager" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlRoleProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="SqlRoleManagerConnection"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyApplication" /&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/roleManager&gt;</pre>
+  <h2>WindowsTokenRoleProvider を使用する</h2>
+  <p>このプロバイダーの場合、Windows セキュリティ システムがロール ストアの役割を果たし、Windows グループがロールを表します。 このプロバイダーは、Windows 認証を使用している場合に使うことができます。 これを行うには、次の構成ファイルをアプリケーションのWeb.config ファイルに追加してください。</p>
+  <div>
+ <pre>&lt;authentication mode="Windows" /&gt;<br />&lt;roleManager enabled="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultProvider="AspNetWindowsTokenRoleProvider" /&gt;   </pre>
+  </div>
+  <p>この構成はロール管理を有効にし、Machine.config ファイルに定義された <b>AspNetWindowsTokenRoleProvider</b> という名のロール プロバイダーを使用します。</p>
+  <h2>AuthorizationStoreRoleProvider を使用する</h2>
+  <p><b>AuthorizationStoreRoleProvider</b> は、AzMan ポリシー ストアのロール データを XML ファイル､Active Directory、または ADAM に保存するために使用されます。 このプロバイダーを構成するには､接続文字列を追加して関連のポリシー ストアを指し示すようにし、次にWeb.config ファイルにロール プロバイダーの定義を追加してください。</p>
+  <p>次の接続文字列は、Azmanstore.xml という名のファイルに含まれる XML ベースのポリシー ストアを参照します。</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp; &lt;connectionStrings&gt; <br />&nbsp;&nbsp;&nbsp; &lt;add name="AzManPolicyStoreConnectionString" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="msxml://c:/RolesData/azmanstore.xml" /&gt;<br />&nbsp; &lt;/connectionStrings&gt; <br />&lt;/configuration&gt;  </pre>
+  </div>
+  <p>次の接続文字列は、ADAM ベースのポリシー ストアを参照します。</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp; &lt;connectionStrings&gt; <br />&nbsp;&nbsp;&nbsp; &lt;add name="AzManPolicyStoreConnectionString" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString= "msldap://servername:port/CN=AzManADAMStore,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OU=SecNetPartition,O=SecNet,C=US"/&gt;<br />&nbsp; &lt;/connectionStrings&gt; <br />&lt;/configuration&gt;  </pre>
+  </div>
+  <p>次のコンフィグレーションは、ロール管理を有効にし、<b>RoleManagerAzManADAMProvider</b> という名のプロバイダーを使用する方法を表示します。この例では、上で使用した、ADAM ポリシー ストアに接続する接続文字列を使用しています。</p>
+  <div>
+ <pre>&lt;roleManager <br />&nbsp;&nbsp;&nbsp; enabled="true" <br />&nbsp;&nbsp;&nbsp; cacheRolesInCookie="true" <br />&nbsp;&nbsp;&nbsp; defaultProvider="RoleManagerAzManADAMProvider"<br />&nbsp;&nbsp;&nbsp; cookieName=".ASPXROLES" <br />&nbsp;&nbsp;&nbsp; cookiePath="/" <br />&nbsp;&nbsp;&nbsp; cookieTimeout="30" <br />&nbsp;&nbsp;&nbsp; cookieRequireSSL="false" <br />&nbsp;&nbsp;&nbsp; cookieSlidingExpiration="true"<br />&nbsp;&nbsp;&nbsp; createPersistentCookie="false" <br />&nbsp;&nbsp;&nbsp; cookieProtection="All"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;add name="RoleManagerAzManADAMProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.AuthorizationStoreRoleProvider, System.Web,<br />		 Version=3.5.0.0, Culture=neutral, publicKeyToken=b03f5f7f11d50a3a"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="AzManPolicyStoreConnectionString" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="AzManDemo"/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/providers&gt;<br />&lt;/roleManager&gt;   </pre>
+  </div>
+  <h1>手順 3:  ロールの作成と割り当て </h1>
+  <p>このステップでは、アプリケーションに対してロールを作成し、作成したロールにユーザーを割り当てます。 ロールを作成、割り当てする方法にはいくつか種類があります。 どの種類を使用するかは、アプリケーションがユーザーに対して行う認証方法と使用するロール プロバイダーに依存します。 ロールを作成し、ユーザーをロールに割り当てする方法には次のようなものがあります。 </p>
+  <ul>
+    <li>開発時であれば、ASP.NET コンフィグレーション ツールを使用することができます。 <li><b>AuthorizationStoreRoleProvider</b> を使用している場合､ AzMan アドミニストレータ Microsoft Management Console (MMC) スナップインを使用できます。 <li>ロール管理 API を使用してプログラム型に、または <b>SqlRoleProvider</b> を使用している場合は SQL スクリプトを実行してデータベースに直接追加することによりロールを作成できます。 <li><b>WindowsTokenRoleProvider</b> を使用している場合､Windows Computer Management ツールまたは Active Directory Users and Computers を使用して、ロールとして使用される Windows グループを作成します。 </li></li></li></li>
+  </ul>
+  <h2>ASP.NET Web Site Configuration ツールを使用する</h2>
+  <p>アプリケーションが Forms Authentication を使用していて、なおかつアプリケーションで ASP.NET メンバーシップ機能を使用するための設定をしている場合は、開発時に Visual Studio .NET の ASP.NET Web Site Configuration ツールが使用できます。 アプリケーションが Windows 認証を使用する場合､このツールは使用できませんので、次のセクションで説明されるようにロール API または AzMan アドミニストレータ MMC スナップインのいずれかを使用する必要があります。 </p>
+  <h3>ASP.NET Web Site Configuration ツールを使用してユーザーをロールに割り当てるには </h3>
+  <ol>
+    <li>ASP.NET コンフィグレーション ツールで次の手順を実行してロールを作成します。<ol><li>Visual Studio を起動します。 <li><b>Website</b> メニューで、<b>ASP.NET Configuration</b> をクリックしてください。<li><b>Home</b> タブで､<b>Security</b> をクリックしてください。<li><b>Create or Manage Roles</b><b></b> をクリックしてください。<li>フォームを使用してアプリケーション ロールを追加します。 </li></li></li></li></li></ol><li>次の手順で、ユーザーをロールに割り当てます。<ol><li>Visual Studio .NET で、<b>Website</b> メニューの <b>ASP.NET Configuration </b> をクリックしてください。 <li><b>Home</b> タブで､<b>Security</b> をクリックしてください。<li><b>Create or Manage Roles</b><b></b> をクリックしてください。<li><b>Add/Remove Users</b> 列で、作成したロールの <b>Manage</b> をクリックしてください。 ロールに対してユーザーを追加または削除できるフォームが開きます。 </li></li></li></li></ol></li></li>
+  </ol>
+  <h2>AzMan Administrator MMC Snap-in を使用する</h2>
+  <p>このツールは､ユーザーおよびロールを管理するAzMan ストアを使用するアプリケーションのために提供されます。 特に、ユーザーをロールに割り当てる際、ASP.NET コンフィグレーション ツールを使用できない Windows 認証を使用するアプリケーションにとって便利です。 </p>
+  <h2>SQL スクリプトを使用する</h2>
+  <p>ロール管理データベース上に適切な権限がある場合は、Aspnetdb データベースに提供されたストアド プロシージャを呼び出す SQL スクリプトを実行することができます。 たとえば、次のスクリプトはアプリケーションに新しいロールを作成し、作成したロールにユーザーを割り当てます。</p>
+  <div>
+ <pre>EXEC aspnet_Roles_CreateRole 'ThisApplication', 'NewRole'<br />EXEC aspnet_UsersInRoles_AddUsersToRoles 'ThisApplication', 'ThisUser', 'NewRole', 8   </pre>
+  </div>
+  <p>ロール管理データベースには 19 個のロール管理用ストアド プロシージャがあります これらストアド プロシージャの大半は、ロール管理 API の呼び出し類似の目的を有しています。 </p>
+  <h2>ロール管理 API を使用する</h2>
+  <p><b>System.Web.Security.Roles</b> クラスのメソッドを使用することにより、ユーザーをロールに割り当てるかまたはロールから削除できます。 また、ユーザーのロール メンバーシップのチェックや適宜承認といったことも可能です。</p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>WindowsTokenRoleProvider</b> は読み取り専用なので､<b>IsUserInRole</b> および <b>GetRolesForUser </b> のみをサポートします｡<b></b></blockquote>
+  <p>次のコードは、新規ロールを作成する方法を示します。</p>
+  <div>
+ <pre>using System.Web.Security;</pre>
+ <pre>if (!Roles.RoleExists("TestRole"))<br />{<br />&nbsp; Roles.CreateRole("TestRole");<br />}  </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;ロール名はケース センシティブではありません。 同じ名前のロールを 2 度作成しようとすると、例外をスローします。</blockquote>
+  <p>次のコードは、ユーザーをロールに追加する方法を示します。</p>
+  <div>
+ <pre>// Example 1 - Add one user to one role<br />Roles.AddUserToRole("TestOne", "ExampleRole1");</pre>
+ <pre>// Example 2 - Add one user to several roles<br />Roles.AddUserToRoles("TestTwo", <br />&nbsp; new string[] { "ExampleRole1", "ExampleRole2" });</pre>
+ <pre>// Example 3 - Add several users to one roles<br />Roles.AddUsersToRole(<br />&nbsp; new string[] { "TestTwo", "TestThree" }, "ExampleRole3");</pre>
+ <pre>// Example 4 - Add several users to several roles<br />Roles.AddUsersToRoles(<br />&nbsp; new string[] { "TestThree", "TestFour" }, <br />&nbsp; new string[] { "ExampleRole4" }); </pre>
+  </div>
+  <p>次のコードは、ロールからユーザーを削除する方法を示します。</p>
+  <div>
+ <pre>// Example 1 - Add one user to one role<br />Roles.RemoveUserFromRole("TestOne", "ExampleRole1");</pre>
+ <pre>// Example 2 - Add one user to several roles<br />Roles.RemoveUserFromRoles("TestTwo", <br />&nbsp; new string[] { "ExampleRole1", "ExampleRole2" });</pre>
+ <pre>// Example 3 - Add several users to one roles<br />Roles.RemoveUsersFromRole(<br />&nbsp; new string[] { "TestTwo", "TestThree" }, "ExampleRole3");</pre>
+ <pre>// Example 4 - Add several users to several roles<br />Roles.RemoveUsersFromRoles(<br />&nbsp; new string[] { "TestThree", "TestFour" }, <br />&nbsp; new string[] { "ExampleRole4" }); </pre>
+  </div>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;存在しないロールを指定したか、または無効なWindows ユーザー アカウント名を指定した場合､<b>AddUser</b> および <b>RemoveUser</b> メソッドは、<b>TargetInvocationException</b> をスローします。 失敗理由は、内部例外を参照すると分かります。 ここで言及したメソッドはどれも <b>WindowsTokenRoleProvider</b> に対して使用することはできません。</blockquote>
+  <h1>手順 4:  ロールベースの認可を実行する </h1>
+  <p>このステップでは、ロール管理を使用するテスト アプリケーションを作成します。 このステップでは、次の 2 つのサンプルを作成します。 </p>
+  <ul>
+    <li>最初の例は、<b>SqlRoleProvider</b> または <b>AuthorizationStoreRoleProvider</b> を使用します。そこでは、アプリケーションはロールをユーザーに割り当て､ユーザーからロールを削除し､またロール メンバーシップをテストします。 <li>第 2 の例は､<b>WindowsTokenRoleProvider</b> を使用して、現在のユーザーがどの Windows グループ(ロール)のメンバーなのかをチェックします。 <b>WindowsTokenRoleProvider</b> は、ロール管理 API の <b> IsUserInRole </b>および <b>GetRolesForUser </b> メソッドのみをサポートしますので､Windows グループでユーザーを作成、割り当て、および削除することはできません。 </li></li>
+  </ul>
+  <p>いずれのサンプル アプリケーションも、呼び出し元の認証に Microsoft Internet Information Services (IIS) で統合 Windows 認証を使用します。 <b>WindowsTokenRoleProvider</b> を使用している時はこれが必要条件になりますが、<b>SqlRoleProvider</b> または <b>AuthorizationStoreRoleProvider</b> を使用している場合は､Forms Authentication のような代替認証を使用することもできます。</p>
+  <h2>サンプル: SqlRoleProvider または AuthorizationStoreRoleProvider を使用する</h2>
+  <p>この例は､<b>SqlRoleProvider</b> または <b>AuthorizationStoreRoleProvider</b> を使用します。</p>
+  <h3>SqlRoleProvider または AuthorizationStoreRoleProvider を使用してロール管理をテストするには </h3>
+  <ol>
+    <li>Visual Studio を使用してウェブサイトを作成し､Web.config ファイルを追加し､ロール ストアおよび <b>SqlRoleProvider</b> または <b>AuthorizationStoreRoleProvider</b> を、このハウツーのステップ 1 と 2 で説明されているように構成してください。 <li>Internet Information Services MMC スナップインを使用して、ウェブ サイトのプロパティを修正します。 <b>Directorysecurity</b> タブの<b>匿名アクセスと認証制御</b><b></b>を編集してください｡ <b>Anonymous access</b> チェックボックスのチェックをはずし、<b>Integrated Windows authentication</b> チェックボックスを選択してください｡ <li>Web.config ファイルで、Windows 認証を有効にしてください｡ <div><pre>&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&lt;/system.web&gt;   </pre></div><li>次のコードを Default.aspx ファイルに追加してください。 <div><pre>&lt;%@ Page Language="C#" %&gt;<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "<a href="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</a>"&gt;<br />&lt;script runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!Roles.RoleExists("TestRole"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Roles.CreateRole("TestRole");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ShowRoleMembership();<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; private void ShowRoleMembership()<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (Roles.IsUserInRole("TestRole"))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label1.Text = User.Identity.Name + " is in role TestRole";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label1.Text = User.Identity.Name + " is NOT in role TestRole";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; protected void Button1_Click(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Roles.AddUserToRole(User.Identity.Name, "TestRole");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ShowRoleMembership();<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; protected void Button2_Click(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Roles.RemoveUserFromRole(User.Identity.Name, "TestRole");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ShowRoleMembership();<br />&nbsp;&nbsp;&nbsp; }<br />&lt;/script&gt;<br />&lt;html&nbsp; &gt;<br />&lt;head runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;title&gt;Untitled Page&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="Button1" runat="server" Text="Add to role" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnClick="Button1_Click" /&gt;&lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Button ID="Button2" runat="server" Text="Remove from role" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OnClick="Button2_Click" /&gt;&lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;br /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Label ID="Label1" runat="server" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html   </pre></div><li>アプリケーションを実行します。 このアプリケーションの次の機能に注目してください:<ol><li>アプリケーションへブラウズする時､<b>Page_Load</b> イベント ハンドラー中のコードは、それがまだ存在しない場合は <b>TestRole</b> ロールを作成します。 <ul><li><b>Label1</b> のテキストは、現在の認証されたユーザーが <b>TestRole</b> ロールのメンバーかどうかを表示します。 <li><b>Add to role</b> ボタンをクリックすると、<b>Button1_Click</b> イベント ハンドラーのコードはロール管理 API を使用して現在の認証されたユーザーを <b>TestRole</b> ロールに追加します。 <li><b>Remove from role</b> ボタンをクリックする前に <b>Add to role</b> ボタンを再度クリックした場合､<b>Roles.AddUserToRole</b> への呼び出しは、ユーザーがすでに <b>TestUser</b> ロールにいるので、例外をスローします｡アプリケーションには、この状況を考慮したコードを記述しなければいけません。 <li><b>Remove from role</b> ボタンをクリックすると､現在の認証されたユーザーは、<b>TestRole</b> ロールから削除されます。<li><b>Add to role</b> ボタンをクリックする前に、<b>Remove from role</b> ボタンを再度クリックした場合､ユーザーは既に <b>TestUser</b> ロールにいないため2 度目の削除はできないので、<b>Roles.RemoveUserFromRole</b> の呼び出しは例外をスローします｡ アプリケーションには、この状況を考慮したコードを記述しなければいけません。 </li></li></li></li></li></ul></li></ol></li></li></li></li></li>
+  </ol>
+  <p>
+    <b>ロールを用いてページおよびフォルダへのアクセス権を制御するには</b>
+  </p>
+  <p>ロールの一般的な使用法は、ページやフォルダへのアクセスを許可または拒否する規則を確立することです。 Web.config ファイルの&lt;<b>authorization</b>&gt; セクションでそのようなアクセス ルールを 設定できます。 次の例では､メンバーのロール中のユーザーが<b>memberPages</b> という名のフォルダのページを表示でき、他の誰へのアクセスも拒否します。</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp;&nbsp; &lt;location path="memberPages"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;allow roles="Manager" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;deny users="*" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/location&gt;<br />&nbsp;&nbsp; &lt;!-- other configuration settings here --&gt;<br />&lt;configuration&gt;  </pre>
+  </div>
+  <h2>サンプル: WindowsTokenRoleProvider を使用する</h2>
+  <p>この例は､<b>WindowsTokenRoleProvider</b> を使用します。</p>
+  <h3>WindowsTokenRoleProvider を使用してロール管理をテストするには </h3>
+  <ol>
+    <li>Visual Studio を使用してウェブサイトを作成し､Web.config ファイルを追加し､このハウツーのステップ 2 に説明されるように <b>WindowsTokenRoleProvider</b> を構成してください｡ <li>Internet Information Services MMC スナップインを使用して、ウェブ サイトのプロパティを修正します。 <b>ディレクトリのセキュリティ</b> タブの<b>匿名アクセスおよび認証制御</b>を編集してください｡ <b>匿名アクセス</b> のチェックボックスのチェックをはずし、<b>統合 Windows 認証</b> チェックボックスを選択してください｡ <li>Web.config ファイルで、Windows 認証を有効にしてください｡ <div><pre>&lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&nbsp;&nbsp;&nbsp; &lt;authentication mode="Windows"/&gt;<br />&nbsp;&nbsp;&nbsp; ...<br />&lt;/system.web&gt;   </pre></div><li>次のコードを Default.aspx に追加してください｡ <div><div><div></div></div><pre>&lt;%@ Page Language="C#" %&gt;<br />&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "<a href="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</a>"&gt;<br />&lt;script runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; protected void Page_Load(object sender, EventArgs e)<br />&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string[] members = Roles.GetRolesForUser();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foreach (string role in members)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Label1.Text += role + "&lt;br /&gt;";<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; }<br />&lt;/script&gt;<br />&lt;html&nbsp; &gt;<br />&lt;head runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;title&gt;Untitled Page&lt;/title&gt;<br />&lt;/head&gt;<br />&lt;body&gt;<br />&nbsp;&nbsp;&nbsp; &lt;form id="form1" runat="server"&gt;<br />&nbsp;&nbsp;&nbsp; &lt;div&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;asp:Label ID="Label1" runat="server" /&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/div&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;   </pre></div><li>アプリケーションを実行します。 認証されたユーザーが所属する Windows グループに対応するロールの一覧が表示されます。 このアプリケーションの次の機能に注目してください:<ol><li><b>WindowsTokenRoleProvider</b> は読み取り専用なので、ロールのユーザーを作成、割り当てまたは削除できません。 <b>WindowsTokenRoleProvider</b> は、ロール管理 API の<b>IsUserInRole </b> および <b>GetRolesForUser</b> メソッドのみをサポートします。 </li></ol></li></li></li></li></li>
+  </ol>
+  <ul>
+    <li><b>Label1</b> のテキストは、現在のログオン済みユーザーがどのWindows グループのメンバーかを表示します。 <li><b>WindowsPrincipal </b> クラスは、<b>WindowsBuiltinRole</b> の列挙を受け入れる <b>IsInRole</b> のオーバライドをサポートします。 このメソッドを使用することで、標準的な Windows グループのメンバーシップに対するテストが可能になります。 <b>WindowsBuiltInRole</b> 列挙には、管理者、ゲスト、パワーユーザーおよびここに表示されるユーザーのような、一般的なグループを代表するメンバーが含まれています。 <div><div><div></div><div>&nbsp;</div></div><pre>WindowsPrincipal User = new <br />&nbsp; WindowsPrincipal((WindowsIdentity)HttpContext.Current.User.Identity);<br />if (User.IsInRole(WindowsBuiltInRole.PowerUser))<br />{<br />&nbsp; ...<br />}  </pre></div></li></li>
+  </ul>
+  <p>
+    <b>WindowsTokenRoleProvider を使用し、ビルトイン ロールを用いてページおよびフォルダへのアクセス権を制御するには</b>
+  </p>
+  <p><b>BUILTIN\<i>groupName</i></b> フォーマットのロールを指定することにより、ページまたはフォルダへのアクセスを、埋め込み Windows グループのひとつのメンバーに制限することができます。次の例は、ビルトイン管理者グループのユーザーに対して memberPages という名前のフォルダ内にあるページの参照を許可し、それ以外のメンバのアクセスは拒否します。</p>
+  <div>
+ <pre>&lt;configuration&gt;<br />&nbsp;&nbsp; &lt;location path="memberPages"&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;allow roles="BUILTIN\Administrators" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;deny users="*" /&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/authorization&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/system.web&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/location&gt;<br />&nbsp;&nbsp; &lt;!-- other configuration settings here --&gt;<br />&lt;/configuration   </pre>
+  </div>
+  <h1>追加考慮事項</h1>
+  <p>ユーザーのブラウザが Cookie を許可している場合、ユーザーのロール情報をコンピュータ上の Cookie に格納することができます。 ページの要求の都度、ASP.NET は Cookie からそのユーザーのロール情報を読み取ります。 この方法では、ロール データ ストアとの必要通信量を減らすことができるため、アプリケーションのパフォーマンスを改善できます。 </p>
+  <p>ロール キャッシングを構成し有効にするには、ここに表示されるように <b>cacheRolesIn Cookie = true</b> を設定してください。</p>
+  <div>
+ <pre>&lt;roleManager enabled="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cacheRolesInCookie="true" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieName=".ASPXROLES"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieTimeout="30" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookiePath="/" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieRequireSSL="false" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieSlidingExpiration="true"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieProtection="All" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultProvider="AspNetSqlRoleProvider"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; createPersistentCookie="false" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxCachedResults="25"/&gt;   </pre>
+  </div>
+  <p>ユーザーのロール情報が大きすぎて Cookie に格納できない場合、ASP.NET は直近に使用されたロール情報のみを Cookie に格納し、他に必要なロール情報があれば、必要に応じてデータ ソースに検索に行きます。 </p>
+  <p>ロール Cookie をセキュアにするには:</p>
+  <ul>
+    <li><b>cookieRequireSSL</b> を <b>true</b> に設定して、 Cookie が SSL 保護されたチャンネル上でのみ使用されることを確認してください。 <li><b>createPersistentCookie</b> を <b>false</b> に設定して、 Cookie がクライアントのコンピュータに保存されるのを防止します。このケースではクキーは現在のセッションを保護するためにのみ使用されます。 <li><b>cookieTimeout</b> を Cookie が有効になっている時間数に設定してください。</li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

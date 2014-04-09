@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="429184794" Content_Hash="1662866458">
+  <Metadata>
+    <Id>594169a2-376f-4023-a0cb-b35ba5e703ba</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>表示ステータスが機微データを含む場合に暗号化する</Title>
+    <Category>パラメータ操作</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>機微な情報を表示ステータスに保存する必要がある場合に､その情報が暗号化されていることを確認する</p>
+  <h1>理由</h1>
+  <p>表示ステータスは、デフォルトで HMAC 完全性チェックによりタンパリングに対して保護され、SSL を使用することでネットワーク上の表示ステータスが保護されます。&nbsp;しかしながら、ViewStates暗号化が使用されない場合､ViewStatesに保存された機微データはローカルマシン上では脆弱性があります。</p>
+  <h1>チェック方法</h1>
+  <p>表示ステータスの暗号化が有効であるかをチェックする最も簡単な方法は、クライアント側のアプリケーションが返す HTML ソースで、VIEWSTATE 隠しフィールドを調べることです。</p>
+ <pre>&lt;form name="testForm" method="post" action="viewstate.aspx" id="testForm"&gt;<br />	&lt;input type="hidden" name="__VIEWSTATE"<br /></pre>
+  <p>表示ステータスが暗号化されていない場合は、サーバ コントロールのすべてのプロパティがプレーンテキストで表示されています。&nbsp; 暗号化されている場合は､暗号化されたデータのみが表示されます。</p>
+ <pre>&lt;form name="testForm" method="post" action="viewstate.aspx" id="testForm"&gt;<br />	&lt;input type="hidden" name="__VIEWSTATE" <br />value="dDwxNTgzOTU2ODA7dDw7bDxpPDE+Oz47bDx0PDtsPGk8MT47PjtsPHQ8QDA8cDxwP<br />Gw8UGFnZUNvdW50O18hSXRlbUNvdW50O18hRGF0YVNvdXJjZUl0ZW1Db3VudDtEYXRhS2V5c<br />zs+O2w8aTwxPjtpPDg+O2k8OD47bDw+Oz4+Oz47Ozs7Ozs7OztAMDxAMDxwPGw8SGVhZGVyVG<br />V4dDtEYXRhRmllbGQ7U29ydEV4cHJlc3Npb247UmVhZE9ubHk7PjtsPHB1Yl9pZDtwdWJfaWQ<br />7cHViX2lkO288Zj47Pj47Ozs7PjtAMDxwPGw8SGVhZGVyVGV4dDtEYXRhRmllbGQ7U29ydEV4<br />cHJlc3Npb247UmVhZE9ubHk7PjtsPHB1Yl9uYW1lO3B1Yl9uYW1lO3B1Yl9uYW1lO288Zj47P<br />j47Ozs7PjtAMDxwPGw8SGVhZGVyVGV4dDtEYXRhRmllbGQ7U29ydEV4cHJlc3Npb247UmVhZE<br />9ubHk7PjtsPGNpdHk7Y2l0eTtjaXR5O288Zj47Pj47Ozs7PjtAMDxwPGw8SGVhZGVyVGV4dDt<br />EYXRhRmllbGQ7U29ydEV4cHJlc3Npb247UmVhZE9ubHk7PjtsPHN0YXRlO3N0YXRlO3N0YXR<br />lO288Zj47Pj47Ozs7PjtAMDxwPGw8SGVhZGVyVGV4dDtEYXRhRmllbGQ7U29ydEV4cHJlc3Np<br />b247UmVhZE9ubHk7PjtsPGNvdW50cnk7Y291bnRyeTtjb3VudHJ5O288Zj47Pj47Ozs7Pjs+O<br />z47bDxpPDA+Oz47bDx0PDtsPGk8MT47aTwyPjtpPDM+O2k8ND47aTw1PjtpPDY+O2k8Nz47aT<br />w4Pjs+O2w8dDw7bDxpPDA+O2k8MT47aTwyPjtpPDM+O2k8ND47PjtsPHQ8cDxwPGw8VGV4dDs<br />+O2w8MDczNjs+Pjs+Ozs+O3Q8cDxwPGw8VGV4dDs+O2w8TmV3IE1vb24gQm9va3M7Pj47Pjs7<br />Pjt0PHA8cDxsPFRleHQ7PjtsPEJvc3Rvbjs+Pjs+Ozs+O3Q8cDxwPGw8VGV4dDs+O2w8TUE7P<br />j47Pjs7Pjt0PHA8cDxsPFRleHQ7PjtsPFVTQTs+Pjs+Ozs+Oz4+O3Q8O2w8aTwwPjtpPDE+O2<br />k8Mj47aTwzPjtpPDQ+Oz47bDx0PHA8cDxsPFRleHQ7PjtsPDA4Nzc7Pj47Pjs7Pjt0PHA8cD<br />xsPFRleHQ7PjtsPEJpbm5ldCAmIEhhcmRsZXk7Pj47Pjs7Pjt0PH_u56 ?cDxsPFRleHQ7Pjt<br />sPFdhc2hpbmd0b247Pj47Pjs7Pjt0PHA8cDxsPFRleHQ7PjtsPERDOz4+Oz47Oz47dDxwPHA8<br />bDxUZXh0Oz47bDxVU0E7Pj47Pjs7Pjs+Pjt0PDtsPGk8MD47aTwxPjtpPDI+O2k8Mz47aTw0P<br />js+O2w8dDxwPHA8bDxUZXh0Oz47bDwxMzg5Oz4+Oz47Oz47dDxwPHA8bDxUZXh0Oz47bDxBbG<br />dvZGF0YSBJbmZvc3lzdGVtczs+Pjs+Ozs+O3Q8cDxwPGw8VGV4dDs+O2w8QmVya2VsZXk7Pj4<br />7Pjs7Pjt0PHA8cDxsPFRleHQ7PjtsPENBOz4+Oz47Oz47dDxwPHA8bDxUZXh0Oz47bDxVU0E7<br />Pj47Pjs7Pjs+Pjt0PDtsPGk8MD47aTwxPjtpPDI+O2k8Mz47aTw0Pjs+O2w8dDxwPHA8bDxUZ<br />Xh0Oz47bDwxNjIyOz4+Oz47Oz47dDxwPHA8bDxUZXh0Oz47bDxGaXZlIExha2VzIFB1Ymxpc2<br />hpbmc7Pj47Pjs7Pjt0PHA8cDxsPFRleHQ7PjtsPENoaWNhZ287Pj47Pjs7Pjt0PHA8cDxsPFR<br />leHQ7PjtsPElMOz4+Oz47Oz47dDxwPHA8bDxUZXh0Oz47bDxVU0E7Pj47Pjs7Pjs+Pjt0PDts<br />PGk8MD47aTwxPjtpPDI+O2k8Mz47aTw0Pjs+O2w8dDxwPHA8bDxUZXh0Oz47bDwxNzU2Oz4+O<br />z47Oz47dDxwPHA8bDxUZXh0Oz47bDxSYW1vbmEgUHVibGlzaGVyczs+Pjs+Ozs+O3Q8cDxwPG<br />w8VGV4dDs+O2w8RGFsbGFzOz4+Oz47Oz47dDxwPHA8bDxUZXh0Oz47bDxUWDs+Pjs+Ozs+O3Q<br />8cDxwPGw8VGV4dDs+O2w8VVNBOz4+Oz47Oz47Pj47dDw7bDxpPDA+O2k8MT47aTwyPjtpPDM+<br />O2k8ND47PjtsPHQ8cDxwPGw8VGV4dDs+O2w8OTkwMTs+Pjs+Ozs+O3Q8cDxwPGw8VGV4dDs+O<br />2w8R0dHJkc7Pj47Pjs7Pjt0PHA8cDxsPFRleHQ7PjtsPE3DvG5jaGVuOz4+Oz47Oz47dDxwPH<br />A8bDxUZXh0Oz47bDwmbmJzcFw7Oz4+Oz47Oz47dDxwPHA8bDxUZXh0Oz47bDxHZXJtYW55Oz4<br />+Oz47Oz47Pj47dDw7bDxpPDA+O2k8MT47aTwyPjtpPDM+O2k8ND47PjtsPHQ8cDxwPGw8VGV4<br />dDs+O2w8OTk1Mjs+Pjs+Ozs+O3Q8cDxwPGw8VGV4dDs+O2w8U2Nvb3RuZXkgQm9va3M7Pj47P<br />js7Pjt0PHA8cDxsPFRleHQ7PjtsPE5ldyBZb3JrOz4+Oz47Oz47dDxwPHA8bDxUZXh0Oz47bD<br />xOWTs+Pjs+Ozs+O3Q8cDxwPGw8VGV4dDs+O2w8VVNBOz4+Oz47Oz47Pj47dDw7bDxpPDA+O2k<br />8MT47aTwyPjtpPDM+O2k8ND47PjtsPHQ8cDxwPGw8VGV4dDs+O2w8OTk5OTs+Pjs+Ozs+O3Q8<br />cDxwPGw8VGV4dDs+O2w8THVjZXJuZSBQdWJsaXNoaW5nOz4+Oz47Oz47dDxwPHA8bDxUZXh0O<br />z47bDxQYXJpczs+Pjs+Ozs+O3Q8cDxwPGw8VGV4dDs+O2w8Jm5ic3BcOzs+Pjs+Ozs+O3Q8cD<br />xwPGw8VGV4dDs+O2w8RnJhbmNlOz4+Oz47Oz47Pj47Pj47Pj47Pj47Pj47Pg==" /&gt;</pre>
+  <h1>修正方法</h1>
+  <p>表示ステータスの暗号化を有効にするには、次のステップを使用します。</p>
+  <ol>
+    <li> <b>&lt;pages&gt;</b> エレメントの <b>viewStateEncryptionMode 属性がAlways</b> に設定されていることを<b> </b>チェックします。<pre>&lt;pages ... viewStateEncryptionMode="Always" ... /&gt;</pre><p>すべてのページで暗号化した表示ステータスを使用したくない場合は､<b>&lt; pages&gt;</b> エレメントの <b>viewStateEncryptionMode 属性がAuto</b> に設定されていることを確認します<b> </b>。</p><pre>&lt;pages ... viewStateEncryptionMode="Auto" ... /&gt;   </pre><p>次に､コード内で、<b>RegisterRequiresViewStateEncryption</b> メソッドを呼び出します。</p><pre>Page.RegisterRequiresViewStateEncryption();</pre><li><b>validation</b> 属性上で使用する暗号化アルゴリズムを指定します。<pre>&lt;machineKey ... validation="AES" ... /&gt;</pre><p><b>validation</b> 属性はオーバーロードされており、ハッシュ化アルゴリズムまたは暗号化アルゴリズムのいずれかを指定するために使用できます。&nbsp;<b>3DES</b> または <b>AES</b> を指定できます。<b>AES</b> は、<b>3DES</b> (56 ビット)よりも大きな鍵サイズ (128 ビット、192 ビット、または 256 ビット) を生成し､より安全であると考えられるため、AES の使用をお勧めします｡</p><li> <b>&lt; machineKey&gt;</b> エレメントの <b>decryptionKey 属性を調べます。machineKey&gt;</b> element: <pre>&lt;machineKey decryptionKey="AutoGenerate,IsolateApps" ... /&gt;</pre><p>アプリケーションが Web ファームにインストールされていない限り､例のように、<b>decryptionKey</b> 属性をデフォルト値のまま使用することをお勧めします｡</p></li></li></li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションに、ユーザーが社会保障番号を入力するサーバ側のコントロールが含まれています。 表示ステータスは HMACS によって完全性チェックされているため、デフォルトでタンパリングから保護されています。また、アプリケーションの開発者は社会保障番号が機微な情報であることを知っているため、フォーム ポストに対して SSL を要求します。 これにより、ネットワーク上で情報は保護されますが、 表示ステータスが暗号化されていないため､ユーザーのコンピュータにアクセスできる誰もが社会保障番号の情報を見ることができてしまいます。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションに、ユーザーが社会保障番号を入力するサーバ側のコントロールが含まれています。&nbsp;表示ステータスは HMACS によって完全性がチェックされているため、デフォルトでタンパリングから保護されています。また、アプリケーションの開発者は社会保障番号が機微な情報であることを知っているため、ネットワーク上でこの情報を保護するためにフォーム ポストに対して SSL を要求します。 さらに、ユーザーのマシン上の情報を保護するために、ASP.NET表示ステータス暗号化を使用して表示ステータスを 暗号化します。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET トレーシングの詳細は、<a href="http://msdn.microsoft.com/en-us/library/bb386420.aspx">ASP.NET Tracing&nbsp;Overview </a> を参照してください&nbsp;on MSDN.</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/c63569b1-5373-4bb8-ac34-08db76346c18">ガイドライン: 機微データを含む表示ステータスs を暗号化する</a>
+      <li>
+        <a href="/article/b4b49e15-eb5d-46b0-b56d-231ca447c053">表示ステータスに機微データを保存することを避ける</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

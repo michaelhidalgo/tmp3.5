@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1462664627" Content_Hash="211354744">
+  <Metadata>
+    <Id>c468e4b0-92cc-4558-8532-e0c77606efa5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パスワードの更新が適用されている</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションでパスワードの有効期限ポリシーが強制されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>ユーザーがパスワードを更新するように強制することは、有効な資格情報が暴露される危険性を低減させます。 この手法では、攻撃者が<a href="/article/d72d0706-99df-4a65-a19d-6a83ec868a7b">Credential 情報総当たり攻撃 (Brute Force Attack)</a>または<a href="/article/e8b05112-2416-436a-9679-07d9e5626bca">Credential 情報辞書攻撃</a>によって有効なCredential 情報を取得するのを防ぐことができ、さらに検出 またはロックされた 有効なCredential 情報のインスタンスに関連するビジネス リスクを減らすこともできます。</p>
+  <h1>チェック方法</h1>
+  <p>以下の手順を使用して、アプリケーションにパスワード期限のポリシーがあることを確認してください。 </p>
+  <ol>
+    <li>
+      <p>
+        <strong>すべての認証のコードを見つけます。</strong> アプリケーション全体にあるすべての認証手順を特定します。</p>
+      <li>
+        <p>
+          <strong>アプリケーションがパスワード更新のポリシーを適用することを確認してください。</strong> アプリケーションの開発ライフサイクルのさまざまな段階にわたって、アプリケーションがパスワード更新のニーズに対応していることを確認してください。</p>
+        <ul>
+          <li>
+            <strong>要件</strong>: アプリケーションでパスワード ポリシーが提供されているかどうかを確認します。 パスワード ポリシーが、パスワードの期限に関する要件を規定していることを確認してください。 たとえば、パスワードは 45 日後に有効期限が切れるという規定です。 「<a href="/article/b7dde97a-d5e3-49a8-b98b-121213bdccf4">堅牢なパスワードが強制されている</a>」チェックリストで追加パスワード要件に関する情報を参照します。 <li><strong>設計</strong>: アプリケーションの認証ルーチン全体ですべてのパスワード更新ルーチンが適切に配置されているかどうかを確認します。 たとえば、ユーザーのパスワード期限が切れている場合、アプリケーションの認証ルーチンはユーザーがログオンに成功したときにパスワードを更新するように強制する必要があります。 <li><strong>実装</strong>: すべてのパスワード更新ルーチンでアプリケーションのパスワード ポリシーが実装されているかどうかを確認します。 </li></li></li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードは、アプリケーションの認証ルーチンの一部です。 このアプリケーションではパスワードの更新をユーザーに強制できていないため、攻撃者がユーザーのパスワードを推測できる時間が増えます。</p>
+ <pre>&lt;&amp;#33;-- The application's login control --&gt;<br />&lt;asp:Login ID="Login1" runat="server" DestinationPageUrl="~/Protected.aspx" /&gt;<br /> // The Page_Load method of Protected.aspxprotected<br /> void Page_Load(object sender, EventArgs e)&amp;#123;&amp;#125;</pre>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

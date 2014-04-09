@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1866116787" Content_Hash="-317267131">
+  <Metadata>
+    <Id>f4ccf159-109c-42c6-bb01-ddbfe453c695</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>リモート処理を保護する方法</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p><b>System.Net.Security</b> 名前空間でセキュリティ関連機能を使用して、安全な .NET リモート処理アプリケーションを支援することができます。 セキュリティはプログラム的に適用するか、または多くの場合は構成ファイルを通じて適用することができます。 リモート処理セキュリティは <b>NegotiateStream</b> クラスを使用します。 クライアント サーバ通信で Negotiate セキュリティ プロトコルを使用してクライアントの認証と、オプションでサーバの認証を行うストリームを提供します。 以下のコード例は、リモート処理サーバの構成方法を示しています。 </p>
+ <pre>&lt;configuration&gt;<br />  &lt;system.runtime.remoting&gt; <br />    &lt;application&gt;<br />      &lt;service&gt;<br />        &lt;wellknown mode="Singleton"<br />          type="RemotingSample.RemObject, RemotingSample"<br />          objectUri="RemObjectEndpoint.rem" /&gt;<br />      &lt;/service&gt;<br />      &lt;channels&gt;<br />        &lt;channel ref="tcp" secure="true" port="8080" /&gt;<br />      &lt;/channels&gt;<br />    &lt;/application&gt;<br />   &lt;/system.runtime.remoting&gt;<br />&lt;/configuration&gt;  </pre>
+  <p>前述の構成における <b>channel</b> エレメントは、ポート 8080 を使用する暗号化された TCP 通信チャネルを指定します。 <b>channel</b> エレメントの <b>secure</b> 属性を <b>true</b> に設定することにより、通信チャネルの保護を支援します。 <b>protectionLevel</b> 属性は指定されていないため、デフォルト設定の <b>EncryptAndSign</b> が使用されます。 これにより、送信データが暗号化および署名されます。 </p>
+  <p>以下のコードの例は、保護されたリモート処理用のクライアント構成を示しています。 </p>
+ <pre>&lt;configuration&gt;<br />&nbsp; &lt;system.runtime.remoting&gt; <br />&nbsp;&nbsp;&nbsp; &lt;application&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;channels&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;channel ref="tcp" secure="true" useDefaultCredentials="true"/&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/channels&gt;<br />&nbsp;&nbsp;&nbsp; &lt;/application&gt;<br />&nbsp; &lt;/system.runtime.remoting&gt;<br />&lt;/configuration&gt;  </pre>
+  <p>また、クライアント構成は、<b>secure="true"</b> に設定して保護されたチャネルを指定する必要があります。<b>tokenImpersonationLevel</b> 属性がクライアント構成で指定されていない場合、既定の <b>Identification</b> になります。これにより、リモート処理サーバにクライアントの偽装機能を付与することなく、リモート処理サーバがクライアントに関するセキュリティ情報 (セキュリティ識別子および特権) を取得できるようになります。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;セキュリティで保護された TCP クライアント チャネルは、セキュリティで保護された TCP サーバ チャネルのみに接続でき、セキュリティで保護されていない TCP クライアント チャネルはセキュリティで保護されていない TCP サーバ チャネルのみに接続できます。 </blockquote>
+  <p>サーバおよびクライアントの両方で、以下のコード例に示されるように、<b>Configure</b> メソッドを呼び出して構成を登録する必要があります。 </p>
+ <pre>// Add the following to your remoting server application.<br />RemotingConfiguration.Configure("YourRemotingServerAppName.exe.config", true);<br />// Add the following to your remoting client application.<br />RemotingConfiguration.Configure("YourRemotingClientAppName.exe.config", true);</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

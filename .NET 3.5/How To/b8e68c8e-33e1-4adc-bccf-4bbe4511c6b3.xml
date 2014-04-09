@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="707378057" Content_Hash="-1655972147">
+  <Metadata>
+    <Id>b8e68c8e-33e1-4adc-bccf-4bbe4511c6b3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows 認証を使用する場合に最初の呼び出し元を偽装する方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>Windows 認証を使用する場合は、最初のユーザーのウィンドウズ ユーザー情報にアクセスすることができます。 下流コードが最初の呼び出し元のユーザー情報を元に認証する必要がある場合は、最初の呼び出し先の偽装をすることができます。 例えば WCF が呼び出したビジネス ロジックで認可の確認をする必要があったり、または特定ユーザーにアクセスを提供しているアクセス制御リスト（ACL）を持つリソースにアクセスしたい場合があります。</p>
+  <p>次の状況によって、宣言的またはプログラムで最初の呼び出し元の偽装をすることができます: </p>
+  <ul>
+    <li>アプリケーションのドメイン ユーザー アカウントに構成されたACL で保護されている Microsoft Windows® リソースにアクセスしたい場合は宣言的に最初の呼び出し元の偽装をします。 <li>主にアプリケーションのプロセス ID を使ってリソースにアクセスしたいが演算の特定セクションについては最初の呼び出し元のユーザー情報を使用する必要がある場合はプログラムで最初の呼び出し元の偽装をします。</li></li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>詳細は、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Windows%20Forms&referringTitle=How%20Tos">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Windows%20Forms&referringTitle=How%20Tos にある「Windows フォームから呼び出す WCF で当初の呼び出し元を偽装する方法」を参照してください。</a><li>更なる情報については、 <a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Web%20Application&referringTitle=How%20Tos">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Web%20Application&referringTitle=How%20Tos</a>&nbsp;にある「How to Impersonate the Original Caller in WCF calling from Web Application」（ウェブ アプリケーションから呼び出す WCF の最初の呼び出し元の偽装方法）を参照してください。</li></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

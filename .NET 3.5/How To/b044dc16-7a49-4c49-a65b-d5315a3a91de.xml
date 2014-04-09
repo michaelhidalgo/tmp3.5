@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1948058769" Content_Hash="957574237">
+  <Metadata>
+    <Id>b044dc16-7a49-4c49-a65b-d5315a3a91de</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>宣言型の認可を行う方法</Title>
+    <Category>認可</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>宣言型の認可は、操作上の属性として宣言される特定のメソッドまたはクラスに必要とされるアクセスを指定することで、設計時にアプリケーション コードに追加することができます。 宣言型のロールベース認可は、操作レベルで WCF へのアクセスを認可する場合に最適です。 宣言型の認可は、操作上の属性として宣言される特定のメソッドまたはクラスに必要とされるアクセスを指定することで、設計時にアプリケーション コードに追加することができます。 </p>
+  <p>認可を必要とする各サービス メソッドに、上記の PrincipalPermission 属性を宣言的に追加することにより Windows グループを認可してください。&nbsp; [Role] フィールドでメソッドにアクセスするために必要な Windows ユーザー グループを指定します。</p>
+ <pre>[PrincipalPermission(SecurityAction.Demand, Role = "accounting")]<br />public double Add(double a, double b)<br />{<br />&nbsp;&nbsp;&nbsp; return a + b;<br />}</pre>
+  <p>クライアントにより提供されるユーザー名/パスワードの組み合わせは、WCF サービスにより Windows ユーザー アカウントにマップされます。&nbsp; ユーザーの認可に成功すると、次にシステムによって、そのユーザーが PrinciplePermission ロールを用いて宣言したグループに属しているかどうかを確認するチェックが行われます。&nbsp; ユーザーがそのロールに属している場合、メソッド アクセスが認められます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>認可の詳細情報については、「認可」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733071.aspx">http://msdn2.microsoft.com/en-us/library/ms733071.aspx) を参照してください。</a><li>Roles.IsUserInRole メソッドに関する情報については、 <a href="http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx">http://msdn.microsoft.com/en-us/library/4z6b5d42.aspx をご覧ください。</a><br /></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

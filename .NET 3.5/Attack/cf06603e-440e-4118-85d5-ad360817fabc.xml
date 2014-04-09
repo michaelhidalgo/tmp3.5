@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1030239028" Content_Hash="-763494309">
+  <Metadata>
+    <Id>cf06603e-440e-4118-85d5-ad360817fabc</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ネットワーク盗聴攻撃</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>設計</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>あらゆるネットワーク アプリケーション</p>
+  <h1>説明</h1>
+  <p>攻撃者はパケット スニッフィング ツールを利用して、ネットワーク上での 2 者間の会話を傍受し、処理されるすべてのデータを見ることができます。 この攻撃は、データが暗号化されていない限り、使用されているプロトコルに関係なく可能です。 ネットワークを介した 2 つのアプリケーション間の通信が平文で行われる場合、攻撃者は通信を見て理解し、交換されるデータを抽出できます。 ネットワークから機密情報をスニッフィングするだけでなく、攻撃者は Credential 情報をスニッフィングすることもできます。</p>
+  <h1>影響</h1>
+  <ul>
+    <li>潜在的に機微データの機密性の欠如。</li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>
+      <strong>安全でない通信チャンネル:</strong> 機密性や完全性が保証されません。</li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>
+      <p>
+        <strong>安全な通信チャンネルを確立する </strong>
+      </p>
+      <ul>
+        <li>
+          <strong>アプリケーション レイヤーの暗号化に SSL/TLS を活用する:</strong> これはネットワークで接続された 2 つのマシンの 2 つのアプリケーション 間で通信を安全に行うのに役立ちます。 これらのプロトコルの最新バージョン (SSL 3.0/TLS 1.0) のみを承認するように常にアプリケーションを設定します。 弱い暗号は決して利用しないでください。 <li><strong>IP レイヤーの暗号化に IPSec を利用する:</strong> これはネットワークで接続された 2 つのマシンの すべてのデータを安全に送信するために役立ちますが、管理コストが高くなります。 任意のインターネット ホストと情報を交換するのには適していません。</li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>機微データのみを暗号化する</strong>
+        </p>
+        <ul>
+          <li>
+            <strong>プレーン テキスト プロトコル内で暗号化を使用する:</strong> 2 つのアプリケーション間ですべてのデータ通信を暗号化する代わりに、機微データ セグメントのみを暗号化し、それらをプレーン テキスト ネットワーク プロトコルで転送することもできます。 この場合、暗号化したデータだけが守られ、認証、リプレイ防止、中間者攻撃対策のセキュリティなどのプロパティは、鍵の保管と配信のシステムとともに、アプリケーションで提供しなければなりません。 このようなシステムを実装することを選択した場合、提供しなければならないプロパティとその保証方法を理解し、よく知られ、現在のところ安全であると考えられる標準の暗号化アルゴリズムを実装し、適切に選んだ鍵とハッシュ サイズとともに使用してください。</li>
+        </ul>
+      </li>
+    </li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>TLS/SSL とは何か: <a href="http://technet2.microsoft.com/WindowsServer/en/library/ed5ae700-e05e-45ef-b536-45795dbb99a21033.mspx?mfr=true">http://technet.microsoft.com/ja-jp/library/cc706993(WS.10).aspx</a><li>SSL、TLS、IPSec を使用すべき場合: <a href="http://www.microsoft.com/technet/prodtechnol/windows2000serv/reskit/iisbook/c09_when_to_use_ssl,_tls,_or_ipsec.mspx?mfr=true">http://www.microsoft.com/technet/prodtechnol/windows2000serv/reskit/iisbook/c09_when_to_use_ssl,_tls,_or_ipsec.mspx?mfr=true </a><li>パケット スニッファに関する追加情報: <a href="http://en.wikipedia.org/wiki/Packet_sniffer">http://en.wikipedia.org/wiki/Packet_sniffer</a><li>パケット スニッフィング ツール: <a href="http://www.wireshark.org/">http://www.wireshark.org/</a></li></li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="313298213" Content_Hash="771012447">
+  <Metadata>
+    <Id>5358a68d-28b9-4d67-901d-3076ddc1a9f4</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>偽装メソッドを知る</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>提供されている偽装方法について知る。</p>
+  <h1>対策</h1>
+  <p>偽装は呼び出し元によるファイルやその他の WCF サービスのローカル リソースへのアクセスを制限したり、権限を付与するために使用します。偽装には３つの選択肢があります：</p>
+  <ul>
+    <li>特定演算における呼び出し元の宣言型偽装。 <li>全サービスにおける呼び出し元の宣言型偽装。 <li>演算内におけるプログラムによる呼び出し元の偽装。<br /></li></li></li>
+  </ul>
+  <p>
+    <strong>特定演算における呼び出し元の宣言型偽装<br /></strong>特定演算全体を通して呼び出し元の偽装を実施する際にこのオプションを使用します。 偽装は高いコストが伴う演算ですので、通常高特権の呼び出し元のみで使用するものですので、偽装は Attack Surface (攻撃対象領域)を減らす必要がある演算において選択的に使用してください。 次のコード例でも示されている通り、クライアント偽装が必要などの演算でも OperationBehaviorAttribute （演算動作属性）属性を適用することによって宣言型偽装を実施することができます。</p>
+ <pre>[OperationBehavior(Impersonation = ImpersonationOption.Required)]<br />public string GetData(int value)<br />{<br />   return “test”;<br />}</pre>
+  <p>
+    <strong>サービス全体で呼び出し元を偽装する<br /></strong>演算全ての時間全体において呼び出し元を偽装する場合にこのオプションを使用します。 偽装はコストの高い演算なので、通常は高特権の呼び出し元の場合のみに使用します。 このオプションを選択すると Attack Surface (攻撃対象領域)が増加する場合があるので注意してください。 サービス全体で偽装する場合は次の例で示されている通り、WCF 構成ファイルで impersonateCallerForAllOperations （全演算で呼び出し元）属性を "true" （正）に設定します。</p>
+ <pre>...<br />&lt;behaviors&gt;<br />  &lt;serviceBehaviors&gt;<br />    &lt;behavior name="ServiceBehavior"&gt;<br />      &lt;serviceMetadata httpGetEnabled="true" /&gt;<br />      &lt;serviceDebug includeExceptionDetailInFaults="false" /&gt;<br />      &lt;serviceAuthorization impersonateCallerForAllOperations="true" /&gt;<br />    &lt;/behavior&gt;<br />  &lt;/serviceBehaviors&gt;<br />&lt;/behaviors&gt;<br />...</pre>
+  <p>全演算の偽装をする場合、各方法に適用される OperationBehaviorAttribute （演算動作属性）は Allowed （可）まはたRequired（要）に設定されている必要があります。</p>
+  <p>
+    <strong>注記</strong>: サービスの Credential 情報が遠隔のクライアントよりも高レベルな場合、サービスは偽装属性が Allowed（可）に設定されているごとく使用されます。 つまり、特権が低いユーザーがその Credential 情報を提供し、特権の高いサービスがサービスの Credential 情報でもって方法を実行し、特権の低いユーザーには通常使用できないリソースを使用することができます。</p>
+  <p>
+    <strong>演算内での呼び出し元のプログラムによる偽装</strong>
+    <br />サービス演算において短期間呼び出し元を偽装する場合にはこのオプションを使用してください。 偽装は高いコストが伴う演算ですので、通常高特権の呼び出し元のみで使用するものですので、偽装は Attack Surface (攻撃対象領域)を減らす必要がある場合のみに使用してください。 プログラムによる偽装は次の例に示されているように実施してください。</p>
+ <pre>public string GetData(int value)<br />{<br /> using (ServiceSecurityContext.Current.WindowsIdentity.Impersonate())<br /> {<br />     // return the impersonated user (original users identity)<br />     return string.Format("Hi, {0}, you have entered: {1}",<br />          WindowsIdentity.GetCurrent().Name, value);<br /> }   <br />}</pre>
+  <p>
+    <strong>注記</strong>:偽装は逆戻りすることが重要です。 それを怠ると、DoS 攻撃ならびに特権の昇格攻撃の元となります。 上記の例ではブロックを利用して実行をした後に偽装が確実に逆戻りする記述を使用しています。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>偽装と委任の Q&A （質疑応答）については<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Homeにある「WCF 3.5 Questions and Answers」（WCF 3.5 質疑応答）の「Impersonation/Delegation」（偽装/委任）の節を参照してください。</a><a href="http://www.codeplex.com/WCFSecurity/Wiki/View.aspx?title=Questions%20and%20Answers&referringTitle=Home"></a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1286270753" Content_Hash="2079560500">
+  <Metadata>
+    <Id>e90ef71b-635e-4288-af64-dfecb6d48a1e</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>鍵アクセス許可を使用してレジストリ内のデータを保護する</Title>
+    <Category>レジストリ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、レジストリ アクセス制御リスト (ACL) アクセス許可を使用して、Windows レジストリ内に保存されたデータを保護する方法を示すことです。 これらのアクセス許可を使用して、ユーザーは</p>
+  <p>レジストリに格納されているデータにアクセス可能な人物とアクセス不可能な人物をプログラムで制御できます。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>レジストリからデータにアクセスできるユーザーを制御する、レジストリ キー セキュリティ コンテキストを作成および適用する</li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>秘密暗号鍵用の同じ鍵材料にアクセスするための複数のコンポーネントで構成されるアプリケーション<li>アプリケーションは、データベース接続文字列など、スタートアップ時に取得されるデータ構成データを格納する必要がある<li>アプリケーションは、他のアプリケーション層に接続するランタイム Credential 情報を格納する必要のあるクライアント層で構成される</li></li></li>
+  </ul>
+  <h1>問題の例</h1>
+ <pre>// Write an unprotected key and value into the registry. Default <br />// permissions allow all other users to access this key<br />RegistryKey key = Registry.CurrentUser.CreateSubKey(keyName);<br />key.SetValue(valueName, data);</pre>
+  <ul>
+    <li>セキュリティ コンテキストが適用されていないため、システム上の他のあらゆるユーザーがこの鍵にアクセスできる</li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.Security;<br />using System.Security.AccessControl;<br />using Microsoft.Win32;</pre>
+  <p>さらに、2 人の別々のユーザーがテスト システム上に定義されている必要があります。 これらのユーザーは、以下の例でユーザー A およびユーザー B と呼びます。 </p>
+  <p>このテスト ケースは、</p>
+  <p>あるユーザーが制御権限を使用して確保したレジストリ キーに、別のユーザーがアクセスできないようにする方法を</p>
+  <p>次の 3 つのステップで示しています。</p>
+  <p>1) 次のコードを使用して、鍵を「ユーザー A」(この例では「ユーザー A」＝管理者) として</p>
+  <p>格納する</p>
+ <pre>static void Main(string[] args)<br />{<br />&nbsp;&nbsp;&nbsp; string keyName = "AdminSecuredKey";<br />&nbsp;&nbsp;&nbsp; string valueName = "AdminSecuredValue";</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; ControlledRegistryStore(keyName, valueName, "sensitive data");<br />}</pre>
+ <pre>
+    <br />static void ControlledRegistryStore(string keyName, string valueName, string data)<br />{<br />&nbsp;&nbsp;&nbsp; // Create a security context for a new key that we will use to store our data.<br />&nbsp;&nbsp;&nbsp; // The security context will restrict access to only our user.<br />&nbsp;&nbsp;&nbsp; string user = Environment.UserDomainName + "\\" + Environment.UserName;<br />&nbsp;&nbsp;&nbsp; RegistrySecurity security = new RegistrySecurity();<br />&nbsp;&nbsp;&nbsp; RegistryAccessRule rule = new RegistryAccessRule(user,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegistryRights.FullControl,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; InheritanceFlags.ContainerInherit,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PropagationFlags.None,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AccessControlType.Allow);<br />&nbsp;&nbsp;&nbsp; security.AddAccessRule(rule);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; // Actually create the new registry key and apply the security context we just came up with.<br />&nbsp;&nbsp;&nbsp; RegistryKey key = Registry.CurrentUser.CreateSubKey(keyName,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegistryKeyPermissionCheck.ReadWriteSubTree,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; security);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; // Write the data into the registry<br />&nbsp;&nbsp;&nbsp; key.SetValue(valueName, data);<br />}</pre>
+  <p>2) 以下のコードを使用して、User A として保存された鍵を取得します。</p>
+ <pre>static void Main(string[] args)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; string keyName = "AdminSecuredKey";<br />&nbsp;&nbsp;&nbsp;&nbsp; string valueName = "AdminSecuredValue";</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp; string data = RegistryRetrieve(Registry.Users, "\\" + keyName, valueName);<br />&nbsp;&nbsp;&nbsp;&nbsp; if (data != null)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine(data);<br />&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine("*** Inaccessible key ***");<br />}</pre>
+ <pre>
+    <br />static string RegistryRetrieve(RegistryKey parent, string keyName, string valueName)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp; // Recursively search through each subkey of a parent key<br />&nbsp;&nbsp;&nbsp;&nbsp; // checking to see if a match for the keyname exist and if<br />&nbsp;&nbsp;&nbsp;&nbsp; // the data can be obtained from that key. Returns data upon<br />&nbsp;&nbsp;&nbsp;&nbsp; // match and an error message otherwise. <br />&nbsp;&nbsp;&nbsp;&nbsp; foreach (string childName in parent.GetSubKeyNames())<br />&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; RegistryKey child = parent.OpenSubKey(childName);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string data = null;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (child.Name.EndsWith(keyName))<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // We found the name, try to pull out key data<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data = child.GetValue(valueName) as string;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp; else<br />&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // No luck finding the name, try a depth-first recursive search<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; data = RegistryRetrieve(child, keyName, valueName);<br />&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp; if (data != null) return data;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; catch (Exception ex)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Print out a message whenever we come across a <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // key we don't have permissions to open<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Console.WriteLine(childName + ": " + ex.Message);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp;&nbsp; }</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp; return null;</pre>
+ <pre>
+  </pre>
+  <p>3) User B としてログインしている間に手順 2 を繰り返します。結果を比較してください。</p>
+  <h1>期待される結果</h1>
+ <pre>
+    <br />--------------------------------<br />"User A" (Administrator) output:<br />--------------------------------<br />C:\temp&gt;whoami<br />vm-win2003\administrator</pre>
+ <pre>
+    <br />C:\temp&gt;RegistrySnippet.exe<br />S-1-5-21-2537879503-2075122368-204042655-1006: Requested registry access is not<br />allowed.<br />sensitive data</pre>
+ <pre>
+    <br />---------------------------<br />"User B" (Joe User) output:<br />---------------------------<br />C:\temp&gt;whoami<br />vm-win2003\joeuser</pre>
+ <pre>
+    <br />C:\temp&gt;RegistrySnippet.exe<br />NetDDE: Requested registry access is not allowed.<br />S-1-5-19: Requested registry access is not allowed.<br />S-1-5-19_Classes: Requested registry access is not allowed.<br />S-1-5-20: Requested registry access is not allowed.<br />S-1-5-20_Classes: Requested registry access is not allowed.<br />S-1-5-21-2537879503-2075122368-204042655-1006: Requested registry access is not<br />allowed.<br />S-1-5-21-2537879503-2075122368-204042655-500: Requested registry access is not a<br />llowed.<br />S-1-5-21-2537879503-2075122368-204042655-500_Classes: Requested registry access<br />is not allowed.<br />NetDDE: Requested registry access is not allowed.<br />* Inaccessible key *</pre>
+ <pre>&nbsp;</pre>
+  <h1>詳細情報</h1>
+  <ul>
+    <li>開発者は、非常に機微データへのアクセスを制御するためにレジストリ アクセス許可だけに依存すべきではありません。 データ保護 API (DPAPI) をレジストリ アクセス制御と組み合わせて使用し、特定のデータを暗号化して、レジストリ内に保存されているより多くの機微データの保護を加えることを検討してください。 以下を使用したデータの暗号化へのリンクについては、「追加のリソース」セクションを参照してください。</li>
+  </ul>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>許可の操作 (.NET): <a href="http://blogs.msdn.com/asanto/archive/2006/01/22/516009.aspx">http://blogs.msdn.com/asanto/archive/2006/01/22/516009.aspx</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

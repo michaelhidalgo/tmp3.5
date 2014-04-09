@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1050842957" Content_Hash="256082730">
+  <Metadata>
+    <Id>b0a3ed0e-915b-4879-a66a-e5d827064617</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>不要または未使用の ISAPI フィルターは、サーバから削除されます。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Author>
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>不要または未使用の ISAPI フィルターが、サーバから削除されていることをチェックしてください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>過去には、ISAPI フィルターの脆弱性により、IISが著しく悪用されました。 .NET Framework は、IIS 処理アドレス空間(Inetinfo.exe) にロードされ、Cookieレス セッション ステート管理のサポートに使用される  ASP.NET ISAPI フィルター (Aspnet_filter.dll) をインストールしますが、ISS のクリーン インストール後は不要な ISAPI フィルターは存在しません。</p>
+  <p>アプリケーションがCookieレス セッション ステートをサポートする必要がなく、<b>&lt;</b> <b>sessionState&gt; </b>エレメントで <b>Cookie レス属性を 真</b> に設定しない場合、このフィルターを削除できます。</p>
+  <p>この手順の間、未使用の ISAPI フィルターを削除します。</p>
+  <h3>未使用の ISAPI フィルターを削除する</h3>
+  <p>次のセクションで説明されているように、未使用の ISAPI フィルターを削除してください。</p>
+  <p>
+    <b>ISAPI フィルターを表示するには</b>
+  </p>
+  <ol>
+    <li>IIS を起動するには、管理ツール プログラム グループから <b>インターネット サービス マネージャ</b>を選択してください。 
+<li>マシン (フィルターはマシン ワイドであるためウェブ サイトではありません) を右クリックし、[<b>プロパティ</b>] をクリックします。
+<li>[<b>編集</b>] をクリックしてください。
+<li>[<b>ISAPI フィルター</b>] タブをクリックしてください。 
+<p>タブ付けされたページが下に表示されます。</p><p><img alt="" src="http://msdn2.microsoft.com/en-us/library/Aa302432.f16thcm05(en-us,MSDN.10).gif" border="0" /></p><p>&nbsp;</p></li></li></li></li>
+  </ol>
+  <p>
+    <b>
+      <i>未使用の ISAPI フィルターの削除</i>
+    </b>
+  </p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

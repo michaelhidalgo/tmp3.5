@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1947872593" Content_Hash="-537941120">
+  <Metadata>
+    <Id>5f6a8e60-f809-4038-a725-c5019f1dc993</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>すべてのソースからの入力を検証する</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>すべての外部ソースからの入力を、信頼されていない入力として扱い、入力検証技術を適用します。</p>
+  <h1>理由</h1>
+  <p>検証されていない入力はクロスサイト スクリプティング、SQL インジェクション、ディレクトリ トラバーサル、およびその他の種類の脆弱性につながることがあります。攻撃者はそれを利用して、機微データへの認可されていないアクセスを得たり、その他の方法でアプリケーションを危険にさらすことがあります。</p>
+  <h1>状況</h1>
+  <p>すべての入力を信頼されていない入力として扱います。 アプリケーションに信頼境界を確立したら、信頼境界を超えるデータを毎回検証します。</p>
+  <h1>対策</h1>
+  <p>アプリケーションは、ファイルシステム、サーバ上で動作する他のソフトウェアなど、様々な形態の入力を受けます。次の手順に従って、検証の方法を定めてください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>すべての入力のソースを識別:</strong> アプリケーションの信頼境界を確立します。 一般的な認識では、アプリケーションによって生成されていない入力はすべて信頼できません。 考えられる入力ソースをすべて列挙し、これらのソースから予想される入力をメモします。 アプリケーションは様々な入力ソースを持つ場合があります。 各ソースは、アプリケーションのエントリ ポイントであり、アプリケーションのセキュリティ モデルの破壊に使用される可能性があります。 各エントリ ポイントに、内容に応じたバリデーターを配置します。</p>
+      <p>通常、Web アプリケーションの入力ソースには以下のものが含まれる可能性があります。</p>
+      <ul>
+        <li>URL ベースのパラメーター <li>フォームベースのパラメーター <li>隠しフィールド <li>Cookie<li>HTTP ヘッダ<li>ローカルファイルシステム上に保存されるデータ<li>データベース <li>他の関連サービス</li></li></li></li></li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>アプリケーションが対処およびプロセスできる入力を理解する:</strong>アプリケーションの入力の詳細を理解します。 様々なエントリ ポイントを特定した後、各エントリ ポイントを通じて提供される入力の書式と型を定義します。 予想される入力のすべての書式と型に対してバリデーターを構築します。</p>
+        <li>
+          <p>
+            <strong>バリデータのセットを作成:</strong> アプリケーションのバリデータを中央集中させ、アプリケーション内に散在する検証コードの数を制限することでコードを強化します。 バリデーターのセットをアプリケーションの信頼境界に配置します。 アプリケーションが、必ずバリデーターのセットを通して外部からの入力を承認するようにします。</p>
+          
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のコードでは、 ページは<strong>isbn</strong>と呼ばれるクエリ文字列パラメータを受け入れます。この変数の値は、非管理型ミドル レイヤーを使用したデータベース内の予約の検索のために使用されます。</p>
+ <pre>&lt;script language="C#" runat="server"&gt;<br />    protected void Page_Load(object sender, EventArgs e)<br />    &amp;#123;<br />        String strIsbn = this.Request.QueryString&amp;#91;"isbn"&amp;#93;;<br />        //lookup isbn in a database using an<br />        //unamanged middle layer<br />    &amp;#125;<br />&lt;/script&gt;</pre>
+  <p>この例では、ISBNは検証されていないため、ミドル レイヤーは悪意のある攻撃を受けやすい恐れがあります。 文字列の長さに制限がないため、非管理型ミドル レイヤーでバッファ オーバーフローにつながる可能性があります。また正しい書式でない可能性があり、ミドル レイヤーの文字列構文解析器 (parser) がクラッシュする原因となり、書式文字列攻撃、SQL インジェクション、またはその他の問題を引き起こす恐れがあります。</p>
+  <h1>ソリューションの例</h1>
+  <p>次のコードにおいて、ページはISBNと呼ばれるクエリ文字列パラメータを受け入れています。 この変数の値は、非管理型ミドル レイヤーを使用したデータベース内の予約の検索のために使用されます。 コードは正規表現を使用してクエリ文字列の値を検証します。 クライアントによって与えられた値が適切な書式であることを、文字列の長さおよび使用されている文字をチェックし、確かめます。</p>
+ <pre>&lt;script language="C#" runat="server"&gt;<br />    protected void Page_Load(object sender, EventArgs e)<br />    &amp;#123;<br />        String strIsbn = this.Request.QueryString&amp;#91;"isbn"&amp;#93;;<br />        if (Regex.IsMatch((strIsbn), &amp;#64;"(?=.&amp;#123;13&amp;#125;&amp;#36;)\d&amp;#123;1,5&amp;#125;(&amp;#91;- &amp;#93;)\d&amp;#123;1,7&amp;#125;\1\d&amp;#123;1,6&amp;#125;\1(\d&amp;#124;X)&amp;#36;"))<br />        &amp;#123;<br />            //lookup isbn in a database using an<br />            //unamanged middle layer<br />        &amp;#125;<br />        else<br />        &amp;#123;<br />            //display error<br />        &amp;#125;<br />    &amp;#125;<br />&lt;/script&gt;</pre>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン：ユーザーが提供したファイル名およびパスの入力の全てにフィルタリングをかけてください</a>
+      <li>
+        <a href="/article/d6ae90bf-1b44-4a89-b22e-55ea97e52ba5">ガイドライン：全ての出力データを暗号化してください </a>
+        <li>
+          <a href="/article/b431b7df-36d8-461b-a437-675a20e9548b">ガイドライン：データベースに渡す全ての入力を検証してください </a>
+          <li>
+            <a href="/article/cf9e691f-d091-4b46-8177-ce1a3bda24f8">ガイドライン：ユーザーのログイン Credential 情報を処理する前に検証してください</a>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

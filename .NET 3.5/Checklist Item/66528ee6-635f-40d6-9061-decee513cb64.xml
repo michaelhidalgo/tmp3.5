@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-9561926" Content_Hash="-1287098766">
+  <Metadata>
+    <Id>66528ee6-635f-40d6-9061-decee513cb64</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>レジストリ中の機微データを暗号化する</Title>
+    <Category>レジストリ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>レジストリ中の機微データを DPAPI を使用して暗号化するようにします。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>レジストリ中に機微データを保存する必要がある場合、DPAPI を使用して暗号化することを検討します。 DPAPI とマシン鍵を使用して、データを暗号化し、暗号化されたデータをレジストリ キーの下に保存します。次に、特定のアプリケーション ID へのアクセスを制限する ACL を使用して、レジストリ キーへのアクセスを制限します。 あるいは､DPAPI をユーザー ストアと共に使用することもできます。  後者のケースでは､ユーザー アカウントのプロフィールを読み取り、鍵にアクセスする必要があります。</p>
+  <p>アプリケーションが他のアプリケーションを持たない独自の専用コンピュータ上で稼働するサーバである場合､または同一サーバ上に複数のアプリケーションを持ちそれらアプリケーションが機敏なレジストリ データを共有できるようにしなければならない場合は、マシン ストアの使用を検討します。 特定のサービス アカウントにのみに DPAPI 鍵へのアクセスを指定し、プロフィールを読み込む場合、DPAPI とユーザー ストアを使用します。</p>
+  <p>次のコードは､ACL で保護されたレジストリ キーを作成する方法および DPAPI とマシン ストアを使用して制限された鍵で暗号化データを保存する方法を 示しています。</p>
+ <pre>
+    <div>
+      <pre>using System.Security.Cryptography;<br />using System.Security.AccessControl;<br />using System.Text;<br />using Microsoft.Win32;<br />...<br />// Get the original data in a byte arraybyte[]<br /> toEncrypt = UnicodeEncoding.ASCII.GetBytes(<br />                   "The secret data to be encrypted");<br />// Encrypt the data by using the ProtectedData <br />class.byte[] encryptedData = ProtectedData.Protect(toEncrypt, null,<br />                       DataProtectionScope.LocalMachine);<br />// Create a new key in the registry with a restricted ACL <br />// and write stream of bytes to the registry <br />keystring user = Environment.UserDomainName + "\\" + Environment.UserName;<br />RegistrySecurity security = new RegistrySecurity();<br />RegistryAccessRule rule = new RegistryAccessRule(user,<br />                RegistryRights.FullControl,<br />                InheritanceFlags.ContainerInherit,<br />                PropagationFlags.None,<br />                AccessControlType.Allow);<br />security.AddAccessRule(rule);<br />Registry.CurrentUser.CreateSubKey("TestEncryptedData",<br />                RegistryKeyPermissionCheck.ReadWriteSubTree,<br />                security);Registry.SetValue(@"HKEY_CURRENT_USER\TestEncryptedData", "Encrypted",<br />                 encryptedData);</pre>
+    </div>
+  </pre>
+  <p>次のコードを使用して、レジストリに保存されたデータを復号化します。</p>
+ <pre>
+    <div>
+      <pre>// Read the encrypted data from registry and decrypt the contents <br />byte[] dataFromRegistry = Registry.GetValue(@"HKEY_CURRENT_USER\TestEncryptedData",<br />                 "Encrypted", null) as byte[];<br />byte[] decryptedData = ProtectedData.Unprotect(dataFromRegistry, null,<br />                 DataProtectionScope.LocalMachine);</pre>
+    </div>
+  </pre>
+ <pre>
+    <div>
+      <pre>&nbsp;</pre>
+    </div>
+  </pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

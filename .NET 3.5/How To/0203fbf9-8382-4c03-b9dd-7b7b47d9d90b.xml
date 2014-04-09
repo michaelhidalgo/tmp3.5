@@ -1,0 +1,740 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-324065056" Content_Hash="1172611246">
+  <Metadata>
+    <Id>0203fbf9-8382-4c03-b9dd-7b7b47d9d90b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>XPath インジェクション バグをテストする方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>Andres De Vivanco</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>対象: </span>
+  </h1>
+  <ul>
+    <li>
+      <span>XPath を使用して XML データをクエリする Web アプリケーション。 これらのアプリケーションは一般的に ASP .Net、Java、PHP、Python および Ruby を使用して開発されます。</span>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>
+    <span>XPath は XML データを介してクエリする言語です。<span>&nbsp; </span>XPath はデータのクエリにのみ使用されますが、SQL インジェクションと同じインジェクション脆弱性を被ります。<span>&nbsp; </span>XPath クエリに使用されるパラメータを操作する攻撃者は、元のクエリの論理を変更して認証回避を実行したり、情報漏えい攻撃を実行したりすることができます。 </span>
+  </p>
+  <p>
+    <span>XPath インジェクション脆弱性をテストするには、以下の手順に従うことをお勧めします:</span>
+  </p>
+  <ul>
+    <li>
+      <span>手順 1: <span> </span>攻撃シナリオを理解する</span>
+      <li>
+        <span>手順 2: <span> </span>原因と対策を分析する</span>
+        <li>
+          <span>手順 3: <span> </span>テストと調査を開始する</span>
+          <li>
+            <span>手順 4: <span> </span>テスト ケースを微調整する</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 1: <span> </span>攻撃シナリオを理解する</span>
+  </h1>
+  <p>
+    <span>最初に、XPath 攻撃のシナリオの詳細を理解する必要があります。<span>&nbsp; </span>SQL インジェクションと同様に、XPath 攻撃には 2 つのタイプがあります:</span>
+  </p>
+  <ul>
+    <li>
+      <span>標準 XPath インジェクション</span>
+      <li>
+        <span>ブラインド XPath インジェクション</span>
+      </li>
+    </li>
+  </ul>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 1: 標準 XPath インジェクション</em>
+    </span>
+  </h2>
+  <p>
+    <span>このシナリオと次のシナリオを理解するには、XPath クエリの背景について把握している必要があります。<span>&nbsp;&nbsp; </span>XPath は以下に示すファイルのような XML データをクエリする言語です:</span>
+  </p>
+ <pre>
+    <span>&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt; <br />&lt;users&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;user&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;username&gt;johns&lt;/username&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;password&gt;abc123&lt;/password&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;fullname&gt;John Smith&lt;/fullname&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/user&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;user&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;username&gt;billg&lt;/username&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;password&gt;qwerty&lt;/password&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;fullname&gt;Bill Graves&lt;/fullname&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/user&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;user&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;username&gt;mrt&lt;/username&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;password&gt;pr1v@t3&lt;/password&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;account&gt;Mr. T&lt;/account&gt; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/user&gt; <br />&lt;/users&gt;<br />&nbsp;</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>XPath クエリは、ルート ノードからノードを選択するのに使用されるバックスラッシュ (/) およびドット (.) が含まれた式および <i>when</i> 条件を含める場合に使用される角かっこ ([]) で囲まれた述語で構成されます:</span>
+  </p>
+ <pre>
+    <span>/users/user/username&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+  </pre>
+ <pre>
+    <span>/users/user[username/text() ='johns'] </span>
+  </pre>
+  <p>
+    <span>最初のクエリはすべての username ノードを返しますが、2 番目のクエリは述語を使用して文字列 <i>johns</i> に一致するすべての username を検索します。</span>
+  </p>
+  <p>
+    <span>一般的なシナリオでは、XPath を使用して認証を実行します。<span>&nbsp; </span>たとえば、次のクエリは Web フォームからユーザー名とパスワードを取得し、有効なユーザー [i] のものと一致するかどうかチェックします:</span>
+  </p>
+ <pre>
+    <span>//users/user[username/text()='" + Request.QueryString("username") + "' and password/text()='" + Request.QueryString("password") + "']";</span>
+  </pre>
+  <p>
+    <span>ユーザーが安全な値 (</span>
+    <span>username=test, password=123</span>
+    <span>) を入力した場合、アプリケーションは標準の認証クエリを構築します:</span>
+  </p>
+ <pre>
+    <span>//users/user[username/text()='test' and password/text()='123']</span>
+  </pre>
+  <p>
+    <span>しかし、攻撃者は Web フォームを使用して以下のインジェクション文字列をユーザー名とし、123 をパスワードとして送信することができます:</span>
+  </p>
+ <pre>
+    <strong>
+      <span>user' or '1' = '1</span>
+      <span>
+      </span>
+    </strong>
+  </pre>
+  <p>
+    <span>結果の XPath クエリは次のように表示されます:</span>
+  </p>
+ <pre>
+    <span>/users/user[username/text()='<strong><span>user' or '1' = '1</span>'</strong> and password/text()='123']</span>
+  </pre>
+  <p>
+    <span>SQL と異なり、XPath では残りの式をコメントすることができないため、攻撃者は <i>or</i> 条件を挿入する必要があり、パスワードのチェックが問題にされなくなります。<span>&nbsp; </span>変更されたクエリはすべてのユーザーに返されて、その結果は、使用している認証スキームに対する攻撃です。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>シナリオ 2: ブラインド XPath インジェクション</em>
+    </span>
+  </h2>
+  <p>
+    <span>ブラインド SQL インジェクションと同様に、ブラインド XPath インジェクションは true および false 条件を使用して機密情報を推測します。<span>&nbsp; </span>たとえば、ある攻撃者が別のユーザーのパスワードを取得しようとしますが、Web アプリケーションに強制してパスワードを画面に表示させる方法がありません。<span>&nbsp; </span>攻撃者はブラインド XPath インジェクションを使用して被害者のパスワードを一文字ずつ盗みます。<span>&nbsp; </span></span>
+  </p>
+  <p>
+    <span>以下の例では、攻撃者は既に有効なアカウント (</span>
+    <span>johns</span>
+    <span>) を使用してログインし、別のユーザーのパスワードを盗もうと試みています。<span>&nbsp;&nbsp; </span>攻撃者はこの攻撃文字列を渡してドキュメント ツリー (</span>
+    <span>"mrt"</span>
+    <span>) の 3 番目のユーザーのパスワードが </span>
+    <span>"a" [ii]</span>
+    <span>で開始するかどうかチェックします:</span>
+  </p>
+ <pre>
+    <strong>
+      <span>johns' and substring((//user[position()=3]/child::node()[position()=2]),1,1)="a" and '1' = '1</span>
+      <span>
+      </span>
+    </strong>
+  </pre>
+  <p>
+    <span>結果の XPath クエリは以下のように表示されます (攻撃者は有効なユーザー名とパスワードを渡す必要があることに留意してください)。 ステートメントは </span>
+    <span>substring()</span>
+    <span> 条件が true の場合にのみ true を返します:&nbsp;<span> </span></span>
+  </p>
+ <pre>
+    <span>/users/user[username/text()='<span><strong>johns' and substring((//user[position()=3]/child::node()[position()=2]),1,1)="a" and '1' = '1</strong></span>' and password/text()='</span>
+    <span>abc123</span>
+    <span>']</span>
+  </pre>
+  <p>
+    <span>攻撃者は同様のブラインド コマンドを巧妙に作成し、</span>
+    <span>string-length() を使用してデータの長さをチェックすることができます。</span>
+    <span>
+      <span>&nbsp; </span>たとえば、次のクエリは、ターゲットのパスワードの長さが 7 の場合に true を返します:</span>
+  </p>
+ <pre>
+    <span>/users/user[username/text()='<span><strong>johns' and string-length(//user[position()=3]/child::node()[position()=2]) and '1' = '1</strong></span>' and password/text()='</span>
+    <span>abc123</span>
+    <span>']</span>
+  </pre>
+  <p>
+    <span>攻撃者は、</span>
+    <span>count(), contains()</span>
+    <span> のような追加の関数を使用して XML ストアのコンテンツとその構造の両方を露出することができます。<span>&nbsp; </span>XML ドキュメントの論理と階層を探索することは、<i>XML クロール</i>と呼ばれています。</span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>手順 2: <span> </span>原因と対策を分析する</span>
+  </h1>
+  <p>
+    <span>XPath インジェクション バグをテストするための以下の手順では、その原因とそれらを防御する方法について理解します。</span>
+  </p>
+  <h2>
+    <span>
+      <em>XPath インジェクションの原因</em>
+    </span>
+  </h2>
+  <p>
+    <span>XPath インジェクション バグは、入力検証が不十分であったことと、XPath クエリで使用されるパラメータを削除できなかったために存在します。<span>&nbsp; </span>たとえば、以下の PHP コードについて考慮します:</span>
+  </p>
+ <pre>
+    <span>&lt;?php<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $xml = simplexml_load_file("users.xml");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $result = $xml-&gt;xpath("//users/user[username/text()='"<strong>. $_GET['name'] </strong>. "']");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print_r($result);<br />?&gt;</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>
+    <span>PHP アプリケーションは、挿入されたコマンドをチェックせずに XPath クエリで URL パラメータ</span>
+    <span>name</span>
+    <span> に渡された値を使用します。 </span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>アプリケーションが XPath クエリを実行するのに使用する API 関数を調べてください。<span>&nbsp;&nbsp; </span>この表では、一般的な XPath API をいくつか示します:</span>
+    <span>&nbsp;</span>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+ <pre>
+            <b>
+              <span>Class/API</span>
+            </b>
+          </pre>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>言語</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>XPath.compile() </span>
+          </pre>
+ <pre>
+            <span>XPathExpression.evaluate()</span>
+          </pre>
+ <pre>
+            <span>&nbsp;</span>
+          </pre>
+ <pre>
+            <span>&nbsp;</span>
+          </pre>
+        </td>
+        <td>
+          <p>
+            <span>Java</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+ <pre>
+            <span>XPathNavigator.Select()</span>
+          </pre>
+          <p>
+            <span>XPathNavigator.Evaluate()</span>
+            <span>
+            </span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>ASP .NET</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>xpath()</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>PHP</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>findvalue()</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>Perl</span>
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>XPath インジェクションの対応策</em>
+    </span>
+  </h2>
+  <p>
+    <span>XPath インジェクションの脆弱性はユーザー入力を削除することによって、防ぐことができます。<span>&nbsp; </span>特に、アプリケーションはユーザーによって入力される一重引用符または二重引用符を XPath クエリとして許可しないようにする必要があります。<span>&nbsp;&nbsp; </span>入力がユーザーから直接行われない場合がありますが、データベースや環境変数などの持続型データ ソースから読み込めます。<span>&nbsp;&nbsp; </span>その場合、アプリケーションはデータ ソースから送信されるデータと XPath クエリに送信されるデータを削除する必要があります。</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>推奨するメソッド [iii] にはすべての一重引用符のエスケーピング (VB) があります:</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>Dim FindUserXPath as String<br />FindUserXPath = "//Employee[UserName/text()='" &<br />Request("Username").Replace("'", "&apos;") & "' And<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Password/text()='" & Request("Password").Replace("'", "&apos;") & "']"<br /></span>
+  </pre>
+  <p>
+    <span>その他のメソッドにはパラメータ化された XPath クエリを使用してユーザー入力を適切に処理する方法があります。 </span>
+  </p>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>手順 3: <span> </span>テストと調査を開始する</span>
+  </h1>
+  <p>
+    <span>これで、XPath インジェクション攻撃の内部構造を理解し、原因と対応策の両方を認識することができたので、 &nbsp;<span></span>引き続き基本的な XPath インジェクション ブラック ボックスのテスト ケースを実行し、結果を調査します。</span>
+  </p>
+  <h2>
+    <span>
+      <em>単純なテスト文字列で開始する</em>
+    </span>
+  </h2>
+  <p>
+    <span>ほとんどすべての XPath インジェクション文字列には一重引用符か二重引用符のいずれかが含まれている必要があります。<span>&nbsp; </span>最初のテスト パスには引用符が含まれた文字列を送信してアプリケーションがどのように反応するかを見ます:</span>
+  </p>
+ <pre>
+    <span>
+      <strong>abc'xyz"</strong>
+    </span>
+  </pre>
+  <p>
+    <span>サーバーがエラー メッセージを返さずに XPath クエリにこの文字列を使用する場合は、XPath インジェクション バグをほぼ確実に見つけることができます。</span>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>標準的な XPath インジェクション認証回避のテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>ハードウェア要件:&nbsp;<span> </span>Web アプリケーションを実行する 1 台のクライアント コンピュータと 1 台のサーバー コンピュータ。</span>
+  </p>
+  <p>
+    <span>ツール:&nbsp;<span>&nbsp; </span>Web ブラウザ。</span>
+  </p>
+  <p>
+    <span>テストの手順:</span>
+  </p>
+  <ol>
+    <li>
+      <span>クライアント コンピュータで、 Web ブラウザを開いて XPath を使用するサーバーの認証ページに移動します。</span>
+      <li>
+        <span>含まれている文字列 (最初はユーザー名で次にパスワード) と追加の true コマンドを入力します。</span>
+        <li>
+          <span>サーバーに認証フォームを送信します。</span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>アプリケーションはクライアントを認証するべきではありません。<span>&nbsp; </span></span>
+  </p>
+  <p>
+    <b>
+      <span>
+      </span>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>標準的な XPath インジェクション情報漏えいのテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>ハードウェア要件:&nbsp;<span> </span>Web アプリケーションを実行する 1 台のクライアント コンピュータと 1 台のサーバー コンピュータ。</span>
+  </p>
+  <p>
+    <span>ツール:&nbsp;<span>&nbsp; </span>Web ブラウザ。</span>
+  </p>
+  <p>
+    <span>テストの手順:</span>
+  </p>
+  <ol>
+    <li>
+      <span>クライアント コンピュータで、Web ブラウザを開いて、サーバーが XPath クエリを構築するために使用する Web フォームまたは他のエントリ ポイントに移動します。</span>
+      <li>
+        <span>別のユーザーのノードで XPath クエリを実行する追加のコマンドが含まれた文字列を入力します。</span>
+        <li>
+          <span>フォームをサーバーに送信します。</span>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>アプリケーションは他のユーザーの XML ノードからデータが含まれたレスポンスを送信するべきではありません。</span>
+  </p>
+  <p>
+    <b>
+      <span>
+      </span>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>ブラインド XPath インジェクション情報漏えいのテスト</em>
+    </span>
+  </h2>
+  <p>
+    <span>ハードウェア要件:&nbsp;<span> </span>Web アプリケーションを実行する 1 台のクライアント ボックス コンピュータと 1 台のサーバー コンピュータ。</span>
+  </p>
+  <p>
+    <span>ツール:&nbsp;<span>&nbsp; </span>Web ブラウザ。</span>
+  </p>
+  <p>
+    <span>テストの手順:</span>
+  </p>
+  <ol>
+    <li>
+      <span>クライアント コンピュータで、Web ブラウザを開いて、サーバーが XPath クエリを構築するために使用する Web フォームまたは他のエントリ ポイントに移動します。</span>
+      <li>
+        <span>XML ストアの機密情報の一部のナレッジを収集する追加のコマンドが含まれた文字列を入力します。</span>
+        <li>
+          <span>フォームをサーバーに送信します。</span>
+          <li>
+            <span>目的の情報が完全に露出されるまで、手順 2 と 3 を繰り返します。</span>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <p>
+    <span>
+    </span>
+  </p>
+  <p>
+    <span>予想される結果:&nbsp;<span> </span>アプリケーションは目的の情報を露出するべきではありません。</span>
+  </p>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>手順 4: <span> </span>テスト ケース データを微調整する</span>
+  </h1>
+  <p>
+    <span>最後に、適切なテスト ケースの対象範囲を獲得するには、さまざまなアプリケーション エントリ ポイントからテスト ケースを送信し、各エントリ ポイントおよび実行可能な各攻撃のタイプに必要なデータ形式に応じてテスト データの形式を適用する必要があります。<span>&nbsp;&nbsp; </span></span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h2>
+    <span>
+      <em>エントリ ポイントに応じてテスト ケース データ形式を調整する</em>
+    </span>
+  </h2>
+  <p>
+    <span>インジェクション バグをテストする場合と同様に、テスト用のエントリ ポイントに応じてテスト ケースで使用されるデータを適用することが重要です。<span>&nbsp; </span>たとえば、URL パラメータからテストする場合、最初の文字列は URL エンコーディング スキームに応じて 2 番目または 3 番目の文字列のように見える場合があります:</span>
+  </p>
+  <p>
+    <span>
+    </span>
+  </p>
+ <pre>
+    <span>user' or '1' = '1</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>original test string</span>
+  </pre>
+ <pre>
+    <span>user'+or+'1'+=+'1<span></span></span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>string under URL encoding schema 1</span>
+  </pre>
+ <pre>
+    <span>user'%20or%20'1'%20=%20'1</span>
+    <span>
+      <span>&nbsp;&nbsp;&nbsp; </span>string under URL encoding schema 2<span></span></span>
+  </pre>
+  <p>
+    <span>URL パラメータ、 Web フォーム フィールド、Web サービス メソッド、Flash パラメータなど、さまざまなエントリ ポイントのテスト ケース形式を調整することを考慮する必要があります。</span>
+  </p>
+  <p>
+    <b>
+      <i>
+        <span>&nbsp;</span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>さまざまな攻撃オブジェクトに応じてテスト ケース データを微調整する</em>
+    </span>
+  </h2>
+  <p>
+    <span>最後に、テスト ケースを実行する攻撃の目的に応じて変化や構成を考慮する必要があります。<span>&nbsp;&nbsp; </span>以下の表では、目的に応じたテスト ケースの構成を示します。</span>
+  </p>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <p>
+            <b>
+              <span>構成</span>
+            </b>
+          </p>
+        </td>
+        <td>
+          <p>
+            <b>
+              <span>攻撃の目的</span>
+            </b>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span>
+            <br />
+          </span>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>a' or '1=1'</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>a" or "1"="1</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>a'] or '1'='1</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>a"] or "1"="1</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>' or 1=1 or ''='</span>
+          </p>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>認証の回避</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>(string-length(S))</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>(substring(S,N,1))</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>count(//user/child::node())</span>
+          </p>
+          <p>
+            <span>&nbsp;</span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>ブラインド XPath インジェクション</span>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>namespace-uri(path)<a style="mso-endnote-id: edn4" name="_ednref4" href="about:blank#_edn4" title=""><span><span><span><span>[iv]</span></span></span></span></a></span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>name(path)</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>count(path/child::node())</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>count(path/child::text())</span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>count(path/child::comment()) </span>
+          </p>
+          <p>
+            <span>
+              <span>•&nbsp;<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span>
+            </span>
+            <span>count(path/child::*) count(path/child::processing-instruction()) </span>
+          </p>
+        </td>
+        <td>
+          <p>
+            <span>XML クロール</span>
+          </p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>
+    <span>XPath インジェクションは、認証を回避させて XML ドキュメント全体にアクセスできるようにする脆弱性です。<span>&nbsp; </span>これは、脆弱なアプリケーションがユーザー入力の適切な検証と削除を行うことができないことと、入力を XPath クエリの一部として使用することに原因があります。<span>&nbsp;&nbsp; </span>標準的または単純な XPath インジェクション、ブラインド XPath インジェクション、および XML クロールといったテスト用の XPath インジェクションのタイプに応じてさまざまなテスト ケースを実行できます。<span>&nbsp; </span></span>
+  </p>
+  <p>
+    <span>&nbsp;</span>
+  </p>
+  <div>
+    <br />
+    <hr />
+    <div>
+      <p>
+        <span>[i] <strong>OWASP - XPath インジェクションの概要</strong> Roberto Suggi Liverani <a href="http://www.owasp.org/index.php/XPATH_Injection">http://www.owasp.org/index.php/XPATH_Injection</a></span>
+      </p>
+      <p>
+        <span>
+        </span>
+      </p>
+    </div>
+    <div>
+      <p>
+        <span>[ii] </span>
+        <span>
+          <b>OWASP – ブラインド XPath インジェクション</b>
+          <a href="http://www.owasp.org/index.php/Blind_XPath_Injection">http://www.owasp.org/index.php/Blind_XPath_Injection</a>
+        </span>
+        <span>&nbsp;</span>
+      </p>
+    </div>
+    <div>
+      <p>
+        <span>[iii]&nbsp;</span>
+        <span>
+          <b>OWASP -XPath インジェクション</b>
+          <a href="http://www.owasp.org/index.php/XPath_Injection">http://www.owasp.org/index.php/XPath_Injection</a>
+        </span>
+      </p>
+      <p>
+        <span>
+        </span>
+      </p>
+    </div>
+    <div>
+      <p>
+        <span>[iv]&nbsp;</span>
+        <span>
+          <b>ブラインド</b>
+          <b>XPath</b>
+          <b>インジェクション</b>Amit Klein <a href="http://www.modsecurity.org/archive/amit/blind-xpath-injection.pdf">http://www.modsecurity.org/archive/amit/blind-xpath-injection.pdf</a></span>
+      </p>
+      <p>
+        <span>&nbsp;</span>
+      </p>
+    </div>
+  </div>]]></Data>
+  </Content>
+</TeamMentor_Article>

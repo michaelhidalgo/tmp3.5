@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1287903988" Content_Hash="800988086">
+  <Metadata>
+    <Id>d137bd35-de5a-4035-91c8-15b796ca2c7f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>展開中に Forms Authentication および認可を保護する方法</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>アプリケーションが Forms Authentication を使用する場合、Forms Authentication が<b>フォーム</b> および <b>machineKey</b> エレメントの適切な構成により保護されるようにします。 認証およびロール Cookie は暗号化され、完全性が確認されることを確かめます。 <b> authorization </b> エレメントが適切に構成され、アプリケーションの機微情報を持つページへのアクセスが制限されることを確かめます。 <b>maxRequestLength</b> エレメントの <b>httpRuntime</b> 属性でファイル アップロードの限度を構成し、IISから不要なMIME 型のマッピングを削除して、使用していないASP.NETファイル拡張子を<b>httpHandlers</b> セクションの<b>HttpForbiddenHandler</b> クラスにマッピングすることで、使用していないファイル形式のダウンロードを防止します。 ヘルス モニタリングを使用して、ログインの試行など、セキュリティに関連するイベントをログ記録します。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

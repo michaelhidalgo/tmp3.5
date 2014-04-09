@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1157502061" Content_Hash="969949998">
+  <Metadata>
+    <Id>9557bf26-cc8e-4bcc-8588-3e07d127b4fc</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構造化例外処理の使用</Title>
+    <Category>エラー ハンドリング</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>例外条件をキャッチするために構造化例外処理を使用してください。 エラー処理を実施するためにファンクションの戻り値を信頼しないでください。</p>
+  <h1>理由</h1>
+  <p>エラー処理に対する従来の代表的なアプローチは、特定のオペレーションの成功または失敗を評価するために関数が返すコードを使用することでした。 しかし、重要な関数呼び出し階層では、このアプローチは、コードが非常に乱雑になります。 すべての関数で、すべての関数呼び出しの戻り値を確認し、エラーを管理する必要があります。 ほとんどの場合、関数はすべてのエラーを単に呼び出し元に戻します。 複雑な ASP.NET アプリケーションは、数百の内部関数および多数のレベルのコール ヒエラルキーを備えている可能性があるため、このアプローチを維持することは困難です。 構造化例外処理は、アプリケーション コードを簡略化および整理整頓し、それは頑健性を改善し、アプリケーションを一貫性のない状態のままに残すことを避けます。 遭遇したエラーに関する詳細をアプリケーションに提供し、情報漏えいの危険性を最小限に抑えます。 </p>
+  <h1>状況</h1>
+  <p>あるプログラムでエラーまたは例外条件が発生する可能性がある場合は、必ず構造化例外を使用します。 関数で例外が発生する可能性があるならば、やがて例外が発生すると想定することは理にかなっています。 すべての例外は次のように扱われます&amp;#33;</p>
+  <h1>対策</h1>
+  <p>例外ハンドラーは、可能な限り具体的で関連性のある必要があります。 複数の例外が予想される場合、try /catch ブロックは各種類の例外を満たすために複数の catch 句を持っている必要があります。 アプリケーションの例外ハンドラーを作成する場合は、次の戦略を検討します。</p>
+  <ul>
+    <li>
+      <p>
+        <strong>ハンドラーの場所。</strong> アプリケーションの他の部分を損傷させずにコードを適切に復元する場合、例外ハンドラーの場所は非常に重要です。 ハンドラーを例外のソースに置くと、アプリケーションが現在の動作に関してより良い情報を持つこと、および適切なリソースをしっかりと復元することが可能になります。</p>
+      <li>
+        <p>
+          <strong>ハンドラーの目的。</strong> 例外ハンドラーの目的は慎重に選択してください。 開発者は一般的にコード失敗後に例外ハンドラーを使用して終了しますが、例外ハンドラーは割り当てられたリソースを復元して安全に破棄するメカニズムを提供します。 例外がスローされた場合、関連リソースを追跡し続け、それに応じて処理します。 例えば、コードが SQLException をスローする場合、アプリケーションのデータベース コンポーネントが安全な状態に戻っていることを確認します。 コードが機微データを処理する場合、コードのブロック内にある機微データのすべてのインスタンスが安全に破棄されたことを確認してください。</p>
+        <li>
+          <p>
+            <strong>例外データ。</strong> 問題のトラブルシューティングを補助するために例外をログすることは一般的なプラクティスであるため、ログされたらアプリケーションのユーザーや資産を危険にさらすような機微データが例外に含まれていないことを確認してください。</p>
+          <li>
+            <p>
+              <strong>ハンドラーの種類。</strong> エラー遭遇時に正常状態の動作に復元するアプリケーションの努力に一番適合する例外の種類を必ずキャッチします。 アプリケーションのブロックが複数の種類の例外をスローすることが予期されている場合、各例外タイプがそれに応じて処理されていることを確認してください。 例えば、SQLException と SecurityException が予想されている場合、各種類の例外に対して例外ハンドラーがある必要があります：</p>
+ <pre>try<br />&amp;#123;<br />    // Execute SQL statement<br />&amp;#125;<br />catch (SqlException sqlEx)<br />&amp;#123;<br />    // Add appropriate exception handling<br />    // E.g.: Check database connectivity and restore lost connections<br />     // Log the event<br />&amp;#125;<br />catch (SecurityException secEx)<br />&amp;#123;<br />    // Add appropriate exception handling<br />    // E.g.: Notify the user of insufficient privileges <br />    // Log the event<br />&amp;#125;</pre>
+            <p>
+              <strong>注意:</strong> 上記の例は、コード実行のrootにグローバル例外処理メカニズムが配置されていることを想定しています。 詳細については <a href="/article/33a894ce-2061-4741-be92-1d063c9cf057">未処理の例外にはグローバル例外ハンドラーを使用</a> ガイドラインを参照してください。 </p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>問題の例</h1>
+  <p>次のコードは、アプリケーションのバックエンド データベースにクエリーを行うコンポーネントを表示します。 開発者は System.Exception 型の単一の例外を try/catch ブロック全体に割り当てているため、例外がスローされたときにアプリケーションが適切に応答できません。</p>
+ <pre>try<br />&amp;#123;<br />    ...<br />    command = new SqlCommand(query, connection);<br />    ...<br />    result = command.ExecuteReader();<br />&amp;#125;<br />catch (Exception e)<br />&amp;#123;<br />    // Add appropriate exception handling<br />    // E.g.: Notify the user that the request cannot be completed<br />    // Log the event<br />&amp;#125;</pre>
+  <h1>ソリューションの例</h1>
+  <p>次のコードは、アプリケーションのバックエンド データベースにクエリーを行うコンポーネントを表示します。 開発者は、適切なタイプの各例外にキャッチ ブロックを割り当てました。 そのため、スローされるあらゆる例外をアプリケーションが適宜に処理することが可能になりました。</p>
+ <pre>try<br />&amp;#123;<br />    ...command = new SqlCommand(query, connection);<br />     ...result = command.ExecuteReader();<br />&amp;#125;<br />catch (SqlException se)<br />&amp;#123;    // Add appropriate exception handling<br />     // E.g.: Check database connectivity and restore lost connections<br />     // Log the event<br />&amp;#125;<br />catch (Exception e)<br />&amp;#123;    // Add appropriate exception handling<br />     //E.g.: Notify the user that the request cannot be completed<br />     // Log the event<br />&amp;#125;</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET での System.Exception クラスと例外階層の詳細については、MSDN の<a href="http://msdn2.microsoft.com/en-us/library/system.exception(vs.80).aspx">例外クラス</a> 関連文書を参照してください。 </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/33a894ce-2061-4741-be92-1d063c9cf057">ガイドライン：処理されない例外に対してグローバル例外ハンドラーを使用</a>
+      <li>
+        <a href="/article/74be8616-ad22-4d1d-a7fc-8ff3d145fc61">ガイドライン：クライアントに例外の詳細を開示しない</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

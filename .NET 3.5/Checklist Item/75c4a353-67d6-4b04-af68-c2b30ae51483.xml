@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-654419305" Content_Hash="423725119">
+  <Metadata>
+    <Id>75c4a353-67d6-4b04-af68-c2b30ae51483</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>認証 Cookie の HttpOnlyCookies 属性は True に設定される</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>お使いのアプリケーションで、クライアント側スクリプトが認証 Cookie にアクセスできないようにするために Cookie の <strong>httpOnlyCookies</strong> 属性が true に設定されていることを確認してください。</p>
+  <h1>修正方法</h1>
+  <p>認証 Cookie の <b>httpOnlyCookies</b> 属性を設定してください。 Internet Explorer 6 サービス パック 1 では、クライアント側スクリプトが <b>document.cookie</b> プロパティから Cookie にアクセスできないようにする、この属性がサポートされています。 <b>System.Net.Cookie</b> クラスでは、<b>HttpOnly</b> プロパティがサポートされています。 <b>HttpOnly</b> プロパティは、Forms Authentication によって常に true に設定されています。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

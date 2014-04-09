@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="507410189" Content_Hash="-1135752993">
+  <Metadata>
+    <Id>9b990da6-f0e8-4947-8095-88faf5d09114</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>データの暗号化のために暗号化アルゴリズムを使用する方法</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p><b>System.Security.Cryptography</b> ネームスペースのクラスを使用すると、さまざまな暗号化アルゴリズムでデータを暗号化できます。 RC2、TripleDES および Rijndael のような対称暗号化アルゴリズムを使用して、大量データを暗号化してください。 少量データの暗号化には、RSAのような非対称暗号化アルゴリズムを使用してください。 また、対称暗号鍵を暗号化するために非対称暗号化の使用を検討してください。 </p>
+  <p>次のコードは、<b>RijndaelManaged</b> クラスを使用して対称暗号化を使用し、データを暗号化する方法を表示します。</p>
+ <pre>using System.Security.Cryptography;<br />using System.IO;<br />RijndaelManaged myRijndael = new RijndaelManaged();<br />// Create a new key and initialization vector.<br />// If a key is not provided, a key of appropriate length is<br />// automatically generated. You can retrieve its value through the Key<br />// property. Similarly, an initialization vector is automatically<br />// generated if you do not specify one.myRijndael.GenerateKey();<br />myRijndael.GenerateIV();<br />// Get the key and IV.<br />byte[] key = myRijndael.Key;<br />byte[] iv = myRijndael.IV;<br />// Get the encryptor.<br />ICryptoTransform encryptor = myRijndael.CreateEncryptor(key, IV);<br />// Define a new <b>CryptoStream</b> object to hold the encrypted bytes<br />// and encrypt the data.MemoryStream msEncrypt = new MemoryStream();<br />CryptoStream csEncrypt = new CryptoStream(msEncrypt,<br />                                    encryptor, CryptoStreamMode.Write);<br />// Convert the data to a byte array.ASCIIEncoding textConverter = new ASCIIEncoding();<br />byte[] toEncrypt = textConverter.GetBytes("Secret data to encrypt");<br />// Encrypt the data by writing it to the <b>CryptoStream</b> object.<br />// Write all data to the crypto stream and flush it.<br />csEncrypt.Write(toEncrypt, 0, toEncrypt.Length);<br />csEncrypt.FlushFinalBlock(); <br />// Get encrypted array of bytes from the memory stream.<br />byte[] encrypted = msEncrypt.ToArray();<br />// Pass the encrypted data to a recipient. The recipient needs to know the<br />// key and initialization vector used for encryption. You can also <br />// encrypt your secret key by using a public key algorithm, and then <br />// pass it to the message recipient with the encrypted message.<br />// Get a decryptor that uses the same key and IV as the encryptor.<br />ICryptoTransform decryptor = myRijndael.CreateDecryptor(key, iv);<br />// Now decrypt the previously encrypted data using the decryptor.<br />MemoryStream msDecrypt = new MemoryStream(encrypted);<br />CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor,<br />                                            CryptoStreamMode.Read);<br />byte[] fromEncrypt = new byte[encrypted.Length];<br />// Read the data out of the crypto stream.csDecrypt.Read(fromEncrypt, 0, fromEncrypt.Length);<br />// Convert the byte array back into a string.<br />string roundtrip = textConverter.GetString(fromEncrypt);<br />// Display the original data and the decrypted data.<br />Console.WriteLine("Original:   {0}", original);<br />Console.WriteLine("Round Trip: {0}", roundtrip);</pre>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

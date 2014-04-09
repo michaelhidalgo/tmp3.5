@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1322066032" Content_Hash="107252338">
+  <Metadata>
+    <Id>1a3a2282-69b8-4f9f-b1e7-566ce25fe55c</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアントのサービス メタデータを公開する方法</Title>
+    <Category>ネットワーキング</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>クライアントへサービス メタデータを公開するには:</p>
+  <ol>
+    <li>サービスが HTTP バインディングを使用する場合、http get または https get 経由でメタデータを有効にする必要があります。 トランスポート セキュリティを使用していない場合、 HTTP get が必要になります。 トランスポート セキュリティを使用している場合、 HTTPS get が必要になります。 この構成とのトレードオフは、クライアントがブラウザを使用してサービス メタデータをブラウズできることです。
+<ol><pre>&lt;serviceMetadata httpsGetEnabled="true" /&gt;<br />&lt;serviceMetadata httpGetEnabled="true"  /&gt;</pre></ol><li>サービスが HTTP バインディングを使用する場合、http get または https get を有効にしなくても mex エンドポイントを使用できます。 このケースでは、クライアントは mex エンドポイントを使用してプロキシを作成できるのに対し、ブラウザはメタデータをブラウズできません。 この構成とのトレードオフにより、IIS が匿名の認証を有効にしていなければ mex エンドポイントは利用できません。
+<ol><pre>&lt;system.serviceModel&gt;<br />    &lt;services&gt;<br />      &lt;service behaviorConfiguration="" name="Service"&gt;<br />        &lt;endpoint address="" binding="wsHttpBinding" bindingConfiguration=""<br />          name="WsBinding" contract="IService" /&gt;<br />        &lt;endpoint address="mex" binding="mexHttpBinding" bindingConfiguration=""<br />          name="mexendpoint" contract="IMetadataExchange" /&gt;<br />      &lt;/service&gt;<br />    &lt;/services&gt;<br />   …. <br />  &lt;/system.serviceModel&gt;</pre></ol><li>サービスが HTTP バインディングを使用する場合、http get または https get を有効にしなくても IMetadataExchange を実装するカスタム エンドポイントを使用できます。 このケースでは、ブラウザはmex エンドポイントを使用してプロキシを作成できますが、メタデータをブラウズすることはできません。 さらに、全ての認証スキームで mex エンドポイントを使用できます。
+<ol><pre>  &lt;services&gt;<br />    &lt;service behaviorConfiguration="returnFaults" name="MyService"&gt;<br />      &lt;endpoint binding="wsHttpBinding" bindingConfiguration=""<br />        name="wsHttpEndpoint" contract="IService" /&gt;<br />      &lt;endpoint address="mex" binding="wsHttpMexBinding" <br />        bindingConfiguration=""<br />        name="mexEndpoint" contract="IMetadataExchange" /&gt;<br />    &lt;/service&gt;<br />  &lt;/services&gt;<br />…</pre></ol><li>サービスが HTTP バインディングを使用しない場合、サービス メタデータを構成し、mex エンドポイントを作成する必要があります。
+<ol><pre>&lt;system.serviceModel&gt;<br />    &lt;behaviors&gt;<br />      &lt;serviceBehaviors&gt;<br />        &lt;behavior name="BehaviorConfiguration"&gt;<br />          &lt;serviceDebug includeExceptionDetailInFaults="true" /&gt;<br />          &lt;serviceMetadata /&gt;<br />        &lt;/behavior&gt;<br />      &lt;/serviceBehaviors&gt;<br />    &lt;/behaviors&gt;<br />    ….<br />    &lt;services&gt;<br />      &lt;service behaviorConfiguration="BehaviorConfiguration" name="WCFServicecHost.MyService"&gt;<br />        &lt;endpoint address="Mex" binding="mexTcpBinding" bindingConfiguration=""<br />          name="MexEndpoint" contract="IMetadataExchange" /&gt;<br />        &lt;endpoint address="" binding="netTcpBinding" bindingConfiguration="BindingConfiguration"<br />          name="TcpBinding" contract="WCFServicecHost.IMyService" /&gt; <br />      &lt;/service&gt;<br />    &lt;/services&gt;<br /> &lt;/system.serviceModel&gt;</pre></ol></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細は、<a href="http://msdn.microsoft.com/en-us/library/ms733114.aspx">http://msdn.microsoft.com/en-us/library/ms733114.aspx にある「ハウツー:メタデータのエンドポイントをセキュアにする」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

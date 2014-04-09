@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-517186165" Content_Hash="842113154">
+  <Metadata>
+    <Id>dd0e4abb-9f8d-4dcb-afbd-583a12aef774</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアントへの証明書の配布を合理化する必要がある場合は、サービス Credential 情報の協定を検討する</Title>
+    <Category>通信セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>クライアントへの証明書配布を効率化する必要がある場合は、サービス Credential 情報の交渉を検討してください。</p>
+  <h1>対策</h1>
+  <p>メッセージ暗号化のためのクライアントへの証明書配布を効率化する必要がある場合は、サービス Credential 情報の交渉を有効することを検討してください。 このオプションは wsHttpbindin のみで提供されています。 このオプションを有効にした場合、非 Microsoft クライアントはサービスを実行できませんのでご注意ください。 メッセージの交換が発生するため、Credential 情報の交渉はパフォーマンスが落ちることを考慮してください。 更に、サービス Credential 情報のセキュリティはあまり強くなく、どのクライアントでもサービスが実行できてしまうことも考慮してください。</p>
+  <p>次のバインディング構成ファイルはこのオプションの設定方法を表示します:</p>
+ <pre>&lt;binding name="BindingMessage"&gt;<br />   &lt;security mode="Message"&gt;<br />      &lt;message clientCredentialType="Windows" negotiateServiceCredential="true" /&gt;<br />   &lt;/security&gt;<br />&lt;/binding&gt;<br /></pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>メッセージ保護の詳細については、「メッセージ セキュリティ」 (<a href="http://msdn2.microsoft.com/en-us/library/ms733137.aspx">http://msdn2.microsoft.com/en-us/library/ms733137.aspx) を参照してください。</a><li>メッセージ セキュリティに関する Q&A については、「WCF 3.5 に関する質問と回答」 (<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=WCF%20Questions%20and%20Answers%20%28Q%26A%29&referringTitle=Home) のメッセージ保護のセクションを参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

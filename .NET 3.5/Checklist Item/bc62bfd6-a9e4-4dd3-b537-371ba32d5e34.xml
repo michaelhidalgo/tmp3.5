@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1820681027" Content_Hash="166788867">
+  <Metadata>
+    <Id>bc62bfd6-a9e4-4dd3-b537-371ba32d5e34</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>不要な ASP.NET ファイル タイプ拡張子が、Machine.config において「HttpForbiddenHandler」にマップされています。</Title>
+    <Category>サーバの強化</Category>
+    <Phase>展開</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>チェック対象</h1>
+  <p>不要な ASP.NET ファイル タイプ拡張子が、Machine.config において「HttpForbiddenHandler」にマップされていることをチェックしてください。</p>
+  <p />
+  <h1>修正方法</h1>
+  <p>次の .NET&nbsp;Framework ファイル拡張子は aspnet_isapi.dll にマップされています: .asax,&nbsp;.ascx、.ashx、.asmx、.aspx、.axd、.vsdisco、.jsl、.java、.vjsproj、.rem、.soap、.config、.cs、.csproj、.vb、.vbproj、.webinfo、.licx、.resx、および .resources。</p>
+  <p>.NET Framework は、Machine.config においてファイル拡張子を <b>System.Web.HttpForbiddenHandler</b> と関連付けることにより、クライアントに直接呼び出されるべきではないファイル拡張子を保護します。 初期設定により、次のファイル拡張子は <b>System.Web.HttpForbiddenHandler</b> にマップされます: .asax、.ascx、.config、.cs、.csproj,&nbsp;.vb,&nbsp;.vbproj、.webinfo、.asp、.licx、.resx、および .resources。</p>
+  <p>HTTP ハンドラーの詳細については、<a href="http://msdn2.microsoft.com/en-us/library/aa302432.aspx#c16618429_024">手順 16。 Machine.Config</a> を参照してください。</p>
+  <h3>追加考慮事項</h3>
+  <p>IIS は最初にウェブ要求を処理するため、クライアントに呼び出させたくない .NET&nbsp;Framework ファイル拡張子を、404.dll に直接マップできます。 これは 2 つの&nbsp;タスクを実行します: </p>
+  <ul>
+    <li>404.dll は、要求が ASP.NET に伝達される前に、また、ASP.NET ワーカー プロセスにより処理される前に、それを処理および拒否します。 これにより、ASP.NET ワーカー プロセスによる不要な処理を排除します。 さらに、要求を早期にブロックすることは、良いセキュリティ慣行です。 
+<li>404.dll は、「HTTP 404 - ファイルが見つかりません」というメッセージを返し、<b>System.Web.HttpForbiddenHandler</b> は、「このタイプのページは提供されていません。」というメッセージを返します。ほぼ間違いなく、「ファイルが見つかりません」というメッセージはほとんど情報を暴露しないため、より安全であるとみなされる可能性があります。</li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

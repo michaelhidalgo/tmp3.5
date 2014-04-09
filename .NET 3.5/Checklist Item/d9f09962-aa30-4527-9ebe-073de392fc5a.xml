@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-968076969" Content_Hash="-1052847796">
+  <Metadata>
+    <Id>d9f09962-aa30-4527-9ebe-073de392fc5a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>適切な場面で AllowOverride を False に設定することで構成設定をロックする</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ポリシー設定の強制が適切な場面で<strong>allowOverride</strong> を false に設定することにより、アプリケーションの構成設定がロックされていることを確認してください。</p>
+  <h1>修正方法</h1>
+  <p>&nbsp;個別のアプリケーションが各自のWeb.config ファイルで構成設定をオーバライドすることを防止するには、ディレクトリ <strong>%Windir%\Microsoft.NET\Framework\{version}\CONFIG</strong> にある、マシン レベルの Web.config ファイルで集中的に構成設定を適用してください。</p>
+  <p>Web サーバのすべてのWeb アプリケーション用の構成設定をロックするには、構成設定を &lt;<b>location</b>&gt; エレメント内に ネストされた &lt;<b>system.web</b>&gt; 内に 置き、<b>allowOverride</b> 属性を <b>false</b> に設定してください。</p>
+  <p>次の例では、サーバ上のすべての Web アプリケーションにWindows 認証の使用を強制します:</p>
+  <p>
+ <pre>&lt;location allowOverride="false"&gt;<br /> &lt;system.web&gt;<br />   &lt;authentication mode="Windows"/&gt;<br /> &lt;/system.web&gt;<br />&lt;/location&gt;  </pre>
+  </p>
+  <p>個別の Web アプリケーションに設定を適用し、ロックしたい場合、　&lt;<b>location</b>&gt; エレメントのパス属性を使用し、以下のように Web アプリケーションを特定します：</p>
+  <p>
+ <pre>&lt;location path="Default Web Site/VDirName"&gt;<br />  &lt;system.web&gt;<br />    &lt;authentication mode="Windows"/&gt;<br />    &lt;identity impersonate="false"/&gt;<br />  &lt;/system.web&gt;<br />&lt;/location&gt;  </pre>
+  </p>
+  <p>パスを指定する場合、完全に正しく、Web サイト名および仮想ディレクトリ名を含む必要があります。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

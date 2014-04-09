@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1053005129" Content_Hash="1231242999">
+  <Metadata>
+    <Id>a9e037d8-ed6c-4411-916c-297a4b5bbb04</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>動的に作成されたアセンブリにセキュリティ ポリシーを適用する方法</Title>
+    <Category>コード アクセス セキュリティ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>動的に作成されたアセンブリにセキュリティ ポリシーを適用するには、以下に示すような 3 つのアクセス許可セットおよび証拠を受け入れる{<b>AppDomain.DefineDynamicAssembly</b> メソッドの多重定義を使用します。 </p>
+ <pre>public sealed AssemblyBuilder DefineDynamicAssembly(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AssemblyName name, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AssemblyBuilderAccess access, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Evidence evidence, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PermissionSet requiredPermissions, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PermissionSet optionalPermissions, <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PermissionSet refusedPermissions<br />);<br /></pre>
+  <p>動的アセンブリにセキュリティ ポリシーを適用するのに、必要な許可、オプションの許可、および拒否されたアクセス許可セットを渡すことができます。 証拠を渡すと、CLR は作成された動的アセンブリに対するアクセス許可セットを評価するよう強制されます。 </p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;証拠を受理しない多重定義を使用した場合、CLRは動的アセンブリのアクセス許可セットを評価しません。 代わりに、アクセス許可セットは、コードを放出しているアセンブリのアクセス許可セットから継承されます。</blockquote>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

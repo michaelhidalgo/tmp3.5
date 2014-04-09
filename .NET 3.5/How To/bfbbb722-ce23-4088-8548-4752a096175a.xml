@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1303115639" Content_Hash="-1331252412">
+  <Metadata>
+    <Id>bfbbb722-ce23-4088-8548-4752a096175a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セキュアなマネージ コードを記述する方法</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>セキュリティ問題の少ない管理されたコードを作成するためには、しっかりとした、オブジェクト指向設計原則に基づいて安全なコーディング指針を適用します。 例えば、全ての入力は悪意のあるものであるとした前提で、全ての発信源からの入力を検証します。 ウェブ アプリケーションの場合、これにはサーバ制御、HTML 制御、 Cookie 、クエリ文字列、ネットワーク リソース、ならびに共有データベースといったものが含まれます。 更に信頼性のないインプットはクライアントにエコーして返しません。 ロール ベースの認可を使って、公開クラスおよびクラス メンバーのアクセス制御を提供します。 構造化例外処理を使ってクライアントに一般的なエラーを返します。 アクセスが公開されたコードを制限するためにその種類とメンバーへの可視性を制約します。 接続文字列、暗号鍵、ならびにユーザーアカウント Credential 情報といったような機微データをコードに保存しないでください。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

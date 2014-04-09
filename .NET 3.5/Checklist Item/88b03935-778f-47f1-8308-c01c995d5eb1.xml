@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-166997435" Content_Hash="1995822081">
+  <Metadata>
+    <Id>88b03935-778f-47f1-8308-c01c995d5eb1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>セッション状態サービスは最小限の特権で実行される</Title>
+    <Category>セッション管理</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ASP.NET 状態サービスを実行するローカル システム アカウントに最小特権の原則が適用されていることを確認します。</p>
+  <h1>理由</h1>
+  <p>決意の固いハッカーなら、ASP.NETワーカー プロセスが使用するログイン情報を発見するか、状態サーバにもたらされる Credential 情報にピギーバックできるかも知れません。 これにより、攻撃者は任意にセッション情報を読み取る、さらには状態サーバのセキュリティを侵害することもできます。</p>
+  <h1>チェック方法</h1>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションが、ASP.NET Session State サービスを使用しているかどうかを調べます。 </strong>アプリケーションが ASP.NET Session State サービスを使用しているかどうかを識別するには、次の手順に従います。</p>
+      <ol>
+        <li>IIS 管理ユーティリティを開きます。 <li>アプリケーションの Web サイトを検索します。 <li>アプリケーションを右クリックし、[プロパティ] を選択します。 <li>[ASP.NET] タブを選択します。 <li>[構成の編集] ボタンをクリックします。 <li>[状態の管理]タブを選択します。 <li>セッション状態モードの値を確認してください。 値が状態サーバに設定されている場合、アプリケーションは ASP.NET のセッション状態サービスを使用します。</li></li></li></li></li></li></li>
+      </ol>
+      <li>
+        <p>
+          <strong>ASP.NET Session State サービスによって使用されるアカウントを識別します。 </strong>ASP.NET Session State サービスによって使用されるアカウントを識別するには、次の手順に従います。</p>
+        <ol>
+          <li>[管理ツール] <strong>-&gt;</strong> [サービス] を開きます。 <li>ASP.NET 状態サービスを見つけます。 <li>ASP.NET 状態サービスを右クリックし、[プロパティ] を選択します。 <li>ログオン タブを選択します。 <li>サービスに使用されるアカウントを確認します。</li></li></li></li></li>
+        </ol>
+        <li>
+          <p>
+            <strong>最小特権の原則が ASP.NET のセッション状態サービス アカウントに適用されていることを確認します。 </strong>使用されるアカウントが NT AUTHORITY\NetworkService と異なる場合は、最小特権の原則が適用されていることを確認します。 このアカウントに付与されるべきではない典型的な特権は次のとおりです:</p>
+          <ul>
+            <li>ローカル ログオン<li>管理者特権</li></li>
+          </ul>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>MyApp は、サーバ ファーム内にあり、SQL Server の状態サービスを使用しています。 ASP.NET 状態サーバのユーザーは完全な特権を持ってデータベース上で実行するため、攻撃者はサーバのセキュリティを侵害することができる可能性があり、それがデータベースへの完全な侵害につながります。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>セッション状態モードの詳細については、 <a href="http://msdn2.microsoft.com/en-us/library/ms178586(vs.80).aspx">セッション状態モード</a>&amp;nbsp;を参照してください。on MSDN. <li>正しいセッション ステート ストレージを選択する方法の詳細は、<a href="http://www.ondotnet.com/pub/a/dotnet/2003/03/24/sessionstate.html?page=last">正しいセッション ステート ストレージの選択</a> を参照してください。</li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

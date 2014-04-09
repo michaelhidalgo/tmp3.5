@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1789866" Content_Hash="1938104129">
+  <Metadata>
+    <Id>693e1ae5-e381-41fd-93f7-844aaeca3ef8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>構成ファイル内の機微データが保護されている</Title>
+    <Category>展開の考慮事項</Category>
+    <Phase>展開</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>他の鍵を&amp;nbsp;構成ファイル内に保存されている機微データがすべて保護されていることを確認してください。</p>
+  <h1>理由</h1>
+  <p>構成セクションには一般に、プライバシー上機微なリソース アクセス Credential 情報が含まれています (たとえば、SQL Server リソースに対する接続文字列にはユーザー名とパスワードが含まれています)。 こうした Credential 情報が適切に保護されていない場合、サーバを危険にさらしたりその他ファイルのコピーを入手したりできる攻撃者は Credential 情報の値を読み取ることができるので、予防策として、こうした資格 情報はプレーンテキストで保存すべきでありません。</p>
+  <h1>チェック方法</h1>
+  <p>構成ファイル内の機微データが保護されていることを確認するには、以下の手順を実行してください:</p>
+  <ol>
+    <li>
+      <p>
+        <strong>機微データをすべて特定します。 </strong>構成ファイル内に保存されているすべての機微データの場所を確認します。 機微データの例としては、次のものがあります。ただし、これらに限られません:</p>
+      <ul>
+        <ul>
+          <li>Credential 情報<li>接続文字列<li>暗号鍵<li>ハッシュ化ソルト<li>ディレクトリ パス</li></li></li></li></li>
+        </ul>
+        <li>
+          <p><strong>web.config</strong> 内の次の各セクションは、機微データが頻繁に格納される場所として知られています:</p>
+          <ul>
+            <li>appSettings<li>connectionStrings<li>Identity<li>sessionState</li></li></li></li>
+          </ul>
+          <li>
+            <p>しかし、web.config 内の次の各セクションは、暗号化することが<strong>できません</strong>:</p>
+            <ul>
+              <li>processModel<li>Runtime<li>mscorlib<li>startup<li>system.runtime.remoting<li>configProtectedData<li>Satelliteassemblies<li>cryptographySettings<li>cryptoNameMapping<li>cryptoClasses</li></li></li></li></li></li></li></li></li></li>
+            </ul>
+          </li>
+        </li>
+      </ul>
+      <li>
+        <p>
+          <strong>機微データが暗号化されていることを確認します。 </strong>構成ファイル内の機微データを暗号化することで、このファイルが危険にさらされた場合でも機密性が保証できます。 アプリケーションが構成ファイルにアクセスしたら、使用前に機微データの暗号化が解除されるようにしてください。 web.config 内で機微データの場所を確認すると、次のようになっているはずです:</p>
+ <pre>&lt;connectionStrings&gt;<br />  &lt;EncryptedData&gt;<br />    &lt;CipherData&gt;<br />      &lt;CipherValue&gt;GHAFQEW234A21...&lt;/CipherValue&gt;<br />    &lt;/CipherData&gt;<br />  &lt;/EncryptedData&gt;<br />&lt;/connectionStrings&gt;</pre>
+        <li>
+          <p>
+            <strong>Windows 偽装の Credential 情報が aspnet_setreg ユーティリティを使用して暗号化されていることをチェックします。 </strong>web.config は、暗号化された Credential 情報が含まれている、適切なレジストリ鍵が参照先になるように変更すべきです。 たとえば、次のようになります。</p>
+ <pre>&lt;identity impersonate="true" userName="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,userName"<br />                             password="registry:HKLM\Software\MyApp\Identity\ASPNET_SETREG,password"/&gt;</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>次のセグメントは、web.config のうちで、データベース接続を行う構成セクション、および Windows 偽装用の有効な Credential 情報が格納されている構成セクションを示したものです。 残念ながら、web.config 内の情報はプレーンテキストで保存されています。 このため、構成ファイルにアクセスできる者は誰でも Credential 情報を入手することができます。</p>
+ <pre>...<br />&lt;connectionStrings&gt;<br />  &lt;add name="Pubs" connectionString="Server=localhost;Integrated Security=True;Database=Pubs"<br />   providerName="System.Data.SqlClient"/&gt;<br />  &lt;add name="Northwind" connectionString="Server=localhost;Integrated Security=True;Database=Northwind"<br />    providerName="System.Data.SqlClient"/&gt;<br />&lt;/connectionStrings&gt;<br />...<br />&lt;identity impersonate="true" userName="testAcct" password="testPass"/&gt;<br />...</pre>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li><strong>aspnet_setreg</strong> ユーティリティーに関する詳細情報は、「<a href="http://support.microsoft.com/kb/329290">ASP.NET ユーティリティーを使用して Credential 情報とセッション状態接続文字列を暗号化する方法</a>」を参照してください。<li>HttpForbiddenHandler を構成する方法に関する詳細情報は、「<a href="http://support.microsoft.com/kb/815152">ハウツー： ASP.NET を使用してファイル形式を保護する方法</a>」を参照してください。</li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/faada3f5-3f50-42fc-b863-5058e3d848cb">ガイドライン：構成ファイル内の機微データを保護する</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

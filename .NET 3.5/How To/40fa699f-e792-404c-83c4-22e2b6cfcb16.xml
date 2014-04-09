@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="794820933" Content_Hash="-406908824">
+  <Metadata>
+    <Id>40fa699f-e792-404c-83c4-22e2b6cfcb16</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>イベント ログに書き込むためのアクセス許可を設定する方法</Title>
+    <Category>イベント ログ</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>説明</h1>
+  <p>コードがアプリケーション特有のイベント ソースを使用する必要がある場合、管理者特権が利用できる際はインストール時にそれを作成することをお勧めします。 これは、<b>System.Configuration.Install.Installer</b> から引き出されるインストーラー クラスを作成し、InstallUtil.exe ユーティリティを使用して行います。 インストール時にイベント ソースを作成できず展開する場合、管理者は次のレジストリ キー <b>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\&lt;LogName&gt; の下に新規イベント ソース エントリを手動で作成できます。</b></p>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Eventlog\ </b> レジストリ キー上で ASP.NET プロセス アカウント(またはアプリケーションが偽装を使用する場合は偽装されたアカウント)に書き込みの権限を付与することはお勧めできません。 この鍵への書き込みアクセスを許可すると、アカウントが侵害された場合、攻撃者がシステム上でログに対して、ログへのアクセス制御を含むログ関連のあらゆる設定を変更することができます。 </blockquote>
+  <p>イベント ログにアクセスするには、コード アクセス セキュリティ ポリシーによりアセンブリに <b>EventLogPermission</b> を付与される必要があります。 部分信頼の環境で、イベント ログ ラッパーのコードの動きを制約したい場合、おそらくそのコードは別の開発者または開発会社によって書かれているはずなので、次の例に表示されるように<b>SecurityAction.PermitOnly</b> 列挙を使用して宣言型属性を使用できます。 </p>
+  <p>次の属性は、<b>WriteToLog</b> メソッドおよびそれが呼び出す任意のメソッドのアクセスをローカル コンピュータのイベント ログに限り、イベント ログまたはイベント ソースを削除できないようにするものです。 これらのオペレーションは、<b>EventLogPermissionAccess.Instrument</b> 列挙からはできません。 </p>
+ <pre>using System.Diagnostics;  ...<br />[EventLogPermission(SecurityAction.PermitOnly,MachineName=".",<br />		PermissionAccess=EventLogPermissionAccess.Instrument)]<br />public static void WriteToLog( string message )   </pre>
+  <p>既存ログへの読み取り専用アクセスを実施するには、<b>EventLogPermissionAccess.Browse</b> 列挙を使用してください。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>インストール時のイベント ソースの作成についての詳細は、<a href="http://msdn.microsoft.com/library/en-us/cptools/html/cpconInstallerUtilityInstallutilexe.asp">http://msdn.microsoft.com/library/en-us/cptools/html/cpconInstallerUtilityInstallutilexe.asp にある「インストーラー ツール (Installutil.exe)」を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

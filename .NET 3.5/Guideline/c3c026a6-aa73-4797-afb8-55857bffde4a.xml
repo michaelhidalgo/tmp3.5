@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2058930141" Content_Hash="1117845268">
+  <Metadata>
+    <Id>c3c026a6-aa73-4797-afb8-55857bffde4a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クライアントに情報を漏らさない</Title>
+    <Category>エラーと例外の管理</Category>
+    <Phase>設計</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Alex Mackman, Michael Dunner, Srinath Vasireddy, Ray Escamilla and Anandha Murukan</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>
+      <div>Web アプリケーション</div>
+    </li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>スタック トレース、SQL ステートメント フラグメント、およびテーブルまたはデータベース名などの内部システムまたはアプリケーションの詳細を、クライアントに公開しないでください。 この種類の情報が、エンド ユーザーに、または現在の信頼境界を超えて広がらないことを確認してください。</p>
+  <h1>理由</h1>
+  <p>エラー メッセージに含まれる過度に詳細な情報を悪用できる、&nbsp;悪意のあるユーザーを防止するには。 悪意のあるユーザーは、システム レベルの診断情報を使用して、アプリケーションについて学習し、将来的な攻撃において悪用できるような弱点を探すことができます。 </p>
+  <h1>状況</h1>
+  <p>例外が発生する場合は、常に簡潔なエラー メッセージのみをクライアントに返してください。</p>
+  <h1>対策</h1>
+  <p>失敗した場合、情報漏えいを引き起こす可能性のある情報を公開しないでください。たとえば、デバッグ ビルド (生産サーバで使用すべきではありません) の場合は、関数名や行番号を含むスタック トレースの詳細を公開しないでください。<b></b> 代わりに、クライアントには一般的なエラーメッセージを返します。</p>
+  <p>攻撃者がセッション ID を取得した場合に攻撃者に公開される可能性のある情報の種類を調査してください。 ASP.NET アプリケーションでは、セッション ID は、推測できないように適切に無作為化されます。 しかし、攻撃者がこの情報を取得できる別の方法があります。 セッション ID が SSL を通じて送信されることを確認し、セッション タイムアウトが短いことを確認してください。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、「Chapter 4 - Design Guidelines for Secure Web Applications (第 4 章 - セキュリティ保護された Web アプリケーションの設計ガイドライン)」(<a href="http://msdn2.microsoft.com/en-us/library/aa302420.aspx">http://msdn2.microsoft.com/en-us/library/aa302420.aspx</a>) を参照してください。 </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

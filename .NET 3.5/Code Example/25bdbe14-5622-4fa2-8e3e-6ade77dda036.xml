@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="2063540344" Content_Hash="1070440173">
+  <Metadata>
+    <Id>25bdbe14-5622-4fa2-8e3e-6ade77dda036</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>配布用に RSA 鍵ペアから公開鍵をエクスポートする</Title>
+    <Category>暗号化</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>コード例</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>C# </li>
+  </ul>
+  <h1>概要</h1>
+  <p>このコード スニペットの目的は、RSA 鍵ペアの所有者が配布用に公開鍵のデータをエクスポートする方法を示すことです。 鍵データは、受信者に渡すことができる XML ファイルに保存します。これにより、受信者は、鍵の所有者のみが読み取ることができる暗号化されたメッセージを所有者に送信できます。</p>
+  <h1>目的</h1>
+  <ul>
+    <li>他の当事者が鍵所有者へのメッセージを暗号化するためにだけ使用できる、レジストリに格納された鍵ペアの公開コンポーネントをセキュアに配布する</li>
+  </ul>
+  <h1>シナリオ</h1>
+  <ul>
+    <li>クライアントはサーバに機密の暗号化されたメッセージを送信する必要があるが、それらのメッセージを読み取る必要がない、分散クライアント サーバ アーキテクチャ<li>アプリケーションは、暗号化目的で専用鍵ストアを維持することを望まない</li></li>
+  </ul>
+  <h1>ソリューションの例</h1>
+ <pre>public void SerializeAndSaveRSAPublicKey(RSACryptoServiceProvider myRSA, string fileName)<br />{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Convert the RSA public key to an xml string (passing "false" retrieves<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // only the public key instead of both the private and public key<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string publicKeyXml = myRSA.ToXmlString(false);</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Write the XML data out to the file location of your choosing<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; StreamWriter keyWriter = new StreamWriter(fileName);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keyWriter.Write(publicKeyXml);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; keyWriter.Close();<br />}</pre>
+  <h1>&nbsp;</h1>
+  <h1>問題の例</h1>
+  <p>以下の例は、RSA 鍵ペアの生成、およびファイル システム上への公開鍵と私有鍵の保存を示しています。 </p>
+ <pre>// The RSA CSP class automatically generates public and private key material<br />// during construction<br />myRSA = new RSACryptoServiceProvider();</pre>
+ <pre>
+    <br />///// Store in the registry using DPAPI and a Registry ACL /////</pre>
+ <pre>
+    <br />// Convert the RSA public key to an xml string - passing "true" retrieves<br />// both the private and public key data from the RSA CSP<br />string keyPairXml = myRSA.ToXmlString(true);</pre>
+ <pre>
+    <br />// Open up the key pair file and read into a string<br />StreamWriter keyWriter = new StreamWriter(@"C:\temp\rsakeypair.xml");<br />keyWriter.Write(keyPairXml);<br />keyWriter.Close();</pre>
+  <ul>
+    <li>ファイル システムが危害を加えられると、私有鍵が露出し、この鍵ペアを使用して暗号化されたすべてのメッセージの機密性が失われる可能性があります。 <li>公開鍵と私有鍵の両方を配布すると、秘密鍵へのアクセス権を持つ人であれば誰でも、鍵ペアの所有者のみに渡されるはずのメッセージを復号化できます。 <li>デフォルトの暗号鍵サイズは、十分な強度と安全性を提供しないことがある</li></li></li>
+  </ul>
+  <h1>テスト ケース</h1>
+  <p>上記のサンプル コードを活用するプロジェクトには、以下のクラスをインクルードする必要があります。</p>
+ <pre>using System.IO;<br />using System.Security;<br />using System.Security.AccessControl;<br />using System.Security.Cryptography;<br />using System.Text;<br />using Microsoft.Win32;</pre>
+  <p>含まれている公開鍵データだけを確認するには、次のコードを実行し、ファイル</p>
+ <pre>C:\temp\rsa_publickey.xml </pre>
+  <p>を開きます。</p>
+ <pre>static void Main(string[] args)<br />{<br />&nbsp;&nbsp;&nbsp; // Generate an RSA keypair and a filename for export<br />&nbsp;&nbsp;&nbsp; myRSA = new RSACryptoServiceProvider(2048);<br />&nbsp;&nbsp;&nbsp; string fileName = @"C:\temp\publickey.xml";</pre>
+ <pre>
+    <br />&nbsp;&nbsp;&nbsp; // Serialize the public key from an RSA key pair and write to a file<br />&nbsp;&nbsp;&nbsp; SerializeAndSaveRSAPublicKey(myRSA, fileName);<br />}</pre>
+  <h1>期待される結果</h1>
+  <p>以下のデータはファイル"C:\temp\rsa_publickey.xml" に出力されます:</p>
+ <pre>&lt;RSAKeyValue&gt;</pre>
+ <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Modulus&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; tnLAgAJwXXxYj+2QPX6q/mHZZf23xSvvovoBlZ1Y7RbTlkY4N2nlcGxfR6mQcTTWKf<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WShQ7yEaX6rVfhhRhdaHLCsg7g3AmW2BsoBxWUijD81ZeNKyWrw8t0gjnigNR46+Pq<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; O1Xi7R9aA+PgaluhuZBBgJK2wIAlRJSPlTr5OjDr4vJlZiAG/VqmJVXioPfv1QI2hf<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LM86JgIcrD47L0K44tKwyhAj4PN1nsomjPeb0P9m9t3od/c+yZGKk+iJ1nwQwG02H/<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EXROaO6YFKb3xijNv69gv+ZLGc+qssXs7Bs7CdzqmQvSylxuXkYz5bQG++raYWm4l0<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 56WhtIRG8mqQ==<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Modulus&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;Exponent&gt;<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; AQAB<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;/Exponent&gt;<br />&lt;/RSAKeyValue&gt;</pre>
+  <h1>詳細情報</h1>
+  <p>RSA は、公開鍵 (非対称とも呼ばれる) 暗号化のためのアルゴリズムで、明確な公開鍵と私有鍵を作成します。 暗号化操作は公開鍵を利用し、復号には私有鍵が必要です。 これは、対称鍵暗号方式よりも利点があります。メッセージを解読するために使用される秘密鍵は、メッセージの暗号化をサポートするために受信側と共有する必要がないためです。 </p>
+  <p>RSA私有鍵は、個々の公開 RSA 鍵を使用して暗号化されたデータの機密性を維持するために安全に保存する必要があります。 ただし、公開鍵は鍵ペアの所有者が、暗号化されたメッセージをその所有者に送信しようとしている人に自由に配布することができます。 </p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>RSACryptoServiceProvider(.NET): <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrsacryptoserviceproviderclassctortopic.asp">http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfsystemsecuritycryptographyrsacryptoserviceproviderclassctortopic.asp</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

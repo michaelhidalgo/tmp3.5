@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-2027208128" Content_Hash="-55299469">
+  <Metadata>
+    <Id>4e83c8a0-e7b8-4331-b9c2-27cf6ae40e6b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ページからページへ機微データを渡さない</Title>
+    <Category>機密のデータ</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>機微データの保存にViewState（状態確認）、 Cookie 、クエリ文字列、または隠しフォームフィールドといったようなクライアント側の状態管理オプションの使用を避けます。 </p>
+  <h1>理由</h1>
+  <p>機微データがプレーンテキスト間違って攻撃者に開示されてしまう一般的なメカニズムはViewState（状態確認）、 Cookie 、クエリ文字列、および隠しフォームフィールド&nbsp; データへのアクセスは様々であり、ネットワークスニッフィングやセキュリティ侵害のあったクライアントのマシンといったものを経由して達成されます。 機微データの保存にこれらのクライアント側のメカニズムを使用することを防ぐことによって、アプリケーションの Attack Surface (攻撃対象領域)が劇的に軽減します。</p>
+  <h1>状況</h1>
+  <p>アプリケーションが機微情報を表示または操作する場合はこのガイドラインに従ってください。&nbsp;</p>
+  <h1>対策</h1>
+  <p>機微データをクライアントにさらさないためには次のステップを使用してください：</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ページに機微データがないか確認します。</strong>&nbsp; すべてのページで、機微データのインスタンスがないか確認します。 これには以下が含まれますが、これに限定されません。</p>
+      <ul>
+        <li>他のユーザーと共有すべきではない、Personally Identifiable Information、またはPersonally Identifiable Informationを取得するために使用できる情報。 <li>ユーザーが提供する情報で、アプリケーションの他のユーザーと共有することが望まれないもの。 <li>外部の信頼できる情報源から得られた情報で、ユーザーと共有することは意図されていないもの。 </li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>サーバ側の管理オプションに移行します</strong>。アプリケーション状態、セッション状態&nbsp;、または&nbsp;SQL Server データベースといったようなサーバ側の状態管理オプションを使用します。 情報がアプリケーションにグローバルに公開される場合はアプリケーション状態を使用します。&nbsp; 情報がある個別のセッション特有のものである場合はセッション状態を使用します。</p>
+        <ul>
+          <li>
+            <p>
+              <strong>アプリケーション状態 </strong>ASP.NET はアプリケーション状態を<a href="http://msdn.microsoft.com/library/en-us/cpref/html/frlrfSystemWebHttpApplicationStateClassTopic.asp">HttpApplicationState</a>クラスのグローバルな個別アプリケーション特有の情報として、アプリケーション全体に可視状態の方法で提供します。 アプリケーション状態変数は、事実上ASP.NET アプリケーションのグローバル変数です。 更なる情報については<a href="http://msdn.microsoft.com/library/en-us/cpguide/html/cpconApplicationState.asp">Application State（アプリケーション状態）を参照してください。</a></p>
+            <li>
+              <p>
+                <strong>セッション状態 </strong>ASP.NET はセッション状態を　<a href="http://msdn.microsoft.com/library/en-us/cpref/html/frlrfSystemWebSessionStateHttpSessionStateClassTopic.asp">HttpSessionState</a>クラスの個別保存セッション特有の情報として、そのセッション内のみで可視状態の方法で提供します。 更なる情報については<a href="http://msdn.microsoft.com/library/en-us/vbcon/html/vbconintroductiontowebformsstatemanagement.asp">Introduction to Web Forms State Management（ウェブフォーム状態管理）</a>および<a href="http://msdn.microsoft.com/library/en-us/cpguide/html/cpconSessionState.asp">Session State（セッション状態）</a>参照してください。</p>
+              <p>セッション特有の値およびセッション状態のオブジェクトを保存して、サーバにより管理されてブラウザまたはクライアントのデバイスに提供されるようにすることができます。 セッション状態変数での保存に利用的なデータは短期間の機微データで、特定の個別セッション特有のものになります。</p>
+              <li>
+                <p>
+                  <strong>SQL データベース </strong>ウェブサイトの状態の管理にデータベースサポートを使用したい場合があります。 データベースサポートは一般的に Cookie またはセッション状態とあわせて使用されます。 例えば、電子商取引ウェブサイトではごく一般的にリレーショナル データベースを使用して状態情報を次の理由で管理します：</p>
+                <ul>
+                  <li>セキュリティ<li>個性化<li>一貫性<li>データマイニング</li></li></li></li>
+                </ul>
+              </li>
+            </li>
+          </li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/vbcon/html/vbconChoosingServerStateOption.asp">状態管理勧告</a>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/b4b49e15-eb5d-46b0-b56d-231ca447c053">ViewState（状態確認）における機微データの保存は避けてください</a>
+      <li>
+        <a href="/article/d81f0c17-cbda-4c73-85f2-6d2e43dec441">機微データはクエリ文字列に入れないでください</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

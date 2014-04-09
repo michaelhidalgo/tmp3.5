@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1150360727" Content_Hash="-284528310">
+  <Metadata>
+    <Id>d4ba5610-fdfd-4582-9a41-d87d192979fa</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ファイル IO をアプリケーションのコンテキスト内に制約することを検討してください。</Title>
+    <Category>ファイル I/O</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>アセンブリが次のファイル I/O を実行する能力を制約するために制限付き<b>FileIOPermission</b> （ファイル I/O のアクセス許可）を使用することができます:  例えば許されているアクセス権を指定する等（読み取り、読み取り/書込み、その他）またはアクセスを特定ディレクトリに制限する、等。</p>
+  <h1>理由</h1>
+  <p>アプリケーションのコンテキストのファイル&nbsp; I/O に制限を設けないと、&nbsp;攻撃者がアプリケーションに任意のファイルやリソースにアクセスするように強制してしまいます。</p>
+  <h1>状況</h1>
+  <p>これは重要なガイドラインであり、常に従う必要があります。</p>
+  <h1>対策</h1>
+  <p>次の例の通り、宣言属性と<b>SecurityAction.PermitOnly</b>(セキュリティ アクション許可のみ)を一緒にファイル I/O を制約するようにできます。</p>
+ <pre>// Allow only this code to read files from c:\YourAppDir<br />[FileIOPermission(SecurityAction.PermitOnly, <a href="mailto:Read=@"c:\YourAppDir\">Read=@"c:\YourAppDir\</a>")]<br />[FileIOPermission(SecurityAction.PermitOnly, <a href="mailto:PathDiscovery=@"c:\YourAppDir\">PathDiscovery=@"c:\YourAppDir\</a>")]<br />public static string ReadFile(string filename)<br />{<br />&nbsp; // Use Path.GetFullPath() to canonicalize the file name<br />&nbsp; // Use FileStream.OpenRead to open the file<br />&nbsp; // Use FileStream.Read to access and return the data<br />}  </pre>
+  <blockquote>
+    <b>注意</b>: &nbsp;&nbsp;<b>PathDiscovery</b>(パス ディレクトリ)アクセスを指定する二つ目の属性とは、<b>Path.GetFullPath</b> （パス：完全パスを取得）機能を使って入力されたファイル名を正規化することです。</blockquote>
+  <p>アプリケーションのディレクトリ階層構造をハードコーディングしてしまわないようにするためには、セキュリティ命令文を使ってから<b>HttpContext.Current.Request.MapPath(".")</b>を使って実行時にウェブ アプリケーションのディレクトリを読み取ってください。 次の例で示されているように、<b>System.Web</b> アセンブリを参照して、対応する <b>using</b> ステートメントを追加してください。</p>
+ <pre>using System.Web;<br />using System.Security.Permissions;<br />...<br />public static string ReadFile(string filename)<br />{<br />&nbsp; string appDir = HttpContext.Current.Request.MapPath(".");<br />&nbsp; FileIOPermission f = new FileIOPermission(PermissionState.None);<br />&nbsp; f.SetPathList(FileIOPermissionAccess.Read, appDir);<br />&nbsp; f.SetPathList(FileIOPermissionAccess.PathDiscovery, appDir);<br />&nbsp; f.PermitOnly();</pre>
+ <pre>&nbsp; // Use Path.GetFullPath() to canonicalize the file name<br />&nbsp; // Use FileStream.OpenRead to open the file<br />&nbsp; // Use FileStream.Read to access and return the data<br />}  </pre>
+  <p>中レベルの信頼性で実行する ASP.NET ウェブ アプリケーションは部分的に信頼するようにして、コード アクセス セキュリティを適用してアプリケーションがアクセスできるディレクトリを制限してください。 中レベルの信頼性ポリシーでは、アプリケーションはアプリケーションの仮想バーチャル root ディレクトリ以下のみアクセスすることができます。</p>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

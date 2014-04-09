@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1868712804" Content_Hash="57849077">
+  <Metadata>
+    <Id>dbe96f2c-c3f3-4241-a844-1ba8b48bb630</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>レガシ WSE クライアントをサポートする必要がある場合は、WCF で CustomBinding を使用する</Title>
+    <Category>設計上の考慮事項</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>行うべき事柄</h1>
+  <p>WSE レガシー クライアントをサポートする場合は、サービスにカスタマイズしたバインドを使用してください。</p>
+  <h1>理由</h1>
+  <p>これにより既存クライアントに WCF に移行することなく相互運用性を提供します。</p>
+  <h1>状況</h1>
+  <p>WSE クライアント層がいる場合は、WSE レガシー クライアントをサポートするためにサービスにカスタマイズされたバインドを使用する必要があります。 </p>
+  <h1>対策</h1>
+  <p>これが WSE バンドから WCF バインド エレメントへのマッピングです: </p>
+  <p>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <strong>WSE</strong>
+          </td>
+          <td>
+            <strong>WCF</strong>
+          </td>
+        </tr>
+        <tr>
+          <td>anonymousForCertificateSecurity&nbsp;（匿名の証明書セキュリティ）</td>
+          <td>anonymousForCertficate（匿名の証明書セキュリティ）</td>
+        </tr>
+        <tr>
+          <td>Kerberos セキュリティまたは相互証明書セキュリティ 11&nbsp;</td>
+          <td>相互証明書</td>
+        </tr>
+        <tr>
+          <td>トランスポート セキュリティ上のユーザー名&nbsp;</td>
+          <td>トランスポート上のユーザー名</td>
+        </tr>
+        <tr>
+          <td>証明書セキュリティ用ユーザー名&nbsp;</td>
+          <td>証明書セキュリティ用ユーザー名</td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <p>WSE クライアントをサポートするためにバインドをカスタマイズする方法:</p>
+  <ol>
+    <li>WCF サービスへのカスタマイズされたバインドの追加してください。 
+<li>カスタマイズされたバインドの名前を指定してください。 
+<li>旧 WSE サービスで使用されていた認証にマッピングする認証モードを指定してください。
+<li>WCF で使用していた 2004 年 8 月版の WS アドレス指定仕様を指定してください。
+<li>カスタマイズされたバインドを使用するための WCF エンドポイントを構成してください。</li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>カスタマイズされたバインドの構成方法に関する詳細情報については、<a href="http://msdn2.microsoft.com/en-us/library/ms730049.aspx">http://msdn2.microsoft.com/en-us/library/ms730049.aspxにある「How to: Configure WCF Services to Interoperate with WSE 3.0 Clients」（方法: WSE 3.0 クライアントとの相互運用のための WCF サービスの構成）を参照してください。</a></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

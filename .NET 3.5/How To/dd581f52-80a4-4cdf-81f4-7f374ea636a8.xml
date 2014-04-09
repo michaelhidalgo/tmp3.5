@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="936615468" Content_Hash="-1013472532">
+  <Metadata>
+    <Id>dd581f52-80a4-4cdf-81f4-7f374ea636a8</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ASP.NET で SQL Server と Forms Authentication を併用する方法</Title>
+    <Category>Forms Authentication</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>ASP.NET 3.5</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>SQL Server</li>
+  </ul>
+  <h1>概要</h1>
+  <p>このガイドでは、SQL Server メンバーシップ プロバイダーを用いたForms Authenticationの使用方法について説明します。 SQL Server を用いたForms Authenticationは、アプリケーション ユーザーが Windows ドメインに所属していないために Active Directory アカウントを持たない状況に最も適したアプローチです。 新しいメンバーシップ<b>Login</b> コントロールを使用したログインページの作成、Forms Authentication を使用するWebアプリケーションの構成、ユーザー ストアデータベースの作成、Webアプリケーションアカウントへのデータベースアクセス許可、ASP.NET メンバーシップ設定の構成、パスワード組合せルールの設定についての方法を説明します。</p>
+  <h1>目次</h1>
+  <ul>
+    <li>
+      <div>目的</div>
+      <li>
+        <div>概要</div>
+        <li>
+          <div>手順の概要</div>
+          <li>
+            <div>手順 1:  ログイン ページを持つウェブ アプリケーションを作成する</div>
+            <li>
+              <div>手順 2:  ウェブ アプリケーションのForms Authenticationを設定する</div>
+              <li>
+                <div>手順 3:  ASP.NET でメンバーシップを設定する</div>
+                <li>
+                  <div>手順 4:  Forms Authenticationをテストする</div>
+                  <li>
+                    <div>展開の考慮事項</div>
+                    <li>
+                      <div>セキュリティに関する考慮事項</div>
+                      <li>
+                        <div>追加考慮事項</div>
+                        <li>
+                          <div>その他のリソース</div>
+                        </li>
+                      </li>
+                    </li>
+                  </li>
+                </li>
+              </li>
+            </li>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <h1>目的</h1>
+  <ul>
+    <li><b>SqlMembershipProvider</b> と Forms Authentication を使用します。 <li>SQL Server メンバーシップ データベースをセットアップする。 <li>Forms Authentication Cookieの使用を HTTPS 接続のみに制限する。 <li>メンバーシップ機能を使用して複雑なパスワード規則を遵守する。 <li>メンバーシップおよびForms Authenticationを使用する際の運用上の重要考慮事項を学習する。 <li>メンバーシップおよびForms Authenticationを使用する際のセキュリティ上の重要考慮事項を学習する。 </li></li></li></li></li></li>
+  </ul>
+  <h1>概要</h1>
+  <p>ASP.NET メンバーシップ機能は、ユーザー名やパスワードなどのユーザーの Credential 情報を維持するために使用される、基本データ ストアの抽出概念を提供し、また、ユーザーの Credential 情報の簡易な有効化およびユーザー データベースの管理を可能にする API を提供します。 ASP.NET は、SQL Server および Active Directory プロバイダーに対応しています。また、カスタム ストア用に独自のプロバイダーを作成することもできます。</p>
+  <p>このガイドでは、SQL Server メンバーシップ プロバイダーを用いたForms Authenticationを使用する簡単なウェブ サイトの開発方法について説明します。 このプロバイダーは、ユーザー ストアとして、SQL Server 基本データベースを使用します。</p>
+  <h1>手順の概要</h1>
+  <p>SQL Server メンバーシップ プロバイダーを用いたForms Authenticationを使用する簡単なアプリケーションを開発するには、以下の手順を実行します。 </p>
+  <ul>
+    <li>手順 1:  ログイン ページを持つウェブ アプリケーションを作成する。 <li>手順 2:  ウェブ アプリケーションでForms Authenticationを設定する。 <li>手順 3:   ASP.NET でメンバーシップを設定する。 <li>手順 4:  Forms Authenticationテストを行う。 </li></li></li></li>
+  </ul>
+  <h1>手順 1:  ログイン ページを持つウェブ アプリケーションを作成する</h1>
+  <p>このステップでは、デフォルト ページ 1 枚とログイン ページ 1 枚を持つ簡単なウェブ アプリケーションを作成します。 このログイン ページを使用することで、既存ユーザーはログインすることができ、新規ユーザーは新規アカウントを作成して登録することができます。</p>
+  <h3>ログイン ページを持つウェブ アプリケーションを作成するには</h3>
+  <ol>
+    <li>Visual Studio .NET を開始し、FormsAuthSQLという名前の新しいASP.NET Webサイトを作成します。 <li>Solution Explorer を使用して、Login.aspx という名の新規 Web フォームをサイトへ追加してください。 <li><b>Login</b> 制御を Login.aspx に追加します。 <p>デフォルトでは、このコントロールはユーザー名とパスワードのフィールド、<b>Remember me next time</b>（次回のために記憶しておく） チェックボックスを表示します。 ユーザーがこのチェック ボックスを選択すると、蓄積型認証 Cookie が作成され、ブラウザによってユーザーのハード ディスク上にその Cookie が保存されます。 </p><p>攻撃者にクライアント コンピュータから認証 Cookie を盗ませないようにするには、基本的に、蓄積型認証 Cookie の作成はすべきではありません。 この機能を無効にするには、<b>Login</b>コントロールの <b>DisplayRememberMe</b> プロパティを<b>false</b>に設定します。</p><p>ユーザーが <b>Login</b> コントロール上の <b>[Login]</b> をクリックすると、設定されたメンバーシップ プロバイダーが呼び出され、ユーザーの検証、Forms Authenticationチケットの作成が自動的に行われます。それから、リダイレクトが行われ、最初に要求が行われたページにユーザーを戻します。 このとき、次のようなコードが実行されます。 </p><div><pre>if (Membership.ValidateUser(username, password))<br />{<br />&nbsp; // User has supplied valid credentials<br />&nbsp; // In the following method call, the second Boolean parameter <br />&nbsp; // determines whether a persistent authentication cookie<br />&nbsp; // is created.<br />&nbsp; FormsAuthentication.RedirectFromLoginPage(username,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rememberMeIsChecked);<br />}  </pre></div><li><b>Login</b> コントロール下の <b>CreateUserWizard</b> コントロールを加え、新規ユーザーがサイトに登録し、新しいアカウントを作成できるようにします。 </li></li></li></li>
+  </ol>
+  <h1>手順 2:  ウェブ アプリケーションのForms Authenticationを設定する</h1>
+  <p>このステップでは、Forms Authenticationを使用するための設定を ASP.NET アプリケーションで行います。</p>
+  <h3>ウェブ アプリケーションのForms Authenticationを設定するには</h3>
+  <ol>
+    <li>Solution Explorer を使用して、Web.config ファイルをプロジェクトに追加してください。 <li>アプリケーションのWeb.configファイルまたはマシンレベルのWeb.configファイル内で&lt;<b> authentication (認証)</b>&gt; エレメント、さらに<b>mode</b>属性を<b>"Forms"</b>に変更します。<li>次の &lt;forms&gt; エレメントを&lt;<b>authentication</b>&gt;  の子として追加してください<b> </b>。 エレメント、さらに <b>name</b> および <b>timeout</b>属性を次のように設定します。 <div><pre>&lt;authentication mode="Forms"&gt;<br />&nbsp; &lt;forms<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name="SqlAuthCookie"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; timeout="10" /&gt;<br />&lt;/authentication&gt;   </pre></div><p>&lt;<b>authentication</b>&gt;の<b>mode</b> 属性を設定した場合  エレメント、&lt;<b>forms</b>&gt;を削除ｊします。 エレメント、&lt;<b>forms</b>&gt;構成にデフォルト設定が使用されます。<b></b> 上書きする必要のある属性のみを設定することをお勧めします。 Machine.config.commentsファイルに定義されているForms Authenticationのデフォルト設定は、以下のとおりです。 </p><div><pre>&lt;forms name=".ASPXAUTH" loginUrl="login.aspx" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; defaultUrl="default.aspx" protection="All" timeout="30" path="/" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; requireSSL="false" slidingExpiration="true"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; cookieless="UseDeviceProfile" domain="" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; enableCrossAppRedirects="false"&gt;<br />&nbsp; &lt;credentials passwordFormat="SHA1" /&gt;<br />&lt;/forms&gt;   </pre></div><li>Web.config ファイル 中に &lt;<b>authentication</b>&gt; エレメントの下にある次のような &lt;authorization&gt; エレメント Web.config ファイル内の&lt;<b>authentication</b>&gt;エレメント下のエレメント。<b></b> これにより、認証されたすべてのユーザーが ウェブ サイトにアクセスできるようになります。 <div><pre>&lt;authorization&gt; <br />&nbsp; &lt;deny users="?" /&gt;<br />&nbsp; &lt;allow users="*" /&gt;<br />&lt;/authorization&gt;   </pre></div><p>上記のコンフィグレーションでは、認証されたユーザーのみがアプリケーションにアクセスできます。 <b>"?"</b> は認証されないユーザーを示し、<b>"*"</b> はすべてのユーザーを示します。 未認証のユーザーを拒否することで、未認証のユーザーによる要求はすべてログイン ページにリダイレクトされます。 &lt;<b>forms</b>&gt;の<b>loginUrl</b>属性 ログイン ページ名を判断します。 Machine.config.comments ファイル内のこの属性のデフォルト設定はLogin.aspxです。 </p></li></li></li></li>
+  </ol>
+  <h1>手順 3:  ASP.NET でメンバーシップを設定する</h1>
+  <p>このステップでは、以下のアクションを実行することで、SQL Server メンバーシップ プロバイダーの設定を行います。</p>
+  <ul>
+    <li>ユーザー ストア データベースを作成する。 <li>ウェブ アプリケーション アカウントにデータベース アクセス権を付与する。 <li>ASP.NET メンバーシップを設定する。 </li></li></li>
+  </ul>
+  <h2>ユーザー ストア データベースを作成する</h2>
+  <p>SQL Server メンバーシップ プロバイダーは、ユーザー情報を SQL Serverデータベースに格納します。 コマンドラインからAspnet_regsql.exe を使用して SQL Server ユーザーストアをマニュアルで作成できます。 代わりに、ウィザードモードでAspnet_regsql.exeを実行するか、Visual Studio の<b>Website</b> でASP.NET Web サイト構成ツールを使用できます。</p>
+  <h3>ユーザー ストア データベースを作成するには</h3>
+  <p>Aspnet_regsql.exeを使用してメンバーシップデータベースを作成します。 Visual Studio コマンド プロンプトから、次のコマンドを実行します。</p>
+  <p>
+    <b>aspnet_regsql -S (local) -E -A m</b>
+  </p>
+  <p>
+    <b>-S</b> は、例で <b>(ローカル)</b> となるサーバを指定します。</p>
+  <p>
+    <b>-E</b> はWindows 認証を使用して SQL Server への接続を指定します。</p>
+  <p>-<b>A m</b> はメンバーシップ機能のみの追加を指定します。 SQL Server ユーザー ストアへの簡易認証の場合、必要なのはメンバーシップ機能のみとなります。</p>
+  <p>コマンドの完全リストは <b>Aspnet_regsql /?を実行します。</b>. </p>
+  <h3>期待される結果</h3>
+  <p>Aspnetdb データベースが存在しない場合、次の 2 つのデータベース ファイルが作成されます。</p>
+  <ul>
+    <li>Aspnetdb.mdf<li>Aspnetdb_log.LDF</li></li>
+  </ul>
+  <p>Aspnetdb データベース内で、次のテーブルがない場合、作成されます:</p>
+  <ul>
+    <li>aspnet_Applications<li>aspnet_Membership<li>aspnet_SchemaVersions<li>aspnet_Users</li></li></li></li>
+  </ul>
+  <h2>ウェブ アプリケーション アカウントにデータベース アクセス権を付与する</h2>
+  <p>Web アプリケーションプロセス アカウントはAspnetdb データベースへのアクセスを必要とします。 Windows Server 2003以降でMicrosoft Internet Information Services (IIS) 6.0でアプリケーションを実行する場合、NT AUTHORITY\Network サービス アカウントがWebアプリケーション実行に使用されます。</p>
+  <h3>データベースのアクセス権を付与するには</h3>
+  <ol>
+    <li>NT AUTHORITY\Network サービスに SQL Server ログインを作成します。 <li>データベースユーザーを作成することでAspnetdbデータベースへのログインアクセスを与えます。 <li>ユーザーを<b>aspnet_Membership_FullAccess</b> データベース ロールに加えます。 </li></li></li>
+  </ol>
+  <p>上記の手順は、Enterprise Manager を使用することで実行できますが、SQL Query Analyzer で次のスクリプトを実行することもできます。</p>
+  <div>
+ <pre>-- Create a SQL Server login for the Network Service account<br />sp_grantlogin 'NT AUTHORITY\Network Service'</pre>
+ <pre>-- Grant the login access to the membership database<br />USE aspnetdb<br />GO<br />sp_grantdbaccess 'NT AUTHORITY\Network Service', 'Network Service'</pre>
+ <pre>-- Add user to database role<br />USE aspnetdb<br />GO<br />sp_addrolemember 'aspnet_Membership_FullAccess', 'Network Service'   </pre>
+  </div>
+  <h2>ASP.NET メンバーシップを設定する</h2>
+  <p>このステップでは、ウェブ サイトに対するメンバーシップ設定を行います。</p>
+  <h3>メンバーシップ設定を行うには</h3>
+  <ol>
+    <li>Web.config ファイル内で、次のように、接続文字列をメンバーシップデータベースに追加します。 <div><pre>&lt;connectionStrings&gt;<br />&nbsp; &lt;add name="MyLocalSQLServer"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionString="Initial Catalog=aspnetdb;data source=localhost;<br />					Integrated Security=SSPI;" /&gt;<br />&lt;/connectionStrings&gt;   </pre></div><p>この場合接続に使用する名前はMyLocalSQLServer です。 先に作成したメンバーシップデータベースに<b>connectionString</b> 属性を設定します。 </p><li>次の例に示すように、&lt;<b>authorization</b>&gt;エレメントの後ろに  &lt;<b>認可</b>&gt;の後のエレメント 追加します。 &lt;<b>clear/</b>&gt;の使用に留意します element. これにより、デフォルト プロバイダーの読み込みが回避され、使用されることはなくなります。 <div><pre>&lt;membership defaultProvider="MySqlMembershipProvider" &gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;clear/&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="MySqlMembershipProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="MyLocalSQLServer"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyAppName"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlMembershipProvider, System.Web, Version=2.0.0.0,<br />			 Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" /&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/membership&gt;   </pre></div><p><b>connectionStringName</b> 属性を、 <b>connectionStrings</b> セクションで先に指定したものと同じ名前("MyLocalSQLServer")に設定していることを確認します。 さらに <b>applicationName</b> 属性をアプリケーションを示す一意の値に設定します。 ユーザーの詳細は、メンバーシップ データベース内にアプリケーション名別にまとめられます。 </p><blockquote><b>注意</b>: &nbsp;&nbsp;&lt;<b>membership</b>&gt; の <b>defaultProvider</b> 属性を設定する必要があります。 設定する必要があります。 ログイン コントロールは、この属性を使用してデフォルトで使用するプロパティを決定します。 しかし、これらコントロールは、非デフォルトプロバイダーの使用を許可する <b>MembershipProvider</b> プロパティを明らかにします。 ログインコントロールの<b>MembershipProvider</b>プロバイダーを設定できますが、同時に<b>defaultProvider</b> 属性を設定すると良いでしょう。<b></b></blockquote></li></li>
+  </ol>
+  <h1>手順 4:  Forms Authenticationをテストする</h1>
+  <p>このステップでは、Forms Authenticationテストを行います。</p>
+  <h2>Page_Load イベント ハンドラーを追加する</h2>
+  <p>次のコードを Default.aspx ページの <b>Page_Load</b> イベント ハンドラーに追加します。 このページは、認証ユーザーに対してのみ表示することをお勧めします。 以下のコードは、認証されたユーザーであることを示すために、認証されたユーザーに対して発行されたForms Authenticationチケットから取得した情報を表示します。</p>
+  <div>
+ <pre>protected void Page_Load(object sender, EventArgs e)<br />{<br />&nbsp; Response.Write("Hello, " + Server.HtmlEncode(User.Identity.Name));</pre>
+ <pre>&nbsp; FormsIdentity id = (FormsIdentity)User.Identity;<br />&nbsp; FormsAuthenticationTicket ticket = id.Ticket;</pre>
+ <pre>&nbsp; Response.Write("&lt;p/&gt;TicketName: " + ticket.Name );<br />&nbsp; Response.Write("&lt;br/&gt;Cookie Path: " + ticket.CookiePath);<br />&nbsp; Response.Write("&lt;br/&gt;Ticket Expiration: " +&nbsp; <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ticket.Expiration.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;Expired: " + ticket.Expired.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;Persistent: " + ticket.IsPersistent.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;IssueDate: " + ticket.IssueDate.ToString());<br />&nbsp; Response.Write("&lt;br/&gt;UserData: " + ticket.UserData);<br />&nbsp; Response.Write("&lt;br/&gt;Version: " + ticket.Version.ToString());<br />}  </pre>
+  </div>
+  <h2>新規ユーザーを作成する</h2>
+  <p>このステップでは、ログイン機能をテストするための新規ユーザーを作成します。</p>
+  <h3>新規ユーザーを作成するには</h3>
+  <ol>
+    <li>アプリケーションの Default.aspx ページを参照します。 <p>以前の&lt;<b>authorization</b>&gt; エレメントの構成は、認証されていないユーザーがアプリケーション内のページにアクセスするのを防ぎます。 エレメントが、非認可ユーザーがアプリケーション内のページにアクセスすることを防ぎ、Login.aspxページを表示します。 </p><li>強力なパスワードを持つ新規ユーザーを作成します。 SQL メンバーシップ プロバイダーが規定するパスワードのデフォルト規則は次のようになります。<ul><li>パスワードは最低 7 文字以上の長さがあること。 <li>パスワードには、最低 1 文字以上の英数字以外の文字が含まれること。 </li></li></ul><li>新しく作成したユーザー アカウントでログインします。 ログインに成功すると、最初に要求を行った Default.aspx ページにリダイレクトされ、Forms Authenticationチケットから取得した詳細情報が表示されるはずです。 </li></li></li>
+  </ol>
+  <h1>展開の考慮事項</h1>
+  <p>Forms Authenticationを使用する場合は、アプリケーションの展開の際に以下の点を考慮することをお勧めします。</p>
+  <ul>
+    <li>リモート データベースへの接続<li>Windows 認証を使用しないリモート データベースへの接続</li></li>
+  </ul>
+  <h2>リモート データベースに接続する</h2>
+  <p>データベースがリモート サーバにある場合、接続には Windows 認証を使用することをお勧めします。 Windows 認証を使用することにより、接続文字列に Credential 情報を使用する必要がなくなり、データベース サーバに対してネットワーク経由でパスワードを渡さなくてもよくなります。 Windows 認証を使用するには、通常、アプリケーションを実行するためのカスタム ドメイン サービス アカウントを使用します。 このアカウントの ID は、リモート サーバに対する認証でも使用されます。 </p>
+  <h3>データベースのアプリケーションのドメイン アカウントを承認するには</h3>
+  <p>次の T-SQL コマンドを使用して、ドメイン アカウントに対する SQL Server ログインを作成し、作成したログインに対してメンバーシップ データベースへのアクセス権を付与します。</p>
+  <div>
+ <pre>-- Create a SQL Server login for your application's domain account<br />sp_grantlogin 'domain\webservername$'</pre>
+ <pre>-- Grant the login access to the membership database<br />USE aspnetdb<br />GO<br />sp_grantdbaccess 'domain\webservername$', 'Web Server Name'</pre>
+ <pre>-- Add user to database role<br />USE aspnetdb<br />GO<br />sp_addrolemember 'aspnet_Membership_FullAccess', 'domain\webservername$'   </pre>
+  </div>
+  <p>Web.configファイルの接続文字列を暗号化し、サーバやデータベースの名前を公開しないようにします。 暗号化には、DPAPI または RSA で保護されたコンフィグレーション プロバイダーを使用してください。 RSA の方がサーバ間での RSA 鍵のエクスポート、インポートが簡単です。そのため、アプリケーションをウェブ ファームに展開する場合は、RSA を使用してください。</p>
+  <h3>Windows 認証を使用せずにリモート データベースに接続する</h3>
+  <p>Windows 認証を使用して SQL Server に接続する場合、サーバおよびドメイン側の設定に応じて、Kerberosまたは NTLM 認証のいずれかを使用します。 ただし、次のような場合、Windows 認証を使用できないことがあります。</p>
+  <ul>
+    <li>データベース クライアントおよびデータベース サーバが、Kerberosまたは NTLM 認証を阻止するファイアウォールによって分断されている。 <li>アプリケーションサーバおよびデータベースサーバが、信任されてない別個のドメインに置かれている場合｡ </li></li>
+  </ul>
+  <p>このような場合、ミラード ローカル アカウントまたは SQL 認証のいずれかを使用できます。 ミラーしたローカルアカウントがあれば、同一のユーザー名とパスワードで各サーバに２つのアカウントを構成します。 パスワードが同一のままであることを確認する必要があります。</p>
+  <p>SQL 認証を使用する場合、以下の点に注意する必要があります。</p>
+  <ul>
+    <li>自身でCredential 情報の管理をしてください｡ <li>たとえばWeb.configファイル内の接続文字列の暗号化など、接続文字列内の Credential 情報を保護します。 <li>(潜在的に)ウェブサーバからデータベースにネットワーク経由で渡されるCredential 情報を保護してください｡ </li></li></li>
+  </ul>
+  <h1>セキュリティに関する考慮事項</h1>
+  <p>認証チケットを保護できないことは、不正なスプーフィングやなりすまし、セッション ハイジャック、および特権の昇格につながる可能性のある一般的な脆弱性です。 Forms Authenticationを使用する場合、安全な認証アプローチの確保に役立つ次の推奨事項を考慮してください。</p>
+  <ul>
+    <li>
+      <b>認証Cookieを HTTPS 接続に制限する。</b> ネットワーク送信中のForms Authentication Cookieの傍受や改ざんを防ぐためには、認証アクセスを必要とするすべてのページで Secure Sockets Layer (SSL) を使用し、Forms Authenticationチケットの使用を SSL チャネルのみに制限するようにしてください。 <li><b>SSL 用にサイトのパーティショニングを行う。</b> これにより、サイト全体で SSL を使用しなくてもよくなります。<b></b><li><b>Forms Authentication Cookieに固執しないでください。</b> 認証 Cookie は、クライアント コンピュータのユーザー プロファイルに格納されており、攻撃者がユーザーのコンピュータに対して物理的アクセスした場合、格納された認証Cookie が盗まれる可能性があるため、認証 Cookie は保持しないようにしてください。<li><b>チケット寿命を短縮することを検討してください｡</b> 攻撃者が捕獲したCookieを使用してスプーフした(なりすました)身元でアプリケーションにアクセスすることができる時間ウィンドウを短くするため、Cookie寿命の短縮を検討してください｡ <li><b>固定期限切れの使用を検討してください｡ </b>SSL が使用できないシナリオでは、<b>slidingExpiration="false"</b> の設定を検討してください。<li><b>堅牢なユーザー管理方針を実施してください｡</b> 他人のパスワードを推測できないように、また辞書攻撃のリスクを軽減するためにも、すべてのユーザーアカウントで強力なパスワードの使用を強制してください｡ <li><b>パスワード複雑化のルールを実施してください｡</b> <b>PasswordRegularExpression</b> プロパティを適切な正規表現に設定することにより、<b>CreateUserWizard</b> コントロール経由で入力されたパスワードを検証してください。 また、サーバ上のメンバーシップ プロバイダーでも同じ正規表現を使用するよう設定を行ってください。<b></b><li><b>効果的なデータ検証をすべての要求上で実行する。</b> 厳密なデータ検証を実行し、SQL インジェクションやクロスサイト スクリプティング等の可能性を最小限に抑えます。 <li><b>個別のCookie名とパスを使用してください｡ </b>一意なCookie名やパスを使用することで、1 つのサーバ上で複数アプリケーションをホストした場合に発生し得る問題が回避されます。 <li><b>認証Cookieとパーソナル化 Cookie を別個にしておいてください。</b> ユーザー指定の設定条件と非機微データを含むパーソナライゼーション Cookie は、認証 Cookie からは分離して保管してください｡ <li><b>ナビゲーションには絶対URLを使用してください｡</b> これにより、HTTP から HTTPS ページへのリダイレクトで発生し得る問題を回避します。 </li></li></li></li></li></li></li></li></li></li></li>
+  </ul>
+  <h1>追加考慮事項</h1>
+  <p>先行する指針に加えて､追加の保護を提供する以下の追加項目を検討してください｡</p>
+  <ul>
+    <li>複雑なパスワード<li>アカウント ロックアウト</li></li>
+  </ul>
+  <h2>パスワードの複雑さ </h2>
+  <p><b>CreateUserWizard</b> および<b>Login</b> コントロールが使用するメンバーシッププ ロバイダによりパスワードの複雑性の要件が決まります。 たとえば、SQL Membership プロバイダーのデフォルトでは、1 文字以上の非英数文字を含む、最低 7 文字以上の長さを持つパスワードが必要です。</p>
+  <h3>プロバイダーが要求する強力なパスワードを設定する</h3>
+  <p><b>SqlMembershipProvider</b>により強制されるパスワード複雑性の明確なルールを構成するために、次の追加属性を設定できます:</p>
+  <ul>
+    <li>passwordStrengthRegularExpression デフォルトは "" です。 <li>minRequiredPasswordLength デフォルトは 7 です。 <li>minRequiredNonalphanumericCharacters デフォルトは 1 です。 </li></li></li>
+  </ul>
+  <p>次のコンフィグレーションは、メンバーシップ プロバイダーが使用するパスワードを制約するカスタム正規表現を提供します。</p>
+  <div>
+ <pre>&lt;membership defaultProvider="MySqlMembershipProvider"&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="MySqlMembershipProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="MyLocalSQLServer" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyAppName"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; passwordStrengthRegularExpression=<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlMembershipProvider, System.Web, Version=3.5.0.0,<br />		 Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/membership&gt;   </pre>
+  </div>
+  <p>前のフラグメントの正規表現により、パスワードが 8 から 10 文字に制約されます。 また、特殊文字を除く大文字、小文字および数字の組み合わせが含まれている必要があります。 (.*\d) は数字、(.*[a-z]) は小文字、*[A-Z] は大文字を表しており、{8,10} は範囲を 8 から 10 文字に制約します。 </p>
+  <p>常に <b>SqlMembershipProvider</b> は最初にパスワードを<b>minRequiredPasswordLength</b> および <b>minRequiredNonalphanumericCharacters</b> 属性に対して評価することに留意してください。 正規表現を信頼できる一致とする場合、他の 2 つの属性を弱い値に設定することをお勧めします。 たとえば、最低の長さは 1 で非英数文字は 0 に設定します。</p>
+  <p>次の構成では<b>minRequiredPasswordLength</b>（パスワード最低必要長）および<b>minRequiredNonalphanumericCharacters</b>（最低必要非アルファベットおよび非数字の文字）属性でパスワードを制限します。</p>
+  <div>
+ <pre>&lt;membership defaultProvider="MySqlMembershipProvider"&gt;<br />&nbsp; &lt;providers&gt;<br />&nbsp;&nbsp;&nbsp; &lt;add name="MySqlMembershipProvider" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; connectionStringName="MyLocalSQLServer" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; applicationName="MyAppName"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minRequiredPasswordLength="8"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minRequiredNonalphanumericCharacters="2"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; type="System.Web.Security.SqlMembershipProvider, System.Web, Version=3.5.0.0, <br />			Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/&gt;<br />&nbsp; &lt;/providers&gt;<br />&lt;/membership&gt;   </pre>
+  </div>
+  <h3>強固なパスワードの検証</h3>
+  <p>正規表現は<b>CreateUserWizard</b>（ユーザーウィザード作成）制御で使用してパスワード複雑性ルールを強制することができます。 これを行うことで、Client-side ValidationとServer-side Validationの両方の利点を得られます｡ </p>
+  <p><b>CreateUserWizard</b> コントロールを介して入力されるパスワードの検証を行うには、 <b>PasswordRegularExpression</b> プロパティを次のような適切な正規表現に設定します。 しかし、メンバーシップ プロバイダーを使用してサーバ上でも類似する正規表現を設定しなければならないことに注意してください。 クライアント側のチェックを信頼すべきではありません。</p>
+  <div>
+ <pre>^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}$   </pre>
+  </div>
+  <h2>アカウント ロックアウト</h2>
+  <p>アカウント ロックアウト ポリシーを設定できます。 これを行うには、次の 2 つのプロバイダー属性を使用してください。</p>
+  <ul>
+    <li>
+      <b>maxInvalidPasswordAttempts.</b> これは、ユーザーのアカウントがロック アウトされるまでに許可されるパスワードとパスワード アンサーの失敗の試行回数を定義します。 失敗した回数がこの属性に設定した値と等しくなると、ユーザーのアカウントはロック アウトされます。 既定値は 5 です。 <li><b>passwordAttemptWindow</b> これは、パスワード入力とパスワード アンサーの失敗をトラックする時間窓を分単位で定義します。 既定値は 10 です。 </li></li>
+  </ul>
+  <p>これらの既定値により、10 分以内に 5 回ログインに失敗するとアカウントがロック アウトされます。</p>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

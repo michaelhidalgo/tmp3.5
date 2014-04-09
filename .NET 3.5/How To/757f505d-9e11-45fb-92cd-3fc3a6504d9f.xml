@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="713357244" Content_Hash="1421446029">
+  <Metadata>
+    <Id>757f505d-9e11-45fb-92cd-3fc3a6504d9f</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>最初の呼び出し元を ASP.NET クライアントから WCF に流す方法</Title>
+    <Category>なりすましと委任</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 <li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>次のステップを使用して ASP.NET クライアントからの当初の呼び出し元を WCF サービスに対して 偽装してください。</p>
+  <ol>
+    <li>WCF サービスをWindows 認証を使用するように構成してください。<li>ASP.NET アプリケーションのプロセス ID を、WCF サービスへの制約された委任を行うように構成してください。<li>WCF サービスを呼び出す時、ASP.NET の元の呼び出し元を偽装してください。<ol><pre>using System.Security.Principal;<br />…<br />protected void Button1_Click(object sender, EventArgs e)<br />{<br />    // Obtain the authenticated user's Identity and impersonate the original caller<br />    using (((WindowsIdentity)HttpContext.Current.User.Identity).Impersonate())<br />    {<br />        WCFTestService.ServiceClient myService = new WCFTestService.ServiceClient();<br />        Response.Write(myService.GetData(123) + "&lt;br/&gt;");<br />        myService.Close();<br />    }<br />}<br />…</pre></ol></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>更なる情報については<a href="http://msdn2.microsoft.com/en-us/library/ms730088.aspx">http://msdn2.microsoft.com/en-us/library/ms730088.aspxにある「Delegation and Impersonation with WCF（WCF での委任と偽装）」</a><li>詳細については、<a href="http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Web%20Application&referringTitle=How%20Tos">http://www.codeplex.com/WCFSecurityGuide/Wiki/View.aspx?title=How%20To%20-%20Impersonate%20the%20Original%20Caller%20in%20WCF%20calling%20from%20Web%20Application&referringTitle=How%20Tos にある「Web アプリケーションから呼び出すWCFで当初の呼び出し元を偽装する方法」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

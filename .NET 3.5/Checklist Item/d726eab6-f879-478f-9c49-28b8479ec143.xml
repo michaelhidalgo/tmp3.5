@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-58918762" Content_Hash="-1199167532">
+  <Metadata>
+    <Id>d726eab6-f879-478f-9c49-28b8479ec143</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>クエリ文字列にはサーバの秘密は含まれていません</Title>
+    <Category>パラメータ操作</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>機微情報が絶対にクライアントとサーバの間でクエリ文字列に含まれて送信されないようにします。</p>
+  <h1>理由</h1>
+  <p>クエリ文字列にある機微データはウェブプロキシがログ記録する場合があり、これはユーザーのブラウザの履歴、ならびにウェブサーバログにも記録されます。&nbsp; 更に、ユーザーを通して機微内容のコンテンツを送信する場合、クエリ文字列はコンテンツをユーザーによる読み取りまたはタンパリングから保護する簡単な手段を提供しません。 </p>
+  <h1>チェック方法</h1>
+  <p>以下の手順で、この問題がないかチェックしてください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>アプリケーションで使用する機微情報を特定します。 </strong>機微データの例：</p>
+      <ul>
+        <li>ユーザー Credential 情報<li>社会保障番号またはその他の識別情報<li>クレジット カード番号やその他の財務情報<li>健康情報<li>暗号化された情報の解読に使用することができる私有鍵またはその他のデータ<li>アプリケーションをより効果的に攻撃するために使用することができる、システムやアプリケーションの情報</li></li></li></li></li></li>
+      </ul>
+      <li>
+        <p>
+          <strong>クライアントとサーバの間で機微データがどのようにしてやり取りされているか確認します。 </strong>機微情報の通信および保守で最も一般的なメカニズムみは次です:</p>
+        <ul>
+          <li>Session State（セッション状態）<li>HTTP POST<li>ViewState<li>クエリ文字列にある HTTP GET</li></li></li></li>
+        </ul>
+      </li>
+    </li>
+  </ol>
+  <blockquote>
+    <p>
+      <strong>Session State（セッション状態）</strong>
+    </p>
+    <p>Session State（セッション状態）とは、ユーザー セッション中に機微情報をサーバ上に保守するために容認されているメカニズムです。&nbsp;アプリケーションがSession State（セッション状態）を使用している場合は、次のものに似たコードがあります:</p>
+ <pre>Session["SessionVarName"] = SensitiveObject.SensitiveData;</pre>
+    <p>
+      <strong>HTTP POST</strong>
+    </p>
+    <p>HTTP POST 形式でのフォーム送信による機微情報の送信は、サーバにデータを送信するために容認されているメカニズムです。&nbsp;フォーム送信が SSL により実施されていることを確認して、回線において情報が確実に保護されるようにします。 </p>
+    <p>
+      <strong>ViewState（状態表示）</strong>
+    </p>
+    <p>ViewState（状態表示）は、<strong>ViewStateEncryption</strong>が使用されている場合に機微情報を保存するために使用することができます。 デフォルトにより HMAC 完全性チェックがViewState（状態表示）に適用され、SSL は回線上で機微情報を保護することができます。&nbsp;<strong>ViewStateEncryption</strong>はローカルマシン上における機微情報の機密性を確保します。 ViewState encryption（状態表示暗号化）が適切に使用されているか確認するためには、本節の下にリンク付けされている<a name="View_State_is_Encrypted_if_it_Does_Cont">機微データが含まれている場合に状態表示を暗号化する</a>&nbsp;チェックリスト アイテムを確認します。&nbsp; </p>
+    <p>
+      <strong>クエリ文字列内の HTTP GET</strong>
+    </p>
+    <p>クエリ文字列内では HTTP GET の使用を避けます。&nbsp; 機微データを&nbsp;サーバに送信する際にアプリケーションがこの手法を使用している場合、アドレスバーおよびブラウザ履歴には次のような URL が記録されます:</p>
+ <pre>http://www.teammentorexample.com/results.asp?queryParam=SensitiveData&queryParam2=MoreSensitiveData</pre>
+  </blockquote>
+  <p />
+  <h1>修正方法</h1>
+  <p>ユーザーが機微データを送信する場合、クエリ文字列ではなく HTTP POST のフォーム フィールド経由で送信するようにします。&nbsp;データを編集する必要がある場合以外には、機微データを往復させないようにして、可能な限り問題を完全に回避するようにします。 その代わり、機微セッションデータはサーバ側に保管するようにします。 機微データをユーザー経由で送信する必要がある場合、クエリ文字列パラメータではなく暗号化された状態表示を使います。</p>
+  <p>アプリケーションが機微データをサーバに送信する際にクエリ文字列を使用する場合、次のステップにより問題を解消します:</p>
+  <ol>
+    <li>
+      <p>ユーザーが提供する機微データの取扱いには HTTP GET ではなく、HTTP POST （フォーム送信）を使用します。 これでデータがウェブプロキシやウェブサーバのログ、またはブラウザの履歴等に記録されることがなくなります。 </p>
+      <li>
+        <p>機微データはクエリ文字列パラメータとして繰返しやり取りするのではなく、サーバ側に保存します。 機微情報を守るための最善の方法はアクセスできない場所に置いておくことです。 </p>
+        <li>
+          <p>サーバ移行の際、機微データをユーザーを通して送信する必要がある場合はクエリ文字列パラメータではなく暗号化されたViewState（状態表示）で送信します。 ViewState（状態表示）は完全性および機密性を必要に応じてサポートするために設計されたものであり、ユーザーを通して送信する際に機微データが絶対に改ざんされたり公開されないようにできる最善の方法です。 </p>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>財務情報にアクセスする際には ASP.NET アプリケーションがユーザーの社会保障番号を要求します。 この情報をサーバに送信する際にフォームを使用するのではなく、アプリケーションは HTTP GET を使用して社会保障番号をクエリ文字列に入れてしまいます:</p>
+ <pre>http://www.teammentorexample.com/results.asp?SocialSecurityNum=123001234</pre>
+  <p>この実装における問題とは、機微情報（社会保障番号）がブラウザ履歴やキャッシュに残り、SSL で送信されないので回線上で保護もされないということです。</p>
+  <h1>ソリューションの例</h1>
+  <p>財務情報にアクセスする際には ASP.NET アプリケーションがユーザーの社会保障番号を要求します。 アプリケーションはフォーム ポストを使って SSL で情報をサーバに送信します。</p>
+ <pre>POST results.asp?SocialSecurityNum=123001234</pre>
+  <p>GET ではなく POST が使用されているため、ブラウザ履歴やキャッシュに残ることはありません。 SSL を使用することによって回線上で機微情報を守ることができます。</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/d81f0c17-cbda-4c73-85f2-6d2e43dec441">ガイドライン: 機微データをクエリ文字列に入れないこと</a>
+      <li>
+        <a href="/article/9b361424-e366-48b4-a45d-40d70393e987">チェックリスト項目: 機微データは表示ステータスに保存されない</a>
+        <li>
+          <a href="/article/594169a2-376f-4023-a0cb-b35ba5e703ba">チェックリスト項目: 機微データが含まれている場合には状態表示が暗号化される</a>
+        </li>
+      </li>
+    </li>
+  </ul>
+  <p />
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

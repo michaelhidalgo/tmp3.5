@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1402123676" Content_Hash="-112326447">
+  <Metadata>
+    <Id>09f08059-6ebb-4317-9ed5-016cc1abd2a7</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>SSL を使用してユーザー Credential 情報と認証 Cookie を保護する</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>Secure Sockets Layer (SSL) を使って、ブラウザとサーバ間で渡される Credential 情報と認証 Cookie を保護します。 </p>
+  <h1>理由</h1>
+  <p>SSL を使用することで、攻撃者がネットワーク接続を監視して、認証 Credential 情報を入手し、認証 Cookie を取り込んでお使いのアプリケーションになりすましのアクセスをすることをより難しくします。 </p>
+  <p>SSL は、クライアントがサーバを認証することで通信のエンドポイントを提供するので、アプリケーションにおけるユーザーの信頼を改善することもできます。</p>
+  <h1>状況</h1>
+  <p>フォームベース認証には SSL を使用すべきです。 </p>
+  <p>SSL を使用できない場合は、forms エレメント上で timeout 属性を使用してセッションの寿命を短縮してください。</p>
+  <h1>対策</h1>
+  <ol>
+    <li>
+      <p>
+        <b>認証Cookieを HTTPS 接続に制限する。 </b>Cookie は、ブラウザが Cookie をサーバへ送り返すべきかどうかを決定する「セキュアな」プロパティをサポートします。 セキュアなプロパティが設定されていれば、 Cookie は HTTPS URL を使用して、要求される安全なページにのみ送られます。</p>
+      <p>以下のように、<b>&lt;forms&gt;</b> 要素の <b>requireSSL="true"</b> を使用してセキュアなプロパティを設定してください。</p>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />       requireSSL="true" . . . /&gt;&nbsp;</pre>
+      <li>
+        <p>
+          <b>Cookie を暗号化し完全性をチェックしてください。 </b>SSL を使用している場合でも、 Cookie を暗号化し完全性をチェックしてください。 こうすることで、攻撃者は XSS エクスプロイトから Cookie を首尾よく盗み出した場合でも、 Cookie を閲覧したり改ざんしたりすることができなくなります。 この場合でも、攻撃者は Cookie を使用してお使いのアプリケーションにアクセスすることができます。 このリスクを軽減する最善策は、XSS 攻撃を防止する適切な対抗策を実装し(この章で以前「クロスサイト スクリプティング」で説明しました)、次の推奨条件で記載されているように Cookie の寿命を制限することです。</p>
+        <p>Cookie に秘密性および完全性を実現するには、以下で<b>protection</b> 属性を設定します: <b>&lt;forms&gt;</b> element as follows:</p>
+        <blockquote>
+ <pre>&lt;forms protection="All"    Privacy and integrity&nbsp;</pre>
+        </blockquote>
+        <p>安全な &lt;<b> forms </b>&gt; エレメントの構成がここに表示されています: </p>
+ <pre>&lt;forms loginUrl="Secure\Login.aspx"<br />       protection="All"<br />       requireSSL="true"<br />       timeout="00:30:00" <br />       slidingExpiration="true"<br />       name="YourAppName"<br />       path="/Secure" /&gt;</pre>
+      </li>
+    </li>
+  </ol>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <div>
+        <a href="/article/f4b36918-6de8-40a6-96d3-de9e3499c89e">ユーザー Credential 情報と認証 Cookie の保護には SSL が使用される<br /></a>
+      </div>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

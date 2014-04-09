@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1673962291" Content_Hash="-827361841">
+  <Metadata>
+    <Id>edb7f620-21a6-4599-aebd-2966c47ec2e3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>例外の詳細がクライアントに漏えいされない</Title>
+    <Category>エラー ハンドリング</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>内部アプリケーションの詳細がクライアントに送信されないことを確認してください。</p>
+  <h1>理由</h1>
+  <p>例外には、アプリケーションに関する機微な情報（例えば、コール スタック、コード片など）が含まれます。攻撃者にこのような情報を開示することは、システムへの攻撃を助けることにもつながります。</p>
+  <h1>チェック方法</h1>
+  <p>次のステップを使用して、例外の詳細がクライアントに開示されていないことを検証してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>予想されるすべての例外が取得されていることを確認します。 </strong>予想されるすべての例外が処理されていることを検証することで、実行スタックのrootに浮上するそのような例外のリスクを最小限に抑えることができます。</p>
+      <li>
+        <p>
+          <strong>グローバル例外ハンドラーが使用されていることを確認してください。 </strong>グローバル例外処理では、未処理の例外がクライアントに浮上することを阻止します。&amp;nbsp;次のコードこれを行う方法の例です：</p>
+ <pre> &lt;&amp;#37;&amp;#64; Application Language="C#" &amp;#37;&gt;<br /> &lt;&amp;#37;&amp;#64; Import Namespace="System.Diagnostics" &amp;#37;&gt;<br /> &lt;script language="C#" runat="server"&gt;<br /> void Application_Error(object sender, EventArgs e)<br /> &amp;#123;<br />     // Add the appropriate logging code<br />     Response.Write("We are sorry, but we cannot complete your request. Please try again later&amp;#33;");<br />     Server.ClearError();<br /> &amp;#125;<br /> &lt;/script&gt;</pre>
+        <li>
+          <p>
+            <strong>動的に生成されるエラーメッセージが十分に一般的であることの検証</strong>:動的に生成されるエラーメッセージは、アプリケーションの内部動作に関する詳細な情報を開示してはならず、最初にデータを適切にエンコーディングせずにユーザーが提供したデータを表示すべきではありません。</p>
+          <li>
+            <p>
+              <strong>エラーページが十分に一般的であることの検証</strong>: アプリケーションエラーページは、アプリケーションの内部動作に関する詳細情報を開示しないように設計する必要があり、最初にデータを適切にエンコーディングしないままユーザーが提供したデータを表示すべきではありません。 アプリケーションの web.config 内の<strong>customErrors</strong>エレメント１が <strong>mode （モード）</strong> 属性を <strong>On</strong> または<strong>RemoteOnly</strong>に設定していることを確認してください。 たとえば、次のようになります。</p>
+ <pre>&lt;customErrors mode="On" defaultRedirect="ErrDefault.aspx"&gt;<br /><br />    &lt;error statusCode="401" redirect="ErrUnauthorized.aspx" /&gt;<br />    &lt;error statusCode="404" redirect="ErrPageNotFound.aspx" /&gt;<br />    &lt;error statusCode="500" redirect="ErrServer.htm" /&gt;<br />&lt;/customErrors&gt; </pre>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションの開発者はデバッグ目的のため、<strong> </strong>ローカル マシンおよびリモート クライアントの両方で詳細なエラー<strong> </strong>メッセージを表示するために、 &lt;<strong>CustomErrors</strong>&gt;  エレメントの mode 属性を Off に変更します。 アプリケーションの運用が開始しても、この設定がそのまま残り、詳細なエラー メッセージがすべてのユーザーに表示されます。 サイトを調査している攻撃者は、そのエラー メッセージを目にして、アプリケーションをエクスプロイトするための十分な情報を見つけます。</p>
+  <p>
+    <strong>'c:\myapp\docs\resource.txt' パスへのアクセスが拒否されます。</strong>
+  </p>
+  <p>
+    <strong>説明: </strong>現在の Web 要求の実行中に処理されない例外が発生しました。 エラーについての詳細とコードにおける発生源については、スタックトレースを確認してください｡ </p>
+  <p>
+    <strong>例外詳細: </strong>System.UnauthorizedAccessException: 'c:\myapp\docs\resource.txt' パスへのアクセスが拒否されます。 </p>
+  <p>ASP.NET は、要求トしたリソースへのアクセスを認可されません。 ASP.NET の要求 IDに対するリソースへのアクセス権の付与を検討してください。 ASP.NET は、アプリケーションが偽装していない場合に使用されるベース プロセス ID を有します(通常は、IIS 5上の &amp;#123; MACHINE&amp;#125;\ASPNET または IIS 6 上のネットワーク サービス)。 アプリケーションが &lt;identity impersonate="true"/&gt; 経由で偽装している場合、ID は、匿名ユーザー(通常は IUSR_MACHINENAME) または 認証済みの要求 ユーザーになります。 </p>
+  <p>ASP.NET にファイルアクセスを付与するには、Explorer でファイルを右クリックし、"Properties (プロパティ)" を選び、セキュリティ タブを選択してください。 "Add(追加)" をクリックして適切なユーザーまたはグループを追加してください。 ASP.NET アカウントを反転表示し、目的のアクセス用のボックスをチェックしてください。</p>
+  <p>
+    <strong>ソースエラー: </strong>
+  </p>
+  <p>
+    <table>
+      <tbody>
+        <tr>
+          <td>&lt;CODE&gt; 未処理の例が現在の Web 要求の実行中に生成されました。 例外の発生源とロケーションに関する情報は、以下の例外スタック トレースを使用して識別できます。&lt;/CODE&gt; </td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <p>
+    <strong>スタック トレース:　</strong>
+  </p>
+  <p>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+ <pre>&amp;#91;UnauthorizedAccessException: Access to the path 'c:\myapp\docs\resource.txt' is denied.&amp;#93;<br />   System.IO.__Error.WinIOError(Int32 errorCode, String maybeFullPath) &amp;#43;2014403<br />   System.IO.FileStream.Init(String path, FileMode mode, FileAccess access, Int32 rights, Boolean useRights, FileShare share,<br />                              Int32 bufferSize, FileOptions options, SECURITY_ATTRIBUTES secAttrs, String msgPath, Boolean bFromProxy) &amp;#43;998<br />   System.IO.FileStream..ctor(String path, FileMode mode, FileAccess access, FileShare share) &amp;#43;114<br />   System.IO.File.Open(String path, FileMode mode) &amp;#43;42<br />   Crypto.TestDPAPI(FileInfo reportFile, Literal&amp; textField) &amp;#43;310<br />   _Default.Page_Load(Object sender, EventArgs e) &amp;#43;201<br />   System.Web.Util.CalliHelper.EventArgFunctionCaller(IntPtr fp, Object o, Object t, EventArgs e) &amp;#43;15<br />   System.Web.Util.CalliEventHandlerDelegateProxy.Callback(Object sender, EventArgs e) &amp;#43;34<br />   System.Web.UI.Control.OnLoad(EventArgs e) &amp;#43;99<br />   System.Web.UI.Control.LoadRecursive() &amp;#43;47<br />   System.Web.UI.Page.ProcessRequestMain(Boolean includeStagesBeforeAsyncPoint, Boolean includeStagesAfterAsyncPoint) &amp;#43;1061</pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+  <hr />
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET の customErrors エレメントについては、<a href="http://msdn2.microsoft.com/en-us/library/h0hfz6fc.aspx">customErrors エレメント(ASP.NET Settings Schema)</a> を参照してください。<li>ASP.NET でカスタム エラーの作成について学習するには、<a href="http://support.microsoft.com/kb/306355"> Visual C# .NET を用いて ASP.NET でカスタム エラーを報告するページを作成する方法</a> を参照してください。</li></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/74be8616-ad22-4d1d-a7fc-8ff3d145fc61">ガイドライン: クライアントに例外詳細を開示しない</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

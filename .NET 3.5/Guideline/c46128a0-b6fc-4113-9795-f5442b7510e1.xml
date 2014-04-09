@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1347679757" Content_Hash="-1946677464">
+  <Metadata>
+    <Id>c46128a0-b6fc-4113-9795-f5442b7510e1</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>サイトの制限区域と公共区域にパーティション化することを検討する</Title>
+    <Category>認証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>サイト全体でSSLを使用したパフォーマンスオーバーヘッドを回避するため、認証済みアクセスを必要とするページの保護に別のフォルダの使用を考慮します。 IISのフォルダがSSLアクセスを必要とするように設定します。 匿名のアクセスをサポートするページは、HTTP接続で安全にアクセスできます。</p>
+  <h1>理由</h1>
+  <p>SSLをサイト全体でしようすると大幅な性能の悪化が発生します。 暗号化または認証なしで閲覧できるページがあるサイトは、制限のあるページと制限のないページを分けパフォーマンスを向上します。 </p>
+  <h1>状況</h1>
+  <p>認証の必要なページとそうでないページなど、様々なページのあるアプリケーションには常にこの手法を使用します。 </p>
+  <h1>対策</h1>
+  <p>サイト全体で SSL を使用しなければならない状態を避けるには、認証済みアクセスを必要とするセキュアなページが、匿名でアクセス可能なページから分離したサブディレクトリに配置されるようなウェブサイトの構造にしてください。&nbsp; </p>
+  <p />
+  <b>別のサブフォルダでページをセキュアに保つ</b>
+  <ol>
+    <li>
+      <p>Microsoft の Internet Information Services（IIS）で、SSL を必要とするセキュアなフォルダを設定します。 IISメタベース内のフォルダに <b>AccessSSL=true</b>属性を設定します。 保護されているフォルダ内のページへの要求は、要求 URL に HTTPS が使用されている場合にのみ許可されます。 </p>
+      <li>
+        <p />&lt;<b>authorization</b>&gt; エレメントを使用して、認証されたユーザーだけが安全なページにアクセスできるようにしてください。 このエレメントは末尾&lt;<b>/system.web</b>&gt;の下に配置します。 <pre>&lt;!-- The secure folder is for authenticated and SSL access only. --&gt;<br />&lt;location path="Secure" &gt;<br />  &lt;system.web&gt;<br />    &lt;authorization&gt;<br />      &lt;deny users="?" /&gt;<br />    &lt;/authorization&gt;<br />  &lt;/system.web&gt;<br />&lt;/location&gt;   </pre><p />さらに、下記の構成では、未認証のユーザーにアプリケーションのroot ディレクトリ内のページへのアクセスが許可されます。 この構成をメイン &lt;<b>system.web</b>&gt; エレメントの下に配置します。<pre>&lt;system.web&gt;<br />  &lt;!-- The virtual directory root folder contains general pages.<br />       Unauthenticated users can view them and they do not need<br />        to be secured with SSL. --&gt;<br />  &lt;authorization&gt;<br />    &lt;allow users="*" /&gt;<br />  &lt;/authorization&gt;<br />&lt;/system.web&gt;   </pre><p><b>注意</b>: &nbsp;&nbsp;このタイプのサイト構成を使用する場合、アプリケーションは非SSLページ上でユーザーのアイデンティティに依存するべきではありません。 前記の構成では、非 SSL ページへの要求にForms Authenticationチケットが送信されません。 その結果、ユーザーは匿名とみなされます。 この場合、ユーザー名を必要とするパーソナライゼーションなどの関連機能に影響が及びます。<b> </b>&nbsp;</p></li>
+    </li>
+  </ol>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

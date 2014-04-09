@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="810682170" Content_Hash="583537769">
+  <Metadata>
+    <Id>56445506-9e81-4e20-8562-52d11bf7408b</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>無害なメッセージを含む一般的なエラー ページをクライアントに返す</Title>
+    <Category>例外管理</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>クライアントに返送されるエラー状況を示すカスタムエラーページの使用を避けます。 </p>
+  <h1>理由</h1>
+  <p>例外には、情報漏えいを構成するデバッグ情報が含まれています。 暗黙のうちに意図しない情報を副次的影響として提供しかねないため、カスタムエラーページには注意が必要です。&nbsp;&nbsp;</p>
+  <h1>状況</h1>
+  <p>この&nbsp;ガイドラインはアプリケーション&nbsp;からエラー ページが返された場合に適用します。 </p>
+  <h1>対策</h1>
+  <p>エラーページを標準化し、慎重にその設計やプレゼンテーションを検査して、不注意な情報漏えいを避けてください。 エラーページにデバッグ情報を表示しないでください。 詳細情報については以降の関連ガイドラインを参照してください。 </p>
+  <h1>問題の例</h1>
+  <p>次のコードを検討してください。 2種類の定義されたエラー状態が存在します：ユーザーがアプリケーションに対して有効でない、そしてユーザー名/パスワードの組合せが間違っている。</p>
+ <pre>// check<br />If(user_exists($username))<br />{<br />&nbsp;&nbsp; If(authentication_fails($username, $password))<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp; Display_error_page('username or password bad, please try again');<br />&nbsp;&nbsp; }<br />&nbsp;&nbsp; Else<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //authentication succeeded! Login normally<br />&nbsp;&nbsp; }<br />}<br />Else<br />{<br />&nbsp;&nbsp; Display_error_page('user does not exist, <br />	please &lt;a href="foobar.com/register.asp?uid='.clean($username) . '"&gt;register!&lt;/a&gt;');<br />}&nbsp; </pre>
+  <p>前述の例の開発者は賢い者でした： 使用されていないユーザー名はそのユーザー名を使った新しいアカウントとして URL と併せて登録されます。 しかし、有効なユーザー名に対して間違ったパスワードが入力された場合のエラー メッセージは全く異なるものです！ ちょっとした差ですが、しっかとした観察者であればこれによりシステム上の有効なアカウントを見つけることができるということに気付くでしょう。 </p>
+  <h1>ソリューションの例</h1>
+ <pre>// check<br />If(user_exists($username))<br />{<br />&nbsp;&nbsp; If(authentication_fails($username, $password))<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp; Display_error_page('username or password bad, please try again');<br />&nbsp;&nbsp; }<br />&nbsp;&nbsp; Else<br />&nbsp;&nbsp; {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //authentication succeeded! Login normally<br />&nbsp;&nbsp; }<br />}<br />Else<br />{<br />&nbsp;&nbsp; Display_error_page('username or password bad, please try again');<br />}</pre>
+  <p>ソリューションは意外と簡単なものです： 返すメッセージを標準的なものにして、クライアントにはエラー メッセージだけでは２つの状態のどちらであるのか見分けが付かないようにしてしまいます。</p>
+  <p>&nbsp;注記:上述のコード部分では制作品質ということではなく、パラメータ タンパリング、SQL インジェクション等を伴う他の攻撃手段があり得るということです。 前述の例はこの点を説明するためのものであり、この内容においてこれがセキュリティを提供すると解釈されるべきものではありません。&nbsp;</p>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/82840838-deed-4697-ad57-c6d1aafc9adf">customErrors Mode （カスタム エラー モード）を “ON” に設定して詳細エラー メッセージを防ぎます。</a>
+      <li>
+        <a href="/article/2e16a65a-25d2-4ea9-a513-e020d2408241">未処理の例外を捕らえるためにグローバル エラー ハンドラーを使用します</a>
+      </li>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

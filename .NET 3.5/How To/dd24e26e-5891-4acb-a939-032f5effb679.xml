@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="896862170" Content_Hash="1708742178">
+  <Metadata>
+    <Id>dd24e26e-5891-4acb-a939-032f5effb679</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>HTTP リクエスト スマグリング バグのテスト方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>テスト</Phase>
+    <Technology>Web アプリケーション</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>
+    <span>対象</span>
+  </h1>
+  <ul>
+    <li>プロキシ サーバー、キャッシュ サーバー、Web サーバー、または Web アプリケーション ファイアウォールなどの 2 つ以上のデバイスで HTTP プロトコルを使用するネットワーク。</li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>要約</span>
+  </h1>
+  <p>HTTP リクエスト スマグリング (HRS) バグは、攻撃者が脆弱な Web キャッシュ サーバーまたはアプリケーション ファイアウォールなどの HTTP エンティティやデバイスを通して HTTP リクエストを入れ込むことを可能にします。 この脆弱性は 2 つのエンティティが HTTP リクエストを構文解析する方法の相違によって存在します。 結果として、攻撃者はプロキシやファイアウォールなどの脆弱なエンティティによって検出されることない HTTP リクエストを入れ込むことができます。 攻撃者は一般的に HTTP リクエストの脆弱性を使用してファイアウォール ルールをバイパスしたり、クロスサイト スクリプティング (XSS)、Web キャッシュ ポイズニング、およびセッション ハイジャックなどの他の攻撃を実行したりします。 </p>
+  <p>これらの手順に従って、HTTP リクエスト スマグリングをテストします。</p>
+  <ul>
+    <li>手順 1: 攻撃のシナリオを理解する<li>手順 2: 原因と対策を分析する<li>手順 3: テストと調査を開始する<li>ステップ 4: テスト ケース データを微調整する</li></li></li></li>
+  </ul>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 1: 攻撃のシナリオを理解する</span>
+  </h1>
+  <p>HTTP リクエスト スマグリングの脆弱性をテストする最初の手順は、どのようにエクスプロイトされるかを理解することです。 次に一般的な HRS 攻撃のシナリオを挙げます。</p>
+  <ul>
+    <li>Web キャッシュ ポイズニング<li>ファイアウォール/IDS/IPS バイパス<li>クロスサイト リクエスト フォージェリ<b><i><span>&nbsp;</span></i></b></li></li></li>
+  </ul>
+  <h2>
+    <span>
+      <em>Web キャッシュ ポイズニング</em>
+    </span>
+  </h2>
+  <p>最初の HRS 脆弱性である Web キャッシュ ポイズニングは、2005 年に Watchfire Corporation (現在は IBM) のエンジニアによって報告されました[i]。 この脆弱性が可能な理由は、SunONE Web Server 6.1 と SunONE Proxy 3.6 が Content-Length ヘッダーを違うように解釈するからです。 HRS 攻撃は、プロキシを通して次の HTTP POST リクエストを W/S に送信することから成ります。</p>
+ <pre>
+    <span>
+      <strong>1 POST </strong>
+      <a href="http://vulnerable_site/example.html">
+        <strong>http://vulnerable_site/example.html</strong>
+      </a>
+      <strong> HTTP/1.1<br />2 Host: vulnerable_site<br />3 Connection: Keep-Alive<br />4 Content-Type: application/x-www-form-urlencoded<br />5 Content-Length: 0<br />6 Content-Length: 52<br />7 [CRLF]<br />8 GET /poison.html HTTP/1.1<br />9 Host: vulnerable_site<br />10 Poisoned!!![</strong>space after the "Poisoned!!!", but no CRLF]<br />11 GET <a href="http://vulnerable_site/target_page.html">http://vulnerable_site/target_page.html</a> HTTP/1.1<br />12 Host: vulnerable_site<br />13 Connection: Keep-Alive<br />14 [CRLF]<br /></span>
+  </pre>
+  <p>10 行目以外、改行コード/ライン入力 (CRLF) で終わっていることに注意してください。 プロキシは最初の Content-Length を無視し、2 番目 (52) を使用するため、最初の GET を POST リクエスト (1 ～ 10 行目) の一部として構文解析します。 次にそれは 2 番目の GET リクエスト (11 ～ 14 行目) を構文解析し、それを W/S に送信します。 そして、W/S は最初の Content-Length (0) を使用して、POST リクエストに本文 (1 ～ 7 行目) がないと想定します。 次に、10 行目に CRLF がないため、それは残りのデータを 1 つの GET リクエスト (8 ～ 14 行目) として構文解析します。</p>
+ <pre>
+    <span>
+      <strong>1 POST </strong>
+      <a href="http://vulnerable_site/example.html">
+        <strong>http://vulnerable_site/example.html</strong>
+      </a>
+      <strong> HTTP/1.1<br />2 Host: vulnerable_site<br />3 Connection: Keep-Alive<br />4 Content-Type: application/x-www-form-urlencoded<br />5 Content-Length: 0<br />6 Content-Length: 52<br />7 [CRLF]</strong>
+      <br />8 GET /poison.html HTTP/1.1<br />9 Host: vulnerable_site<br />10 Poisoned!!![space after the "Poisoned!!!", but no CRLF]<br />11 GET <a href="http://vulnerable_site/target_page.html">http://vulnerable_site/target_page.html</a> HTTP/1.1<br />12 Host: vulnerable_site<br />13 Connection: Keep-Alive<br />14 [CRLF]</span>
+  </pre>
+  <p>2 つのリクエストを転送するとき、プロキシは Web サーバーから 2 つのレスポンスを受信します。 <span>poison.html</span> がキャッシュ可能であることを想定した上で、プロキシは 2 番目のリクエストを poison.html へのレスポンスで target_page.htm に関連付けし、それはクライアントがターゲット ページを要求するときにキャッシュ ポイズニング攻撃を発生させます。</p>
+  <h2>
+    <span>
+      <em>ファイアウォール/IDS/IPS バイパス</em>
+    </span>
+  </h2>
+  <p>2 番目のシナリオはファイアウォール保護のバイパス、特にアプリケーション レイヤーのコンテンツに基づく、危険な URI をブロックするフィルタなどのフィルタ (cmd.exe のような潜在的なワーム ファイル名や<span>「../../」</span>のようなディレクトリ トラバーサル文字列) に関連します。 <span>&nbsp;</span>Watchfire は IIS 5.0 に影響を与え、CheckPoint FW-1 をエクスプロイトするために使用できる脆弱性を報告します。 これは <span>Content-Type</span> ヘッダーが予期される値に設定されていない場合に、IIS 5.0 が 48K を超過する本文を持つ特定のページ拡張 POST リクエスト (.asp ページの <span>application/x-www-form-urlencoded </span><span></span><span> .asp </span><span></span>など) を切り捨てることによって発生しました。</p>
+ <pre>
+    <span>
+      <strong>1 POST /any.asp HTTP/1.1<br />2 Host: vulnerable_site<br />3 Connection: Keep-Alive<br />4 Content-Length: 49223<br />5 [CRLF]<br />6 AAAA... ["A" x 49152 (48K)]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />7 POST /any.asp HTTP/1.0<br />8 Connection: Keep-Alive<br />9 Content-Length: 30<br />10 [CRLF]</strong>
+      <br />11 POST /any.asp HTTP/1.0<br />12 Bla: [space after the "Bla:", but no CRLF]<br />13 POST /any.asp?cmd.exe HTTP/1.0<br />14 Connection: Keep-Alive<br />15 [CRLF]</span>
+  </pre>
+  <p>CheckPoint は、Content-Length ヘッダーによって支持されているように、1 ～ 10 行目からの最初の POST を適切に構文解析します。 これは切り捨ての問題に影響されないため、一連の「A」の後にある最初のリクエストの構文解析を止めません。 ただし、IIS 5.0 は 6 行目で最初のリクエストを切り捨てて、7 ～ 12 行目から 2 番目の Content-Length 30 を構文解析して、最後に 13 ～ 15 行目からの悪意のある 3 番目のものを構文解析しました。</p>
+ <pre>
+    <span>
+      <strong>1 POST /any.asp HTTP/1.1<br />2 Host: vulnerable_site<br />3 Connection: Keep-Alive<br />4 Content-Length: 49223<br />5 [CRLF]<br />6 AAAA... ["A" x 49152 (48K)]</strong>
+      <br />7 POST /any.asp HTTP/1.0<br />8 Connection: Keep-Alive<br />9 Content-Length: 30<br />10 [CRLF]<br />11 POST /any.asp HTTP/1.0<br />12 Bla: [space after the "Bla:", but no CRLF]<br /><strong><em>13 POST /any.asp?cmd.exe HTTP/1.0<br />14 Connection: Keep-Alive<br />15 [CRLF]</em></strong></span>
+  </pre>
+  <p>IIS は 3 つのリクエストを解釈して処理し、CheckPoint は 2 つだけ (最後のものは見ません) を解釈します。 上記のデータの構文解析におけるこの違いは、攻撃者が HRS を介してファイアウォール フィルタをバイパスすることを可能にします。</p>
+  <h2>
+    <span>
+      <em>クロスサイト リクエスト フォージェリ</em>
+    </span>
+  </h2>
+  <p>HTTP リクエスト スマグリングは、クロスサイト リクエスト フォージェリ (CSRF) 攻撃も可能にします。 この脆弱性を使用して攻撃者は偽のリクエストを偽造し、被害者の銀行口座から送金したり、被害者が気付くことなくパスワードを変更したりなどの、悪意のあるアクションを実行することができます。 実際、リクエスト スマグリングを使用することにより、攻撃者は被害者と接することなく CSRF 攻撃を実行します。 これは被害者の現在の資格情報を使用するため、この攻撃は資格情報リクエスト ハイジャッキングとして知られています。 </p>
+  <p>この攻撃は作り上げられた攻撃リクエストをプロキシを通して Web サーバーに送信することから成ります。</p>
+ <pre>
+    <span>POST /some_script.jsp HTTP/1.0<br />Connection: Keep-Alive<br />Content-Type: application/x-www-form-urlencoded<br />Content-Length: 9<br />Content-Length: <strong>140</strong><br />this=that<strong>GET /transfer.asp?to=attackers_account&ammount=10000 HTTP/1.0<br />Content-Type: application/x-www-form-urlencoded<br />Content-Length: 0<br />Foobar:</strong></span>
+  </pre>
+  <p>目的はプロキシが Web サーバーと違うように上記のリクエストを処理するように、2 つの異なる Content-Length ヘッダーを使用することです。 プロキシはデータを 1 つの POST リクエストとして構文解析し、それを Web サーバーに転送します。 Web サーバーはそれを本分の長さが 9 の POST リクエスト、および不完全な GET リクエストとして構文解析します。 次に、クライアントがリクエストを送信すると、Web サーバーはクライアント リクエストと連結された、(スマグリングされた) 不完全な GET リクエストを処理します。 </p>
+  <p>次にクライアントが以下を送信した場合:</p>
+ <pre>
+    <span>GET /any.asp HTTP/1.0<br />Cookie: session_id =1234567890<br />Authorization: Basic dsfkoiqrgnksdf</span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>Web サーバーは次のリクエストを処理します。</p>
+ <pre>
+    <span>
+      <strong>GET /transfer.asp?to=attackers_account&ammount=10000 HTTP/1.0<br />Content-Type: application/x-www-form-urlencoded<br />Content-Length: 0<br />Foobar:</strong> GET /any.asp HTTP/1.0<br />Cookie: session_id =1234567890<br />Authorization: Basic dsfkoiqrgnksdf<br /></span>
+    <span>&nbsp;</span>
+  </pre>
+  <p>結果として、脆弱な Web サーバーはクライアントの資格情報 (被害者) を使用して、transfer.asp を呼び出します。 上記の例では、攻撃者が自分の口座に $10,000 を送金することを試行します。<span></span></p>
+  <p>&nbsp;<b><span>&nbsp;</span></b></p>
+  <h1>
+    <span>手順 2: 原因と対策を分析する</span>
+  </h1>
+  <p>HTTP リクエスト スマグリングの脆弱性をテストする次の手順は、何がそれらを発生させるか、およびそれらに対する保護方法を解析することです。 </p>
+  <h2>
+    <span>
+      <em>HTTP リクエスト スマグリングの要因</em>
+    </span>
+  </h2>
+  <p>HTTP リクエスト スマグリングは 2 つの HTTP エンティティ/デバイスが HTTP リクエストを異なるように構文解析することによって発生します。 上記のシナリオでは 2 つの Content-Length ヘッダーまたは長いリクエストの使用を伴います。 さらに、攻撃者は Transfer-Encoding: Chunked と Content-Length ヘッダーなどの他の競合するヘッダーの組み合わせを使用できます。 ファイアウォールなどの HTTP デバイスが最後のデバイスとして HTTP リクエストの構文解析に失敗した場合、攻撃者は追加のリクエストをそれに通してスマグリングし、この攻撃を実行することができます。</p>
+  <h2>
+    <span>
+      <em>HTTP リクエスト スマグリングの対策</em>
+    </span>
+  </h2>
+  <p>HTTP リクエスト スマグリングに対して保護するには、Web サービス、ファイアウォール、およびプロキシなどのすべてのネットワーク デバイスを完全にパッチする必要があります。 ベンダーは HTTP リクエスト スマグリング バグを検出するたびに、簡単にダウンロードしてインストールできるパッチをリリースします。 さらに、厳密な構文解析のオプションがある場合があります (Watchfire は特定の構成にある Apache のみに影響を与える脆弱性について言及します)。 そのため、含められたリクエストやスマグリングされたリクエストが検出されるように、常により厳密な構成で実行することが重要です。 </p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>手順 3: テストと探索の開始</span>
+  </h1>
+  <p>これで HTTP リクエスト スマグリング攻撃のシナリオについて知り、およびその要因と対策について理解したことを前提に、この手順ではそれぞれの異なるリクエスト スマグリング シナリオの特定のテスト ケースを詳述することに焦点を当てます。</p>
+  <p>
+    <b>
+      <i>
+        <span>
+        </span>
+      </i>
+    </b>
+  </p>
+  <h2>
+    <span>
+      <em>HTTP リクエスト スマグリングを通した Web キャッシュ ポイズニングのテスト</em>
+    </span>
+  </h2>
+  <p>このテストには 4 つのホスト (攻撃者、クライアント、Web サーバー、および Web キャッシュ サーバー) が必要です。 以下の手順を実行します。</p>
+  <ol>
+    <li>Web キャッシュ サーバーにネットワーク スニファをセットアップし、ネットワーク トラフィックの監視を開始します。<li>攻撃者のコンピューターから、キャッシュ サーバーを通して Web サーバーにリクエストを送信します。 最初のシナリオで見られたように、2 つの Content-Length ヘッダーを含む POST とともにターゲット ページとポイズン ページを送信します。<li>Web サーバーが元のリクエストに応答するまで待ちます。<li>クライアント コンピューターから、Web ブラウザーを開き、ターゲット ページに移動します。<li>Web キャッシュ サーバーのネットワーク トラフィックの監視を停止します。</li></li></li></li></li>
+  </ol>
+  <p>予期される結果: クライアントは元のターゲット ページを受信し、手順 4 のポイズン ページは受信しない必要があります。 さらに、ネットワーク キャプチャは、Web サーバーがポイズン ページのコンテンツで返答することを示さない必要があります。</p>
+  <h2>
+    <span>
+      <em>HTTP リクエスト スマグリングを通したファイアウォール バイパスのテスト</em>
+    </span>
+  </h2>
+  <p>このテストには 3 つのホスト (攻撃者、クライアント、Web サーバー、およびファイアウォール サーバー) が必要です。 以下の手順を実行します。</p>
+  <ol>
+    <li>ファイアウォール サーバーにネットワーク スニファをセットアップし、ネットワーク トラフィックの監視を開始します。<li>ファイアウォール サーバーで、危険な URI をフィルタで取り除くルールが有効であることを確認してください。 <li>クライアント コンピューターで、(攻撃を実行せずに) GET リクエストの使用により、危険な URI の呼び出しを試行します。 ファイアウォールはこれをブロックする必要があります。<li>攻撃者のコンピューターから、ファイアウォール サーバーを通して Web サーバーにリクエストを送信します。 2 番目のシナリオで見られたように、異なる Content-Length ヘッダーまたは長い本文を使用して危険な URI への埋め込み GET を含む POST を送信します。<li>Web サーバーがリクエストを処理するまで待ちます。<li>ファイアウォール サーバーのネットワーク トラフィックの監視を停止します。</li></li></li></li></li></li>
+  </ol>
+  <p>予期される結果: キャプチャは、Web サーバーが悪意のある URI を含む埋め込み GET を構文解析しないことを示します。 もう 1 つの可能な妥当な結果は、ファイアウォールが埋め込み GET を構文解析し、悪意のある URI を拒否することです。<b><i><span>&nbsp;</span></i></b></p>
+  <h2>
+    <span>
+      <em>HTTP リクエスト スマグリングを通したクロスサイト リクエスト フォージェリのテスト</em>
+    </span>
+  </h2>
+  <p>このテストには 4 つのホスト (攻撃者、クライアント、Web サーバー、およびプロキシ サーバー) が必要です。 以下の手順を実行します。</p>
+  <ol>
+    <li>プロキシ サーバーにネットワーク スニファをセットアップし、ネットワーク トラフィックの監視を開始します。<li>クライアントで、テスト中の Web アプリケーションにログインして、有効なCookieおよび/または認証の資格情報を取得します。<li>攻撃者のコンピューターから、2 つの Content-Length とともに作り上げたリクエストをプロキシに通してWeb サーバー、および希望のアクションを実行するページ (3 番目のシナリオで見られたように、銀行口座振替を行うページなど) に埋め込みリクエストに送信します。<li>プロキシが Web サーバーにリクエストを転送し、Web サーバーが返答するまで待ちます。 Web サーバーは元のリクエストのみに返答し、スマグリングされたものには返答しない必要があります。<li>クライアント コンピューターで、Web サーバーに任意のリクエストを行います。 これは Web サーバーによって構文解析される 2 番目 (スマグリングされた) リクエストをトリガーする必要があります。</li></li></li></li></li>
+  </ol>
+  <p>予期される結果: キャプチャは、Web サーバーが悪意のあるアクションではなく、手順 5 のクライアント リクエストに正しく返答することを示します。</p>
+  <p>
+    <b>
+      <span>&nbsp;</span>
+    </b>
+  </p>
+  <h1>
+    <span>手順 4: テスト ケース データの微調整</span>
+  </h1>
+  <p>HTTP リクエスト スマグリングの脆弱性をテストする最後の手順は、異なる攻撃方法に従ってテスト ケース データを微調整することです。</p>
+  <h2>
+    <span>
+      <em>HRS 技法に応じてテスト ケース データを微調整する</em>
+    </span>
+  </h2>
+  <p>異なる HRS 技法を理解し、それに応じてデータを調整できるようにすることは極めて重要です。 以下にあるのは、Watchfire によって示されたさまざまな技法のリストです。</p>
+  <ul>
+    <li>ダブル Content-Length ヘッダー。<li>「Transfer-Encoding: chunked」ヘッダーと Content-Length ヘッダーを組み合わせる。<li>ダブル CR。<li>Content-Length を含む GET リクエスト (逆方向スマグリング)。<li>CRLF SP CRFL トリック。<li>&gt; 48 K の本文を持つリクエストの送信。 </li></li></li></li></li></li>
+  </ul>
+  <p>これらの攻撃それぞれの効果はテストするプラットフォームによって異なります。 たとえば、Apache は IIS と違うように動作します。 そのため、テスト ケース データは各プラットフォームの特異性に合わせる必要があります。 </p>
+  <p>&nbsp;</p>
+  <h1>
+    <span>結論</span>
+  </h1>
+  <p>HTTP リクエスト スマグリングの脆弱性は、プロキシを有する Web サーバーやファイアウォールを有する Web サーバーなどの、2 つ以上の Web エンティティがある Web 環境に該当します。 <span>&nbsp;</span>アプリケーションがこの環境で存在する場合、ここに示されているテスト ケースを実行して、ネットワーク内のすべてのエンティティが HTTP リクエストを同様に構文解析することを確認する必要があります。 構文解析の不一致は、リクエスト スマグリング攻撃につながる可能性があります。 このバグを適切にテストするために、必ず攻撃シナリオ、要因、および対策について理解することに加え、異なるテスト手順を適用してください。</p>
+  <p />&nbsp;<br /><hr /><p /><div><div><p>[i] <b>HTTP リクエスト スマグリング</b>。 Chamit Linhart、Amit Klein、Ronen Heled、Steve Orrin。 Watchfire Corporation、2005。 <a href="http://www.cgisecurity.com/lib/HTTP-Request-Smuggling.pdf">www.cgisecurity.com/lib/HTTP-Request-Smuggling.pdf</a><span></span></p><p>&nbsp;</p></div></div>]]></Data>
+  </Content>
+</TeamMentor_Article>

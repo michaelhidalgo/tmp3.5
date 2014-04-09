@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="500096586" Content_Hash="-1263800125">
+  <Metadata>
+    <Id>804f793b-20e5-46e7-992a-e1607645a00a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザー管理イベントが記録されている</Title>
+    <Category>監査とログ記録</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>アプリケーションが、認証の成功と失敗、パスワードのリセット、パスワードの変更、アカウントのロックアウトを含むすべてのユーザー管理イベントをインストルメント化しているか確認します。</p>
+  <h1>理由</h1>
+  <p>ユーザー管理イベントをインストルメント化することは、潜在的に不審な動作を検出し対応するのに役立ちます。 また、それにより、アプリケーションにアクセスする人の追跡や、ユーザー アカウントのパスワードをいつリセットする必要があるかなどの操作データを収集することができます。 </p>
+  <h1>チェック方法</h1>
+  <p>ASP.NET ヘルス モニタリングは、デフォルトで多くのユーザー管理イベントをログ記録します。&nbsp;ユーザー管理イベントがアプリケーションにログ記録されていることを確実にするには、以下の手順を使用します。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ASP.NET ヘルス モニタリングがアプリケーションによって使用されていることを確認します。 </strong>マシン レベル Web.Config ファイルでは、Health Monitoring は初期設定で作動しています。</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="true"&gt;<br />  &lt;bufferModes/&gt;<br />  &lt;providers/&gt;<br />  &lt;profiles/&gt;<br />  &lt;rules/&gt;<br />  &lt;eventMappings/&gt;<br />&lt;/healthMonitoring&gt;</pre>
+      <p><strong>Enabled</strong> 属性がマシンまたはアプリケーション レベルの config ファイルで  <strong>false</strong> に設定されていれば、ヘルス モニタリングはオフになっています。&nbsp; </p>
+      <li>
+        <strong>ヘルス モニタリングルールが有効であることを確認します。 </strong>初期設定で、規則エレメントはすべてのエラーおよび失敗監査をログ記録するよう設定されています。<pre>&lt;rules&gt;<br /> &lt;add name="All Errors Default" eventName="All Errors" provider="EventLogProvider"<br />      profile="Default" minInstances="1" maxLimit="Infinite"<br />      minInterval="00:01:00" custom="" /&gt;<br /> &lt;add name="Failure Audits Default" eventName="Failure Audits"<br />      provider="EventLogProvider" profile="Default" minInstances="1"<br />      maxLimit="Infinite" minInterval="00:01:00" custom="" /&gt;<br />&lt;/rules&gt;</pre><p>規則エレメントに規則が存在しない場合、ヘルス モニタリングはいかなるイベントもログ記録しません。</p><li><p><strong>追加のデフォルト以外のユーザー管理イベントを確認してください。 </strong>次のイベントは、デフォルトではログ記録されませんが、追加情報に対してはオンにすることができます。</p><p><strong>Forms Authenticationイベント：</strong></p><p>Forms Authentication イベントにさらに情報を追加するには、以下のイベントをログ記録します。</p><ul><li><b>AuditFormsAuthenticationSuccess</b> (コード 4001): これは、正常なForms Authentication の監査証跡を維持するために使用され、Forms Authentication クラスを使用する際にシステムのセキュリティが侵害された場合には、たどり直すことが可能です。 <li><b>AuditMembershipAuthenticationSuccess</b> (コード 4002): これは、 ASP.NET メンバーシップ システムで成功した認証の監査証跡を維持するために使用され、メンバーシップ機能を使用する際にシステムのセキュリティが侵害された場合には、たどり直すことが可能です。 </li></li></ul></li></li>
+    </li>
+  </ol>
+  <blockquote>
+    <p>
+      <strong>認可イベント</strong>
+    </p>
+    <p />認可イベントにさらに情報を追加するには、以下のイベントをログ記録します。<ul><li><b>AuditFileAuthorizationSuccess</b> (コード 4004)。 これは、監査証跡を維持するために使用します。システムに不祥事が発生した場合にさかのぼって 調べれば、攻撃者が成功したすべてのファイル アクセスを特定することができます。 <li><b>AuditUrlAuthorizationSuccess</b> (コード 4003)。 これは、監査証跡を維持するために使用します。システムに不祥事が発生した場合にさかのぼって調べれば、攻撃者が成功したすべての URL およびパスへのアクセスを特定することができます。 </li></li></ul></blockquote>
+  <h1>修正方法</h1>
+  <p>アプリケーションをインストルメント化することで、パスワードのリセット、パスワードの変更、アカウントのロックアウト、ユーザー登録、および認証イベントなどのユーザー管理イベントを監視します。 これを行うことは、潜在的に不審な動作を検出し、対応するのに役立ちます。 また、例えば、アプリケーションに誰がアクセスしているかの追跡や、ユーザー アカウントのパスワードをいつリセットする必要があるかなど、 操作データの収集も可能になります。</p>
+  <p>デフォルトで、ASP.NET ヘルス モニタリングは、 ユーザー認証がメンバーシップ システムでの Forms Authentication に失敗すると、ASP.NET が取り上げるすべての <b> WebFailureAuditEvents</b> を記録します。 ASP.NET はまた、ファイル認可および URL 認可によって保護されたリソースに認可が付与されていないときに <b>WebFailureAuditEvent</b> を取り上げます。</p>
+  <p>
+    <strong>注記: </strong> クライアントからのデータが改ざんされていないことを確認するために完全性チェックを使用している場合は、ヘルス モニタリングを使って改ざんデータのインスタンスをログ記録することができます。&nbsp; 完全性チェックに関する詳細については、 <a href="http://channel9.msdn.com/wiki/default.aspx/SecurityWiki.GenerateHMacCode">メッセージ認証コード MAC (C#) を作成 を参照してください。</a></p>
+  <h1>問題の例</h1>
+  <p>ASP.NET アプリケーションは、ヘルス モニタリングをオフにしており、ユーザー管理イベントをログ記録していません：</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="false"&gt;</pre>
+  <p>悪意のある攻撃者は、Forms Authentication へ辞書攻撃を使用してアプリケーションへの道をブルート フォース（総当たり）しようとしています。 Forms Authentication の失敗はログ記録されないので、攻撃は手遅れになるまで検出されず、エクスプロイトは成功しました。</p>
+  <h1>ソリューションの例</h1>
+  <p>ASP.NET アプリケーションは以下のヘルス モニタリングをオンにしています：</p>
+ <pre>&lt;healthMonitoring heartbeatInterval="0" enabled="false"&gt;</pre>
+  <p>またデフォルトのイベント ログ記録をオンにしています：</p>
+ <pre>&lt;rules&gt;<br />&lt;add name="All Errors Default" eventName="All Errors" provider="EventLogProvider"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; profile="Default" minInstances="1" maxLimit="Infinite" <br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minInterval="00:01:00" custom="" /&gt;<br />&lt;add name="Failure Audits Default" eventName="Failure Audits"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; provider="EventLogProvider" profile="Default" minInstances="1"<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maxLimit="Infinite" minInterval="00:01:00" custom="" /&gt;<br />&lt;/rules&gt;</pre>
+  <p>悪意のある攻撃者は、Forms Authentication へ辞書攻撃を使用してアプリケーションへの道をブルート フォース（総当たり）しようとしています。 Forms Authentication の失敗はログ記録されるので攻撃は検出され、攻撃者が侵入できるようになる前に攻撃は阻止されます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>
+      <a href="http://channel9.msdn.com/wiki/default.aspx/SecurityWiki.GenerateHMacCode">メッセージ認証コード MAC (C#) の作成</a>
+    </li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/a22be7b2-d1d9-44ad-8741-c75d70d03d1c"> ユーザー管理イベントのためのアプリケーションのインストルメント化</a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

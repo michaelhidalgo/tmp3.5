@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1511839967" Content_Hash="-1128878689">
+  <Metadata>
+    <Id>7c2df051-dbf3-407d-8093-23554d59fb51</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>Windows 認証が SQL Server への接続に使用される</Title>
+    <Category>認証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>ウェブ アプリケーションを SQL Server に接続するときはできるだけ Windows 認証を使用してください。</p>
+  <h1>理由</h1>
+  <p>Windows 認証には、ベーシック SQL 認証と比べていくつかの利点があります。</p>
+  <ul>
+    <li>認証の間ネットワーク経由でCredential 情報が渡されず､データベース接続文字列にユーザー名とパスワードを埋め込む必要がありません。 ベーシック SQL 認証を使用した場合、Credential 情報は Base64 でエンコードされてネットワーク上で送信されます。 このエンコーディングは簡単にリバースすることができ、攻撃者はネットワークを監視することで Credential 情報を入手することができます。 Windows 認証を使用することでこのシナリオを防ぐことができます。 <li>Active Directory パスワード ポリシーを強制することができます。 <li>Active Directory では、単一の管理ツール セットを備えた単一の ID ストアが提供されます。 別個の SQL アカウント セットを維持する必要がありません。 <li>アカウント管理の集中化の利点が得られます｡ ユーザーアカウントは、パスワード有効期限､最小長、複数回の無効なログオン要求後のアカウント凍結のような、通常のアカウント管理セキュリティ ポリシーに従います。</li></li></li></li>
+  </ul>
+  <p>Windows 認証を使用しない場合、別個のアクセス Credential 情報セットを別個のストア内で維持する必要があり、その結果、アカウント数の増加に伴って管理者タスクおよびアカウント管理タスクが非常に複雑になるため、堅牢さが低下します。</p>
+  <h1>チェック方法</h1>
+  <p>Windows 認証には、他の認証方法と比べて、際立ったセキュリティ関連の利点があります。 Windows 認証が SQL Server への接続に使用されていることを確認するため、次の手順を実行してください。</p>
+  <ol>
+    <li>
+      <p>
+        <strong>接続文字列が設定されていることをチェックします。</strong> お使いのアプリケーションの web.config ファイルの &lt;<strong>connectionStrings</strong>&gt  セクション内に接続文字列が保存されており、接続文字列に以下のように '<strong>Trusted_Connection=Yes</strong>' 属性またはこれに相当する '<strong>Integrated Security=SSPI</strong>' 属性のいずれかが含まれていることをチェックしてください。</p>
+ <pre> &lt;connectionStrings&gt;<br />    &lt;add name="MyLocalSQLServer1"<br />        connectionString="Server=MyServer;Database=pubs;Trusted_Connection=Yes;"/&gt;<br />   &lt;add name="MyLocalSQLServer2"<br />       connectionString="Initial Catalog=pubs;<br />       data source=localhost;Integrated Security=SSPI;"<br />       providerName="System.Data.SqlClient"/&gt;<br /> &lt;/connectionStrings&gt;</pre>
+      <li>
+        <p>
+          <strong>接続文字列が暗号化されていることを確認してください。</strong> 設定ファイル内の接続文字列を暗号化することで、設定ファイルが攻撃を受けた場合でも接続文字列の機密性が保たれます。 アプリケーションが設定ファイルにアクセスしたら、アプリケーションが接続文字列を使用直前に復号する必要があります。 {&lt;<strong>connectionStrings</strong>&gt; セクションの位置を <strong>web.config</strong> 内で確認すると、次のような内容になっているはずです。</p>
+ <pre>&lt;connectionStrings&gt;<br />  &lt;EncryptedData&gt;<br />    &lt;CipherData&gt;<br />      &lt;CipherValue&gt;GHAFQEW234A21...&lt;/CipherValue&gt;<br />    &lt;/CipherData&gt;<br />  &lt;/EncryptedData&gt;<br />&lt;/connectionStrings&gt;</pre>
+        <li>
+          <p>
+            <strong>SQL Server のセキュリティが設定されていることを確認してください。</strong> アプリケーションのサービス アカウント用にSQL Server のログインが作成され、データベースにアクセスする制限付き許可がアカウントに与えられていることをチェックしてください。 直接のテーブル アクセスを与えておらず、選択されたストアド プロシージャのみにアクセスできる制限付きアクセスを与えていることを確認してください。 テーブル アクセスが必要な場合は、必要最小限のアクセスを与えていることをチェックしてください。 </p>
+          <li>
+            <p>
+              <strong>セキュリティ アクセスをテストしてください。</strong> データベース アクセスをチェックして、適切なデータベースのアクセス許可が提供され、アプリケーションの動作に不要な許可が拒否されていることを確認してください。 「<a href="/article/fab1733c-61d7-46a8-88c6-2617a643c0d9">最小限の特権付きアカウントをデータベース アクセスに使用する</a>」のガイドラインを参照してください。</p>
+          </li>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>Web アプリケーションでは、データベース サーバへの接続にベーシック SQL 認証が使用されます。 この接続は、イントラネット内ではセキュアでなく、ネットワーク内にあるユーザーによって盗聴される可能性があります。 Web アプリケーションがデータベース サーバに接続すると、攻撃者は次のデータがデータベース サーバに送信されるのに気づきます。</p>
+ <pre>RHJpdmVyPXtTUUwgU2VydmVyfTtTZXJ2ZXI9bXlTZXJ2ZXJBZ<br />GRyZXNzO0RhdGFiYXNlPW15RGF0YUJhc2U7VWlkPW15VXNlcm5hbWU7UHdkPW15UGFzc3dvcmQ7</pre>
+  <p>攻撃者はこれを Base64 エンコーディングとして認識し、非常に簡単にデコーディングすることができます。 この文字列をデコーディングすると、攻撃者には次の文字列が見えます。</p>
+ <pre>Driver=&amp;#123;SQL Server&amp;#125;;Server=myServerAddress;Database=myDataBase;Uid=myUsername;Pwd=myPassword;</pre>
+  <p>この接続文字列から、攻撃者はデータベース サーバの完全性を侵害するための十分な情報を入手することができます。</p>
+  <h1>関連ガイドライン</h1>
+  <ul>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="257597250" Content_Hash="1671188109">
+  <Metadata>
+    <Id>bf203bfc-b726-4e42-8fb3-fe0cfe02616a</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>ユーザーが指定したファイル名とパスが検証されている</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>チェックリスト項目</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>チェック対象</h1>
+  <p>少なくとも過去 3 か月間のログを復元してユーザーが提供したファイル名とパス入力が注意深く検証され、入力の形式とアプリケーションのコンテキスト内における場所の有効性がチェックされていること。</p>
+  <h1>理由</h1>
+  <p>パスとファイル名の フィルタリングは、アプリケーション&amp;nbsp;がサーバ上の任意のファイルに読み取りまたは書き込み操作を行う<a href="/article/f9f0a869-98fe-4ac5-9de3-3eaf33306c4b">正規化攻撃</a> へは、を回避することができます。</p>
+  <h1>チェック方法</h1>
+  <p>これらのチェック&amp;nbsp;を行いユーザーに提供されたファイル名とパス入力が検証されていることを確認します：</p>
+  <ol>
+    <li>
+      <p>
+        <strong>ファイル名とパスが検証されていることをチェックしてください。 </strong>セキュリティ上のベスト プラクティスは、ユーザーに提供されたファイル名またはパス入力の承諾を避けることです。 それが容易ではない場合には、入力をファイルにアクセスするために使用する前に<strong>System.IO.Path.GetFullPath</strong> メソッドを使用して入力が正規化されていることを確認します。</p>
+      <li>
+        <p>
+          <strong>アプリケーション間のマッピングを防ぐために、MapPathが使用されていることを確認してください。 </strong>ファイル アクセスをアプリケーションの仮想ディレクトリ階層に制約するには、bool パラメータを承諾する、オーバーロードされた<strong>Request.MapPath</strong> メソッド &amp;nbsp;が使用されていることを<strong> </strong>チェックします。 このメソッドは、最後のパラメータが「False」に設定されている時に仮想ディレクトリ外への横断が試みられた際に、例外をスローすることでアプリケーション間のマッピングを防ぎます。 </p>
+ <pre>try<br />&amp;#123;<br />    string mappedPath = <a href="http://msdn2.microsoft.com/en-us/library/3z2189ck(VS.80).aspx">Request.MapPath</a>( inputPath.Text,<br />     Request.ApplicationPath, false);<br />&amp;#125;<br />catch (HttpException)<br />&amp;#123;<br />    // Cross-application mapping attempted<br />&amp;#125;</pre>
+        <li>
+          <p>
+            <strong>ファイル IO を制限するために、コード アクセス セキュリティが使用されていることを確認します。 </strong>コード アクセス セキュリティを使用して、ファイルの操作をアプリケーションの仮想ディレクトリ階層に制限することもできます。 これはアプリケーションの Web.config またはマシン レベルの Machine.config ファイルの信頼レベルを「中」に設定することで実装できます。 特定のアプリケーションを構成するにはWeb.config を、また、サーバ上でホストされたすべてのアプリケーションを構成するには Machine.config を使用します。</p>
+ <pre>...<br />&lt;location allowOverride="false"&gt;<br /> &lt;system.web&gt;<br /> ...<br /> &lt;trust level="Medium" originUrl=""/&gt;<br /> ...<br /> &lt;/system.web&gt;<br /> ...<br />&lt;/location&gt;<br />...</pre>
+        </li>
+      </li>
+    </li>
+  </ol>
+  <h1>問題の例</h1>
+  <p>以下のコードの例で、サーバはユーザーからファイル名を受信します。 サーバはユーザーに提供されたファイル名をハードコードされたパスに追加し、このファイルがサーバ上に存在するかを確認します。 ファイルが存在する場合、サーバはファイルを開き、それに操作を実行します。</p>
+ <pre>&lt;&amp;#37;&amp;#64; Page Language="C#" ValidateRequest="false" &amp;#37;&gt;<br /> &lt;script runat="server"&gt;<br />   void submitBtn_Click(object sender, EventArgs e)<br />   &amp;#123;<br />             String fileName = "c:\\configfiles\\" &amp;#43; inputPath.Text;<br />       if (System.IO.File.Exists (fileName))<br />       &amp;#123;<br />            System.IO.FileStream fs = System.IO.File.Open(fileName, System.IO.FileMode.Open);<br />       &amp;#125;<br />   &amp;#125;<br /> &lt;/script&gt;<br /> &lt;html xmlns="<a href="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</a>" &gt;<br />   &lt;body&gt;<br />     &lt;form id="form1" runat="server"&gt;<br />       &lt;div&gt;<br />         &lt;asp:TextBox ID="inputPath" Runat="server"<br />              TextMode="MultiLine" Width="382px" Height="152px"&gt;<br />         &lt;/asp:TextBox&gt;<br />         &lt;asp:Button ID="submitBtn" Runat="server" Text="Submit"<br />                     OnClick="submitBtn_Click" /&gt;<br />       &lt;/div&gt;<br />     &lt;/form&gt;<br />   &lt;/body&gt;<br /> &lt;/html&gt;</pre>
+  <p>ここでは、開発者の意図が<strong>C:\ConfigFiles</strong> フォルダにアクセスを制限することだと明確に分かります。 しかし、もしユーザーが"..\windows\system32\critical.ini" の入力を提供した場合には、アプリケーションはユーザーに提供された入力とハードコードされたパスを結合し、攻撃者に重大なシステム ファイルへのアクセスを提供します。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>入力のフィルタリングに関する詳細はChannel9 Wiki の <a href="http://channel9.msdn.com/wiki/default.aspx/Channel9.HowToProtectFromInjectionAttacks">ハウツー： ASP.NET でインジェクション攻撃を防ぐ方法 を参照してください。</a></li>
+  </ul>
+  <h1>関連ガイドライン</h1>
+  <ul>
+    <li>
+      <a href="/article/ce899ba6-8ae2-4494-8706-ce863fae58e7">ガイドライン: ユーザーに提供されたファイル名とパス入力をすべてフィルタする </a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス </p>]]></Data>
+  </Content>
+</TeamMentor_Article>

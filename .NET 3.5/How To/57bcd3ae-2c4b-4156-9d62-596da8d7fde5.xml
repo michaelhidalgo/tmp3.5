@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="558771195" Content_Hash="1955709196">
+  <Metadata>
+    <Id>57bcd3ae-2c4b-4156-9d62-596da8d7fde5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>パラメーター インスペクターを用いてパラメーターを検証する方法</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology>WCF 3.5</Technology>
+    <Type>その方法</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>J.D. Meier, Jason Taylor, Prashant Bansode, Carlos Farre, Madhu Sundararajan, Rob Boucher, Steve Gregersen</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>適用対象</h1>
+  <ul>
+    <li>Microsoft® Windows Communication Foundation (WCF) 3.5 
+<li>Microsoft Visual Studio® 2008</li></li>
+  </ul>
+  <h1>説明</h1>
+  <p>以下のステップを使用して、パラメーター インスペクターでパラメーターを検証します。</p>
+  <ol>
+    <li>検証ロジックを実装するクラスを作成する。 このクラスは、<strong>IParameterInspector</strong> から派生する必要があります。クラスでは、以下の特性を保持します。
+<ul><li>これは、<strong>AfterCall()</strong> および <strong>BeforeCall()</strong> メソッドを実装します。 これらのメソッドは、検証ロジックを保持します。
+<li>サービスの一部として使用される場合、パラメーターがサービス オペレーションに送られる前に <strong>BeforeCall()</strong> が呼び出されます。 <strong>サービスが呼び出しを処理した後に AfterCall()</strong> を呼び出し、クライアントに対する応答を返します。 <strong>BeforeCall()</strong> を使用して入力パラメーターを検証し、<strong>AfterCall()</strong> を使用して出力パラメーターを検証します。
+<li>クライアントの一部として使用される場合、サービスを呼び出す前に <strong>BeforeCall()</strong> が呼び出され、サービスの応答がクライアント コードに送られる前に <strong>AfterCall()</strong> が呼び出されます。 <strong>AfterCall()</strong> を使用してサービスからの応答を検証し、<strong>BeforeCall()</strong> を使用してサービスからの返答を検証します。</li></li></li></ul><li>カスタム エンドポイント動作を実装するクラスを作成する。 このクラスは、サービスおよび/またはクライアント エンドポイントがエンドポイントの構成拡張ポイントとして使用する IEndpointBehavior から派生します。 このクラスには次のような特性があります。
+<ul><li>これは、<strong>ApplyClientBehavior()</strong> を実装して <strong>ParamaterInspector</strong> をクライアント オペレーションに追加し、Client-side Validation を有効にします。 
+<li>これは、<strong>ApplyDispatchBehavior()</strong> を実装して <strong>ParamaterInspector</strong> をディスパッチ オペレーションに追加し、Service-side Validation を有効にします。 
+<li>ParameterInspector をクライアントまたはディスパッチ ラン タイムに追加する前に、それが構成において有効化されていることを検証します。</li></li></li></ul><li>カスタム構成エレメントを実装するクラスを作成します。 このクラスは <strong>BehaviorExtensionElement</strong> から派生しています。このクラスは、動作エレメント拡張として WCF にあるエンドポイント構成を明らかにし、サービスにおいてそれをエンドポイント動作構成として使用することができます。 このクラスには&nbsp;以下の特性があります。
+<ul><li>これは <strong>CreateBehavior()</strong> を実装し、<strong>ValidationBehavior</strong> クラスのインスタンスを作成します。 
+<li>これは、<strong>BehaviorType()</strong> を実装して <strong>ValidationBehavior</strong> 型を返します。 これにより、カスタム動作がサービスまたはクライアント構成セクションにおいて明らかにします。</li></li></ul><li>カスタム動作を構成ファイルに追加します。カスタム動作エレメントを動作エレメント拡張アイテムに追加し、エンドポイント動作がそれを使用できるようにします。 アセンブリを閲覧してカスタム動作である種類を選択することにより、構成ツールを使用してそれを構成ファイルに追加します。
+<li>エンドポイント動作を作成し、それをマップしてカスタム動作を使用します。 パラメーター インスペクターを実装するアセンブリが提供するカスタム動作拡張ポイントを使用するためには、エンドポイント動作を作成します。
+<li>サービス エンドポイントを構成してエンドポイント動作を使用します。 エンドポイントを構成して、パラメーター インスペクターを使用するエンドポイント動作を使用します。</li></li></li></li></li></li>
+  </ol>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>詳細については、<a href="http://msdn.microsoft.com/en-us/library/ms733747.aspx?wt.svl=overview">http://msdn.microsoft.com/en-us/library/ms733747.aspx?wt.svl=overview の「パラメーターの検査または修正方法」を参照してください。</a><li>詳細については、<a href="http://msdn.microsoft.com/en-us/library/aa717047.aspx">http://msdn.microsoft.com/en-us/library/aa717047.aspx の「メッセージ インスペクター」を参照してください。</a></li></li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

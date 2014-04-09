@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1038304500" Content_Hash="676936577">
+  <Metadata>
+    <Id>a7c46576-d513-4086-9e2d-67a9673ed8f3</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>機微データをシリアル化しない</Title>
+    <Category>シリアル化</Category>
+    <Phase>実装</Phase>
+    <Technology>.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority />
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<h1>行うべき事柄</h1>
+  <p>クラスをシリアル化する必要があり、機微データを含む場合､機微データを含むフィールドのシリアル化は避ける｡ <b>ISerializable</b> を実装してシリアル化動作を制御するか、または機微データが含まれている各フィールドを [<b>NonSerialized</b>] 属性でデコレートしてください。 </p>
+  <h1>理由</h1>
+  <p>シリアル化では、多くの場合はデータをネットワーク上で送信するための準備として、データがメモリ内に置かれ、攻撃者がデータにアクセスしやすくなるため、この操作は重要です。</p>
+  <h1>状況</h1>
+  <p>.NET のリモート処理境界(すなわちアプリケーションのドメイン､プロセス､またはコンピュータ)を超えて値でオブジェクトをマーシャルする必要がある場合､またはファイル システム上のストレージ等のためにオブジェクト状態を持続させてフラット データ ストリームを作成できるようにしたい場合。</p>
+  <h1>対策</h1>
+  <p>デフォルトで、すべてのプライベート フィールドおよびパブリック フィールドがシリアル化されています。 </p>
+  <p>次の例に、<b>[NonSerialized]</b> 属性を使用して、機微データが含まれている特定のフィールドをシリアル化できないようにする方法を示します。</p>
+ <pre>[Serializable]<br />public class Employee {<br />&nbsp; // OK for name to be serialized<br />&nbsp; private string name;<br />&nbsp; // Prevent salary being serialized<br />&nbsp; [NonSerialized] private double annualSalary;<br />&nbsp; . . . <br />}</pre>
+  <p>あるいは、<b>ISerializable</b> インターフェイスを実装して、シリアル化のプロセスを明示的に制御してください。 1 つ以上の機微データ項目をシリアル化しなければいけない場合は、最初にデータの暗号化を行うことを検討してください。 オブジェクトをデシリアライズするコードは、復号鍵にアクセスできるものでなければいけません。</p>
+  <h1>&nbsp;</h1>
+  <hr />
+  <p>出典: Microsoft patterns & practices guidance</p>]]></Data>
+  </Content>
+</TeamMentor_Article>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="1755240153" Content_Hash="237349837">
+  <Metadata>
+    <Id>0e42f173-1bae-4c59-b1a5-b265642c95da</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>リフレクション インジェクション攻撃</Title>
+    <Category>入力とデータの検証</Category>
+    <Phase>実装</Phase>
+    <Technology> 任意</Technology>
+    <Type>攻撃</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>2</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <br />
+  <h1>適用先</h1>
+  <p>.NET アプリケーション、Java アプリケーション、およびリフレクションをサポートするその他の言語で書かれたアプリケーション。</p>
+  <h1>説明</h1>
+  <p>リフレクションとは、API が提供するプログラミング技法であり、クラス定義自体をオブジェクトとして扱えます。プログラマーはコンストラクター、メソッド、インターフェイス、フィールドなどのクラス メンバーを実行時に表示ししたり変更したりできます。 しばしば、クラス ブラウザーや GUI デザイナーなどの開発ツールで利用されます。 しかしながら、実行時にオブジェクトを操作するために、信頼されていないユーザー入力を使用する場合、インジェクションが可能になります。 攻撃者は使用されるクラスを表示したり、変更したりできます。任意のコードを実行できる場合もあります。 </p>
+  <h1>影響</h1>
+  <ul>
+    <li>任意のコードの実行<li>セキュリティ管理のバイパス</li></li>
+  </ul>
+  <h1>脆弱性</h1>
+  <ul>
+    <li>入力を検証しなかったこと<li>名前だけに基づくライブラリの検証<li>外部入力に基づくライブラリの読み込み</li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <ul>
+    <li>入力を制約する:ユーザーから受けるあらゆる入力に対して、厳密な ホワイトリスト スタイルの入力チェックを実施します。 <li>署名付きの証明書: 厳密に署名されたアセンブリのみを利用します。このチェックを合格した場合にのみ、クラスを読み込みます。</li></li>
+  </ul>
+  <h1>例</h1>
+  <p>この攻撃の一般的な例としては、攻撃者が、インスタンス化される予定だったものと同じインターフェイスを実装するが、安全性がより低いクラスの名前を入手するコードを注入するというものです。 次の Java コードでは、ユーザーが入力した型を定義する文字列に基づき HTTP 接続が確立され、使用されます。 </p>
+  <pre>import java.lang.reflect.&amp;#42;;<br />import java.net.&amp;#42;;<br />class ExampleReflection<br /> &amp;#123;<br />   public static void main(String&amp;#91;&amp;#93; args)<br /> &amp;#123;<br />&amp;#9;String mycon = "HttpsUrlConnection";<br />         // HttpsUrlConnection is a string provided by the user in some manner<br />      &amp;#9;URLConnection c = (URLConnection)createConnection(mycon);<br />        c.connect();<br />   &amp;#125;<br />   static Object createConnection(String name)<br /> &amp;#123;<br />      &amp;#9;Object object = null;<br />     &amp;#9;try &amp;#123;<br />        &amp;#9;Class classdef = Class.forName(name);<br />          &amp;#9;object = classdef.newInstance();<br />&amp;#9;&amp;#125;<br /> catch (InstantiationException e)<br /> &amp;#123;<br />          &amp;#9;System.out.println(e);<br />      &amp;#9;&amp;#125;<br /> catch<br /> (IllegalAccessException e)<br /> &amp;#123;<br />          &amp;#9;System.out.println(e);<br />      &amp;#9;&amp;#125;<br /> catch (ClassNotFoundException e)<br /> &amp;#123;<br />          &amp;#9;System.out.println(e);<br />    &amp;#9;&amp;#125;<br />      return object;   <br />&amp;#125;<br />&amp;#125;</pre>
+  <p>それでは、攻撃者が文字列「mycon」に、 "HttpsUrlConnection" ではなく "HttpUrlConnection" を注入できると想定します。 すると、SSL の安全な接続ではなく、安全でない接続が構築され、保護されていない状態でデータが送信されます。 HttpUrlConnection と HttpsUrlConnection のいずれも UrlConnection を実装するため、アプリケーションには違いがわかりません。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>リフレクション インジェクションに関する詳細は、<a href="http://www.owasp.org/index.php/Reflection_injection">OWASP リフレクション インジェクション</a>の記事を参照してください。 <li>Java リフレクションに関する詳細は、<a href="http://java.sun.com/docs/books/tutorial/reflect/index.html">Java リフレクション文書</a>を参照してください。<li>.NET リフレクションに関する詳細は、<a href="http://msdn.microsoft.com/msdnmag/issues/07/06/CLRInsideOut/default.aspx">リフレクションに関する考察</a>を参照してください。</li></li></li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+  </ul>]]></Data>
+  </Content>
+</TeamMentor_Article>

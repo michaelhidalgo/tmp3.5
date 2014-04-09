@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TeamMentor_Article Metadata_Hash="-1843266725" Content_Hash="1761611510">
+  <Metadata>
+    <Id>d6ae90bf-1b44-4a89-b22e-55ea97e52ba5</Id>
+    <Library_Id>92718d53-36b2-47bc-b6f5-e60994385f46</Library_Id>
+    <Title>すべての出力データをエンコードする</Title>
+    <Category>入力/データ検証</Category>
+    <Phase>設計</Phase>
+    <Technology>ASP.NET 3.5</Technology>
+    <Type>ガイドライン</Type>
+    <DirectLink />
+    <Tag />
+    <Security_Demand />
+    <Author />
+    <Priority>1</Priority>
+    <Status />
+    <Source>SI</Source>
+  </Metadata>
+  <Content Sanitized="true" DataType="Html">
+    <Data><![CDATA[<br />
+  <h1>行うべき事柄</h1>
+  <p>最初にデータを検証またはエンコーディングせずに、ユーザーへ入力をエコー バックしないこと。 ユーザーによる変更が可能な \Data は信頼されていないデータとして取扱うようにしてください。</p>
+  <h1>理由</h1>
+  <p>入力を直接ユーザーへエコー バックすると、アプリケーションが <a href="/article/8049f087-514e-4f31-b587-c83f466547d3">クロスサイト スクリプティング攻撃</a> のような一部のコード インジェクション 攻撃に脆弱になります。悪意のある入力がどのようなものであるかは、システムにより大きく異なります。 ウェブ上では、通常JavaScriptの一種を指します。</p>
+  <h1>状況</h1>
+  <p>ユーザーが支給したデータをウェブページにエコーする場合。 このような入力の発信元としては様々な発信元が考えられ、それには次のものが含まれます:</p>
+  <ul>
+    <li>フォーム フィールド<li>クエリー文字列<li>データベース<li>Cookie<li>セッションおよびアプリケーション変数</li></li></li></li></li>
+  </ul>
+  <h1>対策</h1>
+  <p>ユーザー入力または共有データベースまたは信頼できないローカルファイルからのデータを含む出力を書き出す場合、それをエンコードします。 ユーザーへ入力を直接エコー バックすることは、他の問題よりとりわけ、アプリケーションにクロスサイト スクリプティングに対する脆弱性をもたらします。 データをエンコーディングすることで、スクリプトではなくリテラルテキストとして扱われます。 ASP.NET では、<strong>Server.HtmlEncode</strong> 機能がクロスサイト スクリプティング攻撃に対する防御に使用されます。 しかし、この機能は&lt;&gt;"&amp; 文字列は可能性の有る全ての攻撃に対しては不十分なものです。例えば、次の ASP.NET コードは脆弱性があります。</p>
+ <pre>&lt;img id='img&lt;&amp;#37;=Server.HtmlEncode(Request.QueryString&amp;#91;"userId"&amp;#93;) &amp;#37;&gt;' src='/image.gif' /&gt;</pre>
+  <p>攻撃者は次の位置に userId を設定するすることによって、クライアント側のスクリプトを挿入することができます:</p>
+ <pre>' onload=alert('xss') alt='</pre>
+  <p>最も安全なソリューションはすべての非英数字をエンコードすることです。 この種のホワイトリスト ソリューションのみが、コンテキストに関わらずすべての潜在的なXSS攻撃を捕えます。 処理時間や結果として出来上がってくる HTML のサイズといったような全体的なオーバーヘッドをより多く必要としますが、全ての HTML コンテンツのエンコーディング メカニズムとしては最も安全なものです。</p>
+ <pre>public static string HtmlEncode(string x)<br />&amp;#123;<br />  if (x == null)<br />  &amp;#123;<br />    return x;<br />  &amp;#125;<br />  return Regex.Replace(x, "&amp;#91;&amp;#94;a-zA-Z0-9&amp;#93;&amp;#43;", new MatchEvaluator(WebUtility.EncodeMatch));<br />&amp;#125;</pre>
+  <p>データが埋め込まれる各コンテキストで似たようなエンコーディングが必要となり、それには最低 HTML エンコーディング、URL エンコーディング、JavaScript エンコーディングが含まれます。 許している全ての文字が問題を起こさないことをまず最初に確認しておき、その後これらのホワイトリストをこれらのコンテキストで徐々に拡張することができますが、充分と注意する必要があります。 ホワイトリストの代わりにブラックリストを使用するようなことは絶対にあってはなりません。</p>
+  <p>ホワイトリスト エンコーディング アプローチは <a href="http://www.microsoft.com/downloads/details.aspx?familyid=9a2b9c92-7ad9-496c-9a89-af08de2e5982&amp;displaylang=en">Microsoft Anti-Cross Site Scripting Library</a>で使用されている方法です。Anti-Cross Site Scripting Library を使用している場合、<strong>Microsoft.Security.ApplicationAntiXSSLibrary.HtmlEncode</strong> メソッドを使用できます。 似たように、URL を入力する際にも、それが入力データまたは共有データベースのデータ等から構成されたもので安全ではない文字が含まれている可能性がありますので、それらも安全にするために <strong>Microsoft.Security.ApplicationAntiXSSLibrary.UrlEncode</strong>方法を使用してください。 </p>
+  <p>
+    <strong>注記:</strong> データはクライアントに返す直前にエンコードしたりしないようにしてください。 それよりも前にエンコードを行った場合、データが使用される正確なコンテキスト、すなわちエンコード先のフォーマットが不明になることがあります。 また、一部のデータでは、早い段階でエンコーディングを行うと二重エンコーディングの問題が生じることがあります。</p>
+  <p>
+    <strong> ASP.NET HTML エンコーディングの制約</strong>:</p>
+  <p>上記の Server.HTMLEncode に関わる件以外にも、ASP.NET デフォルト エンコーディングにはいくつかの課題があります。 具体的に、多くの ASP.NET 制御は（場合によってはオプションとして）特定数のエンコーディングを提供しますが、これは現実の世界における攻撃を防ぐには足りません。 自分のエンコーディングを適用する際には、このエンコーディングを考慮して、コーディングの課題が重複しないように注意してください。 次に ASP.NET 制御によるエンコード データの制御方法の概要を説明します:</p>
+  <table>
+    <tbody>
+      <tr>
+        <th>制御</th>
+        <th>エンコーディング</th>
+      </tr>
+      <tr>
+        <td>リテラル（直定数）</td>
+        <td>デフォルト: なしモード = LiteralMode.Encode: HTML</td>
+      </tr>
+      <tr>
+        <td>ラベル</td>
+        <td>なし</td>
+      </tr>
+      <tr>
+        <td>ボタン</td>
+        <td>テキスト: 属性</td>
+      </tr>
+      <tr>
+        <td>リンクボタン</td>
+        <td>なし</td>
+      </tr>
+      <tr>
+        <td>画像ボタン</td>
+        <td>画像 URL: URL、属性</td>
+      </tr>
+      <tr>
+        <td>ハイパーリンク</td>
+        <td>テキスト: なし ナビゲーション URL: URL（BLOCKED SCRIPTプロトコルが使用されていない場合）、属性</td>
+      </tr>
+      <tr>
+        <td>テキストボックス</td>
+        <td>1行テキストボックス（入力の種類 = “text”）: なし　複数行テキストボックス: HTML</td>
+      </tr>
+      <tr>
+        <td>ドロップダウンリストおよびリストボックス</td>
+        <td>値: 属性　表示 テキスト: HTML</td>
+      </tr>
+      <tr>
+        <td>チェックボックスおよびチェックボックスリスト</td>
+        <td>値: 未使用　表示テキスト: なし</td>
+      </tr>
+      <tr>
+        <td>ラジオボタンおよびラジオボタン リスト</td>
+        <td>値: 属性　表示テキスト: なし</td>
+      </tr>
+      <tr>
+        <td>テーブル</td>
+        <td>なし</td>
+      </tr>
+      <tr>
+        <td>データグリッド</td>
+        <td>テキスト列: なし　ハイパーリンク列: ハイパーリンク制御として</td>
+      </tr>
+      <tr>
+        <td>検証コントロール（基本検証コントロール サブクラス）およびValidationSummary （検証要約）</td>
+        <td>表示テキスト: なし　クライアント スクリプト検証コントロール エラーおよびヘッダー: JavaScript サーバ側検証エラーおよびヘッダー: なし</td>
+      </tr>
+      <tr>
+        <td>非表示フィールド</td>
+        <td>値: 属性</td>
+      </tr>
+      <tr>
+        <td>グリッド表示および詳細表示</td>
+        <td>テキスト フィールド HtmlEncode = True (デフォルト): HTML テキスト フィールド HtmlEncode = False: なし　パーリンク フィールド: ハイパーリンク制御として</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>
+    <strong>注記:</strong> 上記の全てのエンコーディング方法は安全ではなく、ブラックリストを元としたシステムのものです。 これらには XSS 攻撃を止められるようなものは一つもありません。</p>
+  <h1>問題の例</h1>
+  <p>次の例では、ウェブページがユーザーが提出した場合は推薦を受付け、同じページに追加の推薦内容を表示し、他のユーザーにも提供できるようにその写しをアプリケーションのデータベースに保存します。</p>
+ <pre>&lt;&amp;#37;&amp;#64;Page clienttarget="downlevel" &amp;#37;&gt;<br />&lt;html&gt;<br />&lt;body&gt;<br />&lt;script language="C#" runat="server"&gt;void btnSubmit_Click(Object Sender, EventArgs E)<br />&amp;#123;<br />    //show new te3stimonial to current user<br /><strong>lblTestimonials.Text &amp;#43;= "&lt;br/&gt;" &amp;#43; txtTestimonial.Text;<br /></strong>    //also store lblTestimonials.Text in server database for other users<br />&amp;#125;<br />&lt;/script&gt;<br />&lt;form id="Form1" runat="server"&gt;<br />    &lt;asp:TextBox ID="txtTestimonial" runat="server" Rows="5" Height="102px" Width="298px"&gt;&lt;/asp:TextBox&gt;<br />    &lt;br /&gt;<br />    &lt;asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" CausesValidation="False"/&gt;<br />    &lt;br /&gt;<br />    &lt;asp:Label ID="lblTestimonials" runat="server" Height="102px" Width="297px"&gt;<br />&lt;/asp:Label&gt;<br />&lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <p>このページではユーザー支給の値である<strong>txtTestimonial.Text</strong>の出力をエンコードしないため、悪意のあるユーザーの入力によりクロスサイトスクリプト攻撃をかけられる可能性があります。</p>
+  <p>
+    <strong>注記:</strong> ASP.NET が要求認証をデフォルトで有効にしているため単純な XSS 攻撃はこのウェブページに効果がないものの、より複雑な攻撃は成功してしまいます。 この問題の詳細は、ここを参照してください: <a href="/article/8b79f29d-0962-440b-9099-f5bd0688ce1b">要求検証に依存しない</a>。</p>
+  <h1>ソリューションの例</h1>
+  <p>ユーザー支給のデータは出力データを構成する前にエンコードする必要があります。 上記の通り、 <strong>Server.HtmlEncode</strong> 方法の使用だけでは足りません。 そのため、下記の例では弊社の HtmlEncode 方法を使用しています。</p>
+ <pre>&lt;&amp;#37;&amp;#64;Page clienttarget="downlevel" &amp;#37;&gt;<br />&lt;html&gt;<br />&lt;body&gt;<br />&lt;script language="C#" runat="server"&gt;<br />  public static string <strong>HtmlEncode</strong>(string x)<br />  &amp;#123;<br />    if (x == null)<br />    &amp;#123;<br />        return x;<br />    &amp;#125;<br />    return Regex.Replace(x, "&amp;#91;&amp;#94;a-zA-Z0-9&amp;#93;&amp;#43;", new MatchEvaluator(WebUtility.EncodeMatch));<br />  &amp;#125;<br />  void btnSubmit_Click(Object Sender, EventArgs E)<br />  &amp;#123;<br />      //show new te3stimonial to current user<br /><strong>lblTestimonials.Text &amp;#43;= "&lt;br/&gt;" &amp;#43; HtmlEncode (txtTestimonial.Text);<br /></strong>      //also store lblTestimonials.Text in server database for other users<br />  &amp;#125;<br />&lt;/script&gt;&lt;form id="Form1" runat="server"&gt;<br />    &lt;asp:TextBox ID="txtTestimonial" runat="server" Rows="5" Height="102px" Width="298px"&gt;&lt;/asp:TextBox&gt;<br />    &lt;br /&gt;<br />    &lt;asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" CausesValidation="False"/&gt;<br />    &lt;br /&gt;<br />    &lt;asp:Label ID="lblTestimonials" runat="server" Height="102px" Width="297px"&gt;&lt;/asp:Label&gt;<br />&lt;/form&gt;<br />&lt;/body&gt;<br />&lt;/html&gt;</pre>
+  <p>攻撃者が悪意のある入力を送信した場合、それはエンコードされて、結果はクライアントに反映されて返されるので XSS 攻撃を防ぐことができます。</p>
+  <h1>その他のリソース</h1>
+  <ul>
+    <li>ASP.NET エンコーディングの制約に関する更なる情報については、<a href="http://msmvps.com/blogs/calinoiu/archive/2006/06/13/102957.aspx">http://msmvps.com/blogs/calinoiu/archive/2006/06/13/102957.aspx</a>を参照してください。</li>
+  </ul>
+  <h1>関連する項目</h1>
+  <ul>
+    <li>
+      <a href="/article/d898d2a2-f20a-45bb-b232-6713cb618de8">チェックリスト アイテム: 出力データは全てエンコードします </a>
+    </li>
+  </ul>
+  <hr />
+  <p>出典: Microsoft Patterns &amp; Practices ガイダンス</p>]]></Data>
+  </Content>
+</TeamMentor_Article>
